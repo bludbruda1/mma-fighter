@@ -3,16 +3,19 @@ import "./App.css";
 import {
   AppBar,
   Card,
+  CardContent,
   CardMedia,
   Container,
   CssBaseline,
   Grid,
   Paper,
+  Table,
   Toolbar,
   Typography,
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import connor from "./images/connormc.png";
+import dustin from "./images/dustinpo.png";
 
 const App = () => {
   return (
@@ -46,7 +49,13 @@ const App = () => {
               of running the show.
             </Typography>
             <div>
-              <Grid container spacing={60} justify="center" gutterTop>
+              <Grid
+                container
+                rowSpacing={1}
+                columnSpacing={55}
+                justify="center"
+                gutterTop
+              >
                 <Grid item>
                   <Paper elevation={3}>
                     <Card>
@@ -56,6 +65,12 @@ const App = () => {
                         image={connor}
                         alt="fighter 1"
                       />
+                      <CardContent>
+                        <Typography variant="body2">
+                          Name: Connor McGregor
+                        </Typography>
+                        <Typography variant="body2">Record: 1-0-0</Typography>
+                      </CardContent>
                     </Card>
                   </Paper>
                 </Grid>
@@ -65,9 +80,15 @@ const App = () => {
                       <CardMedia
                         component="img"
                         height="280"
-                        image={connor}
+                        image={dustin}
                         alt="fighter 2"
                       />
+                      <CardContent>
+                        <Typography variant="body2">
+                          Name: Dustin Poirier
+                        </Typography>
+                        <Typography variant="body2">Record: 1-0-0</Typography>
+                      </CardContent>
                     </Card>
                   </Paper>
                 </Grid>
