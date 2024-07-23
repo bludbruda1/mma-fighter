@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import {
   AppBar,
+  Button,
   Card,
   CardContent,
   CardMedia,
@@ -9,7 +10,6 @@ import {
   CssBaseline,
   Grid,
   Paper,
-  Table,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -29,7 +29,10 @@ const App = () => {
       </AppBar>
       <main>
         <div>
-          <Container maxWidth="md" style={{ marginTop: "100px" }}>
+          <Container
+            maxWidth="md"
+            style={{ marginTop: "50px", marginBottom: "20px" }}
+          >
             <Typography
               variant="h2"
               align="center"
@@ -48,6 +51,11 @@ const App = () => {
               you create your own world of fighting and provides an experience
               of running the show.
             </Typography>
+            <Grid container spacing={2} sx={{ justifyContent: "center" }}>
+              <Grid item>
+                <Button variant="contained">Generate fight</Button>
+              </Grid>
+            </Grid>
             <div>
               <Grid
                 container
@@ -70,6 +78,10 @@ const App = () => {
                           Name: Connor McGregor
                         </Typography>
                         <Typography variant="body2">Record: 1-0-0</Typography>
+                        <Typography variant="body2">Age: 30</Typography>
+                        <Typography variant="body2">
+                          Nationality: Irish
+                        </Typography>
                       </CardContent>
                     </Card>
                   </Paper>
@@ -88,6 +100,10 @@ const App = () => {
                           Name: Dustin Poirier
                         </Typography>
                         <Typography variant="body2">Record: 1-0-0</Typography>
+                        <Typography variant="body2">Age: 28</Typography>
+                        <Typography variant="body2">
+                          Nationality: American
+                        </Typography>
                       </CardContent>
                     </Card>
                   </Paper>
