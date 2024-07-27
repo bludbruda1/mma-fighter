@@ -1,0 +1,23 @@
+[
+    {
+        "personid": 1,
+        "firstname": "Connor",
+        "lastname": "McGregor",
+        "hometown": "Dublin",
+        "nationality": "Ireland 🇮🇪",
+        "wins": 0,
+        "losses": 0,
+        "image": "/assets/images/connormc.png"
+
+    },
+    {
+        "personid": 2,
+        "firstname": "Dustin",
+        "lastname": "Porier",
+        "hometown": "Texas",
+        "nationality": "America 🇺🇸",
+        "wins": 0,
+        "losses": 0,
+        "image": "/assets/images/dustinpo.png"
+    }
+]
