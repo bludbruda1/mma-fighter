@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import FighterCard from "./components/FighterCard";
-import TableFighter from "./components/TableFighter";
 import SelectFighter from "./components/SelectFighter";
 
 const App = () => {

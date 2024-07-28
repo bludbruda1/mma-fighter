@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Box, Modal, Typography } from "@mui/material";
 import TableFighter from "./TableFighter";
-import JsonData from "../fighters.json";
 
 const style = {
   position: "absolute",
