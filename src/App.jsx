@@ -11,7 +11,8 @@ import {
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import FighterCard from "./components/FighterCard";
-import SelectFighter from "./components/SelectFighter";
+import Selects from "./components/Selects";
+import SelectComponent from "./components/Selecting";
 
 const App = () => {
   return (
@@ -52,7 +53,7 @@ const App = () => {
                 <Button variant="contained">Generate fight</Button>
               </Grid>
               <Grid item>
-                <SelectFighter />
+                <SelectComponent />
               </Grid>
             </Grid>
             <div>
