@@ -10,9 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
-import FighterCard from "./components/FighterCard";
-import TableFighter from "./components/TableFighter";
-import SelectFighter from "./components/SelectFighter";
+import Select from "./components/Select";
 
 const App = () => {
   return (
@@ -52,9 +50,6 @@ const App = () => {
               <Grid item>
                 <Button variant="contained">Generate fight</Button>
               </Grid>
-              <Grid item>
-                <SelectFighter />
-              </Grid>
             </Grid>
             <div>
               <Grid
@@ -64,9 +59,11 @@ const App = () => {
                 justify="center"
               >
                 <Grid item>
-                  <FighterCard />
+                  <Select />
                 </Grid>
-                <Grid item></Grid>
+                <Grid item>
+                  <Select />
+                </Grid>
               </Grid>
             </div>
           </Container>

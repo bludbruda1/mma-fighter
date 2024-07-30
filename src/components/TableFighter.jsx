@@ -9,17 +9,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
-function createData(
-  firstname: string,
-  lastname: string,
-  wins: number,
-  losses: number,
-  nationality: string,
-  hometown: string
-) {
-  return { firstname, lastname, wins, losses, nationality, hometown };
-}
-
 export default function TableFighter() {
   return (
     <TableContainer component={Paper}>
