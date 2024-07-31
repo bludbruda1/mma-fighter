@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import JsonData from "../fighters.json";
-
+import React from "react";
 import {
   Box,
   Card,
@@ -14,44 +12,24 @@ import {
   Typography,
 } from "@mui/material";
 
-export default function BasicSelect() {
-  const [fighter, setFighter] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
-
-  useEffect(() => {
-    // Fetch the JSON data from the file
-    fetch("/fighters.json")
-      .then((response) => response.json())
-      .then((jsonData) => setFighter(jsonData))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
-
-  const handleChange = (event) => {
-    const selectedId = Number(event.target.value);
-    const selected = fighter?.find((x) => x.personid === selectedId);
-    setSelectedItem(selected);
-    console.log(selected);
-  };
-
+const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
   return (
     <>
-      <Box sx={{ minWidth: 120, m: 2 }} gutterBottom>
+      <Box sx={{ minWidth: 120, m: 2 }}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Fighter</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={fighter}
+            value={selectedItem ? selectedItem.personid : ""}
             label="Fighter"
-            onChange={handleChange}
+            onChange={onSelectChange}
           >
-            {JsonData
-              ? JsonData.map((info) => (
-                  <MenuItem key={info.personid} value={info.personid}>
-                    {info.firstname} {info.lastname}
-                  </MenuItem>
-                ))
-              : null}
+            {fighters.map((info) => (
+              <MenuItem key={info.personid} value={info.personid}>
+                {info.firstname} {info.lastname}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
@@ -63,7 +41,7 @@ export default function BasicSelect() {
                 component="img"
                 height="280"
                 image={selectedItem.image}
-                alt="fighter 1"
+                alt="fighter"
               />
               <CardContent>
                 <Typography variant="body2">
@@ -85,4 +63,6 @@ export default function BasicSelect() {
       )}
     </>
   );
-}
+};
+
+export default BasicSelect;
