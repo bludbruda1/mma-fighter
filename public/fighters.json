@@ -7,6 +7,11 @@
         "nationality": "Ireland 🇮🇪",
         "wins": 0,
         "losses": 0,
+        "compositeRating": {
+            "output": 0.6,
+            "kicking": 0.5,
+            "striking": 0.7
+          },
         "image": "/assets/images/connormc.png"
 
     },
@@ -18,6 +23,11 @@
         "nationality": "America 🇺🇸",
         "wins": 0,
         "losses": 0,
+        "compositeRating": {
+            "output": 0.6,
+            "kicking": 0.5,
+            "striking": 0.7
+          },
         "image": "/assets/images/dustinpo.png"
     },
     {
@@ -28,6 +38,11 @@
         "nationality": "Nigerian 🇳🇬",
         "wins": 0,
         "losses": 0,
+        "compositeRating": {
+            "output": 0.6,
+            "kicking": 0.5,
+            "striking": 0.7
+          },
         "image": "/assets/images/izzy.png"
     }
 ]
