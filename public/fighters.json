@@ -19,5 +19,15 @@
         "wins": 0,
         "losses": 0,
         "image": "/assets/images/dustinpo.png"
+    },
+    {
+        "personid": 3,
+        "firstname": "Israel",
+        "lastname": "Adesanya",
+        "hometown": "Texas",
+        "nationality": "Nigerian 🇳🇬",
+        "wins": 0,
+        "losses": 0,
+        "image": "/assets/images/izzy.png"
     }
 ]
