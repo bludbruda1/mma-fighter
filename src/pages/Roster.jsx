@@ -1,5 +1,5 @@
-// Roster.jsx
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -10,14 +10,12 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Box,
 } from "@mui/material";
 
 const Roster = () => {
   const [fighters, setFighters] = useState([]);
 
   useEffect(() => {
-    // Fetch the JSON data from the file
     fetch("/fighters.json")
       .then((response) => response.json())
       .then((jsonData) => {
@@ -27,7 +25,10 @@ const Roster = () => {
   }, []);
 
   return (
-    <Container maxWidth="lg" style={{ marginTop: "50px" }}>
+    <Container
+      maxWidth="lg"
+      style={{ marginTop: "50px", marginBottom: "50px" }}
+    >
       <Typography variant="h2" align="center" gutterBottom>
         MMA Fighter Roster
       </Typography>
@@ -40,30 +41,30 @@ const Roster = () => {
               <TableCell>Nationality</TableCell>
               <TableCell>Hometown</TableCell>
               <TableCell>Record</TableCell>
-              <TableCell>Output</TableCell>
-              <TableCell>Kicking</TableCell>
-              <TableCell>Striking</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {fighters.map((fighter) => (
               <TableRow key={fighter.personid}>
                 <TableCell>{fighter.personid}</TableCell>
-                <TableCell>{`${fighter.firstname} ${fighter.lastname}`}</TableCell>
+                <TableCell>
+                  <Link
+                    to={`/dashboard/${fighter.personid}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    {`${fighter.firstname} ${fighter.lastname}`}
+                  </Link>
+                </TableCell>
                 <TableCell>{fighter.nationality}</TableCell>
                 <TableCell>{fighter.hometown}</TableCell>
                 <TableCell>
                   {fighter.wins}W-{fighter.losses}L
                 </TableCell>
-                <TableCell>{fighter.compositeRating.output}</TableCell>
-                <TableCell>{fighter.compositeRating.kicking}</TableCell>
-                <TableCell>{fighter.compositeRating.striking}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ height: "50px" }} />
     </Container>
   );
 };
