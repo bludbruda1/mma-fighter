@@ -154,12 +154,32 @@ const FightScreen = () => {
             </Typography>
             <Grid container spacing={2} sx={{ justifyContent: "center" }}>
               <Grid item>
-                <Button variant="contained" onClick={handleFight}>
+                <Button
+                  variant="contained"
+                  onClick={handleFight}
+                  sx={{
+                    backgroundColor: "rgba(33, 33, 33, 0.9)", // Dark grey background with slight transparency
+                    color: "#fff", // White text color for contrast
+                    "&:hover": {
+                      backgroundColor: "rgba(33, 33, 33, 0.7)", // Slightly lighter dark grey on hover
+                    },
+                  }}
+                >
                   Generate fight
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="contained" onClick={handleDialogOpen}>
+                <Button
+                  variant="contained"
+                  onClick={handleDialogOpen}
+                  sx={{
+                    backgroundColor: "rgba(33, 33, 33, 0.9)", // Dark grey background with slight transparency
+                    color: "#fff", // White text color for contrast
+                    "&:hover": {
+                      backgroundColor: "rgba(33, 33, 33, 0.7)", // Slightly lighter dark grey on hover
+                    },
+                  }}
+                >
                   View Fight Summary
                 </Button>
               </Grid>

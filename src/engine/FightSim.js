@@ -1,4 +1,3 @@
-"use strict";
 // from https://github.com/zengm-games/zengm/blob/master/src/worker/core/GameSim.basketball/index.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.simulateAction =
@@ -8,8 +7,8 @@ exports.simulateAction =
   exports.doKick =
   exports.probKick =
     void 0;
-const ROUND_CLOCK = 300; //5 min rounds, will want this to be customisable in the future
-const ROUND_NUMBER = 3; //Again customisable as a main event/championship should be 5 rounds
+// const ROUND_CLOCK = 300; //5 min rounds, will want this to be customisable in the future
+// const ROUND_NUMBER = 3; //Again customisable as a main event/championship should be 5 rounds
 // pick the fighter to do something
 const pickFighter = (fighters, lastActionFighter) => {
   let ratios = [
