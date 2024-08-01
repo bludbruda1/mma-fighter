@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Box,
 } from "@mui/material";
 
 const Roster = () => {
@@ -28,7 +29,7 @@ const Roster = () => {
   return (
     <Container maxWidth="lg" style={{ marginTop: "50px" }}>
       <Typography variant="h2" align="center" gutterBottom>
-        Fighters Roster
+        MMA Fighter Roster
       </Typography>
       <TableContainer component={Paper}>
         <Table>
@@ -36,7 +37,6 @@ const Roster = () => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell>Age</TableCell>
               <TableCell>Nationality</TableCell>
               <TableCell>Hometown</TableCell>
               <TableCell>Record</TableCell>
@@ -50,7 +50,6 @@ const Roster = () => {
               <TableRow key={fighter.personid}>
                 <TableCell>{fighter.personid}</TableCell>
                 <TableCell>{`${fighter.firstname} ${fighter.lastname}`}</TableCell>
-                <TableCell>{fighter.age}</TableCell>
                 <TableCell>{fighter.nationality}</TableCell>
                 <TableCell>{fighter.hometown}</TableCell>
                 <TableCell>
@@ -64,6 +63,7 @@ const Roster = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box sx={{ height: "50px" }} />
     </Container>
   );
 };
