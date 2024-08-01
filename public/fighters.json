@@ -44,5 +44,110 @@
             "striking": 0.7
           },
         "image": "/assets/images/izzy.png"
-    }
+    },
+    {
+      "personid": 4,
+      "firstname": "Jon",
+      "lastname": "Jones",
+      "hometown": "New York",
+      "nationality": "America 🇺🇸",
+      "wins": 0,
+      "losses": 0,
+      "compositeRating": {
+          "output": 0.6,
+          "kicking": 0.5,
+          "striking": 0.7
+        },
+      "image": "/assets/images/jonj.png"
+  },
+  {
+    "personid": 5,
+    "firstname": "Chuck",
+    "lastname": "Liddell",
+    "hometown": "California",
+    "nationality": "America 🇺🇸",
+    "wins": 0,
+    "losses": 0,
+    "compositeRating": {
+        "output": 0.6,
+        "kicking": 0.5,
+        "striking": 0.7
+      },
+    "image": "/assets/images/chuck.png"
+},
+{
+  "personid": 6,
+  "firstname": "Quinten",
+  "lastname": "Jackson",
+  "hometown": "Tennessee",
+  "nationality": "America 🇺🇸",
+  "wins": 0,
+  "losses": 0,
+  "compositeRating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7
+    },
+  "image": "/assets/images/rampage.png"
+},
+{
+  "personid": 7,
+  "firstname": "Anderson",
+  "lastname": "Silva",
+  "hometown": "Sao Paulo",
+  "nationality": "Brazil 🇧🇷",
+  "wins": 0,
+  "losses": 0,
+  "compositeRating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7
+    },
+  "image": "/assets/images/silvaa.png"
+},
+{
+  "personid": 8,
+  "firstname": "Forrest",
+  "lastname": "Griffin",
+  "hometown": "Nevada",
+  "nationality": "America 🇺🇸",
+  "wins": 0,
+  "losses": 0,
+  "compositeRating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7
+    },
+  "image": "/assets/images/griffinf.png"
+},
+{
+  "personid": 9,
+  "firstname": "Alex",
+  "lastname": "Pereira",
+  "hometown": "Sao Paulo",
+  "nationality": "Brazil 🇧🇷",
+  "wins": 0,
+  "losses": 0,
+  "compositeRating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7
+    },
+  "image": "/assets/images/alexp.png"
+},
+{
+  "personid": 10,
+  "firstname": "Robert",
+  "lastname": "Whittaker",
+  "hometown": "Sydney",
+  "nationality": "Australia 🇦🇺",
+  "wins": 0,
+  "losses": 0,
+  "compositeRating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7
+    },
+  "image": "/assets/images/robw.png"
+}
 ]
