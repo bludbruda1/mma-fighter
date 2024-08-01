@@ -39,9 +39,13 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
             <Card>
               <CardMedia
                 component="img"
-                height="280"
+                sx={{
+                  height: 280, // Adjust the height as needed
+                  width: "100%", // Ensures the image spans the width of the Card
+                  objectFit: "contain", // Ensures the entire image fits within the CardMedia without distortion
+                }}
                 image={selectedItem.image}
-                alt="fighter"
+                alt={`${selectedItem.firstname} ${selectedItem.lastname}`}
               />
               <CardContent>
                 <Typography variant="body2">
