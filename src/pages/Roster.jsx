@@ -13,8 +13,10 @@ import {
 } from "@mui/material";
 
 const Roster = () => {
+  // handles the state of the fighters in an array
   const [fighters, setFighters] = useState([]);
 
+  // grabsthe fighters from the fighters.json file
   useEffect(() => {
     fetch("/fighters.json")
       .then((response) => response.json())

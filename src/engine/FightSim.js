@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+// export each action so that we can use them as logged events for displaying in the Fight Summary
 exports.displayFightStats =
   exports.simulateFight =
   exports.doLegKick =
@@ -41,6 +42,7 @@ const probKick = (kickingRating, kickDefence) => {
 };
 exports.probKick = probKick;
 
+// perofrming the kick action with an attacker and defender parameter
 const doKick = (attacker, defender) => {
   console.log(`${attacker.name} throws a kick at ${defender.name}`);
   const probability = (0, exports.probKick)(
@@ -78,6 +80,7 @@ const probPunch = (strikingRating, strikingDefence) => {
 };
 exports.probPunch = probPunch;
 
+// perofrming the punch action with an attacker and defender parameter
 const doPunch = (attacker, defender) => {
   console.log(`${attacker.name} throws a punch at ${defender.name}`);
   const probability = (0, exports.probPunch)(
