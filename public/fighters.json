@@ -1,33 +1,362 @@
 [
-    {
-        "personid": 1,
-        "firstname": "Connor",
-        "lastname": "McGregor",
-        "hometown": "Dublin",
-        "nationality": "Ireland 🇮🇪",
-        "wins": 0,
-        "losses": 0,
-        "image": "/assets/images/connormc.png"
-
+  {
+    "personid": 1,
+    "firstname": "Connor",
+    "lastname": "McGregor",
+    "hometown": "Dublin",
+    "nationality": "Ireland 🇮🇪",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/connormc.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
     },
-    {
-        "personid": 2,
-        "firstname": "Dustin",
-        "lastname": "Porier",
-        "hometown": "Texas",
-        "nationality": "America 🇺🇸",
-        "wins": 0,
-        "losses": 0,
-        "image": "/assets/images/dustinpo.png"
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
     },
-    {
-        "personid": 3,
-        "firstname": "Israel",
-        "lastname": "Adesanya",
-        "hometown": "Texas",
-        "nationality": "Nigerian 🇳🇬",
-        "wins": 0,
-        "losses": 0,
-        "image": "/assets/images/izzy.png"
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 80,
+      "kickTendency": 20,
+      "legKickTendency": 0
     }
+  },
+  {
+    "personid": 2,
+    "firstname": "Dustin",
+    "lastname": "Poirier",
+    "hometown": "Texas",
+    "nationality": "America 🇺🇸",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/dustinpo.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 50,
+      "kickTendency": 10,
+      "legKickTendency": 40
+    }
+  },
+  {
+    "personid": 3,
+    "firstname": "Israel",
+    "lastname": "Adesanya",
+    "hometown": "Auckland",
+    "nationality": "Nigeria 🇳🇬",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/izzy.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 70,
+      "kickTendency": 25,
+      "legKickTendency": 5
+    }
+  },
+  {
+    "personid": 4,
+    "firstname": "Jon",
+    "lastname": "Jones",
+    "hometown": "New York",
+    "nationality": "America 🇺🇸",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/jonj.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 60,
+      "kickTendency": 30,
+      "legKickTendency": 10
+    }
+  },
+  {
+    "personid": 5,
+    "firstname": "Chuck",
+    "lastname": "Liddell",
+    "hometown": "California",
+    "nationality": "America 🇺🇸",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/chuck.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 90,
+      "kickTendency": 10,
+      "legKickTendency": 0
+    }
+  },
+  {
+    "personid": 6,
+    "firstname": "Quinten",
+    "lastname": "Jackson",
+    "hometown": "Tennessee",
+    "nationality": "America 🇺🇸",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/rampage.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 70,
+      "kickTendency": 20,
+      "legKickTendency": 10
+    }
+  },
+  {
+    "personid": 7,
+    "firstname": "Anderson",
+    "lastname": "Silva",
+    "hometown": "Sao Paulo",
+    "nationality": "Brazil 🇧🇷",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/silvaa.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 60,
+      "kickTendency": 30,
+      "legKickTendency": 10
+    }
+  },
+  {
+    "personid": 8,
+    "firstname": "Forrest",
+    "lastname": "Griffin",
+    "hometown": "Nevada",
+    "nationality": "America 🇺🇸",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/griffinf.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 55,
+      "kickTendency": 30,
+      "legKickTendency": 15
+    }
+  },
+  {
+    "personid": 9,
+    "firstname": "Alex",
+    "lastname": "Pereira",
+    "hometown": "Sao Paulo",
+    "nationality": "Brazil 🇧🇷",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/alexp.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 65,
+      "kickTendency": 25,
+      "legKickTendency": 10
+    }
+  },
+  {
+    "personid": 10,
+    "firstname": "Robert",
+    "lastname": "Whittaker",
+    "hometown": "Sydney",
+    "nationality": "Australia 🇦🇺",
+    "wins": 0,
+    "losses": 0,
+    "image": "/assets/images/robw.png",
+    "maxHealth": 100,
+    "currentHealth": 100,
+    "Rating": {
+      "output": 0.6,
+      "kicking": 0.5,
+      "striking": 0.7,
+      "legKickOffence": 0.5,
+      "kickDefence": 0.5,
+      "strikingDefence": 0.5
+    },
+    "stats": {
+      "punchesLanded": 0,
+      "kicksLanded": 0,
+      "significantPunchesLanded": 0,
+      "significantKicksLanded": 0,
+      "legKicksLanded": 0,
+      "legKicksChecked": 0,
+      "punchesBlocked": 0,
+      "kicksBlocked": 0
+    },
+    "roundsWon": 0,
+    "Tendency": {
+      "punchTendency": 50,
+      "kickTendency": 40,
+      "legKickTendency": 10
+    }
+  }
 ]
