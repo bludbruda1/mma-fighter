@@ -2,6 +2,14 @@ import React from "react";
 import { Container, Typography, Grid, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+const fadeIn = {
+  animation: "fadeIn 1.5s ease-out", // Duration and easing for the fade-in effect
+  "@keyframes fadeIn": {
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+  },
+};
+
 const Home = () => {
   const navigate = useNavigate();
 
@@ -44,10 +52,10 @@ const Home = () => {
         }}
       />
       <Container maxWidth="md" sx={{ position: "relative", zIndex: 2 }}>
-        <Typography variant="h2" gutterBottom>
+        <Typography variant="h2" gutterBottom sx={fadeIn}>
           MMA Fighter
         </Typography>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom sx={fadeIn}>
           Welcome to MMAFighter, a combat sport simulation game that lets you
           create your own world of fighting and provides an experience of
           running the show.
@@ -66,6 +74,7 @@ const Home = () => {
               variant="contained"
               onClick={handleViewRoster}
               sx={{
+                ...fadeIn,
                 backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
                 color: "#000", // Text color
                 "&:hover": {
@@ -81,6 +90,7 @@ const Home = () => {
               variant="contained"
               onClick={handleGetStarted}
               sx={{
+                ...fadeIn,
                 backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
                 color: "#000", // Text color
                 "&:hover": {
