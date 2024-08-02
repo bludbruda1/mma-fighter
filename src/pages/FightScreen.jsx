@@ -1,4 +1,3 @@
-// FightScreen.jsx
 import React, { useState, useEffect } from "react";
 import "../App.css";
 import {
@@ -15,7 +14,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import Select from "../components/Select";
-import { pickFighter, simulateAction } from "../engine/FightSim";
+import { simulateFight } from "../engine/FightSim";
 
 const FightScreen = () => {
   const [fighters, setFighters] = useState([]);
@@ -30,14 +29,8 @@ const FightScreen = () => {
     fetch("/fighters.json")
       .then((response) => response.json())
       .then((jsonData) => {
-        // Add wins and losses to each fighter
-        const updatedFighters = jsonData.map((fighter) => ({
-          ...fighter,
-          wins: fighter.wins || 0,
-          losses: fighter.losses || 0,
-        }));
-        setFighters(updatedFighters);
-        console.log("Fetched fighters:", updatedFighters); // Debugging line
+        setFighters(jsonData);
+        console.log("Fetched fighters:", jsonData); // Debugging line
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -56,65 +49,99 @@ const FightScreen = () => {
 
   const handleFight = () => {
     if (selectedItem1 && selectedItem2) {
+      const validateFighter = (fighter) => {
+        console.log("Validating fighter:", fighter); // Debugging line
+        return {
+          ...fighter,
+          Rating: {
+            output: Number(fighter.Rating.output) || 0,
+            kicking: Number(fighter.Rating.kicking) || 0,
+            striking: Number(fighter.Rating.striking) || 0,
+            legKickOffence: Number(fighter.Rating.legKickOffence) || 0,
+            kickDefence: Number(fighter.Rating.kickDefence) || 0,
+            strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
+          },
+          stats: {
+            punchesLanded: Number(fighter.stats.punchesLanded) || 0,
+            kicksLanded: Number(fighter.stats.kicksLanded) || 0,
+            punchesBlocked: Number(fighter.stats.punchesBlocked) || 0,
+            kicksBlocked: Number(fighter.stats.kicksBlocked) || 0,
+            significantPunchesLanded:
+              Number(fighter.stats.significantPunchesLanded) || 0,
+            significantKicksLanded:
+              Number(fighter.stats.significantKicksLanded) || 0,
+            legKicksLanded: Number(fighter.stats.legKicksLanded) || 0,
+            legKicksChecked: Number(fighter.stats.legKicksChecked) || 0,
+          },
+          currentHealth: Number(fighter.currentHealth) || 100,
+          maxHealth: Number(fighter.maxHealth) || 100,
+        };
+      };
+
       const opponents = [
-        {
+        validateFighter({
           id: selectedItem1.personid,
           name: `${selectedItem1.firstname} ${selectedItem1.lastname}`,
-          age: 30,
-          strikePace: 100,
-          compositeRating: {
-            output: selectedItem1.compositeRating.output,
-            kicking: selectedItem1.compositeRating.kicking,
-            striking: selectedItem1.compositeRating.striking,
-          },
-          stat: {},
-          skills: ["punching", "kicking"],
-          health: 100,
-        },
-        {
+          maxHealth: selectedItem1.maxHealth,
+          currentHealth: selectedItem1.currentHealth,
+          Rating: selectedItem1.Rating,
+          stats: selectedItem1.stats,
+          roundsWon: selectedItem1.roundsWon,
+          Tendency: selectedItem1.Tendency,
+        }),
+        validateFighter({
           id: selectedItem2.personid,
           name: `${selectedItem2.firstname} ${selectedItem2.lastname}`,
-          age: 28,
-          strikePace: 1,
-          compositeRating: {
-            output: selectedItem2.compositeRating.output,
-            kicking: selectedItem2.compositeRating.kicking,
-            striking: selectedItem2.compositeRating.striking,
-          },
-          stat: {},
-          skills: ["punching", "kicking"],
-          health: 100,
-        },
+          maxHealth: selectedItem2.maxHealth,
+          currentHealth: selectedItem2.currentHealth,
+          Rating: selectedItem2.Rating,
+          stats: selectedItem2.stats,
+          roundsWon: selectedItem2.roundsWon,
+          Tendency: selectedItem2.Tendency,
+        }),
       ];
 
-      let fightOver = false;
-      const events = [];
-      let lastActionFighter;
-      while (!fightOver) {
-        const selectedFighter = pickFighter(opponents, lastActionFighter);
-        fightOver = simulateAction(opponents, selectedFighter, events);
-        lastActionFighter = selectedFighter;
-      }
-      console.log(opponents); // Display the final health of both fighters
+      // Debugging log
+      console.log("Fighters set for the fight:", opponents);
 
-      const winner = opponents[0].health > 0 ? selectedItem1 : selectedItem2;
-      const loser = winner === selectedItem1 ? selectedItem2 : selectedItem1;
+      const fightEvents = [];
+      const logEvent = (event) => {
+        fightEvents.push(event);
+      };
 
-      const updatedFighters = fighters.map((fighter) => {
-        if (fighter.personid === winner.personid) {
-          return { ...fighter, wins: fighter.wins + 1 };
-        } else if (fighter.personid === loser.personid) {
-          return { ...fighter, losses: fighter.losses + 1 };
+      console.log = (function (oldLog) {
+        return function (message) {
+          oldLog.apply(console, arguments);
+          logEvent(message);
+        };
+      })(console.log);
+
+      const result = simulateFight(opponents);
+
+      if (result !== null) {
+        const winnerFighter = opponents[result];
+        const loserFighter = opponents[result === 0 ? 1 : 0];
+
+        if (winnerFighter && loserFighter) {
+          const updatedFighters = fighters.map((fighter) => {
+            if (fighter.personid === winnerFighter.id) {
+              return { ...fighter, wins: (fighter.wins || 0) + 1 };
+            } else if (fighter.personid === loserFighter.id) {
+              return { ...fighter, losses: (fighter.losses || 0) + 1 };
+            } else {
+              return fighter;
+            }
+          });
+
+          setFighters(updatedFighters);
+          setFightEvents(fightEvents);
+          setWinnerMessage(`${winnerFighter.name} wins the fight!`);
         } else {
-          return fighter;
+          setWinnerMessage("Error: Unable to determine winner or loser.");
         }
-      });
-
-      setFighters(updatedFighters);
-      setFightEvents(events);
-      setWinnerMessage(
-        `${winner.firstname} ${winner.lastname} wins the fight!`
-      );
+      } else {
+        setWinnerMessage("Error: Invalid fight result.");
+      }
     } else {
       setWinnerMessage("Please select both fighters to start the fight.");
     }
@@ -150,7 +177,7 @@ const FightScreen = () => {
               color="textSecondary"
               gutterBottom
             >
-              Select 2 fighters to have a 1 outs and see who the victor will be.
+              Select 2 fighters to have a 1 out and see who the victor will be.
             </Typography>
             <Grid container spacing={2} sx={{ justifyContent: "center" }}>
               <Grid item>

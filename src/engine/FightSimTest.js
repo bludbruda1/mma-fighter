@@ -1,39 +1,65 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const FightSim_1 = require("./FightSim");
 const fighters = [
-    {
-        id: 1,
-        name: "Conor McGregor",
-        age: 30,
-        stikePace: 100,
-        compositeRating: {
-            output: 0.6,
-            kicking: 0.5,
-            striking: 0.7,
-        },
-        stat: {},
-        skills: ["punching", "kicking"],
-        health: 100,
+  {
+    id: 1,
+    name: "Conor McGregor",
+    age: 28,
+    strikePace: 60,
+    Rating: {
+      output: 80,
+      kicking: 70,
+      striking: 85,
+      kickDefence: 50,
+      strikingDefence: 50,
+      legKickOffence: 50,
+      legKickDefence: 50,
     },
-    {
-        id: 2,
-        name: "Dustin Porier",
-        age: 28,
-        stikePace: 1,
-        compositeRating: {
-            output: 0.4,
-            kicking: 0.3,
-            striking: 0.6,
-        },
-        stat: {},
-        skills: ["punching", "kicking"],
-        health: 100,
+    Tendency: { punchTendency: 80, kickTendency: 20, legKickTendency: 0 },
+    skills: ["Boxing", "Muay Thai"],
+    maxHealth: 500,
+    currentHealth: 500,
+    stats: {
+      punchesLanded: 0,
+      kicksLanded: 0,
+      punchesBlocked: 0,
+      kicksBlocked: 0,
+      significantPunchesLanded: 0,
+      significantKicksLanded: 0,
+      legKicksLanded: 0,
+      legKicksChecked: 0,
     },
+    roundsWon: 0,
+  },
+  {
+    id: 2,
+    name: "Dustin Poirier",
+    age: 30,
+    strikePace: 55,
+    Rating: {
+      output: 75,
+      kicking: 80,
+      striking: 75,
+      kickDefence: 50,
+      strikingDefence: 50,
+      legKickOffence: 50,
+      legKickDefence: 50,
+    },
+    Tendency: { punchTendency: 50, kickTendency: 10, legKickTendency: 40 },
+    skills: ["Kickboxing", "Wrestling"],
+    maxHealth: 500,
+    currentHealth: 500,
+    stats: {
+      punchesLanded: 0,
+      kicksLanded: 0,
+      punchesBlocked: 0,
+      kicksBlocked: 0,
+      significantPunchesLanded: 0,
+      significantKicksLanded: 0,
+      legKicksLanded: 0,
+      legKicksChecked: 0,
+    },
+    roundsWon: 0,
+  },
 ];
-let fightOver = false;
-while (!fightOver) {
-    const selectedFighter = (0, FightSim_1.pickFighter)(fighters);
-    fightOver = (0, FightSim_1.simulateAction)(fighters, selectedFighter);
-}
-console.log(fighters); // Display the final health of both fighters
+const winner = (0, FightSim_1.simulateFight)(fighters);

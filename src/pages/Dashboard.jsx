@@ -113,9 +113,11 @@ const Dashboard = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Record</TableCell>
-                  <TableCell>Output</TableCell>
                   <TableCell>Kicking</TableCell>
                   <TableCell>Striking</TableCell>
+                  <TableCell>Leg Kick Offense</TableCell>
+                  <TableCell>Kick Defence</TableCell>
+                  <TableCell>Striking Defence</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -123,9 +125,11 @@ const Dashboard = () => {
                   <TableCell>
                     {fighter.wins}W-{fighter.losses}L
                   </TableCell>
-                  <TableCell>{fighter.compositeRating.output}</TableCell>
-                  <TableCell>{fighter.compositeRating.kicking}</TableCell>
-                  <TableCell>{fighter.compositeRating.striking}</TableCell>
+                  <TableCell>{fighter.Rating.kicking}</TableCell>
+                  <TableCell>{fighter.Rating.striking}</TableCell>
+                  <TableCell>{fighter.Rating.legKickOffence}</TableCell>
+                  <TableCell>{fighter.Rating.kickDefence}</TableCell>
+                  <TableCell>{fighter.Rating.strikingDefence}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
