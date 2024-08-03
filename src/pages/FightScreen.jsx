@@ -71,6 +71,7 @@ const FightScreen = () => {
             kicking: Number(fighter.Rating.kicking) || 0,
             striking: Number(fighter.Rating.striking) || 0,
             legKickOffence: Number(fighter.Rating.legKickOffence) || 0,
+            legKickDefence: Number(fighter.Rating.legKickDefence) || 0,
             kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
           },
