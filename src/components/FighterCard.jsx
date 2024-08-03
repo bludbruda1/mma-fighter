@@ -2,8 +2,10 @@ import React from "react";
 import { Card, CardContent, CardMedia, Paper, Typography } from "@mui/material";
 import JsonData from "../fighters.json";
 
+// FighterCard component used to display the fighter image, name, record and nationality.
 export default function FighterCard() {
   return (
+    // JsonData.map loops through the fighters.json file and display the fighter info on the card.
     <div>
       {JsonData &&
         JsonData.map((info) => {

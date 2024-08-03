@@ -17,11 +17,20 @@ import Select from "../components/Select";
 import { simulateFight } from "../engine/FightSim";
 
 const FightScreen = () => {
+  // stores the state of the fighters from fighters.json in an array ready for consumption
   const [fighters, setFighters] = useState([]);
+
+  // Handles the state for both selects on this page as seprate fighters for e.g. fighterA and fighterB
   const [selectedItem1, setSelectedItem1] = useState(null);
   const [selectedItem2, setSelectedItem2] = useState(null);
+
+  // stores the state of the winning message and how the fighter won e.g. FighterA wins by Knockout!
   const [winnerMessage, setWinnerMessage] = useState("");
+
+  // handles the state for the fight events that occur during a fight e.g punch, kick etc.
   const [fightEvents, setFightEvents] = useState([]);
+
+  // handles the state of the View Fight Summary modal to tell us whether it is open or not
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -35,19 +44,23 @@ const FightScreen = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
+  // Grabs the fighter info for the fighter that has been selected for the first select component
   const handleSelectChange1 = (event) => {
     const selectedId = Number(event.target.value);
     const selected = fighters.find((x) => x.personid === selectedId);
     setSelectedItem1(selected);
   };
 
+  // Grabs the fighter info for the fighter that has been selected for the second select component
   const handleSelectChange2 = (event) => {
     const selectedId = Number(event.target.value);
     const selected = fighters.find((x) => x.personid === selectedId);
     setSelectedItem2(selected);
   };
 
+  // Fight logic stored here
   const handleFight = () => {
+    // When both fighters have been selected and the generate fight button is clicked, grab the fighter stats for both fighters
     if (selectedItem1 && selectedItem2) {
       const validateFighter = (fighter) => {
         console.log("Validating fighter:", fighter); // Debugging line
@@ -58,6 +71,7 @@ const FightScreen = () => {
             kicking: Number(fighter.Rating.kicking) || 0,
             striking: Number(fighter.Rating.striking) || 0,
             legKickOffence: Number(fighter.Rating.legKickOffence) || 0,
+            legKickDefence: Number(fighter.Rating.legKickDefence) || 0,
             kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
           },
@@ -78,6 +92,7 @@ const FightScreen = () => {
         };
       };
 
+      // stores both fighters info and stats in an array ready for use when simulating the fight
       const opponents = [
         validateFighter({
           id: selectedItem1.personid,
@@ -104,6 +119,7 @@ const FightScreen = () => {
       // Debugging log
       console.log("Fighters set for the fight:", opponents);
 
+      // These variables are for logging each fight event
       const fightEvents = [];
       const logEvent = (event) => {
         fightEvents.push(event);
@@ -119,9 +135,11 @@ const FightScreen = () => {
       const result = simulateFight(opponents);
 
       if (result !== null) {
+        // storing the winner and loser of the fight
         const winnerFighter = opponents[result];
         const loserFighter = opponents[result === 0 ? 1 : 0];
 
+        // Logic for updating the record of the fighters after the fight
         if (winnerFighter && loserFighter) {
           const updatedFighters = fighters.map((fighter) => {
             if (fighter.personid === winnerFighter.id) {
@@ -133,6 +151,7 @@ const FightScreen = () => {
             }
           });
 
+          // Setting the winners, all the fight events and the winning message ready for display in the fight summary and on the FightScreen
           setFighters(updatedFighters);
           setFightEvents(fightEvents);
           setWinnerMessage(`${winnerFighter.name} wins the fight!`);
@@ -147,6 +166,7 @@ const FightScreen = () => {
     }
   };
 
+  // Logic for the View Fight Summary button open state
   const handleDialogOpen = () => {
     setDialogOpen(true);
   };

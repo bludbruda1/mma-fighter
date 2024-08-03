@@ -12,16 +12,18 @@ import {
   Typography,
 } from "@mui/material";
 
+/* BasicSelect component that passes a fighters, selectedItem, and onSelectChange prop 
+so that when we call this component we can dynamically add the info instead of the value being fixed at the component level. **/
 const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
   return (
     <>
       <Box sx={{ minWidth: 120, m: 2 }}>
         <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Fighter</InputLabel>
+          <InputLabel id="simple-select-label">Fighter</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedItem ? selectedItem.personid : ""}
+            labelId="simple-select-label"
+            id="simple-select"
+            value={selectedItem ? selectedItem.personid : ""} // This value will be determined by the selected fighters id.
             label="Fighter"
             onChange={onSelectChange}
           >
