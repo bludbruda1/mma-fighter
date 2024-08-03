@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Typography, Grid, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+// Define the fade in animation used upon page load for the home page
 const fadeIn = {
   animation: "fadeIn 1.5s ease-out", // Duration and easing for the fade-in effect
   "@keyframes fadeIn": {
@@ -11,6 +12,7 @@ const fadeIn = {
 };
 
 const Home = () => {
+  // Define the useNavigate method for routing
   const navigate = useNavigate();
 
   const handleViewRoster = () => {

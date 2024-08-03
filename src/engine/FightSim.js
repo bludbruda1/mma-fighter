@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+// export each action so that we can use them as logged events for displaying in the Fight Summary
 exports.displayFightStats =
   exports.simulateFight =
   exports.doLegKick =
@@ -41,6 +42,7 @@ const probKick = (kickingRating, kickDefence) => {
 };
 exports.probKick = probKick;
 
+// perofrming the kick action with an attacker and defender parameter
 const doKick = (attacker, defender) => {
   console.log(`${attacker.name} throws a kick at ${defender.name}`);
   const probability = (0, exports.probKick)(
@@ -50,9 +52,9 @@ const doKick = (attacker, defender) => {
   if (Math.random() < probability) {
     const damage = calculateDamage(attacker.Rating.kicking, true, false);
     if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for kick. Kicking Rating: ${attacker.Rating.kicking}`
-      );
+      console.error(`
+        Calculated NaN damage for kick. Kicking Rating: ${attacker.Rating.kicking}
+      `);
     }
     defender.currentHealth -= damage;
     attacker.stats.kicksLanded++;
@@ -78,6 +80,7 @@ const probPunch = (strikingRating, strikingDefence) => {
 };
 exports.probPunch = probPunch;
 
+// perofrming the punch action with an attacker and defender parameter
 const doPunch = (attacker, defender) => {
   console.log(`${attacker.name} throws a punch at ${defender.name}`);
   const probability = (0, exports.probPunch)(
@@ -87,9 +90,9 @@ const doPunch = (attacker, defender) => {
   if (Math.random() < probability) {
     const damage = calculateDamage(attacker.Rating.striking, false, false);
     if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for punch. Striking Rating: ${attacker.Rating.striking}`
-      );
+      console.error(`
+        Calculated NaN damage for punch. Striking Rating: ${attacker.Rating.striking}
+      `);
     }
     defender.currentHealth -= damage;
     attacker.stats.punchesLanded++;
@@ -107,56 +110,35 @@ exports.doPunch = doPunch;
 // The probability that the leg kick lands
 const probLegKick = (legKickOffence, legKickDefence) => {
   const total = legKickOffence + legKickDefence;
-  const probability = total > 0 ? legKickOffence / total : 0;
-  if (isNaN(probability) || probability < 0 || probability > 1) {
-    console.error(`Invalid probability for leg kick: ${probability}`);
-  }
-  return probability;
+  return total > 0 ? legKickOffence / total : 0;
 };
 exports.probLegKick = probLegKick;
 
 const doLegKick = (attacker, defender) => {
-  console.log(`${attacker.name} throws a leg kick at ${defender.name}`);
-
-  // Calculate the probability of the leg kick landing
-  const probability = (0, exports.probLegKick)(
-    attacker.Rating.legKickOffence,
-    defender.Rating.legKickDefence
-  );
-
-  // Check if the probability is valid
-  if (isNaN(probability) || probability < 0 || probability > 1) {
-    console.error(`Invalid probability for leg kick: ${probability}`);
-    return "invalidProbability";
-  }
-
-  // Determine if the leg kick lands based on the valid probability
-  if (Math.random() < probability) {
+  console.log(`${attacker.name} throws a leg kick`);
+  if (
+    Math.random() <
+    (0, exports.probLegKick)(
+      attacker.Rating.legKickOffence,
+      defender.Rating.legKickDefence
+    )
+  ) {
     // Leg kick lands
     const damage = calculateDamage(attacker.Rating.legKickOffence, true, true);
-    if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for leg kick. Offence: ${attacker.Rating.legKickOffence}`
-      );
-    }
     defender.currentHealth -= damage;
     attacker.stats.legKicksLanded++;
     attacker.stats.significantKicksLanded++; // All landed leg kicks are counted as a significant kick in the stats (not the damage modifier)
-    console.log(`${defender.name} is hit by the leg kick for ${damage} damage`);
+    console.log(`${defender.name} is hit by the leg kick`);
+    console.log(`${defender.name} takes ${damage} damage from the leg kick`);
     return "kickLanded";
   } else {
     // Leg kick is checked
     const damage = calculateDamage(defender.Rating.legKickDefence, true, true);
-    if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for checked leg kick. Defence: ${defender.Rating.legKickDefence}`
-      );
-    }
     attacker.currentHealth -= damage;
     defender.stats.legKicksChecked++;
-    console.log(`${defender.name} checks the leg kick`);
+    console.log(`${defender.name} checks the kick`);
     console.log(
-      `${attacker.name} takes ${damage} damage from the checked leg kick`
+      `${attacker.name} takes ${damage} damage from the checked kick`
     );
     return "kickChecked";
   }
@@ -227,17 +209,17 @@ const displayRoundStats = (fighters, roundNumber) => {
   console.log(`\nRound ${roundNumber} Stats:`);
   fighters.forEach((fighter, index) => {
     console.log(`\n${fighter.name}:`);
-    console.log(`  Punches Landed: ${fighter.stats.punchesLanded}`);
-    console.log(`  Kicks Landed: ${fighter.stats.kicksLanded}`);
+    console.log(` Punches Landed: ${fighter.stats.punchesLanded}`);
+    console.log(` Kicks Landed: ${fighter.stats.kicksLanded}`);
     console.log(
-      `  Significant Punches: ${fighter.stats.significantPunchesLanded}`
+      `Significant Punches: ${fighter.stats.significantPunchesLanded}`
     );
     console.log(`  Significant Kicks: ${fighter.stats.significantKicksLanded}`);
     console.log(`  Leg Kicks Landed: ${fighter.stats.legKicksLanded}`);
     console.log(`  Leg Kicks Checked: ${fighter.stats.legKicksChecked}`);
-    console.log(
-      `  Current Health: ${fighter.currentHealth}/${fighter.maxHealth}`
-    );
+    console.log(`
+        Current Health: ${fighter.currentHealth}/${fighter.maxHealth}
+    `);
   });
 };
 
@@ -255,9 +237,9 @@ const simulateRound = (fighters, roundNumber) => {
     const roundWinner = simulateAction(fighters, actionFighter);
     // Immediate KO announcement
     if (roundWinner !== null) {
-      console.log(
-        `\n${fighters[roundWinner].name} wins by KO in round ${roundNumber}!`
-      );
+      console.log(`
+        \n${fighters[roundWinner].name} wins by KO in round ${roundNumber}!
+      `);
       return roundWinner;
     }
     lastActionFighter = actionFighter;
@@ -274,19 +256,19 @@ const simulateRound = (fighters, roundNumber) => {
   // Display strikes landed this round
   fighters.forEach((fighter, index) => {
     console.log(`\n${fighter.name} landed this round:`);
-    console.log(
-      `  Punches: ${
-        fighter.stats.punchesLanded - initialStats[index].punchesLanded
-      }`
-    );
-    console.log(
-      `  Kicks: ${fighter.stats.kicksLanded - initialStats[index].kicksLanded}`
-    );
-    console.log(
-      `  Leg Kicks: ${
-        fighter.stats.legKicksLanded - initialStats[index].legKicksLanded
-      }`
-    );
+    console.log(`
+        Punches: ${
+          fighter.stats.punchesLanded - initialStats[index].punchesLanded
+        }
+    `);
+    console.log(`
+        Kicks: ${fighter.stats.kicksLanded - initialStats[index].kicksLanded}
+    `);
+    console.log(`
+        Leg Kicks: ${
+          fighter.stats.legKicksLanded - initialStats[index].legKicksLanded
+        }
+    `);
   });
   return null;
 };
@@ -319,27 +301,27 @@ exports.simulateFight = simulateFight;
 // Display fight stats at the end of the fight
 const displayFightStats = (fighters, winner) => {
   const loser = winner === 0 ? 1 : 0;
-  console.log("\nFight Results:");
+  console.log(`\nFight Results:`);
   console.log(`${fighters[winner].name} defeats ${fighters[loser].name}`);
-  console.log("\nFinal Stats:");
+  console.log(`\nFinal Stats:`);
   fighters.forEach((fighter, index) => {
     console.log(`\n${fighter.name}:`);
     console.log(`  Total Punches Landed: ${fighter.stats.punchesLanded}`);
-    console.log(`  Total Kicks Landed: ${fighter.stats.kicksLanded}`);
+    console.log(` Total Kicks Landed: ${fighter.stats.kicksLanded}`);
     console.log(`  Total Punches Blocked: ${fighter.stats.punchesBlocked}`);
     console.log(`  Total Kicks Blocked: ${fighter.stats.kicksBlocked}`);
-    console.log(
-      `  Total Significant Punches: ${fighter.stats.significantPunchesLanded}`
-    );
-    console.log(
-      `  Total Significant Kicks: ${fighter.stats.significantKicksLanded}`
-    );
+    console.log(`
+        Total Significant Punches: ${fighter.stats.significantPunchesLanded}
+    `);
+    console.log(`
+        Total Significant Kicks: ${fighter.stats.significantKicksLanded}
+    `);
     console.log(`  Total Leg Kicks Landed: ${fighter.stats.legKicksLanded}`);
     console.log(`  Total Leg Kicks Checked: ${fighter.stats.legKicksChecked}`);
     console.log(`  Rounds Won: ${fighter.roundsWon}`);
-    console.log(
-      `  Final Health: ${fighter.currentHealth}/${fighter.maxHealth}`
-    );
+    console.log(`
+        Final Health: ${fighter.currentHealth}/${fighter.maxHealth}
+    `);
   });
 };
 exports.displayFightStats = displayFightStats;

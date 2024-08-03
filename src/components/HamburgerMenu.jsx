@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 
+// HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
   const [open, setOpen] = useState(false);
 

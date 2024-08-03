@@ -20,10 +20,12 @@ import {
 } from "@mui/material";
 
 const Dashboard = () => {
+  // State handling on the dashboard page
   const { id } = useParams();
   const [fighter, setFighter] = useState(null);
   const [error, setError] = useState(null);
 
+  // Grabs the data from the fighters.json file and grabs the info for the fighter whose id was passed from the Roster page via click.
   useEffect(() => {
     const fetchFighterData = async () => {
       try {
@@ -47,6 +49,7 @@ const Dashboard = () => {
     fetchFighterData();
   }, [id]);
 
+  // If an error is thrown it displays an error message on the Dashboard page.
   if (error) {
     return (
       <Container
@@ -60,6 +63,7 @@ const Dashboard = () => {
     );
   }
 
+  // Returns a Loading text if the fighter is not correct
   if (!fighter) {
     return (
       <Container
