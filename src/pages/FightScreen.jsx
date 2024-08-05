@@ -60,12 +60,23 @@ const FightScreen = () => {
 
   // Fight logic stored here
   const handleFight = () => {
-    // When both fighters have been selected and the generate fight button is clicked, grab the fighter stats for both fighters
+    // When both fighters have been selected and the generate fight button is clicked
     if (selectedItem1 && selectedItem2) {
+      // Function to validate and format fighter data
       const validateFighter = (fighter) => {
         console.log("Validating fighter:", fighter); // Debugging line
         return {
-          ...fighter,
+          id: fighter.personid,
+          firstname: fighter.firstname,
+          lastname: fighter.lastname,
+          name: `${fighter.firstname} ${fighter.lastname}`,
+          maxHealth: Number(fighter.maxHealth) || 100,
+          currentHealth: Number(fighter.currentHealth) || 100,
+          stamina: Number(fighter.stamina) || 100,
+          isStanding: fighter.isStanding || true,
+          isGroundOffense: fighter.isGroundOffense || false,
+          isGroundDefense: fighter.isGroundDefense || false,
+          roundsWon: fighter.roundsWon || 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
             kicking: Number(fighter.Rating.kicking) || 0,
@@ -74,6 +85,13 @@ const FightScreen = () => {
             legKickDefence: Number(fighter.Rating.legKickDefence) || 0,
             kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
+            takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
+            takedownDefence: Number(fighter.Rating.takedownDefence) || 0,
+            submissionOffense: Number(fighter.Rating.submissionOffense) || 0,
+            submissionDefense: Number(fighter.Rating.submissionDefense) || 0,
+            groundOffence: Number(fighter.Rating.groundOffence) || 0,
+            groundDefence: Number(fighter.Rating.groundDefence) || 0,
+            getUpAbility: Number(fighter.Rating.getUpAbility) || 0,
           },
           stats: {
             punchesLanded: Number(fighter.stats.punchesLanded) || 0,
@@ -86,38 +104,73 @@ const FightScreen = () => {
               Number(fighter.stats.significantKicksLanded) || 0,
             legKicksLanded: Number(fighter.stats.legKicksLanded) || 0,
             legKicksChecked: Number(fighter.stats.legKicksChecked) || 0,
+            takedownsAttempted: Number(fighter.stats.takedownsAttempted) || 0,
+            takedownsLanded: Number(fighter.stats.takedownsLanded) || 0,
+            takedownsDefended: Number(fighter.stats.takedownsDefended) || 0,
+            submissionsAttempted:
+              Number(fighter.stats.submissionsAttempted) || 0,
+            submissionsLanded: Number(fighter.stats.submissionsLanded) || 0,
+            submissionsDefended: Number(fighter.stats.submissionsDefended) || 0,
+            groundPunchesLanded: Number(fighter.stats.groundPunchesLanded) || 0,
+            getUpsAttempted: Number(fighter.stats.getUpsAttempted) || 0,
+            getUpsSuccessful: Number(fighter.stats.getUpsSuccessful) || 0,
           },
-          currentHealth: Number(fighter.currentHealth) || 100,
-          maxHealth: Number(fighter.maxHealth) || 100,
+          Tendency: {
+            standingTendency: {
+              punchTendency:
+                Number(fighter.Tendency?.standingTendency?.punchTendency) || 25,
+              kickTendency:
+                Number(fighter.Tendency?.standingTendency?.kickTendency) || 25,
+              legKickTendency:
+                Number(fighter.Tendency?.standingTendency?.legKickTendency) ||
+                25,
+              takedownTendency:
+                Number(fighter.Tendency?.standingTendency?.takedownTendency) ||
+                25,
+            },
+            groundOffenseTendency: {
+              punchTendency:
+                Number(
+                  fighter.Tendency?.groundOffenseTendency?.punchTendency
+                ) || 50,
+              submissionTendency:
+                Number(
+                  fighter.Tendency?.groundOffenseTendency?.submissionTendency
+                ) || 25,
+              getUpTendency:
+                Number(
+                  fighter.Tendency?.groundOffenseTendency?.getUpTendency
+                ) || 25,
+            },
+            groundDefenseTendency: {
+              punchTendency:
+                Number(
+                  fighter.Tendency?.groundDefenseTendency?.punchTendency
+                ) || 25,
+              submissionTendency:
+                Number(
+                  fighter.Tendency?.groundDefenseTendency?.submissionTendency
+                ) || 25,
+              getUpTendency:
+                Number(
+                  fighter.Tendency?.groundDefenseTendency?.getUpTendency
+                ) || 50,
+            },
+          },
         };
       };
 
-      // stores both fighters info and stats in an array ready for use when simulating the fight
+      // Validate and store both fighters' info and stats in an array ready for use when simulating the fight
       const opponents = [
-        validateFighter({
-          id: selectedItem1.personid,
-          name: `${selectedItem1.firstname} ${selectedItem1.lastname}`,
-          maxHealth: selectedItem1.maxHealth,
-          currentHealth: selectedItem1.currentHealth,
-          Rating: selectedItem1.Rating,
-          stats: selectedItem1.stats,
-          roundsWon: selectedItem1.roundsWon,
-          Tendency: selectedItem1.Tendency,
-        }),
-        validateFighter({
-          id: selectedItem2.personid,
-          name: `${selectedItem2.firstname} ${selectedItem2.lastname}`,
-          maxHealth: selectedItem2.maxHealth,
-          currentHealth: selectedItem2.currentHealth,
-          Rating: selectedItem2.Rating,
-          stats: selectedItem2.stats,
-          roundsWon: selectedItem2.roundsWon,
-          Tendency: selectedItem2.Tendency,
-        }),
+        validateFighter(selectedItem1),
+        validateFighter(selectedItem2),
       ];
 
       // Debugging log
       console.log("Fighters set for the fight:", opponents);
+
+      // Clear previous fight events
+      setFightEvents([]);
 
       // These variables are for logging each fight event
       const fightEvents = [];
@@ -132,37 +185,36 @@ const FightScreen = () => {
         };
       })(console.log);
 
+      // Simulate the fight
       const result = simulateFight(opponents);
 
-      if (result !== null) {
-        // storing the winner and loser of the fight
-        const winnerFighter = opponents[result];
-        const loserFighter = opponents[result === 0 ? 1 : 0];
+      if (result) {
+        // Store the winner and loser of the fight
+        const winnerFighter = opponents[result.winner];
+        const loserFighter = opponents[result.winner === 0 ? 1 : 0];
 
-        // Logic for updating the record of the fighters after the fight
-        if (winnerFighter && loserFighter) {
-          const updatedFighters = fighters.map((fighter) => {
-            if (fighter.personid === winnerFighter.id) {
-              return { ...fighter, wins: (fighter.wins || 0) + 1 };
-            } else if (fighter.personid === loserFighter.id) {
-              return { ...fighter, losses: (fighter.losses || 0) + 1 };
-            } else {
-              return fighter;
-            }
-          });
+        // Update the record of the fighters after the fight
+        const updatedFighters = fighters.map((fighter) => {
+          if (fighter.personid === winnerFighter.id) {
+            return { ...fighter, wins: (fighter.wins || 0) + 1 };
+          } else if (fighter.personid === loserFighter.id) {
+            return { ...fighter, losses: (fighter.losses || 0) + 1 };
+          } else {
+            return fighter;
+          }
+        });
 
-          // Setting the winners, all the fight events and the winning message ready for display in the fight summary and on the FightScreen
-          setFighters(updatedFighters);
-          setFightEvents(fightEvents);
-          setWinnerMessage(`${winnerFighter.name} wins the fight!`);
-        } else {
-          setWinnerMessage("Error: Unable to determine winner or loser.");
-        }
+        // Set the updated fighters, and display the winning message
+        setFighters(updatedFighters);
+        setFightEvents(fightEvents);
+        setWinnerMessage(
+          `${result.winnerName} defeats ${result.loserName} by ${result.method} in round ${result.roundEnded}!`
+        );
       } else {
         setWinnerMessage("Error: Invalid fight result.");
       }
     } else {
-      setWinnerMessage("Please select both fighters to start the fight.");
+      setWinnerMessage("Error: Please select two fighters.");
     }
   };
 
