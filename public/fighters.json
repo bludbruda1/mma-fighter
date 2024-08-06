@@ -1,23 +1,33 @@
 [
   {
     "personid": 1,
-    "firstname": "Connor",
+    "firstname": "Conor",
     "lastname": "McGregor",
     "hometown": "Dublin",
     "nationality": "Ireland 🇮🇪",
-    "wins": 0,
-    "losses": 0,
+    "wins": 22,
+    "losses": 6,
     "image": "/assets/images/connormc.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 85,
+      "kicking": 80,
+      "striking": 90,
+      "legKickOffence": 75,
+      "legKickDefence": 70,
+      "kickDefence": 75,
+      "strikingDefence": 80,
+      "takedownOffence": 70, 
+      "takedownDefence": 75,
+      "groundOffence": 70,
+      "groundDefence": 65,
+      "getUpAbility": 80,
+      "submissionOffense": 60,
+      "submissionDefense": 70
     },
     "stats": {
       "punchesLanded": 0,
@@ -27,34 +37,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 80,
-      "kickTendency": 20,
-      "legKickTendency": 0
-    }
+      "standingTendency": {
+        "punchTendency": 60,
+        "kickTendency": 25,
+        "legKickTendency": 10,
+        "takedownTendency": 5
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 70,
+        "getUpTendency": 20,
+        "submissionTendency": 10
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 30,
+        "getUpTendency": 60,
+        "submissionTendency": 10
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 2,
     "firstname": "Dustin",
     "lastname": "Poirier",
-    "hometown": "Texas",
-    "nationality": "America 🇺🇸",
-    "wins": 0,
-    "losses": 0,
+    "hometown": "Lafayette, Louisiana",
+    "nationality": "United States 🇺🇸",
+    "wins": 29,
+    "losses": 7,
     "image": "/assets/images/dustinpo.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 85,
+      "kicking": 80,
+      "striking": 90,
+      "legKickOffence": 85,
+      "legKickDefence": 80,
+      "kickDefence": 80,
+      "strikingDefence": 85,
+      "takedownOffence": 75, 
+      "takedownDefence": 80,
+      "groundOffence": 80,
+      "groundDefence": 75,
+      "getUpAbility": 80,
+      "submissionOffense": 75,
+      "submissionDefense": 80
     },
     "stats": {
       "punchesLanded": 0,
@@ -64,34 +106,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 50,
-      "kickTendency": 10,
-      "legKickTendency": 40
-    }
+      "standingTendency": {
+        "punchTendency": 55,
+        "kickTendency": 25,
+        "legKickTendency": 15,
+        "takedownTendency": 5
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 60,
+        "getUpTendency": 20,
+        "submissionTendency": 20
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 30,
+        "getUpTendency": 50,
+        "submissionTendency": 20
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 3,
     "firstname": "Israel",
     "lastname": "Adesanya",
-    "hometown": "Auckland",
+    "hometown": "Lagos",
     "nationality": "Nigeria 🇳🇬",
-    "wins": 0,
-    "losses": 0,
+    "wins": 24,
+    "losses": 2,
     "image": "/assets/images/izzy.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 90,
+      "kicking": 95,
+      "striking": 95,
+      "legKickOffence": 90,
+      "legKickDefence": 85,
+      "kickDefence": 90,
+      "strikingDefence": 90,
+      "takedownOffence": 60, 
+      "takedownDefence": 80,
+      "groundOffence": 70,
+      "groundDefence": 75,
+      "getUpAbility": 85,
+      "submissionOffense": 65,
+      "submissionDefense": 75
     },
     "stats": {
       "punchesLanded": 0,
@@ -101,34 +175,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 70,
-      "kickTendency": 25,
-      "legKickTendency": 5
-    }
+      "standingTendency": {
+        "punchTendency": 45,
+        "kickTendency": 45,
+        "legKickTendency": 8,
+        "takedownTendency": 2
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 70,
+        "getUpTendency": 25,
+        "submissionTendency": 5
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 20,
+        "getUpTendency": 75,
+        "submissionTendency": 5
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 4,
     "firstname": "Jon",
     "lastname": "Jones",
-    "hometown": "New York",
-    "nationality": "America 🇺🇸",
-    "wins": 0,
-    "losses": 0,
+    "hometown": "Rochester, New York",
+    "nationality": "United States 🇺🇸",
+    "wins": 27,
+    "losses": 1,
     "image": "/assets/images/jonj.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 95,
+      "kicking": 90,
+      "striking": 95,
+      "legKickOffence": 85,
+      "legKickDefence": 85,
+      "kickDefence": 90,
+      "strikingDefence": 90,
+      "takedownOffence": 95, 
+      "takedownDefence": 95,
+      "groundOffence": 90,
+      "groundDefence": 90,
+      "getUpAbility": 90,
+      "submissionOffense": 85,
+      "submissionDefense": 90
     },
     "stats": {
       "punchesLanded": 0,
@@ -138,34 +244,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 60,
-      "kickTendency": 30,
-      "legKickTendency": 10
-    }
+      "standingTendency": {
+        "punchTendency": 40,
+        "kickTendency": 30,
+        "legKickTendency": 15,
+        "takedownTendency": 15
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 65,
+        "getUpTendency": 15,
+        "submissionTendency": 20
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 25,
+        "getUpTendency": 65,
+        "submissionTendency": 10
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 5,
     "firstname": "Chuck",
     "lastname": "Liddell",
-    "hometown": "California",
-    "nationality": "America 🇺🇸",
-    "wins": 0,
-    "losses": 0,
+    "hometown": "Santa Barbara, California",
+    "nationality": "United States 🇺🇸",
+    "wins": 21,
+    "losses": 9,
     "image": "/assets/images/chuck.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 85,
+      "kicking": 80,
+      "striking": 90,
+      "legKickOffence": 75,
+      "legKickDefence": 70,
+      "kickDefence": 75,
+      "strikingDefence": 80,
+      "takedownOffence": 80, 
+      "takedownDefence": 85,
+      "groundOffence": 75,
+      "groundDefence": 80,
+      "getUpAbility": 85,
+      "submissionOffense": 70,
+      "submissionDefense": 80
     },
     "stats": {
       "punchesLanded": 0,
@@ -175,34 +313,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 90,
-      "kickTendency": 10,
-      "legKickTendency": 0
-    }
+      "standingTendency": {
+        "punchTendency": 70,
+        "kickTendency": 20,
+        "legKickTendency": 5,
+        "takedownTendency": 5
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 80,
+        "getUpTendency": 15,
+        "submissionTendency": 5
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 20,
+        "getUpTendency": 75,
+        "submissionTendency": 5
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 6,
-    "firstname": "Quinten",
+    "firstname": "Quinton",
     "lastname": "Jackson",
-    "hometown": "Tennessee",
-    "nationality": "America 🇺🇸",
-    "wins": 0,
-    "losses": 0,
+    "hometown": "Memphis, Tennessee",
+    "nationality": "United States 🇺🇸",
+    "wins": 38,
+    "losses": 14,
     "image": "/assets/images/rampage.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 80,
+      "kicking": 70,
+      "striking": 85,
+      "legKickOffence": 65,
+      "legKickDefence": 60,
+      "kickDefence": 70,
+      "strikingDefence": 80,
+      "takedownOffence": 85, 
+      "takedownDefence": 80,
+      "groundOffence": 80,
+      "groundDefence": 75,
+      "getUpAbility": 80,
+      "submissionOffense": 70,
+      "submissionDefense": 75
     },
     "stats": {
       "punchesLanded": 0,
@@ -212,34 +382,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 70,
-      "kickTendency": 20,
-      "legKickTendency": 10
-    }
+      "standingTendency": {
+        "punchTendency": 65,
+        "kickTendency": 15,
+        "legKickTendency": 5,
+        "takedownTendency": 15
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 75,
+        "getUpTendency": 15,
+        "submissionTendency": 10
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 30,
+        "getUpTendency": 60,
+        "submissionTendency": 10
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 7,
     "firstname": "Anderson",
     "lastname": "Silva",
-    "hometown": "Sao Paulo",
+    "hometown": "Curitiba, Brazil",
     "nationality": "Brazil 🇧🇷",
-    "wins": 0,
-    "losses": 0,
+    "wins": 34,
+    "losses": 11,
     "image": "/assets/images/silvaa.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 90,
+      "kicking": 95,
+      "striking": 95,
+      "legKickOffence": 90,
+      "legKickDefence": 85,
+      "kickDefence": 90,
+      "strikingDefence": 90,
+      "takedownOffence": 75, 
+      "takedownDefence": 80,
+      "groundOffence": 85,
+      "groundDefence": 80,
+      "getUpAbility": 85,
+      "submissionOffense": 80,
+      "submissionDefense": 85
     },
     "stats": {
       "punchesLanded": 0,
@@ -249,34 +451,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 60,
-      "kickTendency": 30,
-      "legKickTendency": 10
-    }
+      "standingTendency": {
+        "punchTendency": 45,
+        "kickTendency": 40,
+        "legKickTendency": 10,
+        "takedownTendency": 5
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 60,
+        "getUpTendency": 25,
+        "submissionTendency": 15
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 20,
+        "getUpTendency": 70,
+        "submissionTendency": 10
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 8,
     "firstname": "Forrest",
     "lastname": "Griffin",
-    "hometown": "Nevada",
-    "nationality": "America 🇺🇸",
-    "wins": 0,
-    "losses": 0,
+    "hometown": "Columbus, Ohio",
+    "nationality": "United States 🇺🇸",
+    "wins": 19,
+    "losses": 7,
     "image": "/assets/images/griffinf.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 80,
+      "kicking": 75,
+      "striking": 80,
+      "legKickOffence": 75,
+      "legKickDefence": 70,
+      "kickDefence": 75,
+      "strikingDefence": 75,
+      "takedownOffence": 75, 
+      "takedownDefence": 75,
+      "groundOffence": 80,
+      "groundDefence": 75,
+      "getUpAbility": 75,
+      "submissionOffense": 75,
+      "submissionDefense": 75
     },
     "stats": {
       "punchesLanded": 0,
@@ -286,34 +520,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 55,
-      "kickTendency": 30,
-      "legKickTendency": 15
-    }
+      "standingTendency": {
+        "punchTendency": 50,
+        "kickTendency": 25,
+        "legKickTendency": 15,
+        "takedownTendency": 10
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 60,
+        "getUpTendency": 20,
+        "submissionTendency": 20
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 30,
+        "getUpTendency": 50,
+        "submissionTendency": 20
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 9,
     "firstname": "Alex",
     "lastname": "Pereira",
-    "hometown": "Sao Paulo",
+    "hometown": "São Bernardo do Campo, Brazil",
     "nationality": "Brazil 🇧🇷",
-    "wins": 0,
-    "losses": 0,
+    "wins": 7,
+    "losses": 2,
     "image": "/assets/images/alexp.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 85,
+      "kicking": 90,
+      "striking": 95,
+      "legKickOffence": 85,
+      "legKickDefence": 80,
+      "kickDefence": 85,
+      "strikingDefence": 85,
+      "takedownOffence": 60, 
+      "takedownDefence": 70,
+      "groundOffence": 65,
+      "groundDefence": 70,
+      "getUpAbility": 75,
+      "submissionOffense": 60,
+      "submissionDefense": 70
     },
     "stats": {
       "punchesLanded": 0,
@@ -323,34 +589,66 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 65,
-      "kickTendency": 25,
-      "legKickTendency": 10
-    }
+      "standingTendency": {
+        "punchTendency": 50,
+        "kickTendency": 40,
+        "legKickTendency": 8,
+        "takedownTendency": 2
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 75,
+        "getUpTendency": 20,
+        "submissionTendency": 5
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 20,
+        "getUpTendency": 75,
+        "submissionTendency": 5
+      }
+    },
+    "roundsWon": 0
   },
   {
     "personid": 10,
     "firstname": "Robert",
     "lastname": "Whittaker",
-    "hometown": "Sydney",
+    "hometown": "Sydney, New South Wales",
     "nationality": "Australia 🇦🇺",
-    "wins": 0,
-    "losses": 0,
+    "wins": 24,
+    "losses": 6,
     "image": "/assets/images/robw.png",
-    "maxHealth": 100,
-    "currentHealth": 100,
+    "maxHealth": 1000,
+    "currentHealth": 1000,
+    "isStanding": true,
+    "isGroundOffense": false,
+    "isGroundDefense": false,
     "Rating": {
-      "output": 0.6,
-      "kicking": 0.5,
-      "striking": 0.7,
-      "legKickOffence": 0.5,
-      "legKickDefence": 0.5,
-      "kickDefence": 0.5,
-      "strikingDefence": 0.5
+      "output": 90,
+      "kicking": 85,
+      "striking": 90,
+      "legKickOffence": 85,
+      "legKickDefence": 85,
+      "kickDefence": 85,
+      "strikingDefence": 90,
+      "takedownOffence": 80, 
+      "takedownDefence": 85,
+      "groundOffence": 80,
+      "groundDefence": 85,
+      "getUpAbility": 85,
+      "submissionOffense": 75,
+      "submissionDefense": 85
     },
     "stats": {
       "punchesLanded": 0,
@@ -360,13 +658,35 @@
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
-      "kicksBlocked": 0
+      "kicksBlocked": 0,
+      "takedownsAttempted": 0,
+      "takedownsLanded": 0,
+      "takedownsDefended": 0,
+      "getUpsAttempted": 0,
+      "getUpsSuccessful": 0,
+      "groundPunchesLanded": 0,
+      "submissionsAttempted": 0,
+      "submissionsLanded": 0,
+      "submissionsDefended": 0
     },
-    "roundsWon": 0,
     "Tendency": {
-      "punchTendency": 50,
-      "kickTendency": 40,
-      "legKickTendency": 10
-    }
+      "standingTendency": {
+        "punchTendency": 50,
+        "kickTendency": 30,
+        "legKickTendency": 15,
+        "takedownTendency": 5
+      },
+      "groundOffenseTendency": {
+        "punchTendency": 70,
+        "getUpTendency": 20,
+        "submissionTendency": 10
+      },
+      "groundDefenseTendency": {
+        "punchTendency": 25,
+        "getUpTendency": 65,
+        "submissionTendency": 10
+      }
+    },
+    "roundsWon": 0
   }
 ]
