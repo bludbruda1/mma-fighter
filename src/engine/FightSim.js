@@ -349,8 +349,8 @@ const doSubmission = (attacker, defender, staminaImpact) => {
   ) {
     attacker.stats.submissionsLanded++;
     console.log(`${attacker.name} successfully submits ${defender.name}!`);
-    // Set defender's health to 0 to signal fight end
-    defender.currentHealth = 0;
+    // flags that the loser has been submitted
+    defender.isSubmitted = true;
     return "submissionSuccessful";
   } else {
     defender.stats.submissionsDefended++;
@@ -418,11 +418,14 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   const opponentFighter = fighters[opponent];
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
+  
   // Decrease stamina
   fighter.stamina = Math.max(0, fighter.stamina - 2);
-  const timePassed = simulateTimePassing(actionType);
   const staminaImpact = calculateStaminaImpact(fighter.stamina);
+
   let outcome;
+  let timePassed = 0;  // Initialize timePassed to 0 aka no time has passed before the action takes place 
+
   switch (actionType) {
     case "punch":
     case "significantPunch":
@@ -457,7 +460,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "submission":
       outcome = doSubmission(fighter, opponentFighter, staminaImpact);
       if (outcome === "submissionSuccessful") {
-        return [actionFighter, timePassed]; // Immediately return the winner
+        return [actionFighter, 0]; // Submission ends the fight immediately
       }
       break;
     default:
@@ -466,10 +469,20 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
   }
 
-  if (opponentFighter.currentHealth <= 0) {
-    return [actionFighter, timePassed]; // Return the winner if there's a knockout or submission
+  // Ensure health doesn't go below 0 and check for knockout
+  opponentFighter.currentHealth = Math.max(0, opponentFighter.currentHealth);
+  if (opponentFighter.currentHealth === 0) {
+    return [actionFighter, 0]; // Knockout with no time passed
   }
-  return [null, timePassed]; // Fight continues
+
+  // Calculate time passed only if the fight continues
+  timePassed = Math.min(simulateTimePassing(actionType), currentTime);
+
+if (opponentFighter.isSubmitted) {
+  return [actionFighter, timePassed]; // Submission (should not happen here, but just in case)
+}
+
+return [null, timePassed]; // Fight continues
 };
 
 /**
@@ -630,7 +643,7 @@ const simulateFight = (fighters) => {
       // Determine if it's a KO or submission
       if (fighters[1 - roundWinner].currentHealth <= 0) {
         method = "knockout";
-      } else {
+      } else if (fighters[1 - roundWinner].isSubmitted) {
         method = "submission";
       }
       roundEnded = round;
@@ -650,6 +663,7 @@ const simulateFight = (fighters) => {
         fighter.currentHealth + 20,
         fighter.maxHealth
       );
+      fighter.isSubmitted = false;
     });
   }
 
