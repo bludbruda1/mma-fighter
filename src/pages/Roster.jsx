@@ -13,10 +13,8 @@ import {
 } from "@mui/material";
 
 const Roster = () => {
-  // handles the state of the fighters in an array
   const [fighters, setFighters] = useState([]);
 
-  // grabsthe fighters from the fighters.json file
   useEffect(() => {
     fetch("/fighters.json")
       .then((response) => response.json())
@@ -47,12 +45,24 @@ const Roster = () => {
           </TableHead>
           <TableBody>
             {fighters.map((fighter) => (
-              <TableRow key={fighter.personid}>
+              <TableRow
+                key={fighter.personid}
+                style={{
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f0f0f0";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
                 <TableCell>{fighter.personid}</TableCell>
                 <TableCell>
                   <Link
                     to={`/dashboard/${fighter.personid}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
+                    style={{ textDecoration: "underline" }}
                   >
                     {`${fighter.firstname} ${fighter.lastname}`}
                   </Link>
