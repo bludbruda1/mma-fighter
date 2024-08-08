@@ -62,7 +62,16 @@ const Roster = () => {
                 <TableCell>
                   <Link
                     to={`/dashboard/${fighter.personid}`}
-                    style={{ textDecoration: "underline" }}
+                    style={{
+                      textDecoration: "none",
+                      color: "#0000EE",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = "underline";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = "none";
+                    }}
                   >
                     {`${fighter.firstname} ${fighter.lastname}`}
                   </Link>
