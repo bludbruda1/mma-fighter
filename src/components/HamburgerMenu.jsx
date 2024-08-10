@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 
+// HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
   const [open, setOpen] = useState(false);
 
@@ -46,7 +47,9 @@ const HamburgerMenu = () => {
             <MenuIcon />
           </IconButton>
           <SportsMmaIcon sx={{ mr: 2 }} />
-          <Typography variant="h6">MMA Fighter</Typography>
+          <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
+            <Typography variant="h6">MMA Fighter</Typography>
+          </Link>
         </Toolbar>
       </AppBar>
       <Drawer

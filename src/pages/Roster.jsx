@@ -11,15 +11,17 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { getAllFighters } from "../utils/indexedDB"; // Import the getAllFighters function
 
 const Roster = () => {
   const [fighters, setFighters] = useState([]);
 
   useEffect(() => {
-    fetch("/fighters.json")
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setFighters(jsonData);
+    // Fetch fighters from IndexedDB using the getAllFighters function
+    getAllFighters()
+      .then((fetchedFighters) => {
+        setFighters(fetchedFighters);
+        console.log("Fetched fighters:", fetchedFighters); // Debugging line
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -45,12 +47,33 @@ const Roster = () => {
           </TableHead>
           <TableBody>
             {fighters.map((fighter) => (
-              <TableRow key={fighter.personid}>
+              <TableRow
+                key={fighter.personid}
+                style={{
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f0f0f0";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
                 <TableCell>{fighter.personid}</TableCell>
                 <TableCell>
                   <Link
                     to={`/dashboard/${fighter.personid}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
+                    style={{
+                      textDecoration: "none",
+                      color: "#0000EE",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = "underline";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = "none";
+                    }}
                   >
                     {`${fighter.firstname} ${fighter.lastname}`}
                   </Link>

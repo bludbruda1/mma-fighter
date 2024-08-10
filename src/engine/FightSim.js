@@ -1,267 +1,540 @@
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.displayFightStats =
-  exports.simulateFight =
-  exports.doLegKick =
-  exports.probLegKick =
-  exports.doPunch =
-  exports.probPunch =
-  exports.doKick =
-  exports.probKick =
-    void 0;
+import { formatTime, simulateTimePassing } from "./helper.js";
 
-const ROUNDS_PER_FIGHT = 3; // How many rounds will be in the fight
-const ACTIONS_PER_ROUND = 50; // Basic simulation for 5 minutes with 10 actions per minute
+// Constants for fight simulation
+const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
+const SIGNIFICANT_HIT_CHANCE = 0.1; // 10% chance of significant hit
+const BASE_PUNCH_DAMAGE = 4;
+const BASE_KICK_DAMAGE = 9;
+const DAMAGE_VARIATION_FACTOR = 0.25;
+const SIGNIFICANT_STRIKE_MULTIPLIER = 1.7;
+const LEG_KICK_MULTIPLIER = 1.1;
+const RATING_DAMAGE_FACTOR = 0.3;
 
-// Pick which fighter is going to do something
+//Functions that set up an action
+
+/**
+ * Determine which fighter performs the next action
+ * @param {Object[]} fighters - Array of fighter objects
+ * @param {number|undefined} lastActionFighter - Index of the fighter who performed the last action
+ * @returns {number} Index of the selected fighter
+ */
 const pickFighter = (fighters, lastActionFighter) => {
   let ratios = [fighters[0].Rating.output, fighters[1].Rating.output];
-  // If lastActionFighter is provided, slightly decrease their chance of being picked again
   if (lastActionFighter !== undefined) {
-    ratios[lastActionFighter] *= 0.9;
+    ratios[lastActionFighter] *= 0.9; // Slightly decrease chance of same fighter acting twice in a row
   }
   const sum = ratios[0] + ratios[1];
-  // Special case for both fighters having 0 ratio - randomly pick one
   if (sum === 0) {
-    return Math.random() < 0.5 ? 0 : 1;
+    return Math.random() < 0.5 ? 0 : 1; // Random choice if both ratios are 0
   }
   const rand = Math.random() * sum;
-  // If rand is less than the ratio of fighter 0, pick fighter 0, otherwise pick fighter 1
   return rand < ratios[0] ? 0 : 1;
 };
 
-// Kick
-// The probability that the kick lands
-const probKick = (kickingRating, kickDefence) => {
-  const total = kickingRating + kickDefence;
-  const probability = total > 0 ? kickingRating / total : 0;
-  if (isNaN(probability) || probability < 0 || probability > 1) {
-    console.error(`Invalid probability for kick: ${probability}`);
-  }
-  return probability;
+/**
+ * Calculate probability of a successful action
+ * @param {number} offenseRating - Attacker's offensive rating
+ * @param {number} defenseRating - Defender's defensive rating
+ * @returns {number} Probability of success
+ */
+const calculateProbability = (offenseRating, defenseRating) => {
+  return offenseRating / (offenseRating + defenseRating);
 };
-exports.probKick = probKick;
 
-const doKick = (attacker, defender) => {
-  console.log(`${attacker.name} throws a kick at ${defender.name}`);
-  const probability = (0, exports.probKick)(
-    attacker.Rating.kicking,
-    defender.Rating.kickDefence
+/**
+ * Calculate damage for a strike
+ * @param {number} baseRating - Attacker's base rating
+ * @param {boolean} isKick - Whether the strike is a kick
+ * @param {boolean} isLegKick - Whether the strike is a leg kick
+ * @param {boolean} isSignificant - Whether the strike is significant
+ * @returns {number} Calculated damage
+ */
+const calculateDamage = (
+  baseRating,
+  isKick,
+  isLegKick,
+  isSignificant = false
+) => {
+  const baseDamage = isKick ? BASE_KICK_DAMAGE : BASE_PUNCH_DAMAGE;
+  const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
+  const significantMultiplier = isSignificant
+    ? SIGNIFICANT_STRIKE_MULTIPLIER
+    : 1;
+  const legKickMultiplier = isLegKick ? LEG_KICK_MULTIPLIER : 1;
+  const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
+  return Math.round(
+    (baseDamage + ratingFactor) *
+      randomFactor *
+      significantMultiplier *
+      legKickMultiplier
   );
-  if (Math.random() < probability) {
-    const damage = calculateDamage(attacker.Rating.kicking, true, false);
-    if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for kick. Kicking Rating: ${attacker.Rating.kicking}`
-      );
-    }
+};
+
+/**
+ * Calculate stamina impact on action effectiveness
+ * @param {number} stamina - Current stamina of the fighter
+ * @returns {number} Stamina impact factor
+ */
+const calculateStaminaImpact = (stamina) => {
+  return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+};
+
+/**
+ * Determine if a strike is significant
+ * @returns {boolean} Whether the strike is significant
+ */
+const isSignificantHit = () => {
+  return Math.random() < SIGNIFICANT_HIT_CHANCE;
+};
+
+// Action Functions
+
+/**
+ * Perform a kick action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @param {boolean} isSignificant - Whether the kick is significant
+ * @returns {string} Outcome of the action
+ */
+const doKick = (attacker, defender, staminaImpact, isSignificant) => {
+  console.log(
+    `${attacker.name} throws a${isSignificant ? " significant" : ""} kick at ${
+      defender.name
+    }`
+  );
+  if (
+    Math.random() <
+    calculateProbability(
+      attacker.Rating.kicking * staminaImpact,
+      defender.Rating.kickDefence
+    )
+  ) {
+    const damage = calculateDamage(
+      attacker.Rating.kicking * staminaImpact,
+      true,
+      false,
+      isSignificant
+    );
     defender.currentHealth -= damage;
     attacker.stats.kicksLanded++;
-    console.log(`${defender.name} is hit by the kick for ${damage} damage`);
-    return "kickLanded";
+    if (isSignificant) attacker.stats.significantKicksLanded++;
+    console.log(
+      `${defender.name} is hit by the${
+        isSignificant ? " significant" : ""
+      } kick for ${damage} damage`
+    );
+    return isSignificant ? "significantKickLanded" : "kickLanded";
   } else {
     defender.stats.kicksBlocked++;
-    console.log(`${defender.name} blocks the kick`);
-    return "kickBlocked";
+    console.log(
+      `${defender.name} blocks the${isSignificant ? " significant" : ""} kick`
+    );
+    return isSignificant ? "significantKickBlocked" : "kickBlocked";
   }
 };
-exports.doKick = doKick;
 
-// Punch
-// The probability that the punch lands
-const probPunch = (strikingRating, strikingDefence) => {
-  const total = strikingRating + strikingDefence;
-  const probability = total > 0 ? strikingRating / total : 0;
-  if (isNaN(probability) || probability < 0 || probability > 1) {
-    console.error(`Invalid probability for punch: ${probability}`);
-  }
-  return probability;
-};
-exports.probPunch = probPunch;
-
-const doPunch = (attacker, defender) => {
-  console.log(`${attacker.name} throws a punch at ${defender.name}`);
-  const probability = (0, exports.probPunch)(
-    attacker.Rating.striking,
-    defender.Rating.strikingDefence
+/**
+ * Perform a punch action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @param {boolean} isSignificant - Whether the punch is significant
+ * @returns {string} Outcome of the action
+ */
+const doPunch = (attacker, defender, staminaImpact, isSignificant) => {
+  console.log(
+    `${attacker.name} throws a${isSignificant ? " significant" : ""} punch at ${
+      defender.name
+    }`
   );
-  if (Math.random() < probability) {
-    const damage = calculateDamage(attacker.Rating.striking, false, false);
-    if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for punch. Striking Rating: ${attacker.Rating.striking}`
-      );
-    }
+  if (
+    Math.random() <
+    calculateProbability(
+      attacker.Rating.striking * staminaImpact,
+      defender.Rating.strikingDefence
+    )
+  ) {
+    const damage = calculateDamage(
+      attacker.Rating.striking * staminaImpact,
+      false,
+      false,
+      isSignificant
+    );
     defender.currentHealth -= damage;
     attacker.stats.punchesLanded++;
-    console.log(`${defender.name} is hit by the punch for ${damage} damage`);
-    return "punchLanded";
+    if (isSignificant) attacker.stats.significantPunchesLanded++;
+    console.log(
+      `${defender.name} is hit by the${
+        isSignificant ? " significant" : ""
+      } punch for ${damage} damage`
+    );
+    return isSignificant ? "significantPunchLanded" : "punchLanded";
   } else {
     defender.stats.punchesBlocked++;
-    console.log(`${defender.name} blocks the punch`);
-    return "punchBlocked";
+    console.log(
+      `${defender.name} blocks the${isSignificant ? " significant" : ""} punch`
+    );
+    return isSignificant ? "significantPunchBlocked" : "punchBlocked";
   }
 };
-exports.doPunch = doPunch;
 
-// Leg Kick
-// The probability that the leg kick lands
-const probLegKick = (legKickOffence, legKickDefence) => {
-  const total = legKickOffence + legKickDefence;
-  const probability = total > 0 ? legKickOffence / total : 0;
-  if (isNaN(probability) || probability < 0 || probability > 1) {
-    console.error(`Invalid probability for leg kick: ${probability}`);
-  }
-  return probability;
-};
-exports.probLegKick = probLegKick;
-
-const doLegKick = (attacker, defender) => {
-  console.log(`${attacker.name} throws a leg kick at ${defender.name}`);
-
-  // Calculate the probability of the leg kick landing
-  const probability = (0, exports.probLegKick)(
-    attacker.Rating.legKickOffence,
-    defender.Rating.legKickDefence
-  );
-
-  // Check if the probability is valid
-  if (isNaN(probability) || probability < 0 || probability > 1) {
-    console.error(`Invalid probability for leg kick: ${probability}`);
-    return "invalidProbability";
-  }
-
-  // Determine if the leg kick lands based on the valid probability
-  if (Math.random() < probability) {
-    // Leg kick lands
-    const damage = calculateDamage(attacker.Rating.legKickOffence, true, true);
-    if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for leg kick. Offence: ${attacker.Rating.legKickOffence}`
-      );
-    }
+/**
+ * Perform a leg kick action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @returns {string} Outcome of the action
+ */
+const doLegKick = (attacker, defender, staminaImpact) => {
+  console.log(`${attacker.name} throws a leg kick`);
+  if (
+    Math.random() <
+    calculateProbability(
+      attacker.Rating.legKickOffence * staminaImpact,
+      defender.Rating.legKickDefence
+    )
+  ) {
+    const damage = calculateDamage(
+      attacker.Rating.legKickOffence * staminaImpact,
+      true,
+      true
+    );
     defender.currentHealth -= damage;
     attacker.stats.legKicksLanded++;
-    attacker.stats.significantKicksLanded++; // All landed leg kicks are counted as a significant kick in the stats (not the damage modifier)
-    console.log(`${defender.name} is hit by the leg kick for ${damage} damage`);
+    attacker.stats.significantKicksLanded++;
+    console.log(`${defender.name} is hit by the leg kick`);
+    console.log(`${defender.name} takes ${damage} damage from the leg kick`);
     return "kickLanded";
   } else {
-    // Leg kick is checked
     const damage = calculateDamage(defender.Rating.legKickDefence, true, true);
-    if (isNaN(damage)) {
-      console.error(
-        `Calculated NaN damage for checked leg kick. Defence: ${defender.Rating.legKickDefence}`
-      );
-    }
     attacker.currentHealth -= damage;
     defender.stats.legKicksChecked++;
-    console.log(`${defender.name} checks the leg kick`);
+    console.log(`${defender.name} checks the kick`);
     console.log(
-      `${attacker.name} takes ${damage} damage from the checked leg kick`
+      `${attacker.name} takes ${damage} damage from the checked kick`
     );
     return "kickChecked";
   }
 };
-exports.doLegKick = doLegKick;
 
-const isSignificantHit = () => {
-  return Math.random() < 0.1; // 10% chance of significant hit
-};
-
-const calculateDamage = (baseRating, isKick, isLegKick) => {
-  const baseDamage = isKick ? 15 : 10;
-  const variationFactor = 0.3; // 30% variation for the damage
-  const randomFactor = 1 + (Math.random() * 2 - 1) * variationFactor;
-  const significantMultiplier = isSignificantHit() ? 1.5 : 1; // 50% more damage for significant strikes
-  const legKickMultiplier = isLegKick ? 1.2 : 1; // 20% more damage for leg kicks
-  const damage =
-    (baseDamage + baseRating * 0.5) *
-    randomFactor *
-    significantMultiplier *
-    legKickMultiplier;
-  return isNaN(damage) ? 0 : Math.round(damage);
-};
-
-// Determine action based on fighter's tendencies
-const determineAction = (fighter) => {
-  const rand = Math.random() * 100;
-  if (rand < fighter.Tendency.punchTendency) {
-    return "punch";
-  } else if (
-    rand <
-    fighter.Tendency.punchTendency + fighter.Tendency.kickTendency
+/**
+ * Perform a ground punch action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @returns {string} Outcome of the action
+ */
+const doGroundPunch = (attacker, defender, staminaImpact) => {
+  console.log(`${attacker.name} throws a ground punch at ${defender.name}`);
+  if (
+    Math.random() <
+    calculateProbability(
+      attacker.Rating.groundOffence * staminaImpact,
+      defender.Rating.groundDefence
+    )
   ) {
-    return "kick";
+    const damage = calculateDamage(
+      attacker.Rating.groundOffence * staminaImpact,
+      false,
+      false
+    );
+    defender.currentHealth -= damage;
+    attacker.stats.groundPunchesLanded++;
+    console.log(
+      `${defender.name} is hit by the ground punch for ${damage} damage`
+    );
+    return "groundPunchLanded";
   } else {
-    return "legKick";
+    console.log(`${defender.name} blocks the ground punch`);
+    return "groundPunchBlocked";
   }
 };
 
-// Simulate an action
-const simulateAction = (fighters, actionFighter) => {
+/**
+ * Perform a takedown action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @returns {string} Outcome of the action
+ */
+const doTakedown = (attacker, defender, staminaImpact) => {
+  console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
+  attacker.stats.takedownsAttempted++;
+  if (
+    Math.random() <
+    calculateProbability(
+      attacker.Rating.takedownOffence * staminaImpact,
+      defender.Rating.takedownDefence
+    )
+  ) {
+    attacker.stats.takedownsLanded++;
+    // Update ground states
+    attacker.isStanding = false;
+    attacker.isGroundOffense = true;
+    attacker.isGroundDefense = false;
+    defender.isStanding = false;
+    defender.isGroundOffense = false;
+    defender.isGroundDefense = true;
+    // Add some damage for successful takedowns
+    const damage = Math.round(10 * staminaImpact);
+    defender.currentHealth -= damage;
+    console.log(
+      `${attacker.name} successfully takes down ${defender.name} for ${damage} damage`
+    );
+    return "takedownLanded";
+  } else {
+    defender.stats.takedownsDefended++;
+    console.log(`${defender.name} defends the takedown`);
+    // Both fighters remain standing
+    attacker.isStanding = true;
+    attacker.isGroundOffense = false;
+    attacker.isGroundDefense = false;
+    defender.isStanding = true;
+    defender.isGroundOffense = false;
+    defender.isGroundDefense = false;
+    return "takedownDefended";
+  }
+};
+
+/**
+ * Perform an action to get up when on the ground
+ * @param {Object} fighter - Fighter attempting to get up
+ * @param {Object} opponent - Opponent fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @returns {string} Outcome of the action
+ */
+const doGetUp = (fighter, opponent, staminaImpact) => {
+  console.log(`${fighter.name} attempts to get up`);
+  fighter.stats.getUpsAttempted++;
+  if (
+    Math.random() <
+    calculateProbability(
+      fighter.Rating.getUpAbility * staminaImpact,
+      opponent.Rating.groundOffence
+    )
+  ) {
+    fighter.stats.getUpsSuccessful++;
+    // Reset both fighters to standing position
+    fighter.isStanding = true;
+    fighter.isGroundOffense = false;
+    fighter.isGroundDefense = false;
+    opponent.isStanding = true;
+    opponent.isGroundOffense = false;
+    opponent.isGroundDefense = false;
+    console.log(`${fighter.name} successfully gets up`);
+    return "getUpSuccessful";
+  } else {
+    console.log(`${fighter.name} fails to get up`);
+    return "getUpFailed";
+  }
+};
+
+/**
+ * Perform a submission action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @returns {string} Outcome of the action
+ */
+const doSubmission = (attacker, defender, staminaImpact) => {
+  console.log(`${attacker.name} attempts a submission on ${defender.name}`);
+  attacker.stats.submissionsAttempted++;
+  if (
+    Math.random() <
+    calculateProbability(
+      attacker.Rating.submissionOffense * staminaImpact,
+      defender.Rating.submissionDefense
+    )
+  ) {
+    attacker.stats.submissionsLanded++;
+    console.log(`${attacker.name} successfully submits ${defender.name}!`);
+    // flags that the loser has been submitted
+    defender.isSubmitted = true;
+    return "submissionSuccessful";
+  } else {
+    defender.stats.submissionsDefended++;
+    console.log(`${defender.name} defends the submission`);
+    return "submissionDefended";
+  }
+};
+
+// Main Simulation Functions
+
+/**
+ * Determine the next action based on fighter's position and tendencies
+ * @param {Object} fighter - Current fighter
+ * @param {Object} opponent - Opponent fighter
+ * @returns {string} The determined action
+ */
+const determineAction = (fighter, opponent) => {
+  if (fighter.isStanding && opponent.isStanding) {
+    // Standing logic
+    const rand = Math.random() * 100;
+    let cumulativeProbability = 0;
+    const tendencies = fighter.Tendency.standingTendency;
+    if (rand < (cumulativeProbability += tendencies.punchTendency))
+      return isSignificantHit() ? "significantPunch" : "punch";
+    if (rand < (cumulativeProbability += tendencies.kickTendency))
+      return isSignificantHit() ? "significantKick" : "kick";
+    if (rand < (cumulativeProbability += tendencies.legKickTendency))
+      return "legKick";
+    return "takedownAttempt";
+  } else if (fighter.isGroundOffense) {
+    // Ground offense logic
+    const rand = Math.random() * 100;
+    let cumulativeProbability = 0;
+    const tendencies = fighter.Tendency.groundOffenseTendency;
+    if (rand < (cumulativeProbability += tendencies.punchTendency))
+      return "groundPunch";
+    if (rand < (cumulativeProbability += tendencies.submissionTendency))
+      return "submission";
+    return "getUpAttempt";
+  } else if (fighter.isGroundDefense) {
+    // Ground defense logic
+    const rand = Math.random() * 100;
+    let cumulativeProbability = 0;
+    const tendencies = fighter.Tendency.groundDefenseTendency;
+    if (rand < (cumulativeProbability += tendencies.punchTendency))
+      return "groundPunch";
+    if (rand < (cumulativeProbability += tendencies.submissionTendency))
+      return "submission";
+    return "getUpAttempt";
+  }
+  // This should never happen, but TypeScript requires a return statement
+  return "punch";
+};
+
+/**
+ * Simulate one single action
+ * @param {Object[]} fighters - Array of fighter objects
+ * @param {number} actionFighter - Index of the current action fighter
+ * @param {number} currentTime - Current time in the round
+ * @returns {[number|null, number]} Winner (if any) and time passed
+ */
+const simulateAction = (fighters, actionFighter, currentTime) => {
   const opponent = actionFighter === 0 ? 1 : 0;
   const fighter = fighters[actionFighter];
-  // Determine action type based on fighter's tendencies
-  const actionType = determineAction(fighter);
+  const opponentFighter = fighters[opponent];
+  const actionType = determineAction(fighter, opponentFighter);
+  console.log(`\n[${formatTime(currentTime)}]`);
+  
+  // Decrease stamina
+  fighter.stamina = Math.max(0, fighter.stamina - 2);
+  const staminaImpact = calculateStaminaImpact(fighter.stamina);
+
+  let outcome;
+  let timePassed = 0;  // Initialize timePassed to 0 aka no time has passed before the action takes place 
+
   switch (actionType) {
     case "punch":
-      (0, exports.doPunch)(fighter, fighters[opponent]);
+    case "significantPunch":
+      outcome = doPunch(
+        fighter,
+        opponentFighter,
+        staminaImpact,
+        actionType === "significantPunch"
+      );
       break;
     case "kick":
-      (0, exports.doKick)(fighter, fighters[opponent]);
+    case "significantKick":
+      outcome = doKick(
+        fighter,
+        opponentFighter,
+        staminaImpact,
+        actionType === "significantKick"
+      );
       break;
     case "legKick":
-      (0, exports.doLegKick)(fighter, fighters[opponent]);
+      outcome = doLegKick(fighter, opponentFighter, staminaImpact);
+      break;
+    case "takedownAttempt":
+      outcome = doTakedown(fighter, opponentFighter, staminaImpact);
+      break;
+    case "getUpAttempt":
+      outcome = doGetUp(fighter, opponentFighter, staminaImpact);
+      break;
+    case "groundPunch":
+      outcome = doGroundPunch(fighter, opponentFighter, staminaImpact);
+      break;
+    case "submission":
+      outcome = doSubmission(fighter, opponentFighter, staminaImpact);
+      if (outcome === "submissionSuccessful") {
+        return [actionFighter, 0]; // Submission ends the fight immediately
+      }
       break;
     default:
-      console.error(`Unexpected action type: ${actionType}`);
-      return "invalidAction";
+      console.error(`Unknown action type: ${actionType}`);
+      outcome = "unknownAction";
+      break;
   }
-  if (fighters[opponent].currentHealth <= 0) {
-    return actionFighter; // Return the winner if there's a knockout
+
+  // Ensure health doesn't go below 0 and check for knockout
+  opponentFighter.currentHealth = Math.max(0, opponentFighter.currentHealth);
+  if (opponentFighter.currentHealth === 0) {
+    return [actionFighter, 0]; // Knockout with no time passed
   }
-  return null; // Fight continues
+
+  // Calculate time passed only if the fight continues
+  timePassed = Math.min(simulateTimePassing(actionType), currentTime);
+
+if (opponentFighter.isSubmitted) {
+  return [actionFighter, timePassed]; // Submission (should not happen here, but just in case)
+}
+
+return [null, timePassed]; // Fight continues
 };
 
-// Display the stats for a round
-const displayRoundStats = (fighters, roundNumber) => {
-  console.log(`\nRound ${roundNumber} Stats:`);
-  fighters.forEach((fighter, index) => {
-    console.log(`\n${fighter.name}:`);
-    console.log(`  Punches Landed: ${fighter.stats.punchesLanded}`);
-    console.log(`  Kicks Landed: ${fighter.stats.kicksLanded}`);
-    console.log(
-      `  Significant Punches: ${fighter.stats.significantPunchesLanded}`
-    );
-    console.log(`  Significant Kicks: ${fighter.stats.significantKicksLanded}`);
-    console.log(`  Leg Kicks Landed: ${fighter.stats.legKicksLanded}`);
-    console.log(`  Leg Kicks Checked: ${fighter.stats.legKicksChecked}`);
-    console.log(
-      `  Current Health: ${fighter.currentHealth}/${fighter.maxHealth}`
-    );
-  });
-};
-
-// Simulate a single round
+/**
+ * Simulate a single round of the fight
+ * @param {Object[]} fighters - Array of fighter objects
+ * @param {number} roundNumber - Current round number
+ * @returns {number|null} Winner of the round (if any)
+ */
 const simulateRound = (fighters, roundNumber) => {
-  // Announce round start
   console.log(`\nRound ${roundNumber} begins!`);
+  // Reset fighters to standing position and recover some stamina at the start of the round
+  fighters.forEach((fighter) => {
+    fighter.isStanding = true;
+    fighter.isGroundOffense = false;
+    fighter.isGroundDefense = false;
+    fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
+  });
   let lastActionFighter;
+  let currentTime = 300; // possibly update in future to allow customization of the round length (in seconds)
   // Track initial stats for this round
-  const initialStats = fighters.map((fighter) =>
-    Object.assign({}, fighter.stats)
-  );
-  for (let action = 0; action < ACTIONS_PER_ROUND; action++) {
+  const initialStats = fighters.map((fighter) => ({ ...fighter.stats }));
+  while (currentTime > 0) {
     const actionFighter = pickFighter(fighters, lastActionFighter);
-    const roundWinner = simulateAction(fighters, actionFighter);
-    // Immediate KO announcement
+    const [roundWinner, timePassed] = simulateAction(
+      fighters,
+      actionFighter,
+      currentTime
+    );
+    // Simulate time passing
+    currentTime -= Math.round(timePassed);
+    // Check for KO or submission
     if (roundWinner !== null) {
-      console.log(
-        `\n${fighters[roundWinner].name} wins by KO in round ${roundNumber}!`
-      );
+      if (fighters[1 - roundWinner].currentHealth <= 0) {
+        console.log(
+          `\n${
+            fighters[roundWinner].name
+          } wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`
+        );
+      } else {
+        console.log(
+          `\n${
+            fighters[roundWinner].name
+          } wins by submission in round ${roundNumber} at ${formatTime(
+            currentTime
+          )}!`
+        );
+      }
       return roundWinner;
     }
     lastActionFighter = actionFighter;
   }
+  console.log("\nEnd of Round");
   // Determine round winner based on damage dealt
   const damageDealt = [
     fighters[1].maxHealth - fighters[1].currentHealth,
@@ -270,53 +543,150 @@ const simulateRound = (fighters, roundNumber) => {
   const roundWinner = damageDealt[0] > damageDealt[1] ? 0 : 1;
   fighters[roundWinner].roundsWon++;
   // Display round stats
-  displayRoundStats(fighters, roundNumber);
-  // Display strikes landed this round
+  displayRoundStats(fighters, roundNumber, initialStats);
+  return null; // No KO or submission
+};
+
+/**
+ * Display the stats for a round
+ * @param {Object[]} fighters - Array of fighter objects
+ * @param {number} roundNumber - Current round number
+ * @param {Object[]} initialStats - Initial stats at the start of the round
+ */
+const displayRoundStats = (fighters, roundNumber, initialStats) => {
+  console.log(`\nRound ${roundNumber} Stats:`);
   fighters.forEach((fighter, index) => {
-    console.log(`\n${fighter.name} landed this round:`);
+    console.log(`\n${fighter.name}:`);
     console.log(
-      `  Punches: ${
+      `  Punches Landed: ${
         fighter.stats.punchesLanded - initialStats[index].punchesLanded
       }`
     );
     console.log(
-      `  Kicks: ${fighter.stats.kicksLanded - initialStats[index].kicksLanded}`
+      `  Kicks Landed: ${
+        fighter.stats.kicksLanded - initialStats[index].kicksLanded
+      }`
     );
     console.log(
-      `  Leg Kicks: ${
+      `  Significant Punches: ${
+        fighter.stats.significantPunchesLanded -
+        initialStats[index].significantPunchesLanded
+      }`
+    );
+    console.log(
+      `  Significant Kicks: ${
+        fighter.stats.significantKicksLanded -
+        initialStats[index].significantKicksLanded
+      }`
+    );
+    console.log(
+      `  Leg Kicks Landed: ${
         fighter.stats.legKicksLanded - initialStats[index].legKicksLanded
       }`
     );
+    console.log(
+      `  Leg Kicks Checked: ${
+        fighter.stats.legKicksChecked - initialStats[index].legKicksChecked
+      }`
+    );
+    console.log(
+      `  Takedowns Landed: ${
+        fighter.stats.takedownsLanded - initialStats[index].takedownsLanded
+      }`
+    );
+    console.log(
+      `  Ground Punches Landed: ${
+        fighter.stats.groundPunchesLanded -
+        initialStats[index].groundPunchesLanded
+      }`
+    );
+    console.log(
+      `  Submissions Attempted: ${
+        fighter.stats.submissionsAttempted -
+        initialStats[index].submissionsAttempted
+      }`
+    );
+    console.log(
+      `  Submissions Landed: ${
+        fighter.stats.submissionsLanded - initialStats[index].submissionsLanded
+      }`
+    );
+    console.log(
+      `  Current Position: ${
+        fighter.isStanding
+          ? "Standing"
+          : fighter.isGroundOffense
+          ? "Ground Offense"
+          : "Ground Defense"
+      }`
+    );
+    console.log(
+      `  Current Health: ${fighter.currentHealth}/${fighter.maxHealth}`
+    );
   });
-  return null;
 };
 
-// Simulate the entire fight
+/**
+ * Simulate the entire fight
+ * @param {Object[]} fighters - Array of fighter objects
+ * @returns {number} Index of the winning fighter
+ */
 const simulateFight = (fighters) => {
+  let method = "decision";
+  let roundEnded = ROUNDS_PER_FIGHT;
+
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
     const roundWinner = simulateRound(fighters, round);
-    // This handles a KO
+
+    // Check if the round ended early (KO or submission)
     if (roundWinner !== null) {
+      // Determine if it's a KO or submission
+      if (fighters[1 - roundWinner].currentHealth <= 0) {
+        method = "knockout";
+      } else if (fighters[1 - roundWinner].isSubmitted) {
+        method = "submission";
+      }
+      roundEnded = round;
       displayFightStats(fighters, roundWinner);
-      return roundWinner;
+      return {
+        winner: roundWinner,
+        winnerName: fighters[roundWinner].name,
+        loserName: fighters[1 - roundWinner].name,
+        method: method,
+        roundEnded: roundEnded,
+      };
     }
+
     // Reset fighters' health for the next round
     fighters.forEach((fighter) => {
       fighter.currentHealth = Math.min(
         fighter.currentHealth + 20,
         fighter.maxHealth
       );
+      fighter.isSubmitted = false;
     });
   }
-  // Determine winner by rounds won if no knockout
-  const winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
-  console.log(`${fighters[winner].name} wins by decision!`);
-  displayFightStats(fighters, winner);
-  return winner;
-};
-exports.simulateFight = simulateFight;
 
-// Display fight stats at the end of the fight
+  // If we've reached this point, it's a decision
+  method = "decision";
+  // Determine winner by rounds won
+  const winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
+  console.log(`${fighters[winner].name} wins by ${method}!`);
+  displayFightStats(fighters, winner);
+  return {
+    winner: winner,
+    winnerName: fighters[winner].name,
+    loserName: fighters[1 - winner].name,
+    method: method,
+    roundEnded: roundEnded,
+  };
+};
+
+/**
+ * Display fight stats at the end of the fight
+ * @param {Object[]} fighters - Array of fighter objects
+ * @param {number} winner - Index of the winning fighter
+ */
 const displayFightStats = (fighters, winner) => {
   const loser = winner === 0 ? 1 : 0;
   console.log("\nFight Results:");
@@ -336,10 +706,36 @@ const displayFightStats = (fighters, winner) => {
     );
     console.log(`  Total Leg Kicks Landed: ${fighter.stats.legKicksLanded}`);
     console.log(`  Total Leg Kicks Checked: ${fighter.stats.legKicksChecked}`);
+    console.log(`  Total Takedowns Landed: ${fighter.stats.takedownsLanded}`);
+    console.log(
+      `  Total Ground Punches Landed: ${fighter.stats.groundPunchesLanded}`
+    );
+    console.log(
+      `  Total Submissions Attempted: ${fighter.stats.submissionsAttempted}`
+    );
+    console.log(
+      `  Total Submissions Landed: ${fighter.stats.submissionsLanded}`
+    );
+    console.log(
+      `  Total Submissions Defended: ${fighter.stats.submissionsDefended}`
+    );
     console.log(`  Rounds Won: ${fighter.roundsWon}`);
     console.log(
       `  Final Health: ${fighter.currentHealth}/${fighter.maxHealth}`
     );
   });
 };
-exports.displayFightStats = displayFightStats;
+
+export {
+  simulateFight,
+  displayFightStats,
+  doKick,
+  doPunch,
+  doLegKick,
+  doGroundPunch,
+  doTakedown,
+  doGetUp,
+  doSubmission,
+  isSignificantHit,
+  calculateStaminaImpact,
+};

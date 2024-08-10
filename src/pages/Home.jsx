@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Typography, Grid, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+// Define the fade in animation used upon page load for the home page
 const fadeIn = {
   animation: "fadeIn 1.5s ease-out", // Duration and easing for the fade-in effect
   "@keyframes fadeIn": {
@@ -11,6 +12,7 @@ const fadeIn = {
 };
 
 const Home = () => {
+  // Define the useNavigate method for routing
   const navigate = useNavigate();
 
   const handleViewRoster = () => {
@@ -52,6 +54,17 @@ const Home = () => {
         }}
       />
       <Container maxWidth="md" sx={{ position: "relative", zIndex: 2 }}>
+        {/* Centered logo below the title */}
+        <Box sx={{ ...fadeIn, marginBottom: 4 }}>
+          <img
+            src="/assets/images/logo.png"
+            alt="Logo"
+            style={{
+              width: "150px", // Adjust the size as needed
+              height: "auto",
+            }}
+          />
+        </Box>
         <Typography variant="h2" gutterBottom sx={fadeIn}>
           MMA Fighter
         </Typography>
