@@ -32,8 +32,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -46,7 +44,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -100,9 +106,7 @@
     },
     "stats": {
       "punchesLanded": 0,
-      "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
+      "kicksLanded": 0,  
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -115,7 +119,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -170,8 +182,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -184,7 +194,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -239,8 +257,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -253,7 +269,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -308,8 +332,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -322,7 +344,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -377,8 +407,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -391,7 +419,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -446,8 +482,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -460,7 +494,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -515,8 +557,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -529,7 +569,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -584,8 +632,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -598,7 +644,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {
@@ -653,8 +707,6 @@
     "stats": {
       "punchesLanded": 0,
       "kicksLanded": 0,
-      "significantPunchesLanded": 0,
-      "significantKicksLanded": 0,
       "legKicksLanded": 0,
       "legKicksChecked": 0,
       "punchesBlocked": 0,
@@ -667,7 +719,15 @@
       "groundPunchesLanded": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
-      "submissionsDefended": 0
+      "submissionsDefended": 0,
+      "jabsLanded": 0,
+      "crossesLanded": 0,
+      "hooksLanded": 0,
+      "uppercutsLanded": 0,
+      "jabsBlocked": 0,
+      "crossesBlocked": 0,
+      "hooksBlocked": 0,
+      "uppercutsBlocked": 0
     },
     "Tendency": {
       "standingTendency": {

@@ -95,8 +95,16 @@ const FightScreen = () => {
           },
           stats: {
             punchesLanded: Number(fighter.stats.punchesLanded) || 0,
+            jabsLanded: Number(fighter.stats.punchesLanded) || 0,
+            crossesLanded: Number(fighter.stats.punchesLanded) || 0,
+            hooksLanded: Number(fighter.stats.punchesLanded) || 0,
+            uppercutsLanded: Number(fighter.stats.punchesLanded) || 0,
             kicksLanded: Number(fighter.stats.kicksLanded) || 0,
             punchesBlocked: Number(fighter.stats.punchesBlocked) || 0,
+            jabsBlocked: Number(fighter.stats.punchesLanded) || 0,
+            crossesBlocked: Number(fighter.stats.punchesLanded) || 0,
+            hooksBlocked: Number(fighter.stats.punchesLanded) || 0,
+            uppercutsBlocked: Number(fighter.stats.punchesLanded) || 0,
             kicksBlocked: Number(fighter.stats.kicksBlocked) || 0,
             significantPunchesLanded:
               Number(fighter.stats.significantPunchesLanded) || 0,

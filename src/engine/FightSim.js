@@ -2,13 +2,25 @@ import { formatTime, simulateTimePassing } from "./helper.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
-const SIGNIFICANT_HIT_CHANCE = 0.1; // 10% chance of significant hit
-const BASE_PUNCH_DAMAGE = 4;
+const PUNCH_DAMAGE = {
+  jab: 2, // Quick, less powerful
+  cross: 4, // More power, straight punch
+  hook: 5, // Strong, circular punch
+  uppercut: 6, // Most powerful, upward punch
+};
 const BASE_KICK_DAMAGE = 9;
 const DAMAGE_VARIATION_FACTOR = 0.25;
-const SIGNIFICANT_STRIKE_MULTIPLIER = 1.7;
 const LEG_KICK_MULTIPLIER = 1.1;
 const RATING_DAMAGE_FACTOR = 0.3;
+
+const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
+const COMBO_SUCCESS_MODIFIER = 0.8; // Each subsequent punch in a combo is 20% less likely to land
+const COMBO_FOLLOW_UPS = {
+  jab: ["jab", "cross", "hook"],
+  cross: ["hook", "uppercut"],
+  hook: ["uppercut", "cross"],
+  uppercut: ["hook", "cross"],
+};
 
 //Functions that set up an action
 
@@ -46,27 +58,27 @@ const calculateProbability = (offenseRating, defenseRating) => {
  * @param {number} baseRating - Attacker's base rating
  * @param {boolean} isKick - Whether the strike is a kick
  * @param {boolean} isLegKick - Whether the strike is a leg kick
- * @param {boolean} isSignificant - Whether the strike is significant
+ * @param {string} strikeType - Type of strike (punch type or 'groundPunch')
  * @returns {number} Calculated damage
  */
-const calculateDamage = (
-  baseRating,
-  isKick,
-  isLegKick,
-  isSignificant = false
-) => {
-  const baseDamage = isKick ? BASE_KICK_DAMAGE : BASE_PUNCH_DAMAGE;
+const calculateDamage = (baseRating, isKick, isLegKick, strikeType = null) => {
+  let baseDamage;
+  if (isKick) {
+    baseDamage = BASE_KICK_DAMAGE;
+  } else if (strikeType === "groundPunch") {
+    baseDamage = PUNCH_DAMAGE.jab; // Using jab damage as base for ground punches
+  } else if (PUNCH_DAMAGE[strikeType]) {
+    baseDamage = PUNCH_DAMAGE[strikeType];
+  } else {
+    throw new Error("Invalid strike type: " + strikeType);
+  }
+
   const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
-  const significantMultiplier = isSignificant
-    ? SIGNIFICANT_STRIKE_MULTIPLIER
-    : 1;
   const legKickMultiplier = isLegKick ? LEG_KICK_MULTIPLIER : 1;
   const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
+
   return Math.round(
-    (baseDamage + ratingFactor) *
-      randomFactor *
-      significantMultiplier *
-      legKickMultiplier
+    (baseDamage + ratingFactor) * randomFactor * legKickMultiplier
   );
 };
 
@@ -79,14 +91,6 @@ const calculateStaminaImpact = (stamina) => {
   return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
 };
 
-/**
- * Determine if a strike is significant
- * @returns {boolean} Whether the strike is significant
- */
-const isSignificantHit = () => {
-  return Math.random() < SIGNIFICANT_HIT_CHANCE;
-};
-
 // Action Functions
 
 /**
@@ -94,15 +98,10 @@ const isSignificantHit = () => {
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @param {number} staminaImpact - Stamina impact on the action
- * @param {boolean} isSignificant - Whether the kick is significant
  * @returns {string} Outcome of the action
  */
-const doKick = (attacker, defender, staminaImpact, isSignificant) => {
-  console.log(
-    `${attacker.name} throws a${isSignificant ? " significant" : ""} kick at ${
-      defender.name
-    }`
-  );
+const doKick = (attacker, defender, staminaImpact) => {
+  console.log(`${attacker.name} throws a kick at ${defender.name}`);
   if (
     Math.random() <
     calculateProbability(
@@ -113,70 +112,120 @@ const doKick = (attacker, defender, staminaImpact, isSignificant) => {
     const damage = calculateDamage(
       attacker.Rating.kicking * staminaImpact,
       true,
-      false,
-      isSignificant
+      false
     );
     defender.currentHealth -= damage;
     attacker.stats.kicksLanded++;
-    if (isSignificant) attacker.stats.significantKicksLanded++;
-    console.log(
-      `${defender.name} is hit by the${
-        isSignificant ? " significant" : ""
-      } kick for ${damage} damage`
-    );
-    return isSignificant ? "significantKickLanded" : "kickLanded";
+    console.log(`${defender.name} is hit by the kick for ${damage} damage`);
+    return "kickLanded";
   } else {
     defender.stats.kicksBlocked++;
-    console.log(
-      `${defender.name} blocks the${isSignificant ? " significant" : ""} kick`
-    );
-    return isSignificant ? "significantKickBlocked" : "kickBlocked";
+    console.log(`${defender.name} blocks the kick`);
+    return "kickBlocked";
   }
 };
 
 /**
- * Perform a punch action
+ * Perform a single punch action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @param {number} staminaImpact - Stamina impact on the action
- * @param {boolean} isSignificant - Whether the punch is significant
- * @returns {string} Outcome of the action
+ * @param {string} punchType - Type of punch (jab, cross, hook, uppercut)
+ * @param {number} comboCount - Number of punches already in this combo
+ * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
  */
-const doPunch = (attacker, defender, staminaImpact, isSignificant) => {
+const doPunch = (
+  attacker,
+  defender,
+  staminaImpact,
+  punchType,
+  comboCount = 0
+) => {
   console.log(
-    `${attacker.name} throws a${isSignificant ? " significant" : ""} punch at ${
-      defender.name
-    }`
+    `${attacker.name} throws a ${punchType}${
+      comboCount > 0 ? " (combo punch #" + (comboCount + 1) + ")" : ""
+    } at ${defender.name}`
   );
-  if (
-    Math.random() <
+
+  const successChance =
     calculateProbability(
       attacker.Rating.striking * staminaImpact,
       defender.Rating.strikingDefence
-    )
-  ) {
+    ) * Math.pow(COMBO_SUCCESS_MODIFIER, comboCount);
+
+  const timePassed = comboCount === 0 ? simulateTimePassing(punchType) : 2;
+
+  if (Math.random() < successChance) {
     const damage = calculateDamage(
       attacker.Rating.striking * staminaImpact,
       false,
       false,
-      isSignificant
+      punchType
     );
     defender.currentHealth -= damage;
+
+    // Update overall punch stats
     attacker.stats.punchesLanded++;
-    if (isSignificant) attacker.stats.significantPunchesLanded++;
+
+    // Update specific punch type stats
+    attacker.stats[`${punchType}sLanded`] =
+      (attacker.stats[`${punchType}sLanded`] || 0) + 1;
+
     console.log(
-      `${defender.name} is hit by the${
-        isSignificant ? " significant" : ""
-      } punch for ${damage} damage`
+      `${defender.name} is hit by the ${punchType} for ${damage} damage`
     );
-    return isSignificant ? "significantPunchLanded" : "punchLanded";
+
+    // Determine if a combo follows
+    const comboFollows = Math.random() < COMBO_CHANCE && comboCount < 2;
+
+    return [punchType + "Landed", timePassed, comboFollows];
   } else {
     defender.stats.punchesBlocked++;
-    console.log(
-      `${defender.name} blocks the${isSignificant ? " significant" : ""} punch`
-    );
-    return isSignificant ? "significantPunchBlocked" : "punchBlocked";
+
+    // Update specific punch type blocked stats
+    defender.stats[`${punchType}sBlocked`] =
+      (defender.stats[`${punchType}sBlocked`] || 0) + 1;
+
+    console.log(`${defender.name} blocks the ${punchType}`);
+    return [`${punchType}Blocked`, timePassed, false];
   }
+};
+
+/**
+ * Execute a full combo sequence or single punch
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {number} staminaImpact - Stamina impact on the action
+ * @param {string} initialPunch - Type of the initial punch
+ * @returns {[string, number]} Full combo outcome and total time passed
+ */
+const doCombo = (attacker, defender, staminaImpact, initialPunch) => {
+  let comboCount = 0;
+  let totalOutcome = "";
+  let totalTime = 0;
+  let currentPunch = initialPunch;
+
+  while (true) {
+    const [outcome, time, comboFollows] = doPunch(
+      attacker,
+      defender,
+      staminaImpact,
+      currentPunch,
+      comboCount
+    );
+    totalOutcome += (comboCount > 0 ? " + " : "") + outcome;
+    totalTime += time;
+
+    if (!comboFollows) break;
+
+    comboCount++;
+    const followUpOptions = COMBO_FOLLOW_UPS[currentPunch];
+    currentPunch =
+      followUpOptions[Math.floor(Math.random() * followUpOptions.length)];
+    console.log(`${attacker.name} follows up with a ${currentPunch}`);
+  }
+
+  return [totalOutcome, totalTime];
 };
 
 /**
@@ -202,7 +251,6 @@ const doLegKick = (attacker, defender, staminaImpact) => {
     );
     defender.currentHealth -= damage;
     attacker.stats.legKicksLanded++;
-    attacker.stats.significantKicksLanded++;
     console.log(`${defender.name} is hit by the leg kick`);
     console.log(`${defender.name} takes ${damage} damage from the leg kick`);
     return "kickLanded";
@@ -237,7 +285,8 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
     const damage = calculateDamage(
       attacker.Rating.groundOffence * staminaImpact,
       false,
-      false
+      false,
+      "groundPunch"
     );
     defender.currentHealth -= damage;
     attacker.stats.groundPunchesLanded++;
@@ -373,10 +422,12 @@ const determineAction = (fighter, opponent) => {
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.standingTendency;
-    if (rand < (cumulativeProbability += tendencies.punchTendency))
-      return isSignificantHit() ? "significantPunch" : "punch";
+    if (rand < (cumulativeProbability += tendencies.punchTendency)) {
+      const punchTypes = ["jab", "cross", "hook", "uppercut"];
+      return punchTypes[Math.floor(Math.random() * punchTypes.length)];
+    }
     if (rand < (cumulativeProbability += tendencies.kickTendency))
-      return isSignificantHit() ? "significantKick" : "kick";
+      return "kick";
     if (rand < (cumulativeProbability += tendencies.legKickTendency))
       return "legKick";
     return "takedownAttempt";
@@ -418,71 +469,71 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   const opponentFighter = fighters[opponent];
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
-  
-  // Decrease stamina
+
+  // Decrease stamina only for the initial action
   fighter.stamina = Math.max(0, fighter.stamina - 2);
   const staminaImpact = calculateStaminaImpact(fighter.stamina);
 
   let outcome;
-  let timePassed = 0;  // Initialize timePassed to 0 aka no time has passed before the action takes place 
+  let timePassed = 0;
 
   switch (actionType) {
-    case "punch":
-    case "significantPunch":
-      outcome = doPunch(
+    case "jab":
+    case "cross":
+    case "hook":
+    case "uppercut":
+      [outcome, timePassed] = doCombo(
         fighter,
         opponentFighter,
         staminaImpact,
-        actionType === "significantPunch"
+        actionType
       );
       break;
     case "kick":
-    case "significantKick":
-      outcome = doKick(
-        fighter,
-        opponentFighter,
-        staminaImpact,
-        actionType === "significantKick"
-      );
+      outcome = doKick(fighter, opponentFighter, staminaImpact);
+      timePassed = simulateTimePassing("kick");
       break;
     case "legKick":
       outcome = doLegKick(fighter, opponentFighter, staminaImpact);
+      timePassed = simulateTimePassing("legKick");
       break;
     case "takedownAttempt":
       outcome = doTakedown(fighter, opponentFighter, staminaImpact);
+      timePassed = simulateTimePassing("takedownAttempt");
       break;
     case "getUpAttempt":
       outcome = doGetUp(fighter, opponentFighter, staminaImpact);
+      timePassed = simulateTimePassing("getUpAttempt");
       break;
     case "groundPunch":
       outcome = doGroundPunch(fighter, opponentFighter, staminaImpact);
+      timePassed = simulateTimePassing("groundPunch");
       break;
     case "submission":
       outcome = doSubmission(fighter, opponentFighter, staminaImpact);
+      timePassed = simulateTimePassing("submission");
       if (outcome === "submissionSuccessful") {
-        return [actionFighter, 0]; // Submission ends the fight immediately
+        return [actionFighter, timePassed];
       }
       break;
     default:
       console.error(`Unknown action type: ${actionType}`);
       outcome = "unknownAction";
+      timePassed = 1; // Default to 1 second for unknown actions
       break;
   }
 
   // Ensure health doesn't go below 0 and check for knockout
   opponentFighter.currentHealth = Math.max(0, opponentFighter.currentHealth);
   if (opponentFighter.currentHealth === 0) {
-    return [actionFighter, 0]; // Knockout with no time passed
+    return [actionFighter, timePassed];
   }
 
-  // Calculate time passed only if the fight continues
-  timePassed = Math.min(simulateTimePassing(actionType), currentTime);
+  if (opponentFighter.isSubmitted) {
+    return [actionFighter, timePassed];
+  }
 
-if (opponentFighter.isSubmitted) {
-  return [actionFighter, timePassed]; // Submission (should not happen here, but just in case)
-}
-
-return [null, timePassed]; // Fight continues
+  return [null, timePassed];
 };
 
 /**
@@ -563,20 +614,28 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
       }`
     );
     console.log(
+      `  Jabs Landed: ${
+        fighter.stats.jabsLanded - initialStats[index].jabsLanded
+      }`
+    );
+    console.log(
+      `  Crosses Landed: ${
+        fighter.stats.crossesLanded - initialStats[index].crossesLanded
+      }`
+    );
+    console.log(
+      `  Hooks Landed: ${
+        fighter.stats.hooksLanded - initialStats[index].hooksLanded
+      }`
+    );
+    console.log(
+      `  Uppercuts Landed: ${
+        fighter.stats.uppercutsLanded - initialStats[index].uppercutsLanded
+      }`
+    );
+    console.log(
       `  Kicks Landed: ${
         fighter.stats.kicksLanded - initialStats[index].kicksLanded
-      }`
-    );
-    console.log(
-      `  Significant Punches: ${
-        fighter.stats.significantPunchesLanded -
-        initialStats[index].significantPunchesLanded
-      }`
-    );
-    console.log(
-      `  Significant Kicks: ${
-        fighter.stats.significantKicksLanded -
-        initialStats[index].significantKicksLanded
       }`
     );
     console.log(
@@ -698,12 +757,6 @@ const displayFightStats = (fighters, winner) => {
     console.log(`  Total Kicks Landed: ${fighter.stats.kicksLanded}`);
     console.log(`  Total Punches Blocked: ${fighter.stats.punchesBlocked}`);
     console.log(`  Total Kicks Blocked: ${fighter.stats.kicksBlocked}`);
-    console.log(
-      `  Total Significant Punches: ${fighter.stats.significantPunchesLanded}`
-    );
-    console.log(
-      `  Total Significant Kicks: ${fighter.stats.significantKicksLanded}`
-    );
     console.log(`  Total Leg Kicks Landed: ${fighter.stats.legKicksLanded}`);
     console.log(`  Total Leg Kicks Checked: ${fighter.stats.legKicksChecked}`);
     console.log(`  Total Takedowns Landed: ${fighter.stats.takedownsLanded}`);
@@ -736,6 +789,5 @@ export {
   doTakedown,
   doGetUp,
   doSubmission,
-  isSignificantHit,
   calculateStaminaImpact,
 };
