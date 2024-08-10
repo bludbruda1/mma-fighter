@@ -54,6 +54,17 @@ const Home = () => {
         }}
       />
       <Container maxWidth="md" sx={{ position: "relative", zIndex: 2 }}>
+        {/* Centered logo below the title */}
+        <Box sx={{ ...fadeIn, marginBottom: 4 }}>
+          <img
+            src="/assets/images/logo.png"
+            alt="Logo"
+            style={{
+              width: "150px", // Adjust the size as needed
+              height: "auto",
+            }}
+          />
+        </Box>
         <Typography variant="h2" gutterBottom sx={fadeIn}>
           MMA Fighter
         </Typography>
