@@ -1,3 +1,4 @@
+// Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -20,36 +21,46 @@ import {
 } from "@mui/material";
 
 const Dashboard = () => {
-  // State handling on the dashboard page
   const { id } = useParams();
   const [fighter, setFighter] = useState(null);
   const [error, setError] = useState(null);
 
-  // Grabs the data from the fighters.json file and grabs the info for the fighter whose id was passed from the Roster page via click.
   useEffect(() => {
-    const fetchFighterData = async () => {
-      try {
-        const response = await fetch(`/fighters.json`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch fighter data");
-        }
-        const data = await response.json();
-        const selectedFighter = data.find(
-          (fighter) => fighter.personid === parseInt(id)
-        );
-        if (!selectedFighter) {
-          throw new Error("Fighter not found");
-        }
-        setFighter(selectedFighter);
-      } catch (error) {
-        setError(error.message);
-      }
+    const fetchFighterData = () => {
+      const dbName = "FightersDB";
+      const storeName = "fighters";
+      const dbVersion = 1;
+
+      const request = indexedDB.open(dbName, dbVersion);
+
+      request.onerror = (event) => {
+        setError("IndexedDB error: " + event.target.error);
+      };
+
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+        const transaction = db.transaction([storeName], "readonly");
+        const objectStore = transaction.objectStore(storeName);
+        const getFighter = objectStore.get(parseInt(id));
+
+        getFighter.onerror = (event) => {
+          setError("Error fetching fighter: " + event.target.error);
+        };
+
+        getFighter.onsuccess = (event) => {
+          const selectedFighter = event.target.result;
+          if (selectedFighter) {
+            setFighter(selectedFighter);
+          } else {
+            setError("Fighter not found");
+          }
+        };
+      };
     };
 
     fetchFighterData();
   }, [id]);
 
-  // If an error is thrown it displays an error message on the Dashboard page.
   if (error) {
     return (
       <Container
@@ -63,7 +74,6 @@ const Dashboard = () => {
     );
   }
 
-  // Returns a Loading text if the fighter is not correct
   if (!fighter) {
     return (
       <Container

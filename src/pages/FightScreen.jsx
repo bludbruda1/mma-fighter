@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import Select from "../components/Select";
 import { simulateFight } from "../engine/FightSim";
+import { getAllFighters, updateFighter } from "../utils/indexedDB";
 
 const FightScreen = () => {
   // stores the state of the fighters from fighters.json in an array ready for consumption
@@ -35,11 +36,10 @@ const FightScreen = () => {
 
   useEffect(() => {
     // Fetch the JSON data from the file
-    fetch("/fighters.json")
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setFighters(jsonData);
-        console.log("Fetched fighters:", jsonData); // Debugging line
+    getAllFighters()
+      .then((fetchedFighters) => {
+        setFighters(fetchedFighters);
+        console.log("Fetched fighters:", fetchedFighters); // Debugging line
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -70,8 +70,8 @@ const FightScreen = () => {
           firstname: fighter.firstname,
           lastname: fighter.lastname,
           name: `${fighter.firstname} ${fighter.lastname}`,
-          maxHealth: Number(fighter.maxHealth) || 100,
-          currentHealth: Number(fighter.currentHealth) || 100,
+          maxHealth: Number(fighter.maxHealth) || 1000,
+          currentHealth: Number(fighter.currentHealth) || 1000,
           stamina: Number(fighter.stamina) || 100,
           isStanding: fighter.isStanding || true,
           isGroundOffense: fighter.isGroundOffense || false,
@@ -196,25 +196,47 @@ const FightScreen = () => {
         // Update the record of the fighters after the fight
         const updatedFighters = fighters.map((fighter) => {
           if (fighter.personid === winnerFighter.id) {
-            return { ...fighter, wins: (fighter.wins || 0) + 1 };
+            return {
+              ...fighter,
+              wins: (fighter.wins || 0) + 1,
+              recentFights: [
+                {
+                  opponent: `${loserFighter.firstname} ${loserFighter.lastname}`,
+                  result: `Win by ${result.method}`,
+                },
+                ...(fighter.recentFights || []).slice(0, 4),
+              ],
+            };
           } else if (fighter.personid === loserFighter.id) {
-            return { ...fighter, losses: (fighter.losses || 0) + 1 };
+            return {
+              ...fighter,
+              losses: (fighter.losses || 0) + 1,
+              recentFights: [
+                {
+                  opponent: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
+                  result: `Loss by ${result.method}`,
+                },
+                ...(fighter.recentFights || []).slice(0, 4),
+              ],
+            };
           } else {
             return fighter;
           }
         });
 
         // Set the updated fighters, and display the winning message
-        setFighters(updatedFighters);
-        setFightEvents(fightEvents);
-        setWinnerMessage(
-          `${result.winnerName} defeats ${result.loserName} by ${result.method} in round ${result.roundEnded}!`
-        );
+        Promise.all(updatedFighters.map(updateFighter))
+          .then(() => {
+            setFighters(updatedFighters);
+            setFightEvents(fightEvents);
+            setWinnerMessage(
+              `${result.winnerName} defeats ${result.loserName} by ${result.method} in round ${result.roundEnded}!`
+            );
+          })
+          .catch((error) => console.error("Error updating fighters:", error));
       } else {
         setWinnerMessage("Error: Invalid fight result.");
       }
-    } else {
-      setWinnerMessage("Error: Please select two fighters.");
     }
   };
 
