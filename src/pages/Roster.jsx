@@ -11,15 +11,17 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { getAllFighters } from "../utils/indexedDB"; // Import the getAllFighters function
 
 const Roster = () => {
   const [fighters, setFighters] = useState([]);
 
   useEffect(() => {
-    fetch("/fighters.json")
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setFighters(jsonData);
+    // Fetch fighters from IndexedDB using the getAllFighters function
+    getAllFighters()
+      .then((fetchedFighters) => {
+        setFighters(fetchedFighters);
+        console.log("Fetched fighters:", fetchedFighters); // Debugging line
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
