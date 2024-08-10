@@ -47,7 +47,9 @@ const HamburgerMenu = () => {
             <MenuIcon />
           </IconButton>
           <SportsMmaIcon sx={{ mr: 2 }} />
-          <Typography variant="h6">MMA Fighter</Typography>
+          <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
+            <Typography variant="h6">MMA Fighter</Typography>
+          </Link>
         </Toolbar>
       </AppBar>
       <Drawer
