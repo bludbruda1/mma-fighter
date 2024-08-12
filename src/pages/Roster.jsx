@@ -40,6 +40,7 @@ const Roster = () => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
+              <TableCell>Weight Class</TableCell>
               <TableCell>Nationality</TableCell>
               <TableCell>Hometown</TableCell>
               <TableCell>Record</TableCell>
@@ -78,6 +79,7 @@ const Roster = () => {
                     {`${fighter.firstname} ${fighter.lastname}`}
                   </Link>
                 </TableCell>
+                <TableCell>{fighter.weightClass}</TableCell>
                 <TableCell>{fighter.nationality}</TableCell>
                 <TableCell>{fighter.hometown}</TableCell>
                 <TableCell>

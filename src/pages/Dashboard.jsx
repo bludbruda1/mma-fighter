@@ -115,6 +115,9 @@ const Dashboard = () => {
               <Typography variant="body1">
                 Record: {fighter.wins}W-{fighter.losses}L
               </Typography>
+              <Typography variant="body1">
+                Fighting Weight: {fighter.weightClass}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
