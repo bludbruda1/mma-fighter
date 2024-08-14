@@ -1,4 +1,3 @@
-// Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -15,9 +14,6 @@ import {
   Card,
   CardContent,
   CardMedia,
-  List,
-  ListItem,
-  ListItemText,
 } from "@mui/material";
 
 const Dashboard = () => {
@@ -154,21 +150,32 @@ const Dashboard = () => {
           <Typography variant="h5" gutterBottom>
             Recent Fights
           </Typography>
-          <List>
-            {fighter.recentFights && fighter.recentFights.length > 0 ? (
-              fighter.recentFights.map((fight, index) => (
-                <ListItem key={index}>
-                  <ListItemText
-                    primary={`${fight.opponent} - ${fight.result}`}
-                  />
-                </ListItem>
-              ))
-            ) : (
-              <Typography variant="body1">
-                No recent fights available.
-              </Typography>
-            )}
-          </List>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Opponent</TableCell>
+                  <TableCell>Result</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fighter.recentFights && fighter.recentFights.length > 0 ? (
+                  fighter.recentFights.map((fight, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{fight.opponent}</TableCell>
+                      <TableCell>{fight.result}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      No recent fights available.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
       </Grid>
     </Container>
