@@ -14,18 +14,31 @@ function formatTime(seconds) {
  * @type {Object.<string, number>}
  */
 const actionTimes = {
-  punch: 2,
-  kick: 5,
-  legKick: 2,
-  takedownAttempt: 6,
-  getUpAttempt: 5,
-  groundPunch: 1,
-  submission: 8,
+  // Punches
   jab: 1,
   cross: 1,
   hook: 2,
   uppercut: 2,
-  comboPunch: 1, // every following punch in a combo
+  overhand: 2,
+  spinningBackfist: 3,
+  supermanPunch: 3,
+  bodyPunch: 2,
+
+  // Kicks
+  headKick: 3,
+  bodyKick: 3,
+  legKick: 2,
+
+  // Grappling
+  takedownAttempt: 5,
+  getUpAttempt: 4,
+
+  // Ground actions
+  groundPunch: 1,
+  submission: 8,
+
+  // Combo actions
+  comboPunch: 1, // Additional time for each punch in a combo after the first
 };
 
 /**
@@ -39,4 +52,14 @@ function simulateTimePassing(action) {
   return Math.round(baseTime + (Math.random() - 0.5));
 }
 
-export { formatTime, simulateTimePassing, actionTimes };
+/**
+ * Check if a fighter is knocked out (any body part has reached 0 health)
+ * @param {Object} fighter - The fighter object to check
+ * @returns {boolean} True if the fighter is knocked out, false otherwise
+ */
+const isKnockedOut = (fighter) => {
+  return Object.values(fighter.health).some(health => health <= 0);
+};
+
+
+export { formatTime, simulateTimePassing, actionTimes, isKnockedOut };

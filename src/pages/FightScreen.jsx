@@ -64,19 +64,24 @@ const FightScreen = () => {
     if (selectedItem1 && selectedItem2) {
       // Function to validate and format fighter data
       const validateFighter = (fighter) => {
-        console.log("Validating fighter:", fighter); // Debugging line
         return {
           id: fighter.personid,
-          firstname: fighter.firstname,
-          lastname: fighter.lastname,
           name: `${fighter.firstname} ${fighter.lastname}`,
-          maxHealth: Number(fighter.maxHealth) || 1000,
-          currentHealth: Number(fighter.currentHealth) || 1000,
-          stamina: Number(fighter.stamina) || 100,
-          isStanding: fighter.isStanding || true,
-          isGroundOffense: fighter.isGroundOffense || false,
-          isGroundDefense: fighter.isGroundDefense || false,
-          roundsWon: fighter.roundsWon || 0,
+          health: {
+            head: Number(fighter.maxHealth) || 1000,
+            body: Number(fighter.maxHealth) || 1000,
+            legs: Number(fighter.maxHealth) || 1000
+          },
+          maxHealth: {
+            head: Number(fighter.maxHealth) || 1000,
+            body: Number(fighter.maxHealth) || 1000,
+            legs: Number(fighter.maxHealth) || 1000
+          },
+          stamina: Number(fighter.stamina) || 1000,
+          isStanding: true,
+          isGroundOffense: false,
+          isGroundDefense: false,
+          roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
             kicking: Number(fighter.Rating.kicking) || 0,
@@ -93,78 +98,12 @@ const FightScreen = () => {
             groundDefence: Number(fighter.Rating.groundDefence) || 0,
             getUpAbility: Number(fighter.Rating.getUpAbility) || 0,
           },
-          stats: {
-            punchesLanded: Number(fighter.stats.punchesLanded) || 0,
-            jabsLanded: Number(fighter.stats.punchesLanded) || 0,
-            crossesLanded: Number(fighter.stats.punchesLanded) || 0,
-            hooksLanded: Number(fighter.stats.punchesLanded) || 0,
-            uppercutsLanded: Number(fighter.stats.punchesLanded) || 0,
-            kicksLanded: Number(fighter.stats.kicksLanded) || 0,
-            punchesBlocked: Number(fighter.stats.punchesBlocked) || 0,
-            jabsBlocked: Number(fighter.stats.punchesLanded) || 0,
-            crossesBlocked: Number(fighter.stats.punchesLanded) || 0,
-            hooksBlocked: Number(fighter.stats.punchesLanded) || 0,
-            uppercutsBlocked: Number(fighter.stats.punchesLanded) || 0,
-            kicksBlocked: Number(fighter.stats.kicksBlocked) || 0,
-            significantPunchesLanded:
-              Number(fighter.stats.significantPunchesLanded) || 0,
-            significantKicksLanded:
-              Number(fighter.stats.significantKicksLanded) || 0,
-            legKicksLanded: Number(fighter.stats.legKicksLanded) || 0,
-            legKicksChecked: Number(fighter.stats.legKicksChecked) || 0,
-            takedownsAttempted: Number(fighter.stats.takedownsAttempted) || 0,
-            takedownsLanded: Number(fighter.stats.takedownsLanded) || 0,
-            takedownsDefended: Number(fighter.stats.takedownsDefended) || 0,
-            submissionsAttempted:
-              Number(fighter.stats.submissionsAttempted) || 0,
-            submissionsLanded: Number(fighter.stats.submissionsLanded) || 0,
-            submissionsDefended: Number(fighter.stats.submissionsDefended) || 0,
-            groundPunchesLanded: Number(fighter.stats.groundPunchesLanded) || 0,
-            getUpsAttempted: Number(fighter.stats.getUpsAttempted) || 0,
-            getUpsSuccessful: Number(fighter.stats.getUpsSuccessful) || 0,
-          },
-          Tendency: {
-            standingTendency: {
-              punchTendency:
-                Number(fighter.Tendency?.standingTendency?.punchTendency) || 25,
-              kickTendency:
-                Number(fighter.Tendency?.standingTendency?.kickTendency) || 25,
-              legKickTendency:
-                Number(fighter.Tendency?.standingTendency?.legKickTendency) ||
-                25,
-              takedownTendency:
-                Number(fighter.Tendency?.standingTendency?.takedownTendency) ||
-                25,
-            },
-            groundOffenseTendency: {
-              punchTendency:
-                Number(
-                  fighter.Tendency?.groundOffenseTendency?.punchTendency
-                ) || 50,
-              submissionTendency:
-                Number(
-                  fighter.Tendency?.groundOffenseTendency?.submissionTendency
-                ) || 25,
-              getUpTendency:
-                Number(
-                  fighter.Tendency?.groundOffenseTendency?.getUpTendency
-                ) || 25,
-            },
-            groundDefenseTendency: {
-              punchTendency:
-                Number(
-                  fighter.Tendency?.groundDefenseTendency?.punchTendency
-                ) || 25,
-              submissionTendency:
-                Number(
-                  fighter.Tendency?.groundDefenseTendency?.submissionTendency
-                ) || 25,
-              getUpTendency:
-                Number(
-                  fighter.Tendency?.groundDefenseTendency?.getUpTendency
-                ) || 50,
-            },
-          },
+          stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
+          Tendency: fighter.Tendency || {
+            standingTendency: { punchTendency: 25, kickTendency: 25, legKickTendency: 25, takedownTendency: 25 },
+            groundOffenseTendency: { punchTendency: 50, submissionTendency: 25, getUpTendency: 25 },
+            groundDefenseTendency: { punchTendency: 25, submissionTendency: 25, getUpTendency: 50 }
+          }
         };
       };
 

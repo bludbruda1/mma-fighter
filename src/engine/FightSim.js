@@ -1,25 +1,37 @@
-import { formatTime, simulateTimePassing } from "./helper.js";
+import { formatTime, simulateTimePassing, isKnockedOut } from "./helper.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
-const PUNCH_DAMAGE = {
-  jab: 2, // Quick, less powerful
-  cross: 4, // More power, straight punch
-  hook: 5, // Strong, circular punch
-  uppercut: 6, // Most powerful, upward punch
+
+// Constants for strike damages
+const STRIKE_DAMAGE = {
+  jab: {damage: 2, target: 'head'},
+  cross: {damage: 4, target: 'head'},
+  hook: {damage: 5, target: 'head'},
+  uppercut: {damage: 6, target: 'head'},
+  overhand: {damage: 7, target: 'head'}, 
+  spinningBackfist: {damage: 5, target: 'head'},
+  supermanPunch: {damage: 6, target: 'head'}, 
+  bodyPunch: {damage: 3, target: 'body'},
+  headKick: {damage: 9, target: 'head'},
+  bodyKick: {damage: 8, target: 'body'},
+  legKick: {damage: 7, target: 'legs'},
+  takedown: {damage: 9, target: 'body'},
+  groundPunch: {damage: 3, target: 'head'}
 };
-const BASE_KICK_DAMAGE = 9;
+
 const DAMAGE_VARIATION_FACTOR = 0.25;
-const LEG_KICK_MULTIPLIER = 1.1;
 const RATING_DAMAGE_FACTOR = 0.3;
 
+//constants for combinations
 const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
 const COMBO_SUCCESS_MODIFIER = 0.8; // Each subsequent punch in a combo is 20% less likely to land
 const COMBO_FOLLOW_UPS = {
-  jab: ["jab", "cross", "hook"],
-  cross: ["hook", "uppercut"],
-  hook: ["uppercut", "cross"],
+  jab: ["jab", "cross", "hook", "overhand", "bodyPunch"],
+  cross: ["hook", "uppercut", "bodyPunch"],
+  hook: ["uppercut", "cross", "bodyPunch"],
   uppercut: ["hook", "cross"],
+  bodyPunch: ["hook", "uppercut", "cross", "overhand"]
 };
 
 //Functions that set up an action
@@ -54,41 +66,39 @@ const calculateProbability = (offenseRating, defenseRating) => {
 };
 
 /**
- * Calculate damage for a strike
- * @param {number} baseRating - Attacker's base rating
- * @param {boolean} isKick - Whether the strike is a kick
- * @param {boolean} isLegKick - Whether the strike is a leg kick
- * @param {string} strikeType - Type of strike (punch type or 'groundPunch')
- * @returns {number} Calculated damage
- */
-const calculateDamage = (baseRating, isKick, isLegKick, strikeType = null) => {
-  let baseDamage;
-  if (isKick) {
-    baseDamage = BASE_KICK_DAMAGE;
-  } else if (strikeType === "groundPunch") {
-    baseDamage = PUNCH_DAMAGE.jab; // Using jab damage as base for ground punches
-  } else if (PUNCH_DAMAGE[strikeType]) {
-    baseDamage = PUNCH_DAMAGE[strikeType];
-  } else {
-    throw new Error("Invalid strike type: " + strikeType);
-  }
-
-  const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
-  const legKickMultiplier = isLegKick ? LEG_KICK_MULTIPLIER : 1;
-  const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
-
-  return Math.round(
-    (baseDamage + ratingFactor) * randomFactor * legKickMultiplier
-  );
-};
-
-/**
  * Calculate stamina impact on action effectiveness
  * @param {number} stamina - Current stamina of the fighter
  * @returns {number} Stamina impact factor
  */
 const calculateStaminaImpact = (stamina) => {
   return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+};
+
+/**
+ * Calculate damage for a strike
+ * @param {number} baseRating - Attacker's base rating
+ * @param {string} strikeType - Type of strike
+ * @returns {number} Calculated damage
+ */
+const calculateDamage = (baseRating, strikeType) => {
+  if (!STRIKE_DAMAGE[strikeType]) {
+    throw new Error("Invalid strike type " + strikeType);
+  }
+
+  let {damage: baseDamage, target } = STRIKE_DAMAGE[strikeType];
+
+  // Special case for ground punches: randomize between head and body
+  if (strikeType === 'groundPunch') {
+    target = Math.random() < 0.7 ? 'head' : 'body';
+  }
+
+  const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
+  const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
+
+  // Calculate total damage
+  const totalDamage = Math.round((baseDamage + ratingFactor) * randomFactor);
+  
+  return { damage: totalDamage, target };
 };
 
 // Action Functions
@@ -100,37 +110,70 @@ const calculateStaminaImpact = (stamina) => {
  * @param {number} staminaImpact - Stamina impact on the action
  * @returns {string} Outcome of the action
  */
-const doKick = (attacker, defender, staminaImpact) => {
-  console.log(`${attacker.name} throws a kick at ${defender.name}`);
-  if (
-    Math.random() <
-    calculateProbability(
-      attacker.Rating.kicking * staminaImpact,
-      defender.Rating.kickDefence
-    )
-  ) {
-    const damage = calculateDamage(
-      attacker.Rating.kicking * staminaImpact,
-      true,
-      false
-    );
-    defender.currentHealth -= damage;
-    attacker.stats.kicksLanded++;
-    console.log(`${defender.name} is hit by the kick for ${damage} damage`);
-    return "kickLanded";
+const doKick = (
+  attacker,
+  defender, 
+  staminaImpact, 
+  kickType
+) => {
+
+    // This just cleans up the text output, eventually we will have commentary file that will do this and we can remove this. Its only for the techniques with two words lol
+    let displayKickType = kickType;
+    if (kickType === 'legKick') {
+      displayKickType = 'leg kick';
+    } else if (kickType === 'bodyKick') {
+      displayKickType = 'body kick';
+    } else if (kickType === 'headKick') {
+      displayKickType = 'head kick';
+    }
+
+  console.log(`${attacker.name} throws a ${displayKickType} at ${defender.name}`);
+
+  const successChance = calculateProbability(
+    attacker.Rating.kicking * staminaImpact,
+    defender.Rating.kickDefence
+  );
+
+  if (Math.random() < successChance) {
+    const { damage, target } = calculateDamage(attacker.Rating.kicking * staminaImpact, kickType);
+    defender.health[target] = Math.max(0, defender.health[target] - damage);
+
+    attacker.stats.kicksLanded = (attacker.stats.kicksLanded || 0) + 1;
+    attacker.stats[`${kickType}sLanded`] = (attacker.stats[`${kickType}sLanded`] || 0) + 1;
+
+    console.log(`${defender.name} is hit by the ${displayKickType} for ${JSON.stringify(damage)} damage`);
+    
+    // Special case for leg kicks
+    if (kickType === 'legKick') {
+      console.log(`${defender.name}'s mobility is affected by the leg kick`);
+      // We could implement additional effects here, like reduced movement or increased chance of knockdown
+    }
+
+    return [`${kickType}Landed`, simulateTimePassing(kickType), false]; // Kicks don't lead to combos in this system
   } else {
-    defender.stats.kicksBlocked++;
-    console.log(`${defender.name} blocks the kick`);
-    return "kickBlocked";
+    defender.stats.kicksBlocked = (defender.stats.kicksBlocked || 0) + 1;
+    defender.stats[`${kickType}sBlocked`] = (defender.stats[`${kickType}sBlocked`] || 0) + 1;
+
+    console.log(`${defender.name} blocks the ${displayKickType}`);
+
+    // Special case for checked leg kicks
+    if (kickType === 'legKick') {
+      const { damage, target } = calculateDamage(defender.Rating.legKickDefence, 'legKick');
+      attacker.health[target] = Math.max(0, attacker.health[target] - damage);
+      console.log(`${attacker.name} takes ${damage} damage to the ${target} from the checked leg kick`);
+    }
+
+    return [`${kickType}Blocked`, simulateTimePassing(kickType), false];
   }
 };
+
 
 /**
  * Perform a single punch action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @param {number} staminaImpact - Stamina impact on the action
- * @param {string} punchType - Type of punch (jab, cross, hook, uppercut)
+ * @param {string} punchType - Type of punch (jab, cross, hook, uppercut etc)
  * @param {number} comboCount - Number of punches already in this combo
  * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
  */
@@ -141,8 +184,19 @@ const doPunch = (
   punchType,
   comboCount = 0
 ) => {
+
+  // This just cleans up the text output, eventually we will have commentary file that will do this and we can remove this. Its only for the techniques with two words lol
+  let displayPunchType = punchType;
+  if (punchType === 'spinningBackfist') {
+    displayPunchType = 'spinning backfist';
+  } else if (punchType === 'supermanPunch') {
+    displayPunchType = 'superman punch';
+  } else if (punchType === 'bodyPunch') {
+    displayPunchType = 'punch to the body';
+  }
+
   console.log(
-    `${attacker.name} throws a ${punchType}${
+    `${attacker.name} throws a ${displayPunchType}${
       comboCount > 0 ? " (combo punch #" + (comboCount + 1) + ")" : ""
     } at ${defender.name}`
   );
@@ -156,37 +210,32 @@ const doPunch = (
   const timePassed = comboCount === 0 ? simulateTimePassing(punchType) : 2;
 
   if (Math.random() < successChance) {
-    const damage = calculateDamage(
-      attacker.Rating.striking * staminaImpact,
-      false,
-      false,
-      punchType
-    );
-    defender.currentHealth -= damage;
+    const { damage, target } = calculateDamage(attacker.Rating.striking * staminaImpact, punchType);
+    defender.health[target] = Math.max(0, defender.health[target] - damage);
 
     // Update overall punch stats
-    attacker.stats.punchesLanded++;
+    attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
 
     // Update specific punch type stats
     attacker.stats[`${punchType}sLanded`] =
       (attacker.stats[`${punchType}sLanded`] || 0) + 1;
 
     console.log(
-      `${defender.name} is hit by the ${punchType} for ${damage} damage`
+      `${defender.name} is hit by the ${displayPunchType} for ${JSON.stringify(damage)} damage`
     );
 
     // Determine if a combo follows
-    const comboFollows = Math.random() < COMBO_CHANCE && comboCount < 2;
+    const comboFollows = ['jab', 'cross', 'hook', 'uppercut', 'bodyPunch'].includes(punchType) && Math.random() < COMBO_CHANCE && comboCount < 2;
 
     return [punchType + "Landed", timePassed, comboFollows];
   } else {
-    defender.stats.punchesBlocked++;
+    defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
 
     // Update specific punch type blocked stats
     defender.stats[`${punchType}sBlocked`] =
       (defender.stats[`${punchType}sBlocked`] || 0) + 1;
 
-    console.log(`${defender.name} blocks the ${punchType}`);
+    console.log(`${defender.name} blocks the ${displayPunchType}`);
     return [`${punchType}Blocked`, timePassed, false];
   }
 };
@@ -216,6 +265,12 @@ const doCombo = (attacker, defender, staminaImpact, initialPunch) => {
     totalOutcome += (comboCount > 0 ? " + " : "") + outcome;
     totalTime += time;
 
+    // Check if the defender is knocked out after each punch
+    if (isKnockedOut(defender)) {
+      console.log(`${defender.name} is knocked out by the combo!`);
+      break;
+    }
+
     if (!comboFollows) break;
 
     comboCount++;
@@ -223,47 +278,13 @@ const doCombo = (attacker, defender, staminaImpact, initialPunch) => {
     currentPunch =
       followUpOptions[Math.floor(Math.random() * followUpOptions.length)];
     console.log(`${attacker.name} follows up with a ${currentPunch}`);
-  }
+
+    // Decrease stamina for each additional punch in the combo
+    attacker.stamina = Math.max(0, attacker.stamina - 1);
+    staminaImpact = calculateStaminaImpact(attacker.stamina);
+    }
 
   return [totalOutcome, totalTime];
-};
-
-/**
- * Perform a leg kick action
- * @param {Object} attacker - Attacking fighter
- * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
- * @returns {string} Outcome of the action
- */
-const doLegKick = (attacker, defender, staminaImpact) => {
-  console.log(`${attacker.name} throws a leg kick`);
-  if (
-    Math.random() <
-    calculateProbability(
-      attacker.Rating.legKickOffence * staminaImpact,
-      defender.Rating.legKickDefence
-    )
-  ) {
-    const damage = calculateDamage(
-      attacker.Rating.legKickOffence * staminaImpact,
-      true,
-      true
-    );
-    defender.currentHealth -= damage;
-    attacker.stats.legKicksLanded++;
-    console.log(`${defender.name} is hit by the leg kick`);
-    console.log(`${defender.name} takes ${damage} damage from the leg kick`);
-    return "kickLanded";
-  } else {
-    const damage = calculateDamage(defender.Rating.legKickDefence, true, true);
-    attacker.currentHealth -= damage;
-    defender.stats.legKicksChecked++;
-    console.log(`${defender.name} checks the kick`);
-    console.log(
-      `${attacker.name} takes ${damage} damage from the checked kick`
-    );
-    return "kickChecked";
-  }
 };
 
 /**
@@ -282,14 +303,11 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
       defender.Rating.groundDefence
     )
   ) {
-    const damage = calculateDamage(
-      attacker.Rating.groundOffence * staminaImpact,
-      false,
-      false,
-      "groundPunch"
-    );
-    defender.currentHealth -= damage;
-    attacker.stats.groundPunchesLanded++;
+    const { damage, target } = calculateDamage(attacker.Rating.groundOffence * staminaImpact, "groundPunch");
+    defender.health[target] = Math.max(0, defender.health[target] - damage);
+
+    //update stats
+    attacker.stats.groundPunchsLanded = (attacker.stats.groundPunchsLanded || 0) + 1;
     console.log(
       `${defender.name} is hit by the ground punch for ${damage} damage`
     );
@@ -309,7 +327,7 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
  */
 const doTakedown = (attacker, defender, staminaImpact) => {
   console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
-  attacker.stats.takedownsAttempted++;
+  attacker.stats.takedownsAttempted = (attacker.stats.takedownsAttempted || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
@@ -317,7 +335,8 @@ const doTakedown = (attacker, defender, staminaImpact) => {
       defender.Rating.takedownDefence
     )
   ) {
-    attacker.stats.takedownsLanded++;
+    attacker.stats.takedownsLanded = (attacker.stats.takedownsLanded || 0) + 1;
+
     // Update ground states
     attacker.isStanding = false;
     attacker.isGroundOffense = true;
@@ -325,15 +344,20 @@ const doTakedown = (attacker, defender, staminaImpact) => {
     defender.isStanding = false;
     defender.isGroundOffense = false;
     defender.isGroundDefense = true;
-    // Add some damage for successful takedowns
-    const damage = Math.round(10 * staminaImpact);
-    defender.currentHealth -= damage;
+
+    // Calculate damage for successful takedowns
+    const { damage, target } = calculateDamage(attacker.Rating.takedownOffence * staminaImpact, "takedown");
+
+    // Apply damage
+    defender.health[target] = Math.max(0, defender.health[target] - damage);
+
     console.log(
       `${attacker.name} successfully takes down ${defender.name} for ${damage} damage`
     );
     return "takedownLanded";
   } else {
-    defender.stats.takedownsDefended++;
+    defender.stats.takedownsDefended = (defender.stats.takedownsDefended || 0) + 1;
+
     console.log(`${defender.name} defends the takedown`);
     // Both fighters remain standing
     attacker.isStanding = true;
@@ -355,7 +379,7 @@ const doTakedown = (attacker, defender, staminaImpact) => {
  */
 const doGetUp = (fighter, opponent, staminaImpact) => {
   console.log(`${fighter.name} attempts to get up`);
-  fighter.stats.getUpsAttempted++;
+  fighter.stats.getUpsAttempted = (fighter.stats.getUpsAttempted || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
@@ -363,7 +387,7 @@ const doGetUp = (fighter, opponent, staminaImpact) => {
       opponent.Rating.groundOffence
     )
   ) {
-    fighter.stats.getUpsSuccessful++;
+    fighter.stats.getUpsSuccessful = (fighter.stats.getUpsSuccessful || 0) + 1;
     // Reset both fighters to standing position
     fighter.isStanding = true;
     fighter.isGroundOffense = false;
@@ -388,7 +412,7 @@ const doGetUp = (fighter, opponent, staminaImpact) => {
  */
 const doSubmission = (attacker, defender, staminaImpact) => {
   console.log(`${attacker.name} attempts a submission on ${defender.name}`);
-  attacker.stats.submissionsAttempted++;
+  attacker.stats.submissionsAttempted = (attacker.stats.submissionsAttempted || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
@@ -396,13 +420,13 @@ const doSubmission = (attacker, defender, staminaImpact) => {
       defender.Rating.submissionDefense
     )
   ) {
-    attacker.stats.submissionsLanded++;
+    attacker.stats.submissionsLanded = (attacker.stats.submissionsLanded || 0) + 1;
     console.log(`${attacker.name} successfully submits ${defender.name}!`);
     // flags that the loser has been submitted
     defender.isSubmitted = true;
     return "submissionSuccessful";
   } else {
-    defender.stats.submissionsDefended++;
+    defender.stats.submissionsDefended = (defender.stats.submissionsDefended || 0) + 1;
     console.log(`${defender.name} defends the submission`);
     return "submissionDefended";
   }
@@ -422,38 +446,60 @@ const determineAction = (fighter, opponent) => {
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.standingTendency;
+
     if (rand < (cumulativeProbability += tendencies.punchTendency)) {
-      const punchTypes = ["jab", "cross", "hook", "uppercut"];
-      return punchTypes[Math.floor(Math.random() * punchTypes.length)];
+      // Determine punch type
+      const punchRand = Math.random() * 100;
+      if (punchRand < 20) return "jab";
+      if (punchRand < 40) return "cross";
+      if (punchRand < 55) return "hook";
+      if (punchRand < 70) return "uppercut";
+      if (punchRand < 80) return "bodyPunch";  // Added body punch
+      if (punchRand < 87) return "overhand";
+      if (punchRand < 94) return "spinningBackfist";
+      return "supermanPunch";
     }
-    if (rand < (cumulativeProbability += tendencies.kickTendency))
-      return "kick";
-    if (rand < (cumulativeProbability += tendencies.legKickTendency))
-      return "legKick";
-    return "takedownAttempt";
+    if (rand < (cumulativeProbability += tendencies.kickTendency)) {
+      // Determine kick type
+      const kickRand = Math.random() * 100;
+      if (kickRand < 40) return "legKick";
+      if (kickRand < 70) return "bodyKick";
+      return "headKick";
+    }
+    if (rand < (cumulativeProbability += tendencies.takedownTendency)) {
+      return "takedownAttempt";
+    }
+    // If none of the above, default to jab
+    return "jab";
   } else if (fighter.isGroundOffense) {
     // Ground offense logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.groundOffenseTendency;
-    if (rand < (cumulativeProbability += tendencies.punchTendency))
+    
+    if (rand < (cumulativeProbability += tendencies.punchTendency)) {
       return "groundPunch";
-    if (rand < (cumulativeProbability += tendencies.submissionTendency))
+    }
+    if (rand < (cumulativeProbability += tendencies.submissionTendency)) {
       return "submission";
+    }
     return "getUpAttempt";
   } else if (fighter.isGroundDefense) {
     // Ground defense logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.groundDefenseTendency;
-    if (rand < (cumulativeProbability += tendencies.punchTendency))
+    
+    if (rand < (cumulativeProbability += tendencies.punchTendency)) {
       return "groundPunch";
-    if (rand < (cumulativeProbability += tendencies.submissionTendency))
+    }
+    if (rand < (cumulativeProbability += tendencies.submissionTendency)) {
       return "submission";
+    }
     return "getUpAttempt";
   }
-  // This should never happen, but TypeScript requires a return statement
-  return "punch";
+  // This should never happen, but requires a return statement
+  return "jab";
 };
 
 /**
@@ -470,7 +516,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
 
-  // Decrease stamina only for the initial action
+  // Decrease stamina for the initial action
   fighter.stamina = Math.max(0, fighter.stamina - 2);
   const staminaImpact = calculateStaminaImpact(fighter.stamina);
 
@@ -482,20 +528,19 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "cross":
     case "hook":
     case "uppercut":
-      [outcome, timePassed] = doCombo(
-        fighter,
-        opponentFighter,
-        staminaImpact,
-        actionType
-      );
+    case "bodyPunch":
+      [outcome, timePassed] = doCombo(fighter, opponentFighter, staminaImpact, actionType);
       break;
-    case "kick":
-      outcome = doKick(fighter, opponentFighter, staminaImpact);
-      timePassed = simulateTimePassing("kick");
+      case "overhand":
+      case "spinningBackfist":
+      case "supermanPunch":
+        // These new punches are single actions, not part of combos
+      [outcome, timePassed] = doPunch(fighter, opponentFighter, staminaImpact, actionType);
       break;
+    case "headKick":
+    case "bodyKick":
     case "legKick":
-      outcome = doLegKick(fighter, opponentFighter, staminaImpact);
-      timePassed = simulateTimePassing("legKick");
+      [outcome, timePassed] = doKick(fighter, opponentFighter, staminaImpact, actionType);
       break;
     case "takedownAttempt":
       outcome = doTakedown(fighter, opponentFighter, staminaImpact);
@@ -523,9 +568,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
   }
 
-  // Ensure health doesn't go below 0 and check for knockout
-  opponentFighter.currentHealth = Math.max(0, opponentFighter.currentHealth);
-  if (opponentFighter.currentHealth === 0) {
+  // Check for knockout using the isKnockedOut function
+  if (isKnockedOut(opponentFighter)) {
+    const knockoutPart = Object.keys(opponentFighter.health).find(part => opponentFighter.health[part] <= 0);
+    console.log(`${opponentFighter.name} is knocked out due to ${knockoutPart} damage!`);
     return [actionFighter, timePassed];
   }
 
@@ -544,6 +590,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
  */
 const simulateRound = (fighters, roundNumber) => {
   console.log(`\nRound ${roundNumber} begins!`);
+  
   // Reset fighters to standing position and recover some stamina at the start of the round
   fighters.forEach((fighter) => {
     fighter.isStanding = true;
@@ -551,50 +598,50 @@ const simulateRound = (fighters, roundNumber) => {
     fighter.isGroundDefense = false;
     fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
   });
+
   let lastActionFighter;
-  let currentTime = 300; // possibly update in future to allow customization of the round length (in seconds)
+  let currentTime = 300; // 5 minutes in seconds
+  
   // Track initial stats for this round
-  const initialStats = fighters.map((fighter) => ({ ...fighter.stats }));
+  const initialStats = fighters.map((fighter) => ({ 
+    ...fighter.stats,
+    health: { ...fighter.health }
+  }));
+
   while (currentTime > 0) {
     const actionFighter = pickFighter(fighters, lastActionFighter);
-    const [roundWinner, timePassed] = simulateAction(
-      fighters,
-      actionFighter,
-      currentTime
-    );
+    const [roundWinner, timePassed] = simulateAction(fighters, actionFighter, currentTime);
+    
     // Simulate time passing
-    currentTime -= Math.round(timePassed);
+    currentTime -= timePassed;
+    
     // Check for KO or submission
     if (roundWinner !== null) {
-      if (fighters[1 - roundWinner].currentHealth <= 0) {
-        console.log(
-          `\n${
-            fighters[roundWinner].name
-          } wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`
-        );
+      if (isKnockedOut(fighters[1 - roundWinner])) {
+        console.log(`\n${fighters[roundWinner].name} wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`);
       } else {
-        console.log(
-          `\n${
-            fighters[roundWinner].name
-          } wins by submission in round ${roundNumber} at ${formatTime(
-            currentTime
-          )}!`
-        );
+        console.log(`\n${fighters[roundWinner].name} wins by submission in round ${roundNumber} at ${formatTime(currentTime)}!`);
       }
       return roundWinner;
     }
+    
     lastActionFighter = actionFighter;
   }
-  console.log("\nEnd of Round");
+
+  console.log("\n===End of Round===");
+  
   // Determine round winner based on damage dealt
-  const damageDealt = [
-    fighters[1].maxHealth - fighters[1].currentHealth,
-    fighters[0].maxHealth - fighters[0].currentHealth,
-  ];
+  const damageDealt = fighters.map((fighter, index) => 
+    Object.keys(fighter.health).reduce((total, part) => 
+      total + (initialStats[index].health[part] - fighter.health[part]), 0)
+  );
+  
   const roundWinner = damageDealt[0] > damageDealt[1] ? 0 : 1;
   fighters[roundWinner].roundsWon++;
+  
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
+  
   return null; // No KO or submission
 };
 
@@ -606,136 +653,116 @@ const simulateRound = (fighters, roundNumber) => {
  */
 const displayRoundStats = (fighters, roundNumber, initialStats) => {
   console.log(`\nRound ${roundNumber} Stats:`);
+  
   fighters.forEach((fighter, index) => {
     console.log(`\n${fighter.name}:`);
-    console.log(
-      `  Punches Landed: ${
-        fighter.stats.punchesLanded - initialStats[index].punchesLanded
-      }`
-    );
-    console.log(
-      `  Jabs Landed: ${
-        fighter.stats.jabsLanded - initialStats[index].jabsLanded
-      }`
-    );
-    console.log(
-      `  Crosses Landed: ${
-        fighter.stats.crossesLanded - initialStats[index].crossesLanded
-      }`
-    );
-    console.log(
-      `  Hooks Landed: ${
-        fighter.stats.hooksLanded - initialStats[index].hooksLanded
-      }`
-    );
-    console.log(
-      `  Uppercuts Landed: ${
-        fighter.stats.uppercutsLanded - initialStats[index].uppercutsLanded
-      }`
-    );
-    console.log(
-      `  Kicks Landed: ${
-        fighter.stats.kicksLanded - initialStats[index].kicksLanded
-      }`
-    );
-    console.log(
-      `  Leg Kicks Landed: ${
-        fighter.stats.legKicksLanded - initialStats[index].legKicksLanded
-      }`
-    );
-    console.log(
-      `  Leg Kicks Checked: ${
-        fighter.stats.legKicksChecked - initialStats[index].legKicksChecked
-      }`
-    );
-    console.log(
-      `  Takedowns Landed: ${
-        fighter.stats.takedownsLanded - initialStats[index].takedownsLanded
-      }`
-    );
-    console.log(
-      `  Ground Punches Landed: ${
-        fighter.stats.groundPunchesLanded -
-        initialStats[index].groundPunchesLanded
-      }`
-    );
-    console.log(
-      `  Submissions Attempted: ${
-        fighter.stats.submissionsAttempted -
-        initialStats[index].submissionsAttempted
-      }`
-    );
-    console.log(
-      `  Submissions Landed: ${
-        fighter.stats.submissionsLanded - initialStats[index].submissionsLanded
-      }`
-    );
-    console.log(
-      `  Current Position: ${
-        fighter.isStanding
-          ? "Standing"
-          : fighter.isGroundOffense
-          ? "Ground Offense"
-          : "Ground Defense"
-      }`
-    );
-    console.log(
-      `  Current Health: ${fighter.currentHealth}/${fighter.maxHealth}`
-    );
-  });
+    
+    // Striking stats
+    console.log("Striking:");
+    console.log(`  Punches Landed: ${(fighter.stats.punchesLanded || 0 ) - (initialStats[index].punchesLanded || 0 )}`);
+    console.log(`    Jabs: ${(fighter.stats.jabsLanded || 0) - (initialStats[index].jabsLanded || 0)}`);
+    console.log(`    Crosses: ${(fighter.stats.crossesLanded || 0) - (initialStats[index].crossesLanded || 0)}`);
+    console.log(`    Hooks: ${(fighter.stats.hooksLanded || 0) - (initialStats[index].hooksLanded || 0)}`);
+    console.log(`    Uppercuts: ${(fighter.stats.uppercutsLanded || 0) - (initialStats[index].uppercutsLanded || 0)}`);
+    console.log(`    Body Punches: ${(fighter.stats.bodyPunchsLanded || 0) - (initialStats[index].bodyPunchsLanded || 0)}`);
+    console.log(`  Kicks Landed: ${(fighter.stats.kicksLanded|| 0) - (initialStats[index].kicksLanded|| 0)}`);
+    console.log(`    Head Kicks: ${(fighter.stats.headKicksLanded || 0) - (initialStats[index].headKicksLanded || 0)}`);
+    console.log(`    Body Kicks: ${(fighter.stats.bodyKicksLanded || 0) - (initialStats[index].bodyKicksLanded || 0)}`);
+    console.log(`    Leg Kicks: ${(fighter.stats.legKicksLanded || 0) - (initialStats[index].legKicksLanded || 0)}`);
+    
+    // Grappling stats
+    console.log("Grappling:");
+    console.log(`  Takedowns: ${(fighter.stats.takedownsLanded|| 0 ) - (initialStats[index].takedownsLanded|| 0 )} / ${(fighter.stats.takedownsAttempted|| 0 ) - (initialStats[index].takedownsAttempted|| 0 )}`);
+    console.log(`  Submissions Attempted: ${(fighter.stats.submissionsAttempted|| 0 ) - (initialStats[index].submissionsAttempted|| 0 )}`);
+    console.log(`  Submissions Landed: ${(fighter.stats.submissionsLanded|| 0 ) - (initialStats[index].submissionsLanded|| 0 )}`);
+    
+    // Ground stats
+    console.log("Ground Game:");
+    console.log(`  Ground Strikes Landed: ${(fighter.stats.groundPunchsLanded|| 0 ) - (initialStats[index].groundPunchsLanded|| 0 )}`);
+    
+    // Defense stats
+    console.log("Defense:");
+    console.log(`  Strikes Blocked: ${((fighter.stats.punchesBlocked|| 0 ) + (fighter.stats.kicksBlocked|| 0 )) - ((initialStats[index].punchesBlocked|| 0 ) + (initialStats[index].kicksBlocked|| 0 ))}`);
+    console.log(`  Takedowns Defended: ${(fighter.stats.takedownsDefended|| 0 ) - (initialStats[index].takedownsDefended|| 0 )}`);
+    console.log(`  Submissions Defended: ${(fighter.stats.submissionsDefended|| 0 ) - (initialStats[index].submissionsDefended|| 0 )}`);
+    
+    // Health and stamina
+    console.log("Health and Stamina:");
+    console.log(`  Current Health: Head: ${fighter.health.head}/${fighter.maxHealth.head}, Body: ${fighter.health.body}/${fighter.maxHealth.body}, Legs: ${fighter.health.legs}/${fighter.maxHealth.legs}`);
+    console.log(`  Damage Taken: Head: ${initialStats[index].health.head - fighter.health.head}, Body: ${initialStats[index].health.body - fighter.health.body}, Legs: ${initialStats[index].health.legs - fighter.health.legs}`);
+    console.log(`  Current Stamina: ${fighter.stamina}/100`);
+    });
 };
 
 /**
  * Simulate the entire fight
  * @param {Object[]} fighters - Array of fighter objects
- * @returns {number} Index of the winning fighter
+ * @returns {Object} Fight result including winner, method, and round ended
  */
 const simulateFight = (fighters) => {
   let method = "decision";
   let roundEnded = ROUNDS_PER_FIGHT;
 
+  console.log("\n--- Fight Simulation Begins ---\n");
+  console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
+
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
+    console.log(`\n=== Round ${round} ===`);
     const roundWinner = simulateRound(fighters, round);
 
     // Check if the round ended early (KO or submission)
     if (roundWinner !== null) {
       // Determine if it's a KO or submission
-      if (fighters[1 - roundWinner].currentHealth <= 0) {
+      if (isKnockedOut(fighters[1 - roundWinner])) {
         method = "knockout";
       } else if (fighters[1 - roundWinner].isSubmitted) {
         method = "submission";
       }
       roundEnded = round;
-      displayFightStats(fighters, roundWinner);
-      return {
-        winner: roundWinner,
-        winnerName: fighters[roundWinner].name,
-        loserName: fighters[1 - roundWinner].name,
-        method: method,
-        roundEnded: roundEnded,
-      };
+      break;
     }
 
-    // Reset fighters' health for the next round
+    // Reset fighters' health for the next round (with some recovery)
     fighters.forEach((fighter) => {
-      fighter.currentHealth = Math.min(
-        fighter.currentHealth + 20,
-        fighter.maxHealth
-      );
+      Object.keys(fighter.health).forEach(part => {
+        fighter.health[part] = Math.min(fighter.health[part] + 10, fighter.maxHealth[part]);
+      });
       fighter.isSubmitted = false;
     });
+
+    // Display round result
+    const roundResult = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 
+                        fighters[1].roundsWon > fighters[0].roundsWon ? 1 : 'draw';
+    console.log(`\nRound ${round} Result: ${roundResult === 'draw' ? 'Draw' : fighters[roundResult].name + ' wins the round'}`);
   }
 
-  // If we've reached this point, it's a decision
-  method = "decision";
-  // Determine winner by rounds won
-  const winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
-  console.log(`${fighters[winner].name} wins by ${method}!`);
-  displayFightStats(fighters, winner);
+  // Determine the overall winner
+  let winner;
+  if (method === "decision") {
+    winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 
+             fighters[1].roundsWon > fighters[0].roundsWon ? 1 : 'draw';
+    if (winner === 'draw') {
+      method = "draw";
+    }
+  } else {
+    winner = fighters[0].health.head <= 0 || fighters[0].health.body <= 0 || fighters[0].health.legs <= 0 || fighters[0].isSubmitted ? 1 : 0;
+  }
+
+  // Display fight result
+  console.log("\n--- Fight Simulation Ends ---\n");
+  if (method === "draw") {
+    console.log("The fight ends in a draw!");
+  } else {
+    console.log(`${fighters[winner].name} defeats ${fighters[1-winner].name} by ${method} in round ${roundEnded}!`);
+  }
+
+  // Display final fight stats
+  displayFightStats(fighters);
+
   return {
-    winner: winner,
-    winnerName: fighters[winner].name,
-    loserName: fighters[1 - winner].name,
+    winner: winner === 'draw' ? null : winner,
+    winnerName: winner === 'draw' ? null : fighters[winner].name,
+    loserName: winner === 'draw' ? null : fighters[1-winner].name,
     method: method,
     roundEnded: roundEnded,
   };
@@ -744,38 +771,57 @@ const simulateFight = (fighters) => {
 /**
  * Display fight stats at the end of the fight
  * @param {Object[]} fighters - Array of fighter objects
- * @param {number} winner - Index of the winning fighter
  */
-const displayFightStats = (fighters, winner) => {
-  const loser = winner === 0 ? 1 : 0;
-  console.log("\nFight Results:");
-  console.log(`${fighters[winner].name} defeats ${fighters[loser].name}`);
-  console.log("\nFinal Stats:");
+const displayFightStats = (fighters) => {
+  console.log("\n=== Final Fight Statistics ===\n");
+
+  // Display detailed stats for each fighter
   fighters.forEach((fighter, index) => {
     console.log(`\n${fighter.name}:`);
-    console.log(`  Total Punches Landed: ${fighter.stats.punchesLanded}`);
-    console.log(`  Total Kicks Landed: ${fighter.stats.kicksLanded}`);
-    console.log(`  Total Punches Blocked: ${fighter.stats.punchesBlocked}`);
-    console.log(`  Total Kicks Blocked: ${fighter.stats.kicksBlocked}`);
-    console.log(`  Total Leg Kicks Landed: ${fighter.stats.legKicksLanded}`);
-    console.log(`  Total Leg Kicks Checked: ${fighter.stats.legKicksChecked}`);
-    console.log(`  Total Takedowns Landed: ${fighter.stats.takedownsLanded}`);
-    console.log(
-      `  Total Ground Punches Landed: ${fighter.stats.groundPunchesLanded}`
-    );
-    console.log(
-      `  Total Submissions Attempted: ${fighter.stats.submissionsAttempted}`
-    );
-    console.log(
-      `  Total Submissions Landed: ${fighter.stats.submissionsLanded}`
-    );
-    console.log(
-      `  Total Submissions Defended: ${fighter.stats.submissionsDefended}`
-    );
-    console.log(`  Rounds Won: ${fighter.roundsWon}`);
-    console.log(
-      `  Final Health: ${fighter.currentHealth}/${fighter.maxHealth}`
-    );
+    
+    // Striking stats
+    console.log("Striking:");
+    console.log(`  Total Punches Landed: ${fighter.stats.punchesLanded || 0}`);
+    console.log(`  Total Kicks Landed: ${fighter.stats.kicksLanded || 0}`);
+    console.log("  Strikes by Type:");
+    console.log(`    Jabs: ${fighter.stats.jabsLanded || 0}`);
+    console.log(`    Crosses: ${fighter.stats.crossesLanded || 0}`);
+    console.log(`    Hooks: ${fighter.stats.hooksLanded || 0}`);
+    console.log(`    Uppercuts: ${fighter.stats.uppercutsLanded || 0}`);
+    console.log(`    Overhands: ${fighter.stats.overhandsLanded || 0}`);
+    console.log(`    Spinning Backfists: ${fighter.stats.spinningBackfistsLanded || 0}`);
+    console.log(`    Superman Punches: ${fighter.stats.supermanPunchsLanded || 0}`);
+    console.log(`    Body Punches: ${fighter.stats.bodyPunchsLanded || 0}`);
+    console.log(`    Head Kicks: ${fighter.stats.headKicksLanded || 0}`);
+    console.log(`    Body Kicks: ${fighter.stats.bodyKicksLanded || 0}`);
+    console.log(`    Leg Kicks: ${fighter.stats.legKicksLanded || 0}`);
+    
+    // Grappling stats
+    console.log("Grappling:");
+    console.log(`  Takedowns: ${fighter.stats.takedownsLanded || 0} / ${fighter.stats.takedownsAttempted || 0}`);
+    console.log(`  Takedown Accuracy: ${(((fighter.stats.takedownsLanded || 0) / (fighter.stats.takedownsAttempted || 1)) * 100).toFixed(2)}%`);
+    console.log(`  Takedowns Defended: ${fighter.stats.takedownsDefended || 0}`);
+    console.log(`  Submissions Attempted: ${fighter.stats.submissionsAttempted || 0}`);
+    console.log(`  Submissions Landed: ${fighter.stats.submissionsLanded || 0}`);
+    
+    // Ground stats
+    console.log("Ground Game:");
+    console.log(`  Ground Strikes Landed: ${fighter.stats.groundPunchsLanded || 0}`);
+    
+    // Defense stats
+    console.log("Defense:");
+    console.log(`  Strikes Blocked/Evaded: ${(fighter.stats.punchesBlocked || 0) + (fighter.stats.kicksBlocked || 0)}`);
+    
+    // Damage stats
+    console.log("Damage:");
+    console.log(`  Damage Dealt: ${(fighter.maxHealth.head + fighter.maxHealth.body + fighter.maxHealth.legs) - (fighters[1-index].health.head + fighters[1-index].health.body + fighters[1-index].health.legs)}`);
+    console.log(`  Damage Absorbed: ${(fighter.maxHealth.head + fighter.maxHealth.body + fighter.maxHealth.legs) - (fighter.health.head + fighter.health.body + fighter.health.legs)}`);
+    
+    // Final health
+    console.log("Final Health:");
+    console.log(`  Head: ${fighter.health.head}/${fighter.maxHealth.head}`);
+    console.log(`  Body: ${fighter.health.body}/${fighter.maxHealth.body}`);
+    console.log(`  Legs: ${fighter.health.legs}/${fighter.maxHealth.legs}`);
   });
 };
 
@@ -784,7 +830,6 @@ export {
   displayFightStats,
   doKick,
   doPunch,
-  doLegKick,
   doGroundPunch,
   doTakedown,
   doGetUp,
