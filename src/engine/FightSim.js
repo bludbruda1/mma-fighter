@@ -26,6 +26,7 @@ const RATING_DAMAGE_FACTOR = 0.3;
 //constants for combinations
 const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
 const COMBO_SUCCESS_MODIFIER = 0.8; // Each subsequent punch in a combo is 20% less likely to land
+const MAX_COMBO_LENGTH = 4; // Maximum number of punches in a combo
 const COMBO_FOLLOW_UPS = {
   jab: ["jab", "cross", "hook", "overhand", "bodyPunch"],
   cross: ["hook", "uppercut", "bodyPunch"],
@@ -63,6 +64,68 @@ const pickFighter = (fighters, lastActionFighter) => {
  */
 const calculateProbability = (offenseRating, defenseRating) => {
   return offenseRating / (offenseRating + defenseRating);
+};
+
+/**
+ * Calculate outcome probabilities for a fighting action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {string} actionType - Type of action (e.g., 'punch', 'kick', 'takedown', etc)
+ * @returns {Object} Probabilities of hit, block, evade, and miss
+ */
+const calculateProbabilities = (attacker, defender, actionType) => {
+
+  // For now, we're only handling 'punch' action type
+  if (actionType === 'punch') {
+    // Use striking rating modified by hand speed for offense
+    const offenseRating = (attacker.Rating.striking * (attacker.Rating.handSpeed / 100)) / 100;
+    // Use striking defense for defense
+    const defenseRating = defender.Rating.strikingDefence / 100;
+    // Use head movement for evasiveness
+    const evasiveness = defender.Rating.headMovement / 100;
+    // Use punch accuracy for accuracy
+    const accuracy = attacker.Rating.punchAccuracy / 100;
+
+    console.log(`Offense Rating: ${offenseRating}`);
+    console.log(`Defense Rating: ${defenseRating}`);
+    console.log(`Evasiveness: ${evasiveness}`);
+    console.log(`Accuracy: ${accuracy}`);
+
+    // Calculate hit chance (30-50% range)
+    let hitChance = 0.3 + (0.2 * offenseRating);
+    // Adjust hit chance based on the difference between offense and defense
+    hitChance += 0.1 * Math.max(0, Math.min(1, (offenseRating - defenseRating)));
+    // Further adjust based on accuracy
+    hitChance *= accuracy;
+    // Ensure hit chance doesn't exceed 50%
+    hitChance = Math.min(0.5, hitChance);
+
+    // Calculate miss chance (20-30% range)
+    let missChance = 0.2 + (0.1 * (1 - accuracy));
+
+    // Calculate evade chance (20-30% range)
+    let evadeChance = 0.2 + (0.1 * evasiveness);
+
+    // Calculate block chance (remaining probability, should be roughly 20-30%)
+    let blockChance = 1 - (hitChance + missChance + evadeChance);
+
+    // Normalize probabilities to ensure they sum to 1
+    const total = hitChance + blockChance + evadeChance + missChance;
+    hitChance /= total;
+    blockChance /= total;
+    evadeChance /= total;
+    missChance /= total;
+
+    console.log(`Hit Chance: ${(hitChance * 100).toFixed(2)}%`);
+    console.log(`Block Chance: ${(blockChance * 100).toFixed(2)}%`);
+    console.log(`Evade Chance: ${(evadeChance * 100).toFixed(2)}%`);
+    console.log(`Miss Chance: ${(missChance * 100).toFixed(2)}%`);
+
+    return { hitChance, blockChance, evadeChance, missChance };
+  } else {
+    // For other action types, return equal probabilities for now
+    return { hitChance: 0.25, blockChance: 0.25, evadeChance: 0.25, missChance: 0.25 };
+  }
 };
 
 /**
@@ -172,7 +235,6 @@ const doKick = (
  * Perform a single punch action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
  * @param {string} punchType - Type of punch (jab, cross, hook, uppercut etc)
  * @param {number} comboCount - Number of punches already in this combo
  * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
@@ -180,7 +242,6 @@ const doKick = (
 const doPunch = (
   attacker,
   defender,
-  staminaImpact,
   punchType,
   comboCount = 0
 ) => {
@@ -201,50 +262,80 @@ const doPunch = (
     } at ${defender.name}`
   );
 
-  const successChance =
-    calculateProbability(
-      attacker.Rating.striking * staminaImpact,
-      defender.Rating.strikingDefence
-    ) * Math.pow(COMBO_SUCCESS_MODIFIER, comboCount);
+  // Calculate probabilities for this punch
+  let { hitChance, blockChance, evadeChance, missChance } = 
+  calculateProbabilities(attacker, defender, 'punch');
 
-  const timePassed = comboCount === 0 ? simulateTimePassing(punchType) : 2;
+  // Apply combo success modifier
+  const comboModifier = Math.pow(COMBO_SUCCESS_MODIFIER, comboCount);
+  hitChance *= comboModifier;
 
-  if (Math.random() < successChance) {
-    const { damage, target } = calculateDamage(attacker.Rating.striking * staminaImpact, punchType);
+  // Redistribute the reduced hit chance to other outcomes
+  const hitChanceReduction = hitChance * (1 - comboModifier);
+  blockChance += hitChanceReduction * 0.5;
+  evadeChance += hitChanceReduction * 0.3;
+  missChance += hitChanceReduction * 0.2;
+
+  // Normalize probabilities
+  const total = hitChance + blockChance + evadeChance + missChance;
+  hitChance /= total;
+  blockChance /= total;
+  evadeChance /= total;
+  missChance /= total;
+
+  // Determine the outcome based on calculated probabilities
+  const outcome = Math.random();
+  const timePassed = comboCount === 0 ? simulateTimePassing(punchType) : 2; // Combo punches are quicker
+
+  // Initialize combo follows as false
+  let comboFollows = false;
+
+  if (outcome < hitChance) {
+    // Hit logic
+    const { damage, target } = calculateDamage(attacker.Rating.striking , punchType);
     defender.health[target] = Math.max(0, defender.health[target] - damage);
-
-    // Update overall punch stats
+    
+    // Update attacker's stats
     attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
-
-    // Update specific punch type stats
-    attacker.stats[`${punchType}sLanded`] =
-      (attacker.stats[`${punchType}sLanded`] || 0) + 1;
-
-    console.log(
-      `${defender.name} is hit by the ${displayPunchType} for ${JSON.stringify(damage)} damage`
-    );
-
+    attacker.stats[`${punchType}sLanded`] = (attacker.stats[`${punchType}sLanded`] || 0) + 1;
+    
+    console.log(`${defender.name} is hit by the ${punchType} for ${JSON.stringify(damage)} damage`);
+    
     // Determine if a combo follows
-    const comboFollows = ['jab', 'cross', 'hook', 'uppercut', 'bodyPunch'].includes(punchType) && Math.random() < COMBO_CHANCE && comboCount < 2;
-
-    return [punchType + "Landed", timePassed, comboFollows];
-  } else {
+    comboFollows = ['jab', 'cross', 'hook', 'uppercut', 'bodyPunch'].includes(punchType) && 
+                   Math.random() < COMBO_CHANCE * attacker.Rating.combos && 
+                   comboCount < (MAX_COMBO_LENGTH - 1);
+    
+    return [`${punchType}Landed`, timePassed, comboFollows];
+  } else if (outcome < hitChance + blockChance) {
+    // Block logic
     defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
-
-    // Update specific punch type blocked stats
-    defender.stats[`${punchType}sBlocked`] =
-      (defender.stats[`${punchType}sBlocked`] || 0) + 1;
-
-    console.log(`${defender.name} blocks the ${displayPunchType}`);
-    return [`${punchType}Blocked`, timePassed, false];
+    defender.stats[`${punchType}sBlocked`] = (defender.stats[`${punchType}sBlocked`] || 0) + 1;
+    
+    console.log(`${defender.name} blocks the ${punchType}`);
+    return [`${punchType}Blocked`, timePassed, comboFollows];
+  } else if (outcome < hitChance + blockChance + evadeChance) {
+    // Evade logic
+    defender.stats.punchesEvaded = (defender.stats.punchesEvaded || 0) + 1;
+    defender.stats[`${punchType}sEvaded`] = (defender.stats[`${punchType}sEvaded`] || 0) + 1;
+    
+    console.log(`${defender.name} evades the ${punchType}`);
+    return [`${punchType}Evaded`, timePassed, comboFollows];
+  } else {
+    // Miss logic
+    attacker.stats.punchesMissed = (attacker.stats.punchesMissed || 0) + 1;
+    attacker.stats[`${punchType}sMissed`] = (attacker.stats[`${punchType}sMissed`] || 0) + 1;
+    
+    console.log(`${attacker.name}'s ${punchType} misses ${defender.name}`);
+    return [`${punchType}Missed`, timePassed, comboFollows];
   }
 };
+
 
 /**
  * Execute a full combo sequence or single punch
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
  * @param {string} initialPunch - Type of the initial punch
  * @returns {[string, number]} Full combo outcome and total time passed
  */
@@ -258,7 +349,6 @@ const doCombo = (attacker, defender, staminaImpact, initialPunch) => {
     const [outcome, time, comboFollows] = doPunch(
       attacker,
       defender,
-      staminaImpact,
       currentPunch,
       comboCount
     );
@@ -535,7 +625,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       case "spinningBackfist":
       case "supermanPunch":
         // These new punches are single actions, not part of combos
-      [outcome, timePassed] = doPunch(fighter, opponentFighter, staminaImpact, actionType);
+      [outcome, timePassed] = doPunch(fighter, opponentFighter, actionType);
       break;
     case "headKick":
     case "bodyKick":

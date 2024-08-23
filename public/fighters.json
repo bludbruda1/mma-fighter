@@ -19,12 +19,16 @@
       "body": 1000,
       "legs": 1000
     },
+    "stamina": 1000,
     "isStanding": true,
     "isGroundOffense": false,
     "isGroundDefense": false,
     "Rating": {
       "output": 85,
       "striking": 90,
+      "handSpeed": 85,
+      "headMovement": 70,
+      "punchAccuracy": 80,
       "kicking": 80,
       "strikingDefence": 80,
       "kickDefence": 75,
@@ -108,12 +112,16 @@
       "body": 1000,
       "legs": 1000
     },
+    "stamina": 1000,
     "isStanding": true,
     "isGroundOffense": false,
     "isGroundDefense": false,
     "Rating": {
       "output": 85,
       "striking": 90,
+      "handSpeed": 85,
+      "headMovement": 70,
+      "punchAccuracy": 80,
       "kicking": 80,
       "strikingDefence": 85,
       "kickDefence": 80,
