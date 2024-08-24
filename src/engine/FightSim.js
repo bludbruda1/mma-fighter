@@ -28,11 +28,18 @@ const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful pu
 const COMBO_SUCCESS_MODIFIER = 0.8; // Each subsequent punch in a combo is 20% less likely to land
 const MAX_COMBO_LENGTH = 4; // Maximum number of punches in a combo
 const COMBO_FOLLOW_UPS = {
-  jab: ["jab", "cross", "hook", "overhand", "bodyPunch"],
-  cross: ["hook", "uppercut", "bodyPunch"],
-  hook: ["uppercut", "cross", "bodyPunch"],
-  uppercut: ["hook", "cross"],
-  bodyPunch: ["hook", "uppercut", "cross", "overhand"]
+  // Punch follow-ups
+  jab: ["jab", "cross", "hook", "overhand", "bodyPunch", "legKick", "bodyKick"],
+  cross: ["hook", "uppercut", "bodyPunch", "headKick", "legKick"],
+  hook: ["uppercut", "cross", "bodyPunch", "headKick"],
+  uppercut: ["hook", "cross", "bodyKick"],
+  overhand: ["hook", "bodyPunch", "legKick"],
+  bodyPunch: ["hook", "uppercut", "cross", "overhand", "bodyKick"],
+  
+  // Kick follow-ups
+  legKick: ["jab", "cross", "hook", "bodyKick", "headKick"],
+  bodyKick: ["jab", "cross", "hook", "headKick", "legKick"],
+  headKick: ["jab", "cross", "legKick", "bodyKick"]
 };
 
 //Functions that set up an action
@@ -74,58 +81,65 @@ const calculateProbability = (offenseRating, defenseRating) => {
  * @returns {Object} Probabilities of hit, block, evade, and miss
  */
 const calculateProbabilities = (attacker, defender, actionType) => {
+  let offenseRating, defenseRating, evasiveness, accuracy;
+  let hitChanceBase, hitChanceMax, missChanceBase, evadeChanceBase;
 
-  // For now, we're only handling 'punch' action type
   if (actionType === 'punch') {
-    // Use striking rating modified by hand speed for offense
-    const offenseRating = (attacker.Rating.striking * (attacker.Rating.handSpeed / 100)) / 100;
-    // Use striking defense for defense
-    const defenseRating = defender.Rating.strikingDefence / 100;
-    // Use head movement for evasiveness
-    const evasiveness = defender.Rating.headMovement / 100;
-    // Use punch accuracy for accuracy
-    const accuracy = attacker.Rating.punchAccuracy / 100;
-
-    console.log(`Offense Rating: ${offenseRating}`);
-    console.log(`Defense Rating: ${defenseRating}`);
-    console.log(`Evasiveness: ${evasiveness}`);
-    console.log(`Accuracy: ${accuracy}`);
-
-    // Calculate hit chance (30-50% range)
-    let hitChance = 0.3 + (0.2 * offenseRating);
-    // Adjust hit chance based on the difference between offense and defense
-    hitChance += 0.1 * Math.max(0, Math.min(1, (offenseRating - defenseRating)));
-    // Further adjust based on accuracy
-    hitChance *= accuracy;
-    // Ensure hit chance doesn't exceed 50%
-    hitChance = Math.min(0.5, hitChance);
-
-    // Calculate miss chance (20-30% range)
-    let missChance = 0.2 + (0.1 * (1 - accuracy));
-
-    // Calculate evade chance (20-30% range)
-    let evadeChance = 0.2 + (0.1 * evasiveness);
-
-    // Calculate block chance (remaining probability, should be roughly 20-30%)
-    let blockChance = 1 - (hitChance + missChance + evadeChance);
-
-    // Normalize probabilities to ensure they sum to 1
-    const total = hitChance + blockChance + evadeChance + missChance;
-    hitChance /= total;
-    blockChance /= total;
-    evadeChance /= total;
-    missChance /= total;
-
-    console.log(`Hit Chance: ${(hitChance * 100).toFixed(2)}%`);
-    console.log(`Block Chance: ${(blockChance * 100).toFixed(2)}%`);
-    console.log(`Evade Chance: ${(evadeChance * 100).toFixed(2)}%`);
-    console.log(`Miss Chance: ${(missChance * 100).toFixed(2)}%`);
-
-    return { hitChance, blockChance, evadeChance, missChance };
+    offenseRating = (attacker.Rating.striking * (attacker.Rating.handSpeed / 100)) / 100;
+    defenseRating = defender.Rating.strikingDefence / 100;
+    evasiveness = defender.Rating.headMovement / 100;
+    accuracy = attacker.Rating.punchAccuracy / 100;
+    hitChanceBase = 0.3;
+    hitChanceMax = 0.5;
+    missChanceBase = 0.2;
+    evadeChanceBase = 0.2;
+  } else if (actionType === 'kick') {
+    offenseRating = (attacker.Rating.kicking * (attacker.Rating.kickSpeed / 100)) / 100;
+    defenseRating = defender.Rating.kickDefence / 100;
+    evasiveness = ((defender.Rating.headMovement + defender.Rating.footwork) / 2) / 100;
+    accuracy = attacker.Rating.kickAccuracy / 100;
+    hitChanceBase = 0.25;
+    hitChanceMax = 0.45;
+    missChanceBase = 0.25;
+    evadeChanceBase = 0.25;
   } else {
-    // For other action types, return equal probabilities for now
+    // For other action types, return equal probabilities
     return { hitChance: 0.25, blockChance: 0.25, evadeChance: 0.25, missChance: 0.25 };
   }
+
+  console.log(`Offense Rating: ${offenseRating}`);
+  console.log(`Defense Rating: ${defenseRating}`);
+  console.log(`Evasiveness: ${evasiveness}`);
+  console.log(`Accuracy: ${accuracy}`);
+
+  // Calculate hit chance
+  let hitChance = hitChanceBase + (0.2 * offenseRating);
+  hitChance += 0.1 * Math.max(0, Math.min(1, (offenseRating - defenseRating)));
+  hitChance *= accuracy;
+  hitChance = Math.min(hitChanceMax, hitChance);
+
+  // Calculate miss chance
+  let missChance = missChanceBase + (0.1 * (1 - accuracy));
+
+  // Calculate evade chance
+  let evadeChance = evadeChanceBase + (0.1 * evasiveness);
+
+  // Calculate block chance (remaining probability)
+  let blockChance = 1 - (hitChance + missChance + evadeChance);
+
+  // Normalize probabilities to ensure they sum to 1
+  const total = hitChance + blockChance + evadeChance + missChance;
+  hitChance /= total;
+  blockChance /= total;
+  evadeChance /= total;
+  missChance /= total;
+
+  console.log(`Hit Chance: ${(hitChance * 100).toFixed(2)}%`);
+  console.log(`Block Chance: ${(blockChance * 100).toFixed(2)}%`);
+  console.log(`Evade Chance: ${(evadeChance * 100).toFixed(2)}%`);
+  console.log(`Miss Chance: ${(missChance * 100).toFixed(2)}%`);
+
+  return { hitChance, blockChance, evadeChance, missChance };
 };
 
 /**
@@ -170,40 +184,72 @@ const calculateDamage = (baseRating, strikeType) => {
  * Perform a kick action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
+ * @param {string} kickType - Type of kick (leg kick, body kick, head kick etc)
+ * @param {number} comboCount - Number of strikes already in this combo
  * @returns {string} Outcome of the action
  */
 const doKick = (
   attacker,
   defender, 
-  staminaImpact, 
-  kickType
+  kickType,
+  comboCount = 0
 ) => {
 
-    // This just cleans up the text output, eventually we will have commentary file that will do this and we can remove this. Its only for the techniques with two words lol
-    let displayKickType = kickType;
-    if (kickType === 'legKick') {
-      displayKickType = 'leg kick';
-    } else if (kickType === 'bodyKick') {
-      displayKickType = 'body kick';
-    } else if (kickType === 'headKick') {
-      displayKickType = 'head kick';
-    }
+  // This just cleans up the text output
+  let displayKickType = kickType.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
 
-  console.log(`${attacker.name} throws a ${displayKickType} at ${defender.name}`);
-
-  const successChance = calculateProbability(
-    attacker.Rating.kicking * staminaImpact,
-    defender.Rating.kickDefence
+  console.log(
+    `${attacker.name} throws a ${displayKickType}${
+      comboCount > 0 ? " (combo strike #" + (comboCount + 1) + ")" : ""
+    } at ${defender.name}`
   );
 
-  if (Math.random() < successChance) {
-    const { damage, target } = calculateDamage(attacker.Rating.kicking * staminaImpact, kickType);
-    defender.health[target] = Math.max(0, defender.health[target] - damage);
+  // Log the kick
+  attacker.stats.kicksThrown = (attacker.stats.kicksThrown || 0) + 1;
+  attacker.stats[`${kickType}sThrown`] = (attacker.stats[`${kickType}sThrown`] || 0) + 1;
 
+  // Calculate probabilities for this kick
+  let { hitChance, blockChance, evadeChance, missChance } = 
+  calculateProbabilities(attacker, defender, 'kick');
+
+  // Apply combo success modifier
+  const comboModifier = Math.pow(COMBO_SUCCESS_MODIFIER, comboCount);
+  hitChance *= comboModifier;
+
+  // Redistribute the reduced hit chance to other outcomes
+  const hitChanceReduction = hitChance * (1 - comboModifier);
+  blockChance += hitChanceReduction * 0.5;
+  evadeChance += hitChanceReduction * 0.3;
+  missChance += hitChanceReduction * 0.2;
+
+  // Normalize probabilities
+  const total = hitChance + blockChance + evadeChance + missChance;
+  hitChance /= total;
+  blockChance /= total;
+  evadeChance /= total;
+  missChance /= total;
+
+  // Determine the outcome based on calculated probabilities
+  const outcome = Math.random();
+  const timePassed = comboCount === 0 ? simulateTimePassing(kickType) : 3; // Combo kicks are quicker
+
+  // Use COMBO_CHANCE, reduced for each strike in the combo
+  const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);
+
+  // Determine if a combo follows (only for certain kick types and if not at max combo length)
+  const comboFollows = ['headKick', 'bodyKick', 'legKick'].includes(kickType) && 
+                        Math.random() < comboChance &&
+                        comboCount < (MAX_COMBO_LENGTH - 1);
+
+  if (outcome < hitChance) {
+    // Hit logic
+    const { damage, target } = calculateDamage(attacker.Rating.kicking, kickType);
+    defender.health[target] = Math.max(0, defender.health[target] - damage);
+    
+    // Update attacker's stats
     attacker.stats.kicksLanded = (attacker.stats.kicksLanded || 0) + 1;
     attacker.stats[`${kickType}sLanded`] = (attacker.stats[`${kickType}sLanded`] || 0) + 1;
-
+    
     console.log(`${defender.name} is hit by the ${displayKickType} for ${JSON.stringify(damage)} damage`);
     
     // Special case for leg kicks
@@ -211,22 +257,37 @@ const doKick = (
       console.log(`${defender.name}'s mobility is affected by the leg kick`);
       // We could implement additional effects here, like reduced movement or increased chance of knockdown
     }
-
-    return [`${kickType}Landed`, simulateTimePassing(kickType), false]; // Kicks don't lead to combos in this system
-  } else {
+    
+    return [`${kickType}Landed`, timePassed, comboFollows];
+  } else if (outcome < hitChance + blockChance) {
+    // Block logic
     defender.stats.kicksBlocked = (defender.stats.kicksBlocked || 0) + 1;
     defender.stats[`${kickType}sBlocked`] = (defender.stats[`${kickType}sBlocked`] || 0) + 1;
-
+    
     console.log(`${defender.name} blocks the ${displayKickType}`);
 
     // Special case for checked leg kicks
     if (kickType === 'legKick') {
-      const { damage, target } = calculateDamage(defender.Rating.legKickDefence, 'legKick');
+      const { damage, target } = calculateDamage(defender.Rating.kickDefence, 'legKick');
       attacker.health[target] = Math.max(0, attacker.health[target] - damage);
       console.log(`${attacker.name} takes ${damage} damage to the ${target} from the checked leg kick`);
     }
 
-    return [`${kickType}Blocked`, simulateTimePassing(kickType), false];
+    return [`${kickType}Blocked`, timePassed, comboFollows];
+  } else if (outcome < hitChance + blockChance + evadeChance) {
+    // Evade logic
+    defender.stats.kicksEvaded = (defender.stats.kicksEvaded || 0) + 1;
+    defender.stats[`${kickType}sEvaded`] = (defender.stats[`${kickType}sEvaded`] || 0) + 1;
+    
+    console.log(`${defender.name} evades the ${displayKickType}`);
+    return [`${kickType}Evaded`, timePassed, comboFollows];
+  } else {
+    // Miss logic
+    attacker.stats.kicksMissed = (attacker.stats.kicksMissed || 0) + 1;
+    attacker.stats[`${kickType}sMissed`] = (attacker.stats[`${kickType}sMissed`] || 0) + 1;
+    
+    console.log(`${attacker.name}'s ${displayKickType} misses ${defender.name}`);
+    return [`${kickType}Missed`, timePassed, comboFollows];
   }
 };
 
@@ -236,7 +297,7 @@ const doKick = (
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @param {string} punchType - Type of punch (jab, cross, hook, uppercut etc)
- * @param {number} comboCount - Number of punches already in this combo
+ * @param {number} comboCount - Number of strikes already in this combo
  * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
  */
 const doPunch = (
@@ -246,15 +307,8 @@ const doPunch = (
   comboCount = 0
 ) => {
 
-  // This just cleans up the text output, eventually we will have commentary file that will do this and we can remove this. Its only for the techniques with two words lol
-  let displayPunchType = punchType;
-  if (punchType === 'spinningBackfist') {
-    displayPunchType = 'spinning backfist';
-  } else if (punchType === 'supermanPunch') {
-    displayPunchType = 'superman punch';
-  } else if (punchType === 'bodyPunch') {
-    displayPunchType = 'punch to the body';
-  }
+  // This just cleans up the text output
+  let displayPunchType = punchType.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
 
   console.log(
     `${attacker.name} throws a ${displayPunchType}${
@@ -336,25 +390,23 @@ const doPunch = (
 };
 
 /**
- * Execute a full combo sequence or single punch
+ * Execute a full combo sequence or single strike
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {string} initialPunch - Type of the initial punch
+ * @param {string} initialStrike - Type of the initial strike
  * @returns {[string, number]} Full combo outcome and total time passed
  */
-const doCombo = (attacker, defender, initialPunch) => {
+const doCombo = (attacker, defender, initialStrike) => {
   let comboCount = 0;
   let totalOutcome = "";
   let totalTime = 0;
-  let currentPunch = initialPunch;
+  let currentStrike = initialStrike;
 
   while (comboCount < MAX_COMBO_LENGTH) {
-    const [outcome, time, comboFollows] = doPunch(
-      attacker,
-      defender,
-      currentPunch,
-      comboCount
-    );
+    const [outcome, time, comboFollows] = currentStrike.includes('Kick') 
+      ? doKick(attacker, defender, currentStrike, comboCount)
+      : doPunch(attacker, defender, currentStrike, comboCount);
+
     totalOutcome += (comboCount > 0 ? " + " : "") + outcome;
     totalTime += time;
 
@@ -367,9 +419,12 @@ const doCombo = (attacker, defender, initialPunch) => {
     if (!comboFollows) break;
 
     comboCount++;
-    const followUpOptions = COMBO_FOLLOW_UPS[currentPunch];
-    currentPunch = followUpOptions[Math.floor(Math.random() * followUpOptions.length)];
-    console.log(`${attacker.name} follows up with a ${currentPunch}`);
+    const followUpOptions = COMBO_FOLLOW_UPS[currentStrike];
+    if (!followUpOptions || followUpOptions.length === 0) {
+      break;
+    }
+    currentStrike = followUpOptions[Math.floor(Math.random() * followUpOptions.length)];
+    console.log(`${attacker.name} follows up with a ${currentStrike}`);
 
     // Decrease stamina for each additional punch in the combo
     attacker.stamina = Math.max(0, attacker.stamina - 1);
@@ -623,13 +678,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "overhand":
     case "spinningBackfist":
     case "supermanPunch":
-      // These new punches are single actions, not part of combos
-      [outcome, timePassed] = doCombo(fighter, opponentFighter, actionType);
-      break;
     case "headKick":
     case "bodyKick":
     case "legKick":
-      [outcome, timePassed] = doKick(fighter, opponentFighter, staminaImpact, actionType);
+      [outcome, timePassed] = doCombo(fighter, opponentFighter, actionType);
       break;
     case "takedownAttempt":
       outcome = doTakedown(fighter, opponentFighter, staminaImpact);
@@ -755,6 +807,7 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
     console.log(`    Hooks: ${(fighter.stats.hooksLanded || 0) - (initialStats[index].hooksLanded || 0)}`);
     console.log(`    Uppercuts: ${(fighter.stats.uppercutsLanded || 0) - (initialStats[index].uppercutsLanded || 0)}`);
     console.log(`    Body Punches: ${(fighter.stats.bodyPunchsLanded || 0) - (initialStats[index].bodyPunchsLanded || 0)}`);
+    console.log(`  Kicks Thrown: ${(fighter.stats.kicksThrown|| 0) - (initialStats[index].kicksThrown|| 0)}`);
     console.log(`  Kicks Landed: ${(fighter.stats.kicksLanded|| 0) - (initialStats[index].kicksLanded|| 0)}`);
     console.log(`    Head Kicks: ${(fighter.stats.headKicksLanded || 0) - (initialStats[index].headKicksLanded || 0)}`);
     console.log(`    Body Kicks: ${(fighter.stats.bodyKicksLanded || 0) - (initialStats[index].bodyKicksLanded || 0)}`);
@@ -874,7 +927,9 @@ const displayFightStats = (fighters) => {
     console.log(`  Total Punches Thrown: ${fighter.stats.punchesThrown || 0}`);
     console.log(`  Total Punches Landed: ${fighter.stats.punchesLanded || 0}`);
     console.log(`  Punch Accuracy: ${(((fighter.stats.punchesLanded || 0) / (fighter.stats.punchesThrown || 1)) * 100).toFixed(2)}%`);
+    console.log(`  Total Kicks Thrown: ${fighter.stats.kicksThrown || 0}`);
     console.log(`  Total Kicks Landed: ${fighter.stats.kicksLanded || 0}`);
+    console.log(`  Kick Accuracy: ${(((fighter.stats.kicksLanded || 0) / (fighter.stats.kicksThrown || 1)) * 100).toFixed(2)}%`);
     console.log("  Strikes by Type:");
     console.log(`    Jabs: ${fighter.stats.jabsLanded || 0}`);
     console.log(`    Crosses: ${fighter.stats.crossesLanded || 0}`);
@@ -902,7 +957,7 @@ const displayFightStats = (fighters) => {
     
     // Defense stats
     console.log("Defense:");
-    console.log(`  Strikes Blocked/Evaded: ${(fighter.stats.punchesBlocked || 0) + (fighter.stats.punchesEvaded || 0) + (fighter.stats.kicksBlocked || 0)}`);
+    console.log(`  Strikes Blocked/Evaded: ${(fighter.stats.punchesBlocked || 0) + (fighter.stats.punchesEvaded || 0) + (fighter.stats.kicksBlocked || 0)+ (fighter.stats.kicksEvaded || 0)}`);
     
     // Damage stats
     console.log("Damage:");
