@@ -70,12 +70,12 @@ const FightScreen = () => {
           health: {
             head: Number(fighter.maxHealth) || 1000,
             body: Number(fighter.maxHealth) || 1000,
-            legs: Number(fighter.maxHealth) || 1000
+            legs: Number(fighter.maxHealth) || 1000,
           },
           maxHealth: {
             head: Number(fighter.maxHealth) || 1000,
             body: Number(fighter.maxHealth) || 1000,
-            legs: Number(fighter.maxHealth) || 1000
+            legs: Number(fighter.maxHealth) || 1000,
           },
           stamina: Number(fighter.stamina) || 1000,
           isStanding: true,
@@ -86,7 +86,6 @@ const FightScreen = () => {
             output: Number(fighter.Rating.output) || 0,
             kicking: Number(fighter.Rating.kicking) || 0,
             striking: Number(fighter.Rating.striking) || 0,
-            legKickOffence: Number(fighter.Rating.legKickOffence) || 0,
             legKickDefence: Number(fighter.Rating.legKickDefence) || 0,
             kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
@@ -100,10 +99,23 @@ const FightScreen = () => {
           },
           stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
           Tendency: fighter.Tendency || {
-            standingTendency: { punchTendency: 25, kickTendency: 25, legKickTendency: 25, takedownTendency: 25 },
-            groundOffenseTendency: { punchTendency: 50, submissionTendency: 25, getUpTendency: 25 },
-            groundDefenseTendency: { punchTendency: 25, submissionTendency: 25, getUpTendency: 50 }
-          }
+            standingTendency: {
+              punchTendency: 25,
+              kickTendency: 25,
+              legKickTendency: 25,
+              takedownTendency: 25,
+            },
+            groundOffenseTendency: {
+              punchTendency: 50,
+              submissionTendency: 25,
+              getUpTendency: 25,
+            },
+            groundDefenseTendency: {
+              punchTendency: 25,
+              submissionTendency: 25,
+              getUpTendency: 50,
+            },
+          },
         };
       };
 
@@ -148,7 +160,7 @@ const FightScreen = () => {
               wins: (fighter.wins || 0) + 1,
               recentFights: [
                 {
-                  opponent: `${loserFighter.firstname} ${loserFighter.lastname}`,
+                  opponent: loserFighter.name, // Update here
                   result: `Win by ${result.method}`,
                 },
                 ...(fighter.recentFights || []).slice(0, 4),
@@ -160,7 +172,7 @@ const FightScreen = () => {
               losses: (fighter.losses || 0) + 1,
               recentFights: [
                 {
-                  opponent: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
+                  opponent: winnerFighter.name, // Update here
                   result: `Loss by ${result.method}`,
                 },
                 ...(fighter.recentFights || []).slice(0, 4),

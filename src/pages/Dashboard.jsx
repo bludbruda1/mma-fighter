@@ -128,7 +128,6 @@ const Dashboard = () => {
                   <TableCell>Record</TableCell>
                   <TableCell>Kicking</TableCell>
                   <TableCell>Striking</TableCell>
-                  <TableCell>Leg Kick Offense</TableCell>
                   <TableCell>Kick Defence</TableCell>
                   <TableCell>Striking Defence</TableCell>
                 </TableRow>
@@ -140,7 +139,6 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell>{fighter.Rating.kicking}</TableCell>
                   <TableCell>{fighter.Rating.striking}</TableCell>
-                  <TableCell>{fighter.Rating.legKickOffence}</TableCell>
                   <TableCell>{fighter.Rating.kickDefence}</TableCell>
                   <TableCell>{fighter.Rating.strikingDefence}</TableCell>
                 </TableRow>
