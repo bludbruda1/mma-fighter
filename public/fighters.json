@@ -279,8 +279,8 @@
       "standingTendency": {
         "punchTendency": 55,
         "kickTendency": 25,
-        "legKickTendency": 15,
-        "takedownTendency": 5
+        "takedownTendency": 5,
+        "clinchingTendency": 15
       },
       "clinchTendency": {
         "takedownTendency": 60,
@@ -325,6 +325,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -462,6 +464,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -558,8 +562,17 @@
       "standingTendency": {
         "punchTendency": 40,
         "kickTendency": 30,
-        "legKickTendency": 15,
-        "takedownTendency": 15
+        "takedownTendency": 15,
+        "clinchingTendency": 15
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 65,
@@ -595,6 +608,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -691,8 +706,17 @@
       "standingTendency": {
         "punchTendency": 70,
         "kickTendency": 20,
-        "legKickTendency": 5,
-        "takedownTendency": 5
+        "takedownTendency": 5,
+        "clinchingTendency": 5
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 80,
@@ -728,6 +752,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -824,8 +850,17 @@
       "standingTendency": {
         "punchTendency": 65,
         "kickTendency": 15,
-        "legKickTendency": 5,
-        "takedownTendency": 15
+        "takedownTendency": 15,
+        "clinchingTendency": 5
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 75,
@@ -861,6 +896,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -941,8 +978,17 @@
       "standingTendency": {
         "punchTendency": 45,
         "kickTendency": 40,
-        "legKickTendency": 10,
-        "takedownTendency": 5
+        "takedownTendency": 5,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 60,
@@ -978,6 +1024,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -1074,8 +1122,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 25,
-        "legKickTendency": 15,
-        "takedownTendency": 10
+        "takedownTendency": 10,
+        "clinchingTendency": 15
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 60,
@@ -1111,6 +1168,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -1207,8 +1266,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 40,
-        "legKickTendency": 8,
-        "takedownTendency": 2
+        "takedownTendency": 2,
+        "clinchingTendency": 8
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 75,
@@ -1244,6 +1312,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "Rating": {
@@ -1340,8 +1410,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 30,
-        "legKickTendency": 15,
-        "takedownTendency": 5
+        "takedownTendency": 5,
+        "clinchingTendency": 15
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 70,
@@ -1377,6 +1456,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 1,
@@ -1474,8 +1555,17 @@
       "standingTendency": {
         "punchTendency": 40,
         "kickTendency": 20,
-        "legKickTendency": 10,
-        "takedownTendency": 30
+        "takedownTendency": 30,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 50,
@@ -1511,6 +1601,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 4,
@@ -1608,8 +1700,17 @@
       "standingTendency": {
         "punchTendency": 45,
         "kickTendency": 25,
-        "legKickTendency": 10,
-        "takedownTendency": 20
+        "takedownTendency": 20,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 60,
@@ -1645,6 +1746,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 2,
@@ -1742,8 +1845,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 25,
-        "legKickTendency": 10,
-        "takedownTendency": 15
+        "takedownTendency": 15,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 40,
@@ -1779,6 +1891,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 5,
@@ -1876,8 +1990,17 @@
       "standingTendency": {
         "punchTendency": 60,
         "kickTendency": 30,
-        "legKickTendency": 8,
-        "takedownTendency": 2
+        "takedownTendency": 2,
+        "clinchingTendency": 8
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 80,
@@ -1913,6 +2036,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 7,
@@ -2010,8 +2135,17 @@
       "standingTendency": {
         "punchTendency": 45,
         "kickTendency": 20,
-        "legKickTendency": 10,
-        "takedownTendency": 25
+        "takedownTendency": 25,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 55,
@@ -2047,6 +2181,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 9,
@@ -2144,8 +2280,17 @@
       "standingTendency": {
         "punchTendency": 55,
         "kickTendency": 20,
-        "legKickTendency": 5,
-        "takedownTendency": 20
+        "takedownTendency": 20,
+        "clinchingTendency": 5
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 70,
@@ -2181,6 +2326,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 6,
@@ -2278,8 +2425,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 20,
-        "legKickTendency": 10,
-        "takedownTendency": 20
+        "takedownTendency": 20,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 50,
@@ -2315,6 +2471,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 8,
@@ -2412,8 +2570,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 40,
-        "legKickTendency": 8,
-        "takedownTendency": 2
+        "takedownTendency": 2,
+        "clinchingTendency": 8
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 75,
@@ -2449,6 +2616,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 1,
@@ -2546,8 +2715,17 @@
       "standingTendency": {
         "punchTendency": 65,
         "kickTendency": 25,
-        "legKickTendency": 8,
-        "takedownTendency": 2
+        "takedownTendency": 2,
+        "clinchingTendency": 8
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 80,
@@ -2583,6 +2761,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 10,
@@ -2680,8 +2860,17 @@
       "standingTendency": {
         "punchTendency": 50,
         "kickTendency": 25,
-        "legKickTendency": 10,
-        "takedownTendency": 15
+        "takedownTendency": 15,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 45,
@@ -2717,6 +2906,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 11,
@@ -2814,8 +3005,17 @@
       "standingTendency": {
         "punchTendency": 55,
         "kickTendency": 35,
-        "legKickTendency": 8,
-        "takedownTendency": 2
+        "takedownTendency": 2,
+        "clinchingTendency": 8
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 70,
@@ -2851,6 +3051,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 12,
@@ -2948,8 +3150,17 @@
       "standingTendency": {
         "punchTendency": 45,
         "kickTendency": 30,
-        "legKickTendency": 10,
-        "takedownTendency": 15
+        "takedownTendency": 15,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 50,
@@ -2985,6 +3196,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 13,
@@ -3082,8 +3295,17 @@
       "standingTendency": {
         "punchTendency": 55,
         "kickTendency": 30,
-        "legKickTendency": 10,
-        "takedownTendency": 5
+        "takedownTendency": 5,
+        "clinchingTendency": 10
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 60,
@@ -3119,6 +3341,8 @@
       "legs": 1000
     },
     "isStanding": true,
+    "isClinchedOffence": false,
+    "isClinchedDefence": false,
     "isGroundOffence": false,
     "isGroundDefence": false,
     "ranking": 14,
@@ -3216,8 +3440,17 @@
       "standingTendency": {
         "punchTendency": 0,
         "kickTendency": 0,
-        "legKickTendency": 0,
-        "takedownTendency": 100
+        "takedownTendency": 100,
+        "clinchingTendency": 0
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 0,
