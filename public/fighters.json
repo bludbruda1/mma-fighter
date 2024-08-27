@@ -21,6 +21,9 @@
     },
     "stamina": 1000,
     "isStanding": true,
+    "isClinched": false,
+    "isClinchedOffense": false,
+    "isClinchedDefense": false,
     "isGroundOffense": false,
     "isGroundDefense": false,
     "Rating": {
@@ -32,6 +35,8 @@
       "kicking": 80,
       "strikingDefence": 80,
       "kickDefence": 75,
+      "clinchGrappling": 70,
+      "clinchControl": 70,
       "takedownOffence": 70, 
       "takedownDefence": 75,
       "groundOffence": 70,
@@ -100,6 +105,13 @@
       "legKicksBlocked": 0,
       "legKicksEvaded": 0,
       "legKicksMissed": 0,
+      "clinchEntered": 0,
+      "clinchExits": 0,
+      "clinchStrikesThrown": 0,
+      "clinchStikesLanded": 0,
+      "clinchStrikesBlocked": 0,
+      "clinchTakedownsAttempted": 0,
+      "clinchTakedownsSuccessful": 0,
       "takedownsAttempted": 0,
       "takedownsLanded": 0,
       "takedownsDefended": 0,
@@ -113,9 +125,18 @@
     "Tendency": {
       "standingTendency": {
         "punchTendency": 60,
-        "kickTendency": 25,
-        "legKickTendency": 10,
-        "takedownTendency": 5
+        "kickTendency": 30,
+        "takedownTendency": 5,
+        "clinchingTendency": 5
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenseTendency": {
         "punchTendency": 70,
@@ -152,6 +173,9 @@
     },
     "stamina": 1000,
     "isStanding": true,
+    "isClinched": false,
+    "isClinchedOffense": false,
+    "isClinchedDefense": false,
     "isGroundOffense": false,
     "isGroundDefense": false,
     "Rating": {
@@ -166,6 +190,8 @@
       "kickAccuracy": 85,
       "strikingDefence": 88,
       "kickDefence": 85,
+      "clinchGrappling": 80,
+      "clinchControl": 85,
       "takedownOffence": 80,
       "takedownDefence": 85,
       "groundOffence": 85,
@@ -234,6 +260,13 @@
       "legKicksBlocked": 0,
       "legKicksEvaded": 0,
       "legKicksMissed": 0,
+      "clinchEntered": 0,
+      "clinchExits": 0,
+      "clinchStrikesThrown": 0,
+      "clinchStikesLanded": 0,
+      "clinchStrikesBlocked": 0,
+      "clinchTakedownsAttempted": 0,
+      "clinchTakedownsSuccessful": 0,
       "takedownsAttempted": 0,
       "takedownsLanded": 0,
       "takedownsDefended": 0,
@@ -250,6 +283,15 @@
         "kickTendency": 25,
         "legKickTendency": 15,
         "takedownTendency": 5
+      },
+      "clinchTendency": {
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenseTendency": {
         "punchTendency": 60,
@@ -379,10 +421,14 @@
     },
     "Tendency": {
       "standingTendency": {
-        "punchTendency": 45,
-        "kickTendency": 45,
-        "legKickTendency": 8,
-        "takedownTendency": 2
+        "punchTendency": 50,
+        "kickTendency": 25,
+        "takedownTendency": 10,
+        "clinchingTendency": 15
+      },
+      "clinchTendency": {
+        "clinchTakedownTendency": 60,
+        "clinchStrikeTendency": 40
       },
       "groundOffenseTendency": {
         "punchTendency": 70,

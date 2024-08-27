@@ -29,16 +29,20 @@ const actionTimes = {
   bodyKick: 3,
   legKick: 2,
 
-  // Grappling
+  // Grappling and clinch
   takedownAttempt: 5,
   getUpAttempt: 4,
+  clinchAttempt: 3,
+  clinchStrike: 2,
+  clinchTakedown: 4,
+  clinchExit: 2,
 
   // Ground actions
   groundPunch: 1,
   submission: 8,
 
   // Combo actions
-  comboPunch: 1, // Additional time for each punch in a combo after the first
+  comboPunch: 1 // Additional time for each punch in a combo after the first
 };
 
 /**
