@@ -468,26 +468,26 @@ const doClinch = (attacker, defender) => {
   );
   
   if (Math.random() < clinchChance) {
+    // Set attacker's states
     attacker.isStanding = false;
-    attacker.isGroundOffense = false;
-    attacker.isGroundDefense = false;
-    attacker.isClinched = true;
-    attacker.isClinchedOffense = true;
-    attacker.isClinchedDefense = false;
+    attacker.isGroundOffence = false;
+    attacker.isGroundDefence = false;
+    attacker.isClinchedOffence = true;
+    attacker.isClinchedDefence = false;
     
+    // Set defenders's states
     defender.isStanding = false;
-    defender.isGroundOffense = false;
-    defender.isGroundDefense = false;
-    defender.isClinched = true;
-    defender.isClinchedOffense = false;
-    attacker.isClinchedDefense = true;
+    defender.isGroundOffence = false;
+    defender.isGroundDefence = false;
+    defender.isClinchedOffence = false;
+    defender.isClinchedDefence = true;
 
     attacker.stats.clinchEntered = (attacker.stats.clinchEntered || 0) + 1;
     console.log(`${attacker.name} successfully gets ${defender.name} in a clinch`);
-    return true;
+    return "clinchSuccessful";
   } else {
     console.log(`${defender.name} defends the clinch attempt`);
-    return false;
+    return "clinchFailed";
   }
 };
 
@@ -510,18 +510,16 @@ const exitClinch = (defender, attacker) => {
   if (Math.random() < exitChance) {
     // Successfully exit the clinch
     attacker.isStanding = true;
-    attacker.isGroundOffense = false;
-    attacker.isGroundDefense = false;
-    attacker.isClinched = false;
-    attacker.isClinchedOffense = false;
-    attacker.isClinchedDefense = false;
+    attacker.isGroundOffence = false;
+    attacker.isGroundDefence = false;
+    attacker.isClinchedOffence = false;
+    attacker.isClinchedDefence = false;
     
     defender.isStanding = true;
-    defender.isGroundOffense = false;
-    defender.isGroundDefense = false;
-    defender.isClinched = false;
-    defender.isClinchedOffense = false;
-    attacker.isClinchedDefense = false;
+    defender.isGroundOffence = false;
+    defender.isGroundDefence = false;
+    defender.isClinchedOffence = false;
+    attacker.isClinchedDefence = false;
     
     attacker.stats.clinchExits = (attacker.stats.clinchExits || 0) + 1;
     
@@ -592,18 +590,16 @@ const doClinchTakedown = (attacker, defender) => {
     
     // Reset clinch state and move to ground
     attacker.isStanding = false;
-    attacker.isGroundOffense = true;
-    attacker.isGroundDefense = false;
-    attacker.isClinched = false;
-    attacker.isClinchedOffense = false;
-    attacker.isClinchedDefense = false;
+    attacker.isGroundOffence = true;
+    attacker.isGroundDefence = false;
+    attacker.isClinchedOffence = false;
+    attacker.isClinchedDefence = false;
     
     defender.isStanding = false;
-    defender.isGroundOffense = false;
-    defender.isGroundDefense = true;
-    defender.isClinched = false;
-    defender.isClinchedOffense = false;
-    attacker.isClinchedDefense = false;
+    defender.isGroundOffence = false;
+    defender.isGroundDefence = true;
+    defender.isClinchedOffence = false;
+    defender.isClinchedDefence = false;
     
     console.log(`${attacker.name} successfully ${takedownType}s ${defender.name} for ${damage} damage`);
     return `clinch${takedownType.charAt(0).toUpperCase() + takedownType.slice(1)}Successful`;
@@ -634,18 +630,16 @@ const doTakedown = (attacker, defender, staminaImpact) => {
 
     // Update ground states
       attacker.isStanding = false;
-      attacker.isGroundOffense = true;
-      attacker.isGroundDefense = false;
-      attacker.isClinched = false;
-      attacker.isClinchedOffense = false;
-      attacker.isClinchedDefense = false;
+      attacker.isGroundOffence = true;
+      attacker.isGroundDefence = false;
+      attacker.isClinchedOffence = false;
+      attacker.isClinchedDefence = false;
 
       defender.isStanding = false;
-      defender.isGroundOffense = false;
-      defender.isGroundDefense = true;
-      defender.isClinched = false;
-      defender.isClinchedOffense = false;
-      attacker.isClinchedDefense = false;
+      defender.isGroundOffence = false;
+      defender.isGroundDefence = true;
+      defender.isClinchedOffence = false;
+      attacker.isClinchedDefence = false;
 
     // Calculate damage for successful takedowns
     const { damage, target } = calculateDamage(attacker.Rating.takedownOffence * staminaImpact, "takedown");
@@ -663,18 +657,16 @@ const doTakedown = (attacker, defender, staminaImpact) => {
     console.log(`${defender.name} defends the takedown`);
     // Both fighters remain standing
     attacker.isStanding = true;
-    attacker.isGroundOffense = false;
-    attacker.isGroundDefense = false;
-    attacker.isClinched = false;
-    attacker.isClinchedOffense = false;
-    attacker.isClinchedDefense = false;
+    attacker.isGroundOffence = false;
+    attacker.isGroundDefence = false;
+    attacker.isClinchedOffence = false;
+    attacker.isClinchedDefence = false;
 
     defender.isStanding = true;
-    defender.isGroundOffense = false;
-    defender.isGroundDefense = false;
-    defender.isClinched = false;
-    defender.isClinchedOffense = false;
-    attacker.isClinchedDefense = false;
+    defender.isGroundOffence = false;
+    defender.isGroundDefence = false;
+    defender.isClinchedOffence = false;
+    attacker.isClinchedDefence = false;
   
     return "takedownDefended";
   }
@@ -700,11 +692,15 @@ const doGetUp = (fighter, opponent, staminaImpact) => {
     fighter.stats.getUpsSuccessful = (fighter.stats.getUpsSuccessful || 0) + 1;
     // Reset both fighters to standing position
     fighter.isStanding = true;
-    fighter.isGroundOffense = false;
-    fighter.isGroundDefense = false;
+    fighter.isGroundOffence = false;
+    fighter.isGroundDefence = false;
+    fighter.isClinchedDefence = false;
+    fighter.isClinchedOffence = false;
     opponent.isStanding = true;
-    opponent.isGroundOffense = false;
-    opponent.isGroundDefense = false;
+    opponent.isGroundOffence = false;
+    opponent.isGroundDefence = false;
+    opponent.isClinchedDefence = false;
+    opponent.isClinchedOffence = false;
     console.log(`${fighter.name} successfully gets up`);
     return "getUpSuccessful";
   } else {
@@ -726,8 +722,8 @@ const doSubmission = (attacker, defender, staminaImpact) => {
   if (
     Math.random() <
     calculateProbability(
-      attacker.Rating.submissionOffense * staminaImpact,
-      defender.Rating.submissionDefense
+      attacker.Rating.submissionOffence * staminaImpact,
+      defender.Rating.submissionDefence
     )
   ) {
     attacker.stats.submissionsLanded = (attacker.stats.submissionsLanded || 0) + 1;
@@ -751,6 +747,7 @@ const doSubmission = (attacker, defender, staminaImpact) => {
  * @returns {string} The determined action
  */
 const determineAction = (fighter, opponent) => {
+
   if (fighter.isStanding && opponent.isStanding) {
     // Standing logic
     const rand = Math.random() * 100;
@@ -784,8 +781,7 @@ const determineAction = (fighter, opponent) => {
     }
     // If none of the above, default to jab
     return "jab";
-  } else if (fighter.isClinched) {
-    if (fighter.isClinchedOffense) {
+  } else if (fighter.isClinchedOffence) {
       // Clinch offense logic
       const rand = Math.random() * 100;
       let cumulativeProbability = 0;
@@ -799,29 +795,28 @@ const determineAction = (fighter, opponent) => {
       }
       // If none of the above, default to clinch strike
       return "clinchStrike";
-    } else if (fighter.isClinchedDefense) {
-      // Clinch defense logic
-      const rand = Math.random() * 100;
-      let cumulativeProbability = 0;
-      const tendencies = fighter.Tendency.clinchDefenseTendency;
+  } else if (fighter.isClinchedDefence) {
+    // Clinch defence logic
+    const rand = Math.random() * 100;
+    let cumulativeProbability = 0;
+    const tendencies = fighter.Tendency.clinchDefenceTendency;
 
-      if (rand < (cumulativeProbability += tendencies.strikeTendency)) {
-        return "clinchStrike";
-      }
-      if (rand < (cumulativeProbability += tendencies.takedownTendency)) {
-        return "clinchTakedown";
-      }
-      if (rand < (cumulativeProbability += tendencies.exitTendency)) {
-        return "clinchExit";
-      }
-      // If none of the above, default to clinch exit
+    if (rand < (cumulativeProbability += tendencies.strikeTendency)) {
+      return "clinchStrike";
+    }
+    if (rand < (cumulativeProbability += tendencies.takedownTendency)) {
+      return "clinchTakedown";
+    }
+    if (rand < (cumulativeProbability += tendencies.exitTendency)) {
       return "clinchExit";
     }
-  } else if (fighter.isGroundOffense) {
+    // If none of the above, default to clinch exit
+    return "clinchExit";
+  } else if (fighter.isGroundOffence) {
     // Ground offense logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
-    const tendencies = fighter.Tendency.groundOffenseTendency;
+    const tendencies = fighter.Tendency.groundOffenceTendency;
     
     if (rand < (cumulativeProbability += tendencies.punchTendency)) {
       return "groundPunch";
@@ -830,11 +825,11 @@ const determineAction = (fighter, opponent) => {
       return "submission";
     }
     return "getUpAttempt";
-  } else if (fighter.isGroundDefense) {
+  } else if (fighter.isGroundDefence) {
     // Ground defense logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
-    const tendencies = fighter.Tendency.groundDefenseTendency;
+    const tendencies = fighter.Tendency.groundDefenceTendency;
     
     if (rand < (cumulativeProbability += tendencies.punchTendency)) {
       return "groundPunch";
@@ -952,8 +947,8 @@ const simulateRound = (fighters, roundNumber) => {
   // Reset fighters to standing position and recover some stamina at the start of the round
   fighters.forEach((fighter) => {
     fighter.isStanding = true;
-    fighter.isGroundOffense = false;
-    fighter.isGroundDefense = false;
+    fighter.isGroundOffence = false;
+    fighter.isGroundDefence = false;
     fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
   });
 
@@ -1040,8 +1035,8 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
     console.log("Ground Game:");
     console.log(`  Ground Strikes Landed: ${(fighter.stats.groundPunchsLanded|| 0 ) - (initialStats[index].groundPunchsLanded|| 0 )}`);
     
-    // Defense stats
-    console.log("Defense:");
+    // Defence stats
+    console.log("Defence:");
     console.log(`  Strikes Blocked: ${((fighter.stats.punchesBlocked|| 0 ) + (fighter.stats.kicksBlocked|| 0 )) - ((initialStats[index].punchesBlocked|| 0 ) + (initialStats[index].kicksBlocked|| 0 ))}`);
     console.log(`  Takedowns Defended: ${(fighter.stats.takedownsDefended|| 0 ) - (initialStats[index].takedownsDefended|| 0 )}`);
     console.log(`  Submissions Defended: ${(fighter.stats.submissionsDefended|| 0 ) - (initialStats[index].submissionsDefended|| 0 )}`);
@@ -1172,8 +1167,8 @@ const displayFightStats = (fighters) => {
     console.log("Ground Game:");
     console.log(`  Ground Strikes Landed: ${fighter.stats.groundPunchsLanded || 0}`);
     
-    // Defense stats
-    console.log("Defense:");
+    // Defence stats
+    console.log("Defence:");
     console.log(`  Strikes Blocked/Evaded: ${(fighter.stats.punchesBlocked || 0) + (fighter.stats.punchesEvaded || 0) + (fighter.stats.kicksBlocked || 0)+ (fighter.stats.kicksEvaded || 0)}`);
     
     // Damage stats

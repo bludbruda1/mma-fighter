@@ -79,11 +79,10 @@ const FightScreen = () => {
           },
           stamina: Number(fighter.stamina) || 1000,
           isStanding: true,
-          isClinched: false,
-          isClinchedOffense: false,
-          isClinchedDefense: false,
-          isGroundOffense: false,
-          isGroundDefense: false,
+          isClinchedOffence: false,
+          isClinchedDefence: false,
+          isGroundOffence: false,
+          isGroundDefence: false,
           roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
@@ -101,8 +100,8 @@ const FightScreen = () => {
             clinchControl: Number(fighter.Rating.clinchControl) || 0,
             takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
             takedownDefence: Number(fighter.Rating.takedownDefence) || 0,
-            submissionOffense: Number(fighter.Rating.submissionOffense) || 0,
-            submissionDefense: Number(fighter.Rating.submissionDefense) || 0,
+            submissionOffence: Number(fighter.Rating.submissionOffence) || 0,
+            submissionDefence: Number(fighter.Rating.submissionDefence) || 0,
             groundOffence: Number(fighter.Rating.groundOffence) || 0,
             groundDefence: Number(fighter.Rating.groundDefence) || 0,
             getUpAbility: Number(fighter.Rating.getUpAbility) || 0,
@@ -111,9 +110,9 @@ const FightScreen = () => {
           Tendency: fighter.Tendency || {
             standingTendency: { punchTendency: 25, kickTendency: 25, clinchingTendency: 25, takedownTendency: 25 },
             clinchTendency: { takedownTendency: 50, strikeTendency: 50 },
-            clinchDefenseTendency: { takedownTendency: 20, strikeTendency: 20, exitClinch: 60 },
-            groundOffenseTendency: { punchTendency: 50, submissionTendency: 25, getUpTendency: 25 },
-            groundDefenseTendency: { punchTendency: 25, submissionTendency: 25, getUpTendency: 50 }
+            clinchDefenceTendency: { takedownTendency: 20, strikeTendency: 20, exitClinch: 60 },
+            groundOffenceTendency: { punchTendency: 50, submissionTendency: 25, getUpTendency: 25 },
+            groundDefenceTendency: { punchTendency: 25, submissionTendency: 25, getUpTendency: 50 }
           }
         };
       };

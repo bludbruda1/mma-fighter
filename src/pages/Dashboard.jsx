@@ -128,7 +128,7 @@ const Dashboard = () => {
                   <TableCell>Record</TableCell>
                   <TableCell>Kicking</TableCell>
                   <TableCell>Striking</TableCell>
-                  <TableCell>Leg Kick Offense</TableCell>
+                  <TableCell>Leg Kick Offence</TableCell>
                   <TableCell>Kick Defence</TableCell>
                   <TableCell>Striking Defence</TableCell>
                 </TableRow>
