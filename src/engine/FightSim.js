@@ -553,7 +553,7 @@ const doClinchStrike = (attacker, defender) => {
     console.log(`${attacker.name} lands a clinch strike for ${damage} damage`);
     return `clinchStrikeLanded`;
   } else {
-    attacker.stats.clinchStrikesBlocked = (attacker.stats.clinchStrikesBlocked || 0) + 1;
+    defender.stats.clinchStrikesBlocked = (defender.stats.clinchStrikesBlocked || 0) + 1;
     console.log(`${defender.name} blocks the clinch strike`);
     return `clinchStrikeBlocked`;
   }
@@ -604,6 +604,7 @@ const doClinchTakedown = (attacker, defender) => {
     console.log(`${attacker.name} successfully ${takedownType}s ${defender.name} for ${damage} damage`);
     return `clinch${takedownType.charAt(0).toUpperCase() + takedownType.slice(1)}Successful`;
   } else {
+    defender.stats.clinchTakedownsDefended = (attacker.stats.clinchTakedownsDefended || 0) + 1;
     console.log(`${defender.name} defends the clinch ${takedownType}`);
     return `clinch${takedownType.charAt(0).toUpperCase() + takedownType.slice(1)}Failed`;
   }
@@ -1160,17 +1161,25 @@ const displayFightStats = (fighters) => {
     console.log(`  Takedowns: ${fighter.stats.takedownsLanded || 0} / ${fighter.stats.takedownsAttempted || 0}`);
     console.log(`  Takedown Accuracy: ${(((fighter.stats.takedownsLanded || 0) / (fighter.stats.takedownsAttempted || 1)) * 100).toFixed(2)}%`);
     console.log(`  Takedowns Defended: ${fighter.stats.takedownsDefended || 0}`);
-    console.log(`  Submissions Attempted: ${fighter.stats.submissionsAttempted || 0}`);
-    console.log(`  Submissions Landed: ${fighter.stats.submissionsLanded || 0}`);
+    console.log(`  Clinch Entered: ${fighter.stats.clinchEntered || 0}`);
+    console.log(`  Clinch Strikes Thrown: ${fighter.stats.clinchStrikesThrown || 0}`);
+    console.log(`  Clinch Strikes Landed: ${fighter.stats.clinchStrikesLanded || 0}`);
+    console.log(`  Clinch Strikes Accuracy: ${fighter.stats.clinchStrikesLanded || 0} / ${fighter.stats.clinchStrikesThrown || 0}`);
+    console.log(`  Clinch Takedowns: ${fighter.stats.clinchTakedownsSuccessful || 0}`);
+    console.log(`  Clinch Takedown Accuracy: ${(((fighter.stats.clinchTakedownsSuccessful || 0) / (fighter.stats.clinchTakedownsAttempted || 1)) * 100).toFixed(2)}%`);
+    console.log(`  Clinch Takedowns Defended: ${fighter.stats.clinchTakedownsDefended || 0}`);
     
     // Ground stats
     console.log("Ground Game:");
     console.log(`  Ground Strikes Landed: ${fighter.stats.groundPunchsLanded || 0}`);
+    console.log(`  Submissions Attempted: ${fighter.stats.submissionsAttempted || 0}`);
+    console.log(`  Submissions Landed: ${fighter.stats.submissionsLanded || 0}`);
     
     // Defence stats
     console.log("Defence:");
     console.log(`  Strikes Blocked/Evaded: ${(fighter.stats.punchesBlocked || 0) + (fighter.stats.punchesEvaded || 0) + (fighter.stats.kicksBlocked || 0)+ (fighter.stats.kicksEvaded || 0)}`);
-    
+    console.log(`  Clinch Strikes Blocked: ${(fighter.stats.clinchStrikesBlocked || 0)}`);
+
     // Damage stats
     console.log("Damage:");
     console.log(`  Damage Dealt: ${(fighter.maxHealth.head + fighter.maxHealth.body + fighter.maxHealth.legs) - (fighters[1-index].health.head + fighters[1-index].health.body + fighters[1-index].health.legs)}`);
