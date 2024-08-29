@@ -438,8 +438,13 @@ const doCombo = (attacker, defender, initialStrike) => {
     if (!followUpOptions || followUpOptions.length === 0) {
       break;
     }
+    
     currentStrike = followUpOptions[Math.floor(Math.random() * followUpOptions.length)];
-    console.log(`${attacker.name} follows up with a ${currentStrike}`);
+
+    // This just cleans up the text output
+    let displayStrikeType = currentStrike.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
+      
+    console.log(`${attacker.name} follows up with a ${displayStrikeType}`);
 
     // Decrease stamina for each additional punch in the combo
     attacker.stamina = Math.max(0, attacker.stamina - 1);
@@ -567,7 +572,7 @@ const doClinchStrike = (attacker, defender) => {
   attacker.stats.clinchStrikesThrown = (attacker.stats.clinchStrikesThrown || 0) + 1;
   
   // Calculate probabilities for this clinch strike (I am currently ignoring missChance as it is not needed to fill out the probablities)
-  let { hitChance, blockChance, evadeChance, missChance } = 
+  let { hitChance, blockChance, evadeChance } = 
   calculateProbabilities(attacker, defender, 'clinchStrike');
 
   // Determine the outcome based on calculated probabilities
