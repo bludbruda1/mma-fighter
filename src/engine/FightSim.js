@@ -1067,7 +1067,7 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
     console.log(`  Punches Thrown: ${(fighter.stats.punchesThrown || 0 ) - (initialStats[index].punchesThrown || 0 )}`);
     console.log(`  Punches Landed: ${(fighter.stats.punchesLanded || 0 ) - (initialStats[index].punchesLanded || 0 )}`);
     console.log(`    Jabs: ${(fighter.stats.jabsLanded || 0) - (initialStats[index].jabsLanded || 0)}`);
-    console.log(`    Crosses: ${(fighter.stats.crossesLanded || 0) - (initialStats[index].crossesLanded || 0)}`);
+    console.log(`    Crosses: ${(fighter.stats.crosssLanded || 0) - (initialStats[index].crosssLanded || 0)}`);
     console.log(`    Hooks: ${(fighter.stats.hooksLanded || 0) - (initialStats[index].hooksLanded || 0)}`);
     console.log(`    Uppercuts: ${(fighter.stats.uppercutsLanded || 0) - (initialStats[index].uppercutsLanded || 0)}`);
     console.log(`    Body Punches: ${(fighter.stats.bodyPunchsLanded || 0) - (initialStats[index].bodyPunchsLanded || 0)}`);
@@ -1196,7 +1196,7 @@ const displayFightStats = (fighters) => {
     console.log(`  Kick Accuracy: ${(((fighter.stats.kicksLanded || 0) / (fighter.stats.kicksThrown || 1)) * 100).toFixed(2)}%`);
     console.log("  Strikes by Type:");
     console.log(`    Jabs: ${fighter.stats.jabsLanded || 0}`);
-    console.log(`    Crosses: ${fighter.stats.crossesLanded || 0}`);
+    console.log(`    Crosses: ${fighter.stats.crosssLanded || 0}`);
     console.log(`    Hooks: ${fighter.stats.hooksLanded || 0}`);
     console.log(`    Uppercuts: ${fighter.stats.uppercutsLanded || 0}`);
     console.log(`    Overhands: ${fighter.stats.overhandsLanded || 0}`);
