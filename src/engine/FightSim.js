@@ -17,6 +17,7 @@ const STRIKE_DAMAGE = {
   bodyKick: {damage: 8, target: 'body'},
   legKick: {damage: 7, target: 'legs'},
   takedown: {damage: 9, target: 'body'},
+  clinchStrike: {damage: 3, target: 'head'},
   groundPunch: {damage: 3, target: 'head'}
 };
 
@@ -102,6 +103,15 @@ const calculateProbabilities = (attacker, defender, actionType) => {
     hitChanceMax = 0.45;
     missChanceBase = 0.25;
     evadeChanceBase = 0.25;
+  } else if (actionType === 'clinchStrike') {
+    offenseRating = attacker.Rating.clinchStriking / 100;
+    defenseRating = defender.Rating.clinchControl / 100;
+    evasiveness = defender.Rating.headMovement / 100;
+    accuracy = attacker.Rating.punchAccuracy / 100;
+    hitChanceBase = 0.35;
+    hitChanceMax = 0.55;
+    missChanceBase = 0.15;
+    evadeChanceBase = 0.15;
   } else {
     // For other action types, return equal probabilities
     return { hitChance: 0.25, blockChance: 0.25, evadeChance: 0.25, missChance: 0.25 };
@@ -128,6 +138,16 @@ const calculateProbabilities = (attacker, defender, actionType) => {
   blockChance /= total;
   evadeChance /= total;
   missChance /= total;
+
+  console.log(`Offense Rating: ${offenseRating}`);
+  console.log(`Defense Rating: ${defenseRating}`);
+  console.log(`Evasiveness: ${evasiveness}`);
+  console.log(`Accuracy: ${accuracy}`);
+
+  console.log(`Hit Chance: ${(hitChance * 100).toFixed(2)}%`);
+  console.log(`Block Chance: ${(blockChance * 100).toFixed(2)}%`);
+  console.log(`Evade Chance: ${(evadeChance * 100).toFixed(2)}%`);
+  console.log(`Miss Chance: ${(missChance * 100).toFixed(2)}%`);
 
   return { hitChance, blockChance, evadeChance, missChance };
 };
@@ -158,6 +178,11 @@ const calculateDamage = (baseRating, strikeType) => {
   if (strikeType === 'groundPunch') {
     target = Math.random() < 0.7 ? 'head' : 'body';
   }
+
+    // Special case for clinch strikes: randomize between head and body
+    if (strikeType === 'clinchStrike') {
+      target = Math.random() < 0.7 ? 'head' : 'body';
+    }
 
   const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
   const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
@@ -541,21 +566,42 @@ const doClinchStrike = (attacker, defender) => {
   console.log(`${attacker.name} attempts a clinch strike on ${defender.name}`);
   attacker.stats.clinchStrikesThrown = (attacker.stats.clinchStrikesThrown || 0) + 1;
   
-  const strikeChance = calculateProbability(
-    attacker.Rating.clinchStriking,
-    defender.Rating.clinchControl
-  );
-  
-  if (Math.random() < strikeChance) {
-    const damage = Math.floor(Math.random() * 5) + 1; // 1-5 damage
-    defender.health.head = Math.max(0, defender.health.head - damage);
+  // Calculate probabilities for this clinch strike (I am currently ignoring missChance as it is not needed to fill out the probablities)
+  let { hitChance, blockChance, evadeChance, missChance } = 
+  calculateProbabilities(attacker, defender, 'clinchStrike');
+
+  // Determine the outcome based on calculated probabilities
+  const outcome = Math.random();
+  const timePassed = simulateTimePassing("clinchStrike");
+
+  if (outcome < hitChance) {
+    // Hit logic
+    const { damage, target } = calculateDamage(attacker.Rating.clinchStriking, "clinchStrike");
+    defender.health[target] = Math.max(0, defender.health[target] - damage);
+    
+    // Update attacker's stats
     attacker.stats.clinchStrikesLanded = (attacker.stats.clinchStrikesLanded || 0) + 1;
-    console.log(`${attacker.name} lands a clinch strike for ${damage} damage`);
-    return `clinchStrikeLanded`;
-  } else {
+    
+    console.log(`${defender.name} is hit by the clinch strike for ${damage} damage to the ${target}`);
+    return [`clinchStrikeLanded`, timePassed];
+  } else if (outcome < hitChance + blockChance) {
+    // Block logic
     defender.stats.clinchStrikesBlocked = (defender.stats.clinchStrikesBlocked || 0) + 1;
+    
     console.log(`${defender.name} blocks the clinch strike`);
-    return `clinchStrikeBlocked`;
+    return [`clinchStrikeBlocked`, timePassed];
+  } else if (outcome < hitChance + blockChance + evadeChance) {
+    // Evade logic
+    defender.stats.clinchStrikesEvaded = (defender.stats.clinchStrikesEvaded || 0) + 1;
+    
+    console.log(`${defender.name} evades the clinch strike`);
+    return [`clinchStrikeEvaded`, timePassed];
+  } else {
+    // Miss logic
+    attacker.stats.clinchStrikesMissed = (attacker.stats.clinchStrikesMissed || 0) + 1;
+    
+    console.log(`${attacker.name}'s clinch strike misses ${defender.name}`);
+    return [`clinchStrikeMissed`, timePassed];
   }
 };
 
@@ -1178,7 +1224,7 @@ const displayFightStats = (fighters) => {
     // Defence stats
     console.log("Defence:");
     console.log(`  Strikes Blocked/Evaded: ${(fighter.stats.punchesBlocked || 0) + (fighter.stats.punchesEvaded || 0) + (fighter.stats.kicksBlocked || 0)+ (fighter.stats.kicksEvaded || 0)}`);
-    console.log(`  Clinch Strikes Blocked: ${(fighter.stats.clinchStrikesBlocked || 0)}`);
+    console.log(`  Clinch Strikes Blocked/Evaded: ${(fighter.stats.clinchStrikesBlocked || 0)} + ${(fighter.stats.clinchStrikesEvaded || 0)}`);
 
     // Damage stats
     console.log("Damage:");

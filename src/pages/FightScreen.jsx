@@ -96,6 +96,7 @@ const FightScreen = () => {
             kickAccuracy: Number(fighter.Rating.kickAccuracy) || 0,
             kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
+            clinchStriking: Number(fighter.Rating.clinchStriking) || 0,
             clinchGrappling: Number(fighter.Rating.clinchGrappling) || 0,
             clinchControl: Number(fighter.Rating.clinchControl) || 0,
             takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
