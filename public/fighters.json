@@ -451,8 +451,13 @@
         "clinchingTendency": 15
       },
       "clinchTendency": {
-        "clinchTakedownTendency": 60,
-        "clinchStrikeTendency": 40
+        "takedownTendency": 60,
+        "strikeTendency": 40
+      },
+      "clinchDefenceTendency": {
+        "strikeTendency": 30,
+        "takedownTendency": 30,
+        "exitTendency": 40
       },
       "groundOffenceTendency": {
         "punchTendency": 70,
