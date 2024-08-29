@@ -78,7 +78,7 @@ const calculateProbability = (offenseRating, defenseRating) => {
  * Calculate outcome probabilities for a fighting action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {string} actionType - Type of action (e.g., 'punch', 'kick', 'takedown', etc)
+ * @param {string} actionType - Type of action (e.g., 'punch', 'kick' etc)
  * @returns {Object} Probabilities of hit, block, evade, and miss
  */
 const calculateProbabilities = (attacker, defender, actionType) => {
