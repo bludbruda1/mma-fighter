@@ -474,6 +474,7 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
 
     //update stats
     attacker.stats.groundPunchsLanded = (attacker.stats.groundPunchsLanded || 0) + 1;
+    attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
     console.log(
       `${defender.name} is hit by the ground punch for ${damage} damage to the ${target}`
     );
