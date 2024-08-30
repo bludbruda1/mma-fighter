@@ -124,6 +124,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -282,6 +283,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -439,6 +441,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -596,6 +599,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -753,6 +757,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -910,6 +915,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -1067,6 +1073,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -1224,6 +1231,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -1381,6 +1389,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -1538,6 +1547,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -1696,6 +1706,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -1854,6 +1865,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2012,6 +2024,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2170,6 +2183,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2328,6 +2342,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2486,6 +2501,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2644,6 +2660,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2802,6 +2819,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -2960,6 +2978,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -3118,6 +3137,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -3276,6 +3296,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -3434,6 +3455,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -3592,6 +3614,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
@@ -3750,6 +3773,7 @@
       "getUpsAttempted": 0,
       "getUpsSuccessful": 0,
       "groundPunchsLanded": 0,
+      "groundPunchsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsLanded": 0,
       "submissionsDefended": 0
