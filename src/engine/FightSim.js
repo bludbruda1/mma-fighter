@@ -516,8 +516,7 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
     defender.health[target] = Math.max(0, defender.health[target] - damage);
 
     //update stats
-    attacker.stats.groundPunchsLanded =
-      (attacker.stats.groundPunchsLanded || 0) + 1;
+    attacker.stats.groundPunchsLanded = (attacker.stats.groundPunchsLanded || 0) + 1;
     attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
     console.log(
       `${defender.name} is hit by the ground punch for ${damage} damage to the ${target}`
@@ -525,6 +524,8 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
 
     return "groundPunchLanded";
   } else {
+    defender.stats.groundPunchsBlocked = (defender.stats.groundPunchsBlocked || 0) + 1;
+    defender.stats.punchesBlocked = (attacker.stats.punchesBlocked || 0) + 1;
     console.log(`${defender.name} blocks the ground punch`);
     return "groundPunchBlocked";
   }
@@ -617,8 +618,9 @@ const exitClinch = (defender, attacker) => {
  */
 const doClinchStrike = (attacker, defender) => {
   console.log(`${attacker.name} attempts a clinch strike on ${defender.name}`);
-  attacker.stats.clinchStrikesThrown =
-    (attacker.stats.clinchStrikesThrown || 0) + 1;
+
+  attacker.stats.clinchStrikesThrown = (attacker.stats.clinchStrikesThrown || 0) + 1;
+  attacker.stats.punchesThrown = (attacker.stats.punchesThrown || 0) + 1;
 
   // Calculate probabilities for this clinch strike (I am currently ignoring missChance as it is not needed to fill out the probablities)
   let { hitChance, blockChance, evadeChance } = calculateProbabilities(
@@ -640,8 +642,8 @@ const doClinchStrike = (attacker, defender) => {
     defender.health[target] = Math.max(0, defender.health[target] - damage);
 
     // Update attacker's stats
-    attacker.stats.clinchStrikesLanded =
-      (attacker.stats.clinchStrikesLanded || 0) + 1;
+    attacker.stats.clinchStrikesLanded = (attacker.stats.clinchStrikesLanded || 0) + 1;
+    attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
 
     console.log(
       `${defender.name} is hit by the clinch strike for ${damage} damage to the ${target}`
@@ -649,22 +651,22 @@ const doClinchStrike = (attacker, defender) => {
     return [`clinchStrikeLanded`, timePassed];
   } else if (outcome < hitChance + blockChance) {
     // Block logic
-    defender.stats.clinchStrikesBlocked =
-      (defender.stats.clinchStrikesBlocked || 0) + 1;
+    defender.stats.clinchStrikesBlocked = (defender.stats.clinchStrikesBlocked || 0) + 1;
+    defender.stats.punchesBlocked = (attacker.stats.punchesBlocked || 0) + 1;
 
     console.log(`${defender.name} blocks the clinch strike`);
     return [`clinchStrikeBlocked`, timePassed];
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
-    defender.stats.clinchStrikesEvaded =
-      (defender.stats.clinchStrikesEvaded || 0) + 1;
+    defender.stats.clinchStrikesEvaded = (defender.stats.clinchStrikesEvaded || 0) + 1;
+    defender.stats.punchesEvaded= (defender.stats.punchesEvaded || 0) + 1;
 
     console.log(`${defender.name} evades the clinch strike`);
     return [`clinchStrikeEvaded`, timePassed];
   } else {
     // Miss logic
-    attacker.stats.clinchStrikesMissed =
-      (attacker.stats.clinchStrikesMissed || 0) + 1;
+    attacker.stats.clinchStrikesMissed = (attacker.stats.clinchStrikesMissed || 0) + 1;
+    attacker.stats.punchesMissed = (attacker.stats.punchesMissed || 0) + 1;
 
     console.log(`${attacker.name}'s clinch strike misses ${defender.name}`);
     return [`clinchStrikeMissed`, timePassed];
