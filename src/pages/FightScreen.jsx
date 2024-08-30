@@ -79,43 +79,62 @@ const FightScreen = () => {
           },
           stamina: Number(fighter.stamina) || 1000,
           isStanding: true,
-          isGroundOffense: false,
-          isGroundDefense: false,
+          isClinchedOffence: false,
+          isClinchedDefence: false,
+          isGroundOffence: false,
+          isGroundDefence: false,
           roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
-            kicking: Number(fighter.Rating.kicking) || 0,
             striking: Number(fighter.Rating.striking) || 0,
-            legKickDefence: Number(fighter.Rating.legKickDefence) || 0,
+            handSpeed: Number(fighter.Rating.handSpeed) || 0,
+            headMovement: Number(fighter.Rating.headMovement) || 0,
+            punchAccuracy: Number(fighter.Rating.punchAccuracy) || 0,
+            kicking: Number(fighter.Rating.kicking) || 0,
+            kickSpeed: Number(fighter.Rating.kickSpeed) || 0,
+            footwork: Number(fighter.Rating.footwork) || 0,
+            kickAccuracy: Number(fighter.Rating.kickAccuracy) || 0,
             kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
+            clinchStriking: Number(fighter.Rating.clinchStriking) || 0,
+            clinchGrappling: Number(fighter.Rating.clinchGrappling) || 0,
+            clinchControl: Number(fighter.Rating.clinchControl) || 0,
             takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
             takedownDefence: Number(fighter.Rating.takedownDefence) || 0,
-            submissionOffense: Number(fighter.Rating.submissionOffense) || 0,
-            submissionDefense: Number(fighter.Rating.submissionDefense) || 0,
+            submissionOffence: Number(fighter.Rating.submissionOffence) || 0,
+            submissionDefence: Number(fighter.Rating.submissionDefence) || 0,
             groundOffence: Number(fighter.Rating.groundOffence) || 0,
             groundDefence: Number(fighter.Rating.groundDefence) || 0,
             getUpAbility: Number(fighter.Rating.getUpAbility) || 0,
           },
           stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
           Tendency: fighter.Tendency || {
-            standingTendency: {
-              punchTendency: 25,
-              kickTendency: 25,
-              legKickTendency: 25,
-              takedownTendency: 25,
+            standingTendency: { 
+              punchTendency: 25, 
+              kickTendency: 25, 
+              clinchingTendency: 25, 
+              takedownTendency: 25 
             },
-            groundOffenseTendency: {
-              punchTendency: 50,
-              submissionTendency: 25,
-              getUpTendency: 25,
+            clinchTendency: { 
+              takedownTendency: 50, 
+              strikeTendency: 50 
             },
-            groundDefenseTendency: {
-              punchTendency: 25,
-              submissionTendency: 25,
-              getUpTendency: 50,
+            clinchDefenceTendency: { 
+              takedownTendency: 20, 
+              strikeTendency: 20, 
+              exitClinch: 60 
             },
-          },
+            groundOffenceTendency: { 
+              punchTendency: 50, 
+              submissionTendency: 25, 
+              getUpTendency: 25 
+            },
+            groundDefenceTendency: { 
+              punchTendency: 25, 
+              submissionTendency: 25, 
+              getUpTendency: 50 
+            }
+          }
         };
       };
 
