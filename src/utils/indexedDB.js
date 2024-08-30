@@ -30,14 +30,14 @@ export const resetDB = async () => {
       console.log("Database deleted successfully");
       // Reinitialize the database after deletion
       openDB()
-      .then((db) => {
-        console.log("Database reinitialized successfully");
-        resolve(db);
-      })
-      .catch((error) => {
-        console.error("Database failed to open after reset", error);
-        reject(error);
-      });
+        .then((db) => {
+          console.log("Database reinitialized successfully");
+          resolve(db);
+        })
+        .catch((error) => {
+          console.error("Database failed to open after reset", error);
+          reject(error);
+        });
     };
   });
 };

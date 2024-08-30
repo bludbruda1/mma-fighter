@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Typography, Grid, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { resetDB } from "../utils/indexedDB";// Import the resetDB function
+import { resetDB } from "../utils/indexedDB"; // Import the resetDB function
 
 // Define the fade-in animation used upon page load for the home page
 const fadeIn = {
@@ -30,7 +30,7 @@ const Home = () => {
       console.log("Game reset successfully");
       window.location.reload(); // Hard refresh the page
     } catch (error) {
-      console.error("Error resetting game", error)
+      console.error("Error resetting game", error);
     }
   };
 
@@ -132,7 +132,7 @@ const Home = () => {
               onClick={handleResetGame}
               sx={{
                 ...fadeIn,
-                backgroundColor: "rgba(255, 0, 0, 0.8)", // semi-transparent red backround
+                backgroundColor: "rgba(255, 0, 0, 0.8)", // Semi-transparent red background
                 color: "#fff", // White text color
                 "&:hover": {
                   backgroundColor: "rgba(255, 0, 0, 0.6)", // Darker on hover
