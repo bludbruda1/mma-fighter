@@ -83,6 +83,38 @@ const Dashboard = () => {
     );
   }
 
+  // Helper function to render rating bars - probably can be moved into utils
+  const renderRatingBar = (rating) => {
+    const percentage = (rating / 100) * 100;
+    return (
+      <div
+        style={{
+          width: "100%",
+          backgroundColor: "#e0e0e0",
+          height: "10px",
+          borderRadius: "5px",
+        }}
+      >
+        <div
+          style={{
+            width: `${percentage}%`,
+            backgroundColor: "#4caf50",
+            height: "100%",
+            borderRadius: "5px",
+          }}
+        ></div>
+      </div>
+    );
+  };
+
+  // Helper function to format attribute names - probably can be moved into utils
+  const formatAttributeName = (attr) => {
+    return attr
+      .split(/(?=[A-Z])/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <Container
       maxWidth="lg"
@@ -112,40 +144,13 @@ const Dashboard = () => {
                 Record: {fighter.wins}W-{fighter.losses}L
               </Typography>
               <Typography variant="body1">
-                Fighting Weight: {fighter.weightClass}
+                Weight Class: {fighter.weightClass}
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h5" gutterBottom>
-            Statistics
-          </Typography>
-          <TableContainer component={Paper} style={{ marginBottom: "50px" }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Record</TableCell>
-                  <TableCell>Kicking</TableCell>
-                  <TableCell>Striking</TableCell>
-                  <TableCell>Kick Defence</TableCell>
-                  <TableCell>Striking Defence</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow key={fighter.personid}>
-                  <TableCell>
-                    {fighter.wins}W-{fighter.losses}L
-                  </TableCell>
-                  <TableCell>{fighter.Rating.kicking}</TableCell>
-                  <TableCell>{fighter.Rating.striking}</TableCell>
-                  <TableCell>{fighter.Rating.kickDefence}</TableCell>
-                  <TableCell>{fighter.Rating.strikingDefence}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Typography variant="h5" gutterBottom>
+
+          {/* Recent Fights section */}
+          <Typography variant="h5" gutterBottom style={{ marginTop: "20px" }}>
             Recent Fights
           </Typography>
           <TableContainer component={Paper}>
@@ -166,10 +171,79 @@ const Dashboard = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} align="center">
+                    <TableCell colSpan={2} align="center">
                       No recent fights available.
                     </TableCell>
                   </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <Typography variant="h5" gutterBottom>
+            Fighter Ratings
+          </Typography>
+          <TableContainer component={Paper} style={{ marginBottom: "20px" }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Attribute</TableCell>
+                  <TableCell>Rating</TableCell>
+                  <TableCell>Visual</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[
+                  "output",
+                  "striking",
+                  "kicking",
+                  "strikingDefence",
+                  "kickDefence",
+                  "takedownOffence",
+                  "takedownDefence",
+                  "groundOffence",
+                  "groundDefence",
+                  "submissionOffence",
+                  "submissionDefence",
+                ].map((attr) => (
+                  <TableRow key={attr}>
+                    <TableCell>{formatAttributeName(attr)}</TableCell>
+                    <TableCell>{fighter.Rating[attr]}</TableCell>
+                    <TableCell>
+                      {renderRatingBar(fighter.Rating[attr])}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Typography variant="h5" gutterBottom>
+            Fighting Style
+          </Typography>
+          <TableContainer component={Paper} style={{ marginBottom: "20px" }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Position</TableCell>
+                  <TableCell>Tendency</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.entries(fighter.Tendency).map(
+                  ([position, tendencies]) => (
+                    <TableRow key={position}>
+                      <TableCell>{formatAttributeName(position)}</TableCell>
+                      <TableCell>
+                        {Object.entries(tendencies).map(([action, value]) => (
+                          <div key={action}>{`${formatAttributeName(
+                            action
+                          )}: ${value}%`}</div>
+                        ))}
+                      </TableCell>
+                    </TableRow>
+                  )
                 )}
               </TableBody>
             </Table>
