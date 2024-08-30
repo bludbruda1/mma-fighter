@@ -525,7 +525,7 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
     return "groundPunchLanded";
   } else {
     defender.stats.groundPunchsBlocked = (defender.stats.groundPunchsBlocked || 0) + 1;
-    defender.stats.punchesBlocked = (attacker.stats.punchesBlocked || 0) + 1;
+    defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
     console.log(`${defender.name} blocks the ground punch`);
     return "groundPunchBlocked";
   }
