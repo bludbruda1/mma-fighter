@@ -453,7 +453,6 @@ const doCombo = (attacker, defender, initialStrike) => {
 
     // Check if the defender is knocked out after each punch
     if (isKnockedOut(defender)) {
-      console.log(`${defender.name} is knocked out by the combo!`);
       break;
     }
 
