@@ -66,12 +66,12 @@ const pickFighter = (fighters, lastActionFighter) => {
 
 /**
  * Calculate probability of a successful action
- * @param {number} offenseRating - Attacker's offensive rating
- * @param {number} defenseRating - Defender's defensive rating
+ * @param {number} offenceRating - Attacker's offensive rating
+ * @param {number} defenceRating - Defender's defensive rating
  * @returns {number} Probability of success
  */
-const calculateProbability = (offenseRating, defenseRating) => {
-  return offenseRating / (offenseRating + defenseRating);
+const calculateProbability = (offenceRating, defenceRating) => {
+  return offenceRating / (offenceRating + defenceRating);
 };
 
 /**
@@ -82,13 +82,13 @@ const calculateProbability = (offenseRating, defenseRating) => {
  * @returns {Object} Probabilities of hit, block, evade, and miss
  */
 const calculateProbabilities = (attacker, defender, actionType) => {
-  let offenseRating, defenseRating, evasiveness, accuracy;
+  let offenceRating, defenceRating, evasiveness, accuracy;
   let hitChanceBase, hitChanceMax, missChanceBase, evadeChanceBase;
 
   if (actionType === "punch") {
-    offenseRating =
+    offenceRating =
       (attacker.Rating.striking * (attacker.Rating.handSpeed / 100)) / 100;
-    defenseRating = defender.Rating.strikingDefence / 100;
+    defenceRating = defender.Rating.strikingDefence / 100;
     evasiveness = defender.Rating.headMovement / 100;
     accuracy = attacker.Rating.punchAccuracy / 100;
     hitChanceBase = 0.3;
@@ -96,9 +96,9 @@ const calculateProbabilities = (attacker, defender, actionType) => {
     missChanceBase = 0.2;
     evadeChanceBase = 0.2;
   } else if (actionType === "kick") {
-    offenseRating =
+    offenceRating =
       (attacker.Rating.kicking * (attacker.Rating.kickSpeed / 100)) / 100;
-    defenseRating = defender.Rating.kickDefence / 100;
+    defenceRating = defender.Rating.kickDefence / 100;
     evasiveness =
       (defender.Rating.headMovement + defender.Rating.footwork) / 2 / 100;
     accuracy = attacker.Rating.kickAccuracy / 100;
@@ -107,8 +107,8 @@ const calculateProbabilities = (attacker, defender, actionType) => {
     missChanceBase = 0.25;
     evadeChanceBase = 0.25;
   } else if (actionType === "clinchStrike") {
-    offenseRating = attacker.Rating.clinchStriking / 100;
-    defenseRating = defender.Rating.clinchControl / 100;
+    offenceRating = attacker.Rating.clinchStriking / 100;
+    defenceRating = defender.Rating.clinchControl / 100;
     evasiveness = defender.Rating.headMovement / 100;
     accuracy = attacker.Rating.punchAccuracy / 100;
     hitChanceBase = 0.35;
@@ -126,8 +126,8 @@ const calculateProbabilities = (attacker, defender, actionType) => {
   }
 
   // Calculate hit chance
-  let hitChance = hitChanceBase + 0.2 * offenseRating;
-  hitChance += 0.1 * Math.max(0, Math.min(1, offenseRating - defenseRating));
+  let hitChance = hitChanceBase + 0.2 * offenceRating;
+  hitChance += 0.1 * Math.max(0, Math.min(1, offenceRating - defenceRating));
   hitChance *= accuracy;
   hitChance = Math.min(hitChanceMax, hitChance);
 
@@ -909,7 +909,7 @@ const determineAction = (fighter, opponent) => {
     // If none of the above, default to jab
     return "jab";
   } else if (fighter.isClinchedOffence) {
-    // Clinch offense logic
+    // Clinch offence logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.clinchTendency;
@@ -940,7 +940,7 @@ const determineAction = (fighter, opponent) => {
     // If none of the above, default to clinch exit
     return "clinchExit";
   } else if (fighter.isGroundOffence) {
-    // Ground offense logic
+    // Ground offence logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.groundOffenceTendency;
@@ -953,7 +953,7 @@ const determineAction = (fighter, opponent) => {
     }
     return "getUpAttempt";
   } else if (fighter.isGroundDefence) {
-    // Ground defense logic
+    // Ground defence logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.groundDefenceTendency;
