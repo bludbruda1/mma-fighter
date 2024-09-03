@@ -2,14 +2,20 @@ import React from "react";
 
 const StatBar = ({
   redValue,
-  totalValue,
   blueValue,
   title,
   showPercentages = true,
 }) => {
-  // Calculate the percentages
-  const redPercent = (redValue / totalValue) * 100;
-  const bluePercent = (blueValue / totalValue) * 100;
+  // Ensure redValue and blueValue are numbers
+  const red = Number(redValue) || 0;
+  const blue = Number(blueValue) || 0;
+
+  // Calculate the total value and percentages
+  const totalValue = red + blue;
+  
+  // Calculate percentages
+  const redPercent = totalValue === 0 ? 0 : (red / totalValue) * 100;
+  const bluePercent = totalValue === 0 ? 0 : (blue / totalValue) * 100;
 
   const percentageStyle = {
     color: "#999", // light grey
@@ -23,6 +29,7 @@ const StatBar = ({
         flexDirection: "column",
         alignItems: "center",
         width: "100%",
+        marginBottom: "10px",
       }}
     >
       <div
@@ -34,15 +41,15 @@ const StatBar = ({
         }}
       >
         <span style={{ color: "red" }}>
-          {redValue}{" "}
-          {showPercentages && (
+          {red}{" "}
+          {showPercentages && totalValue > 0 && (
             <span style={percentageStyle}>[{redPercent.toFixed(0)}%]</span>
           )}
         </span>
         <span style={{ fontWeight: "bold" }}>{title}</span>
         <span style={{ color: "blue" }}>
-          {blueValue}{" "}
-          {showPercentages && (
+          {blue}{" "}
+          {showPercentages && totalValue > 0 && (
             <span style={percentageStyle}>[{bluePercent.toFixed(0)}%]</span>
           )}
         </span>
@@ -58,16 +65,16 @@ const StatBar = ({
       >
         <div
           style={{
-            width: `${redPercent}%`,
-            backgroundColor: "red",
+            width: totalValue === 0 ? "50%" : `${redPercent}%`,
+            backgroundColor: red > 0 ? "red" : "#ddd",
             height: "100%",
             float: "left",
           }}
         />
         <div
           style={{
-            width: `${bluePercent}%`,
-            backgroundColor: "blue",
+            width: totalValue === 0 ? "50%" : `${bluePercent}%`,
+            backgroundColor: blue > 0 ? "blue" : "#ddd",
             height: "100%",
             float: "left",
           }}
