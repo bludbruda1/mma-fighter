@@ -76,20 +76,20 @@ const getAvailableActions = (fighter) => {
       return ['clinchStrike', 'clinchTakedown', 'clinchExit'];
     case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
     case FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP:
-      return ['positionAdvance', 'groundStrike', 'submission'];
+      return ['positionAdvance', 'groundPunch', 'submission'];
     case FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM:
     case FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM:
-      return ['sweep', 'submission', 'standUp'];
+      return ['sweep', 'submission', 'getUpAttempt'];
     case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP:
-      return ['positionAdvance', 'groundStrike', 'submission'];
+      return ['positionAdvance', 'groundPunch', 'submission'];
     case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM:
       return ['recoverGuard', 'escape'];
     case FIGHTER_POSITIONS.GROUND_MOUNT_TOP:
-      return ['groundStrike', 'submission'];
+      return ['groundPunch', 'submission'];
     case FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM:
       return ['escape', 'sweep'];
     case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE:
-      return ['groundStrike', 'submission'];
+      return ['groundPunch', 'submission'];
     case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE:
       return ['escape'];
     default:
@@ -877,18 +877,14 @@ const determineAction = (fighter, opponent) => {
     switch (action) {
       case 'positionAdvance':
         return 'positionAdvance';
-      case 'groundStrike':
-        return 'groundStrike';
+      case 'groundPunch':
+        return 'groundPunch';
       case 'submission':
         return 'submission';
       case 'sweep':
         return 'sweep';
-      case 'recoverGuard':
-        return 'recoverGuard';
-      case 'escape':
-        return 'escape';
-      case 'standUp':
-        return 'standUp';
+      case 'getUpAttempt':
+        return 'getUpAttempt';
       case 'clinchStrike':
         return 'clinchStrike';
       case 'clinchTakedown':
@@ -896,7 +892,7 @@ const determineAction = (fighter, opponent) => {
       case 'clinchExit':
         return 'clinchExit';
       default:
-        return 'groundStrike'; // fallback action
+        return 'groundPunch'; // fallback action
     }
   }
 };
