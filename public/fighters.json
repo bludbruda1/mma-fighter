@@ -20,11 +20,7 @@
       "legs": 1000
     },
     "stamina": 1000,
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 85,
       "striking": 90,
@@ -179,11 +175,7 @@
       "legs": 1000
     },
     "stamina": 1000,
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 90,
       "striking": 92,
@@ -337,11 +329,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 93,
       "striking": 95,
@@ -495,11 +483,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 95,
       "striking": 93,
@@ -653,11 +637,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 88,
       "striking": 90,
@@ -811,11 +791,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 87,
       "striking": 88,
@@ -969,11 +945,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 92,
       "striking": 95,
@@ -1127,11 +1099,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 85,
       "striking": 85,
@@ -1285,11 +1253,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 89,
       "striking": 95,
@@ -1443,11 +1407,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 92,
       "striking": 93,
@@ -1601,11 +1561,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 1,
     "Rating": {
       "output": 94,
@@ -1760,11 +1716,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 4,
     "Rating": {
       "output": 90,
@@ -1919,11 +1871,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 2,
     "Rating": {
       "output": 93,
@@ -2078,11 +2026,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 5,
     "Rating": {
       "output": 91,
@@ -2237,11 +2181,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 7,
     "Rating": {
       "output": 89,
@@ -2396,11 +2336,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 9,
     "Rating": {
       "output": 89,
@@ -2555,11 +2491,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 6,
     "Rating": {
       "output": 89,
@@ -2714,11 +2646,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 8,
     "Rating": {
       "output": 92,
@@ -2873,11 +2801,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 1,
     "Rating": {
       "output": 92,
@@ -3032,11 +2956,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 10,
     "Rating": {
       "output": 87,
@@ -3191,11 +3111,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 11,
     "Rating": {
       "output": 87,
@@ -3350,11 +3266,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 12,
     "Rating": {
       "output": 86,
@@ -3509,11 +3421,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 13,
     "Rating": {
       "output": 85,
@@ -3668,11 +3576,7 @@
       "body": 1000,
       "legs": 1000
     },
-    "isStanding": true,
-    "isClinchedOffence": false,
-    "isClinchedDefence": false,
-    "isGroundOffence": false,
-    "isGroundDefence": false,
+    "position": "FIGHTER_POSITIONS.STANDING",
     "ranking": 14,
     "Rating": {
       "output": 84,

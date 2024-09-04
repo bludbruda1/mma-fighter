@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import Select from "../components/Select";
 import StatBar from "../components/StatBar";
-import { simulateFight } from "../engine/FightSim";
+import { simulateFight, FIGHTER_POSITIONS } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
 import {
   calculateFightStats,
@@ -89,11 +89,7 @@ const FightScreen = () => {
             legs: Number(fighter.maxHealth) || 1000,
           },
           stamina: Number(fighter.stamina) || 1000,
-          isStanding: true,
-          isClinchedOffence: false,
-          isClinchedDefence: false,
-          isGroundOffence: false,
-          isGroundDefence: false,
+          position: FIGHTER_POSITIONS.STANDING,
           roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
