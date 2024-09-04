@@ -1,3 +1,5 @@
+import { FIGHTER_POSITIONS } from "./FightSim.js";
+
 // Constants for strike damages
 const STRIKE_DAMAGE = {
     jab: { damage: 2, target: "head" },
@@ -105,6 +107,72 @@ const calculateProbability = (offenceRating, defenceRating) => {
     return { hitChance, blockChance, evadeChance, missChance };
   };
   
+/**
+ * Calculate the probability of a successful submission
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {Object} submissionType - Type of submission being attempted
+ * @returns {Object} Probabilities of success, defense, and escape
+ */
+const calculateSubmissionProbability = (attacker, defender, submissionType) => {
+  // Base probabilities
+  let successChance = 0.3;
+  let defenseChance = 0.4;
+  let escapeChance = 0.3;
+
+  // Factors influencing submission success
+  const offensiveSkill = attacker.Rating.submissionOffence / 100;
+  const defensiveSkill = defender.Rating.submissionDefence / 100;
+  const attackerStamina = attacker.stamina / 100;
+  const defenderStamina = defender.stamina / 100;
+  const positionAdvantage = getPositionAdvantage(attacker.position, defender.position);
+  const submissionDifficulty = submissionType.difficultyModifier;
+
+  // Adjust success chance based on factors
+  successChance += 0.2 * (offensiveSkill - defensiveSkill);
+  successChance += 0.1 * (attackerStamina - defenderStamina);
+  successChance += 0.1 * positionAdvantage;
+  successChance /= submissionDifficulty;
+
+  // Adjust defense chance
+  defenseChance += 0.2 * (defensiveSkill - offensiveSkill);
+  defenseChance += 0.1 * (defenderStamina - attackerStamina);
+
+  // Escape chance is what's left
+  escapeChance = 1 - (successChance + defenseChance);
+
+  // Ensure probabilities are within [0, 1] range
+  successChance = Math.max(0, Math.min(1, successChance));
+  defenseChance = Math.max(0, Math.min(1, defenseChance));
+  escapeChance = Math.max(0, Math.min(1, escapeChance));
+
+  // Normalize probabilities to ensure they sum to 1
+  const total = successChance + defenseChance + escapeChance;
+  successChance /= total;
+  defenseChance /= total;
+  escapeChance /= total;
+
+  return { successChance, defenseChance, escapeChance };
+};
+
+/**
+ * Calculate the position advantage for submissions
+ * @param {string} attackerPosition - Attacker's current position
+ * @param {string} defenderPosition - Defender's current position
+ * @returns {number} Position advantage factor
+ */
+const getPositionAdvantage = (attackerPosition, defenderPosition) => {
+  const advantageousPositions = {
+    [FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE]: 0.3,
+    [FIGHTER_POSITIONS.GROUND_MOUNT_TOP]: 0.2,
+    [FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP]: 0.1,
+    [FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP]: 0.05,
+    [FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP]: 0
+  };
+
+  return advantageousPositions[attackerPosition] || 0;
+};
+
   /**
    * Calculate stamina impact on action effectiveness
    * @param {number} stamina - Current stamina of the fighter
@@ -150,5 +218,6 @@ const calculateProbability = (offenceRating, defenceRating) => {
     calculateDamage,
     calculateProbabilities,
     calculateProbability,
-    calculateStaminaImpact
+    calculateStaminaImpact,
+    calculateSubmissionProbability
   };
