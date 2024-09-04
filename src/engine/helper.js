@@ -42,6 +42,7 @@ const actionTimes = {
   submission: 8,
   positionAdvance: 6,
   sweep: 6,
+  escape: 6,
 
 
   // Combo actions

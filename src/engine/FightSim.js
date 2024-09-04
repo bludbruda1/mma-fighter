@@ -64,7 +64,7 @@ const pickFighter = (fighters, lastActionFighter) => {
 /**
  * Gives actions that are possible from the position a fighter is in in
  * @param {Object} fighter - fighter in position
- * @returns {string} Possible positions for the fighter to transition to
+ * @returns {string} Possible actions the fighter can do
  */
 const getAvailableActions = (fighter) => {
   switch (fighter.position) {
@@ -766,6 +766,51 @@ const doSweep = (attacker, defender) => {
 };
 
 /**
+ * Attempt to escape from a disadvantageous ground position
+ * @param {Object} attacker - Fighter attempting to escape (initially in bottom position)
+ * @param {Object} defender - Fighter in top position
+ * @returns {string} Outcome of the action
+ */
+const doEscape = (attacker, defender ) => {
+  console.log(`${attacker.name} attempts to escape from ${defender.name}`);
+  
+  const successProbability = calculateProbability(
+    attacker.Rating.groundDefence,
+    defender.Rating.groundOffence
+  );
+  
+  if (Math.random() < successProbability) {
+    let newAttackerPosition, newDefenderPosition;
+    
+    switch (attacker.position) {
+      case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM:
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        break;
+      case FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM:
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        break;
+      case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE:
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        break;
+      default:
+        return 'escapeInvalid';
+    }
+    
+    attacker.position = newAttackerPosition;
+    defender.position = newDefenderPosition;
+    
+    console.log(`${attacker.name} successfully escapes to ${newAttackerPosition}`);
+    return 'escapeSuccessful';
+  } else {
+    console.log(`${attacker.name} fails to escape`);
+    return 'escapeFailed';
+  }
+};
+
+/**
  * Perform an action to get up when on the ground
  * @param {Object} attacker - Fighter attempting to get up
  * @param {Object} defender - Opponent fighter
@@ -883,6 +928,8 @@ const determineAction = (fighter, opponent) => {
         return 'submission';
       case 'sweep':
         return 'sweep';
+      case 'escape':
+        return 'escape';
       case 'getUpAttempt':
         return 'getUpAttempt';
       case 'clinchStrike':
@@ -963,6 +1010,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "sweep":
       outcome = doSweep (fighter, opponentFighter);
       timePassed = simulateTimePassing("sweep");
+      break;
+    case "escape":
+      outcome = doEscape (fighter, opponentFighter);
+      timePassed = simulateTimePassing("escape");
       break;
     case "groundPunch":
       outcome = doGroundPunch(fighter, opponentFighter, staminaImpact);
