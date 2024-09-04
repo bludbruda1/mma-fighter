@@ -102,16 +102,6 @@ const calculateProbability = (offenseRating, defenseRating) => {
     evadeChance /= total;
     missChance /= total;
   
-    console.log(`Offense Rating: ${offenseRating}`);
-    console.log(`Defense Rating: ${defenseRating}`);
-    console.log(`Evasiveness: ${evasiveness}`);
-    console.log(`Accuracy: ${accuracy}`);
-  
-    console.log(`Hit Chance: ${(hitChance * 100).toFixed(2)}%`);
-    console.log(`Block Chance: ${(blockChance * 100).toFixed(2)}%`);
-    console.log(`Evade Chance: ${(evadeChance * 100).toFixed(2)}%`);
-    console.log(`Miss Chance: ${(missChance * 100).toFixed(2)}%`);
-  
     return { hitChance, blockChance, evadeChance, missChance };
   };
   
