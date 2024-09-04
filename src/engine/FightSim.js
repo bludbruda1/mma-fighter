@@ -1087,6 +1087,8 @@ const simulateRound = (fighters, roundNumber) => {
     fighter.isStanding = true;
     fighter.isGroundOffence = false;
     fighter.isGroundDefence = false;
+    fighter.isClinchedDefence = false;
+    fighter.isClinchedOffence = false;
     fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
   });
 
