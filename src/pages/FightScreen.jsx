@@ -14,8 +14,13 @@ import {
   ListItemText,
 } from "@mui/material";
 import Select from "../components/Select";
+import StatBar from "../components/StatBar";
 import { simulateFight } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
+import {
+  calculateFightStats,
+  displayFightStats,
+} from "../engine/FightStatistics";
 
 const FightScreen = () => {
   // stores the state of the fighters from fighters.json in an array ready for consumption
@@ -33,6 +38,12 @@ const FightScreen = () => {
 
   // handles the state of the View Fight Summary modal to tell us whether it is open or not
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // handles the state of the View Fight Stats modal to tell us whether it is open or not
+  const [dialogStatsOpen, setDialogStatsOpen] = useState(false);
+
+  // New state for handling the fight statistics
+  const [fightStats, setFightStats] = useState(null);
 
   useEffect(() => {
     // Fetch the JSON data from the file
@@ -109,32 +120,32 @@ const FightScreen = () => {
           },
           stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
           Tendency: fighter.Tendency || {
-            standingTendency: { 
-              punchTendency: 25, 
-              kickTendency: 25, 
-              clinchingTendency: 25, 
-              takedownTendency: 25 
+            standingTendency: {
+              punchTendency: 25,
+              kickTendency: 25,
+              clinchingTendency: 25,
+              takedownTendency: 25,
             },
-            clinchTendency: { 
-              takedownTendency: 50, 
-              strikeTendency: 50 
+            clinchTendency: {
+              takedownTendency: 50,
+              strikeTendency: 50,
             },
-            clinchDefenceTendency: { 
-              takedownTendency: 20, 
-              strikeTendency: 20, 
-              exitClinch: 60 
+            clinchDefenceTendency: {
+              takedownTendency: 20,
+              strikeTendency: 20,
+              exitClinch: 60,
             },
-            groundOffenceTendency: { 
-              punchTendency: 50, 
-              submissionTendency: 25, 
-              getUpTendency: 25 
+            groundOffenceTendency: {
+              punchTendency: 50,
+              submissionTendency: 25,
+              getUpTendency: 25,
             },
-            groundDefenceTendency: { 
-              punchTendency: 25, 
-              submissionTendency: 25, 
-              getUpTendency: 50 
-            }
-          }
+            groundDefenceTendency: {
+              punchTendency: 25,
+              submissionTendency: 25,
+              getUpTendency: 50,
+            },
+          },
         };
       };
 
@@ -170,6 +181,37 @@ const FightScreen = () => {
         // Store the winner and loser of the fight
         const winnerFighter = opponents[result.winner];
         const loserFighter = opponents[result.winner === 0 ? 1 : 0];
+
+        // Calculate fight statistics
+        const stats = calculateFightStats(
+          {
+            stats: result.fighterStats[0],
+            health: result.fighterHealth[0],
+            maxHealth: result.fighterMaxHealth[0],
+          },
+          {
+            stats: result.fighterStats[1],
+            health: result.fighterHealth[1],
+            maxHealth: result.fighterMaxHealth[1],
+          }
+        );
+        setFightStats(stats);
+
+        // Display detailed fight stats
+        displayFightStats([
+          {
+            name: selectedItem1.firstname + " " + selectedItem1.lastname,
+            stats: result.fighterStats[0],
+            health: result.fighterHealth[0],
+            maxHealth: result.fighterMaxHealth[0],
+          },
+          {
+            name: selectedItem2.firstname + " " + selectedItem2.lastname,
+            stats: result.fighterStats[1],
+            health: result.fighterHealth[1],
+            maxHealth: result.fighterMaxHealth[1],
+          },
+        ]);
 
         // Update the record of the fighters after the fight
         const updatedFighters = fighters.map((fighter) => {
@@ -227,6 +269,15 @@ const FightScreen = () => {
     setDialogOpen(false);
   };
 
+  // Logic for the View Fight Stats button open state
+  const handleStatsDialogOpen = () => {
+    setDialogStatsOpen(true);
+  };
+
+  const handleStatsDialogClose = () => {
+    setDialogStatsOpen(false);
+  };
+
   return (
     <>
       <main>
@@ -282,6 +333,21 @@ const FightScreen = () => {
                   View Fight Summary
                 </Button>
               </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  onClick={handleStatsDialogOpen}
+                  sx={{
+                    backgroundColor: "rgba(33, 33, 33, 0.9)", // Dark grey background with slight transparency
+                    color: "#fff", // White text color for contrast
+                    "&:hover": {
+                      backgroundColor: "rgba(33, 33, 33, 0.7)", // Slightly lighter dark grey on hover
+                    },
+                  }}
+                >
+                  View Fight Stats
+                </Button>
+              </Grid>
             </Grid>
             {winnerMessage && (
               <Typography
@@ -327,6 +393,40 @@ const FightScreen = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={dialogStatsOpen}
+        onClose={handleStatsDialogClose}
+        fullWidth={true}
+        maxWidth="md"
+      >
+        <DialogTitle>Fight Statistics</DialogTitle>
+        <DialogContent>
+          {fightStats && (
+            <div style={{ marginTop: "20px" }}>
+              <StatBar
+                redValue={fightStats.totalStrikes.red}
+                blueValue={fightStats.totalStrikes.blue}
+                title="Total Strikes"
+              />
+              <StatBar
+                redValue={fightStats.takedowns.red}
+                blueValue={fightStats.takedowns.blue}
+                title="Takedowns"
+              />
+              <StatBar
+                redValue={fightStats.submissionAttempts.red}
+                blueValue={fightStats.submissionAttempts.blue}
+                title="Submission Attempts"
+              />
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleStatsDialogClose} color="primary">
             Close
           </Button>
         </DialogActions>
