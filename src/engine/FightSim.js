@@ -26,8 +26,8 @@ const COMBO_FOLLOW_UPS = {
 // Constants for positions a fighter can be in
 const FIGHTER_POSITIONS = {
   STANDING: 'standing',
-  CLINCH_OFFENSE: 'clinchOffence',
-  CLINCH_DEFENSE: 'clinchDefence',
+  CLINCH_OFFENCE: 'clinchOffence',
+  CLINCH_DEFENCE: 'clinchDefence',
   GROUND_FULL_GUARD_TOP: 'groundFullGuardTop',
   GROUND_FULL_GUARD_BOTTOM: 'groundFullGuardBottom',
   GROUND_HALF_GUARD_TOP: 'groundHalfGuardTop',
@@ -36,8 +36,8 @@ const FIGHTER_POSITIONS = {
   GROUND_SIDE_CONTROL_BOTTOM: 'groundSideControlBottom',
   GROUND_MOUNT_TOP: 'groundMountTop',
   GROUND_MOUNT_BOTTOM: 'groundMountBottom',
-  GROUND_BACK_CONTROL_OFFENSE: 'groundBackControlOffence',
-  GROUND_BACK_CONTROL_DEFENSE: 'groundBackControlDefence'
+  GROUND_BACK_CONTROL_OFFENCE: 'groundBackControlOffence',
+  GROUND_BACK_CONTROL_DEFENCE: 'groundBackControlDefence'
 };
 
 //Functions that set up an action
@@ -70,9 +70,9 @@ const getAvailableActions = (fighter) => {
   switch (fighter.position) {
     case FIGHTER_POSITIONS.STANDING:
       return ['punch', 'kick', 'takedownAttempt', 'clinchAttempt'];
-    case FIGHTER_POSITIONS.CLINCH_OFFENSE:
+    case FIGHTER_POSITIONS.CLINCH_OFFENCE:
       return ['clinchStrike', 'clinchTakedown'];
-    case FIGHTER_POSITIONS.CLINCH_DEFENSE:
+    case FIGHTER_POSITIONS.CLINCH_DEFENCE:
       return ['clinchStrike', 'clinchTakedown', 'clinchExit'];
     case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
     case FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP:
@@ -88,9 +88,9 @@ const getAvailableActions = (fighter) => {
       return ['groundStrike', 'submission'];
     case FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM:
       return ['escape', 'sweep'];
-    case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENSE:
+    case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE:
       return ['groundStrike', 'submission'];
-    case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENSE:
+    case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE:
       return ['escape'];
     default:
       return [];
@@ -443,8 +443,8 @@ const doClinch = (attacker, defender) => {
 
   if (Math.random() < clinchChance) {
     // Set attacker's states
-    attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENSE;
-    defender.position = FIGHTER_POSITIONS.CLINCH_DEFENSE;
+    attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENCE;
+    defender.position = FIGHTER_POSITIONS.CLINCH_DEFENCE;
 
     attacker.stats.clinchEntered = (attacker.stats.clinchEntered || 0) + 1;
     console.log(
@@ -693,8 +693,8 @@ const doPositionAdvance = (attacker, defender, staminaImpact) => {
         newDefenderPosition = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_MOUNT_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENSE;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENSE;
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE;
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE;
         break;
       default:
         return 'positionAdvanceInvalid';
