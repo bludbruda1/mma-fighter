@@ -1092,14 +1092,14 @@ const simulateRound = (fighters, roundNumber) => {
     fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
   });
 
-  let lastActionFighter;
-  let currentTime = 300; // 5 minutes in seconds
-
   // Track initial stats for this round
   const initialStats = fighters.map((fighter) => ({
     ...fighter.stats,
     health: { ...fighter.health },
   }));
+
+  let lastActionFighter;
+  let currentTime = 300; // 5 minutes in seconds
 
   while (currentTime > 0) {
     const actionFighter = pickFighter(fighters, lastActionFighter);
@@ -1137,17 +1137,34 @@ const simulateRound = (fighters, roundNumber) => {
 
   console.log("\n===End of Round===");
 
-  // Determine round winner based on damage dealt
-  const damageDealt = fighters.map((fighter, index) =>
-    Object.keys(fighter.health).reduce(
-      (total, part) =>
-        total + (initialStats[index].health[part] - fighter.health[part]),
-      0
-    )
-  );
+  // Calculate health lost for each fighter during this round
+  const healthLost = fighters.map((fighter, index) => {
+    const initialHealth = initialStats[index].health;
+    return (
+      initialHealth.head -
+      fighter.health.head +
+      (initialHealth.body - fighter.health.body) +
+      (initialHealth.legs - fighter.health.legs)
+    );
+  });
 
-  const roundWinner = damageDealt[0] > damageDealt[1] ? 0 : 1;
+  // Determine round winner (fighter who lost less health)
+  let roundWinner;
+  if (healthLost[0] < healthLost[1]) {
+    roundWinner = 0;
+  } else if (healthLost[1] < healthLost[0]) {
+    roundWinner = 1;
+  } else {
+    // If health lost is equal, 50% chance for each fighter which is to be improved in the future
+    roundWinner = Math.random() < 0.5 ? 0 : 1;
+  }
+
   fighters[roundWinner].roundsWon++;
+
+  console.log(`\nRound ${roundNumber} Result:`);
+  console.log(`${fighters[0].name}: Lost ${healthLost[0]} health`);
+  console.log(`${fighters[1].name}: Lost ${healthLost[1]} health`);
+  console.log(`${fighters[roundWinner].name} wins the round`);
 
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
