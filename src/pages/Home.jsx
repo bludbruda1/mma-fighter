@@ -1,5 +1,12 @@
-import React from "react";
-import { Container, Typography, Grid, Button, Box } from "@mui/material";
+import React, { useState } from "react";
+import {
+  CircularProgress,
+  Container,
+  Typography,
+  Grid,
+  Button,
+  Box,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { resetDB } from "../utils/indexedDB"; // Import the resetDB function
 
@@ -24,13 +31,18 @@ const Home = () => {
     navigate("/fight");
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleResetGame = async () => {
+    setLoading(true);
     try {
       await resetDB();
       console.log("Game reset successfully");
       window.location.reload(); // Hard refresh the page
     } catch (error) {
       console.error("Error resetting game", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,15 +143,19 @@ const Home = () => {
               variant="contained"
               onClick={handleResetGame}
               sx={{
-                ...fadeIn,
                 backgroundColor: "rgba(255, 0, 0, 0.8)", // Semi-transparent red background
                 color: "#fff", // White text color
                 "&:hover": {
                   backgroundColor: "rgba(255, 0, 0, 0.6)", // Darker on hover
                 },
               }}
+              disabled={loading}
             >
-              Reset Game
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Reset Game"
+              )}
             </Button>
           </Grid>
         </Grid>
