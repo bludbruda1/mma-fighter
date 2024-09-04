@@ -1,8 +1,28 @@
 import { formatTime, simulateTimePassing, isKnockedOut } from "./helper.js";
-import { calculateDamage, calculateProbabilities, calculateProbability, calculateStaminaImpact } from "./fightCalculations.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
+
+// Constants for strike damages
+const STRIKE_DAMAGE = {
+  jab: { damage: 2, target: "head" },
+  cross: { damage: 4, target: "head" },
+  hook: { damage: 5, target: "head" },
+  uppercut: { damage: 6, target: "head" },
+  overhand: { damage: 7, target: "head" },
+  spinningBackfist: { damage: 5, target: "head" },
+  supermanPunch: { damage: 6, target: "head" },
+  bodyPunch: { damage: 3, target: "body" },
+  headKick: { damage: 9, target: "head" },
+  bodyKick: { damage: 8, target: "body" },
+  legKick: { damage: 7, target: "legs" },
+  takedown: { damage: 9, target: "body" },
+  clinchStrike: { damage: 3, target: "head" },
+  groundPunch: { damage: 3, target: "head" },
+};
+
+const DAMAGE_VARIATION_FACTOR = 0.25;
+const RATING_DAMAGE_FACTOR = 0.3;
 
 //constants for combinations
 const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
@@ -23,6 +43,8 @@ const COMBO_FOLLOW_UPS = {
   headKick: ["jab", "cross", "legKick", "bodyKick"],
 };
 
+//Functions that set up an action
+
 /**
  * Determine which fighter performs the next action
  * @param {Object[]} fighters - Array of fighter objects
@@ -40,6 +62,133 @@ const pickFighter = (fighters, lastActionFighter) => {
   }
   const rand = Math.random() * sum;
   return rand < ratios[0] ? 0 : 1;
+};
+
+/**
+ * Calculate probability of a successful action
+ * @param {number} offenceRating - Attacker's offensive rating
+ * @param {number} defenceRating - Defender's defensive rating
+ * @returns {number} Probability of success
+ */
+const calculateProbability = (offenceRating, defenceRating) => {
+  return offenceRating / (offenceRating + defenceRating);
+};
+
+/**
+ * Calculate outcome probabilities for a fighting action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @param {string} actionType - Type of action (e.g., 'punch', 'kick' etc)
+ * @returns {Object} Probabilities of hit, block, evade, and miss
+ */
+const calculateProbabilities = (attacker, defender, actionType) => {
+  let offenceRating, defenceRating, evasiveness, accuracy;
+  let hitChanceBase, hitChanceMax, missChanceBase, evadeChanceBase;
+
+  if (actionType === "punch") {
+    offenceRating =
+      (attacker.Rating.striking * (attacker.Rating.handSpeed / 100)) / 100;
+    defenceRating = defender.Rating.strikingDefence / 100;
+    evasiveness = defender.Rating.headMovement / 100;
+    accuracy = attacker.Rating.punchAccuracy / 100;
+    hitChanceBase = 0.3;
+    hitChanceMax = 0.5;
+    missChanceBase = 0.2;
+    evadeChanceBase = 0.2;
+  } else if (actionType === "kick") {
+    offenceRating =
+      (attacker.Rating.kicking * (attacker.Rating.kickSpeed / 100)) / 100;
+    defenceRating = defender.Rating.kickDefence / 100;
+    evasiveness =
+      (defender.Rating.headMovement + defender.Rating.footwork) / 2 / 100;
+    accuracy = attacker.Rating.kickAccuracy / 100;
+    hitChanceBase = 0.25;
+    hitChanceMax = 0.45;
+    missChanceBase = 0.25;
+    evadeChanceBase = 0.25;
+  } else if (actionType === "clinchStrike") {
+    offenceRating = attacker.Rating.clinchStriking / 100;
+    defenceRating = defender.Rating.clinchControl / 100;
+    evasiveness = defender.Rating.headMovement / 100;
+    accuracy = attacker.Rating.punchAccuracy / 100;
+    hitChanceBase = 0.35;
+    hitChanceMax = 0.55;
+    missChanceBase = 0.15;
+    evadeChanceBase = 0.15;
+  } else {
+    // For other action types, return equal probabilities
+    return {
+      hitChance: 0.25,
+      blockChance: 0.25,
+      evadeChance: 0.25,
+      missChance: 0.25,
+    };
+  }
+
+  // Calculate hit chance
+  let hitChance = hitChanceBase + 0.2 * offenceRating;
+  hitChance += 0.1 * Math.max(0, Math.min(1, offenceRating - defenceRating));
+  hitChance *= accuracy;
+  hitChance = Math.min(hitChanceMax, hitChance);
+
+  // Calculate miss chance
+  let missChance = missChanceBase + 0.1 * (1 - accuracy);
+
+  // Calculate evade chance
+  let evadeChance = evadeChanceBase + 0.1 * evasiveness;
+
+  // Calculate block chance (remaining probability)
+  let blockChance = 1 - (hitChance + missChance + evadeChance);
+
+  // Normalize probabilities to ensure they sum to 1
+  const total = hitChance + blockChance + evadeChance + missChance;
+  hitChance /= total;
+  blockChance /= total;
+  evadeChance /= total;
+  missChance /= total;
+
+  return { hitChance, blockChance, evadeChance, missChance };
+};
+
+/**
+ * Calculate stamina impact on action effectiveness
+ * @param {number} stamina - Current stamina of the fighter
+ * @returns {number} Stamina impact factor
+ */
+const calculateStaminaImpact = (stamina) => {
+  return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+};
+
+/**
+ * Calculate damage for a strike
+ * @param {number} baseRating - Attacker's base rating
+ * @param {string} strikeType - Type of strike
+ * @returns {number} Calculated damage
+ */
+const calculateDamage = (baseRating, strikeType) => {
+  if (!STRIKE_DAMAGE[strikeType]) {
+    throw new Error("Invalid strike type " + strikeType);
+  }
+
+  let { damage: baseDamage, target } = STRIKE_DAMAGE[strikeType];
+
+  // Special case for ground punches: randomize between head and body
+  if (strikeType === "groundPunch") {
+    target = Math.random() < 0.7 ? "head" : "body";
+  }
+
+  // Special case for clinch strikes: randomize between head and body
+  if (strikeType === "clinchStrike") {
+    target = Math.random() < 0.7 ? "head" : "body";
+  }
+
+  const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
+  const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
+
+  // Calculate total damage
+  const totalDamage = Math.round((baseDamage + ratingFactor) * randomFactor);
+
+  return { damage: totalDamage, target };
 };
 
 // Action Functions
@@ -304,7 +453,6 @@ const doCombo = (attacker, defender, initialStrike) => {
 
     // Check if the defender is knocked out after each punch
     if (isKnockedOut(defender)) {
-      console.log(`${defender.name} is knocked out by the combo!`);
       break;
     }
 
@@ -366,6 +514,9 @@ const doGroundPunch = (attacker, defender, staminaImpact) => {
 
     return "groundPunchLanded";
   } else {
+    defender.stats.groundPunchsBlocked =
+      (defender.stats.groundPunchsBlocked || 0) + 1;
+    defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
     console.log(`${defender.name} blocks the ground punch`);
     return "groundPunchBlocked";
   }
@@ -458,8 +609,10 @@ const exitClinch = (defender, attacker) => {
  */
 const doClinchStrike = (attacker, defender) => {
   console.log(`${attacker.name} attempts a clinch strike on ${defender.name}`);
+
   attacker.stats.clinchStrikesThrown =
     (attacker.stats.clinchStrikesThrown || 0) + 1;
+  attacker.stats.punchesThrown = (attacker.stats.punchesThrown || 0) + 1;
 
   // Calculate probabilities for this clinch strike (I am currently ignoring missChance as it is not needed to fill out the probablities)
   let { hitChance, blockChance, evadeChance } = calculateProbabilities(
@@ -483,6 +636,7 @@ const doClinchStrike = (attacker, defender) => {
     // Update attacker's stats
     attacker.stats.clinchStrikesLanded =
       (attacker.stats.clinchStrikesLanded || 0) + 1;
+    attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
 
     console.log(
       `${defender.name} is hit by the clinch strike for ${damage} damage to the ${target}`
@@ -492,6 +646,7 @@ const doClinchStrike = (attacker, defender) => {
     // Block logic
     defender.stats.clinchStrikesBlocked =
       (defender.stats.clinchStrikesBlocked || 0) + 1;
+    defender.stats.punchesBlocked = (attacker.stats.punchesBlocked || 0) + 1;
 
     console.log(`${defender.name} blocks the clinch strike`);
     return [`clinchStrikeBlocked`, timePassed];
@@ -499,6 +654,7 @@ const doClinchStrike = (attacker, defender) => {
     // Evade logic
     defender.stats.clinchStrikesEvaded =
       (defender.stats.clinchStrikesEvaded || 0) + 1;
+    defender.stats.punchesEvaded = (defender.stats.punchesEvaded || 0) + 1;
 
     console.log(`${defender.name} evades the clinch strike`);
     return [`clinchStrikeEvaded`, timePassed];
@@ -506,6 +662,7 @@ const doClinchStrike = (attacker, defender) => {
     // Miss logic
     attacker.stats.clinchStrikesMissed =
       (attacker.stats.clinchStrikesMissed || 0) + 1;
+    attacker.stats.punchesMissed = (attacker.stats.punchesMissed || 0) + 1;
 
     console.log(`${attacker.name}'s clinch strike misses ${defender.name}`);
     return [`clinchStrikeMissed`, timePassed];
@@ -758,7 +915,7 @@ const determineAction = (fighter, opponent) => {
     // If none of the above, default to jab
     return "jab";
   } else if (fighter.isClinchedOffence) {
-    // Clinch offense logic
+    // Clinch offence logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.clinchTendency;
@@ -789,7 +946,7 @@ const determineAction = (fighter, opponent) => {
     // If none of the above, default to clinch exit
     return "clinchExit";
   } else if (fighter.isGroundOffence) {
-    // Ground offense logic
+    // Ground offence logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.groundOffenceTendency;
@@ -802,7 +959,7 @@ const determineAction = (fighter, opponent) => {
     }
     return "getUpAttempt";
   } else if (fighter.isGroundDefence) {
-    // Ground defense logic
+    // Ground defence logic
     const rand = Math.random() * 100;
     let cumulativeProbability = 0;
     const tendencies = fighter.Tendency.groundDefenceTendency;
@@ -929,17 +1086,19 @@ const simulateRound = (fighters, roundNumber) => {
     fighter.isStanding = true;
     fighter.isGroundOffence = false;
     fighter.isGroundDefence = false;
+    fighter.isClinchedDefence = false;
+    fighter.isClinchedOffence = false;
     fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
   });
-
-  let lastActionFighter;
-  let currentTime = 300; // 5 minutes in seconds
 
   // Track initial stats for this round
   const initialStats = fighters.map((fighter) => ({
     ...fighter.stats,
     health: { ...fighter.health },
   }));
+
+  let lastActionFighter;
+  let currentTime = 300; // 5 minutes in seconds
 
   while (currentTime > 0) {
     const actionFighter = pickFighter(fighters, lastActionFighter);
@@ -977,17 +1136,34 @@ const simulateRound = (fighters, roundNumber) => {
 
   console.log("\n===End of Round===");
 
-  // Determine round winner based on damage dealt
-  const damageDealt = fighters.map((fighter, index) =>
-    Object.keys(fighter.health).reduce(
-      (total, part) =>
-        total + (initialStats[index].health[part] - fighter.health[part]),
-      0
-    )
-  );
+  // Calculate health lost for each fighter during this round
+  const healthLost = fighters.map((fighter, index) => {
+    const initialHealth = initialStats[index].health;
+    return (
+      initialHealth.head -
+      fighter.health.head +
+      (initialHealth.body - fighter.health.body) +
+      (initialHealth.legs - fighter.health.legs)
+    );
+  });
 
-  const roundWinner = damageDealt[0] > damageDealt[1] ? 0 : 1;
+  // Determine round winner (fighter who lost less health)
+  let roundWinner;
+  if (healthLost[0] < healthLost[1]) {
+    roundWinner = 0;
+  } else if (healthLost[1] < healthLost[0]) {
+    roundWinner = 1;
+  } else {
+    // If health lost is equal, 50% chance for each fighter which is to be improved in the future
+    roundWinner = Math.random() < 0.5 ? 0 : 1;
+  }
+
   fighters[roundWinner].roundsWon++;
+
+  console.log(`\nRound ${roundNumber} Result:`);
+  console.log(`${fighters[0].name}: Lost ${healthLost[0]} health`);
+  console.log(`${fighters[1].name}: Lost ${healthLost[1]} health`);
+  console.log(`${fighters[roundWinner].name} wins the round`);
 
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
@@ -1421,4 +1597,5 @@ export {
   doTakedown,
   doGetUp,
   doSubmission,
+  calculateStaminaImpact,
 };
