@@ -26,8 +26,8 @@ const COMBO_FOLLOW_UPS = {
 // Constants for positions a fighter can be in
 const FIGHTER_POSITIONS = {
   STANDING: 'standing',
-  CLINCH_OFFENSE: 'clinchOffense',
-  CLINCH_DEFENSE: 'clinchDefense',
+  CLINCH_OFFENSE: 'clinchOffence',
+  CLINCH_DEFENSE: 'clinchDefence',
   GROUND_FULL_GUARD_TOP: 'groundFullGuardTop',
   GROUND_FULL_GUARD_BOTTOM: 'groundFullGuardBottom',
   GROUND_HALF_GUARD_TOP: 'groundHalfGuardTop',
@@ -36,8 +36,8 @@ const FIGHTER_POSITIONS = {
   GROUND_SIDE_CONTROL_BOTTOM: 'groundSideControlBottom',
   GROUND_MOUNT_TOP: 'groundMountTop',
   GROUND_MOUNT_BOTTOM: 'groundMountBottom',
-  GROUND_BACK_CONTROL_OFFENSE: 'groundBackControlOffense',
-  GROUND_BACK_CONTROL_DEFENSE: 'groundBackControlDefense'
+  GROUND_BACK_CONTROL_OFFENSE: 'groundBackControlOffence',
+  GROUND_BACK_CONTROL_DEFENSE: 'groundBackControlDefence'
 };
 
 //Functions that set up an action
