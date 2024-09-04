@@ -1,28 +1,8 @@
 import { formatTime, simulateTimePassing, isKnockedOut } from "./helper.js";
+import { calculateDamage, calculateProbabilities, calculateProbability, calculateStaminaImpact } from "./fightCalculations.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
-
-// Constants for strike damages
-const STRIKE_DAMAGE = {
-  jab: { damage: 2, target: "head" },
-  cross: { damage: 4, target: "head" },
-  hook: { damage: 5, target: "head" },
-  uppercut: { damage: 6, target: "head" },
-  overhand: { damage: 7, target: "head" },
-  spinningBackfist: { damage: 5, target: "head" },
-  supermanPunch: { damage: 6, target: "head" },
-  bodyPunch: { damage: 3, target: "body" },
-  headKick: { damage: 9, target: "head" },
-  bodyKick: { damage: 8, target: "body" },
-  legKick: { damage: 7, target: "legs" },
-  takedown: { damage: 9, target: "body" },
-  clinchStrike: { damage: 3, target: "head" },
-  groundPunch: { damage: 3, target: "head" },
-};
-
-const DAMAGE_VARIATION_FACTOR = 0.25;
-const RATING_DAMAGE_FACTOR = 0.3;
 
 //constants for combinations
 const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
@@ -42,8 +22,6 @@ const COMBO_FOLLOW_UPS = {
   bodyKick: ["jab", "cross", "hook", "headKick", "legKick"],
   headKick: ["jab", "cross", "legKick", "bodyKick"],
 };
-
-//Functions that set up an action
 
 /**
  * Determine which fighter performs the next action
@@ -1588,5 +1566,4 @@ export {
   doTakedown,
   doGetUp,
   doSubmission,
-  calculateStaminaImpact,
 };
