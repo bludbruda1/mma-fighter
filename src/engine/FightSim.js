@@ -1116,11 +1116,7 @@ const simulateRound = (fighters, roundNumber) => {
 
   // Reset fighters to standing position and recover some stamina at the start of the round
   fighters.forEach((fighter) => {
-    fighter.isStanding = true;
-    fighter.isGroundOffence = false;
-    fighter.isGroundDefence = false;
-    fighter.isClinchedDefence = false;
-    fighter.isClinchedOffence = false;
+    fighter.position = FIGHTER_POSITIONS.STANDING;
     fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
   });
 
