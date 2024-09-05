@@ -905,7 +905,7 @@ const doSubmission = (attacker, defender) => {
   attacker.stats.submissionsAttempted = (attacker.stats.submissionsAttempted || 0) + 1;
 
   // Calculate submission probabilities
-  const { successChance, defenseChance, escapeChance } = calculateSubmissionProbability(attacker, defender, chosenSubmission);
+  const { successChance, defenceChance, escapeChance } = calculateSubmissionProbability(attacker, defender, chosenSubmission);
 
   // Determine the outcome
   const outcome = Math.random();
@@ -916,11 +916,11 @@ const doSubmission = (attacker, defender) => {
     console.log(`${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`);
     defender.isSubmitted = true;
     return ["submissionSuccessful", timePassed, chosenSubmission.name];
-  } else if (outcome < successChance + defenseChance) {
+  } else if (outcome < successChance + defenceChance) {
     defender.stats.submissionsDefended = (defender.stats.submissionsDefended || 0) + 1;
     console.log(`${defender.name} defends against the ${chosenSubmission.name}`);
     return ["submissionDefended", timePassed, null];
-  } else if (outcome < successChance + defenseChance + escapeChance) {
+  } else if (outcome < successChance + defenceChance + escapeChance) {
     console.log(`${defender.name} escapes from the ${chosenSubmission.name} attempt`);
     return ["submissionEscaped", timePassed, null];
   }
