@@ -1395,8 +1395,13 @@ const simulateFight = (fighters) => {
       winner = "draw";
     }
   } else {
-    winner = fighters[0].health.head <= 0 || fighters[0].health.body <= 0 || fighters[0].health.legs <= 0 ? 1 : 0;
-  }
+    winner =
+      fighters[0].health.head <= 0 ||
+      fighters[0].health.body <= 0 ||
+      fighters[0].health.legs <= 0 ||
+      fighters[0].isSubmitted
+        ? 1
+        : 0;  }
 
   // Display fight result
   console.log("\n--- Fight Simulation Ends ---\n");
