@@ -115,52 +115,105 @@ const calculateProbability = (offenceRating, defenceRating) => {
  * @returns {Object} Probabilities of success, defence, and escape
  */
 const calculateSubmissionProbability = (attacker, defender, submissionType) => {
-  // Base probabilities
-  let successChance = 0.3;
-  let defenceChance = 0.4;
-  let escapeChance = 0.3;
-
-  // Factors influencing submission success
-  const offensiveSkill = attacker.Rating.submissionOffence / 100;
-  const defensiveSkill = defender.Rating.submissionDefence / 100;
-  const attackerStamina = attacker.stamina / 100;
-  const defenderStamina = defender.stamina / 100;
+  const offensiveSkill = attacker.Rating.submissionOffence;
+  const defensiveSkill = defender.Rating.submissionDefence;
+  const attackerStamina = attacker.stamina;
+  const defenderStamina = defender.stamina;
   const positionAdvantage = getPositionAdvantage(attacker.position, defender.position);
   const submissionDifficulty = submissionType.difficultyModifier;
 
-  // Adjust success chance based on factors
-  successChance += 0.2 * (offensiveSkill - defensiveSkill);
-  successChance += 0.1 * (attackerStamina - defenderStamina);
-  successChance += 0.1 * positionAdvantage;
-  successChance /= submissionDifficulty;
+  let baseSuccessChance;
 
-  // Adjust defence chance
-  defenceChance += 0.2 * (defensiveSkill - offensiveSkill);
-  defenceChance += 0.1 * (defenderStamina - attackerStamina);
+  // Determine which calculation to use based on relative skill levels
+  if (offensiveSkill > defensiveSkill) {
+    baseSuccessChance = calculateOffenseDominantSubmission(offensiveSkill, defensiveSkill, attackerStamina, defenderStamina);
+  } else if (defensiveSkill > offensiveSkill) {
+    baseSuccessChance = calculateDefenseDominantSubmission(offensiveSkill, defensiveSkill, attackerStamina, defenderStamina);
+  } else {
+    baseSuccessChance = calculateEqualSkillSubmission(offensiveSkill, attackerStamina, defenderStamina);
+  }
 
-  // Escape chance is what's left
-  escapeChance = 1 - (successChance + defenceChance);
+  // Apply position advantage and submission difficulty modifiers
+  let successChance = baseSuccessChance * (1 + positionAdvantage) / submissionDifficulty;
 
-  // Ensure probabilities are within [0, 1] range
+  // Ensure successChance is within [0, 1] range
   successChance = Math.max(0, Math.min(1, successChance));
-  defenceChance = Math.max(0, Math.min(1, defenceChance));
-  escapeChance = Math.max(0, Math.min(1, escapeChance));
 
-  // Normalize probabilities to ensure they sum to 1
-  const total = successChance + defenceChance + escapeChance;
-  successChance /= total;
-  defenceChance /= total;
-  escapeChance /= total;
+  // Calculate defence and escape chances
+  let defenceChance = 1 - successChance;
+  let escapeChance = defenceChance * 0.3; // 30% of unsuccessful attempts result in escape
+  defenceChance -= escapeChance;
 
   return { successChance, defenceChance, escapeChance };
 };
 
-/**
- * Calculate the position advantage for submissions
- * @param {string} attackerPosition - Attacker's current position
- * @param {string} defenderPosition - Defender's current position
- * @returns {number} Position advantage factor
- */
+const calculateOffenseDominantSubmission = (offensiveSkill, defensiveSkill, attackerStamina, defenderStamina) => {
+  const skillDifference = offensiveSkill - defensiveSkill;
+  const staminaFactor = calculateStaminaFactor(attackerStamina, defenderStamina);
+  
+  // Base chance increases with skill difference
+  let baseChance = 0.3 + (skillDifference / 200);
+  
+  // Apply stamina factor
+  baseChance *= staminaFactor;
+
+  // Exponential reduction for very high defence skills
+  if (defensiveSkill > 95) {
+    baseChance *= Math.pow(0.9, defensiveSkill - 95);
+  }
+
+  return baseChance;
+};
+
+const calculateDefenseDominantSubmission = (offensiveSkill, defensiveSkill, attackerStamina, defenderStamina) => {
+  const skillDifference = defensiveSkill - offensiveSkill;
+  const staminaFactor = calculateStaminaFactor(attackerStamina, defenderStamina);
+  
+  // Base chance decreases with skill difference
+  let baseChance = 0.2 - (skillDifference / 250);
+  
+  // Apply stamina factor
+  baseChance *= staminaFactor;
+
+  // Further reduction for very high defence skills
+  if (defensiveSkill > 95) {
+    baseChance *= Math.pow(0.8, defensiveSkill - 95);
+  }
+
+  return Math.max(0.01, baseChance); // Minimum 1% chance
+};
+
+const calculateEqualSkillSubmission = (skill, attackerStamina, defenderStamina) => {
+  const staminaFactor = calculateStaminaFactor(attackerStamina, defenderStamina);
+  
+  // Base chance when skills are equal
+  let baseChance = 0.25;
+  
+  // Apply stamina factor
+  baseChance *= staminaFactor;
+
+  // Slight reduction for very high skills
+  if (skill > 90) {
+    baseChance *= Math.pow(0.95, skill - 90);
+  }
+
+  return baseChance;
+};
+
+const calculateStaminaFactor = (attackerStamina, defenderStamina) => {
+  const staminaDifference = attackerStamina - defenderStamina;
+  
+  // Exponential effect of stamina
+  let staminaFactor = Math.pow(1.05, staminaDifference / 10);
+
+  // Additional penalty for very low defender stamina
+  if (defenderStamina < 30) {
+    staminaFactor *= 1 + ((30 - defenderStamina) / 50);
+  }
+
+  return staminaFactor;
+};
+
 const getPositionAdvantage = (attackerPosition, defenderPosition) => {
   const advantageousPositions = {
     [FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE]: 0.3,
