@@ -112,12 +112,12 @@ const calculateProbability = (offenceRating, defenceRating) => {
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @param {Object} submissionType - Type of submission being attempted
- * @returns {Object} Probabilities of success, defense, and escape
+ * @returns {Object} Probabilities of success, defence, and escape
  */
 const calculateSubmissionProbability = (attacker, defender, submissionType) => {
   // Base probabilities
   let successChance = 0.3;
-  let defenseChance = 0.4;
+  let defenceChance = 0.4;
   let escapeChance = 0.3;
 
   // Factors influencing submission success
@@ -134,25 +134,25 @@ const calculateSubmissionProbability = (attacker, defender, submissionType) => {
   successChance += 0.1 * positionAdvantage;
   successChance /= submissionDifficulty;
 
-  // Adjust defense chance
-  defenseChance += 0.2 * (defensiveSkill - offensiveSkill);
-  defenseChance += 0.1 * (defenderStamina - attackerStamina);
+  // Adjust defence chance
+  defenceChance += 0.2 * (defensiveSkill - offensiveSkill);
+  defenceChance += 0.1 * (defenderStamina - attackerStamina);
 
   // Escape chance is what's left
-  escapeChance = 1 - (successChance + defenseChance);
+  escapeChance = 1 - (successChance + defenceChance);
 
   // Ensure probabilities are within [0, 1] range
   successChance = Math.max(0, Math.min(1, successChance));
-  defenseChance = Math.max(0, Math.min(1, defenseChance));
+  defenceChance = Math.max(0, Math.min(1, defenceChance));
   escapeChance = Math.max(0, Math.min(1, escapeChance));
 
   // Normalize probabilities to ensure they sum to 1
-  const total = successChance + defenseChance + escapeChance;
+  const total = successChance + defenceChance + escapeChance;
   successChance /= total;
-  defenseChance /= total;
+  defenceChance /= total;
   escapeChance /= total;
 
-  return { successChance, defenseChance, escapeChance };
+  return { successChance, defenceChance, escapeChance };
 };
 
 /**
