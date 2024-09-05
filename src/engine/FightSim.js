@@ -915,14 +915,14 @@ const doSubmission = (attacker, defender) => {
     attacker.stats.submissionsLanded = (attacker.stats.submissionsLanded || 0) + 1;
     console.log(`${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`);
     defender.isSubmitted = true;
-    return ["submissionSuccessful", timePassed];
+    return ["submissionSuccessful", timePassed, chosenSubmission.name];
   } else if (outcome < successChance + defenseChance) {
     defender.stats.submissionsDefended = (defender.stats.submissionsDefended || 0) + 1;
     console.log(`${defender.name} defends against the ${chosenSubmission.name}`);
-    return ["submissionDefended", timePassed];
+    return ["submissionDefended", timePassed, null];
   } else if (outcome < successChance + defenseChance + escapeChance) {
     console.log(`${defender.name} escapes from the ${chosenSubmission.name} attempt`);
-    return ["submissionEscaped", timePassed];
+    return ["submissionEscaped", timePassed, null];
   }
 };
 
@@ -1003,7 +1003,7 @@ const determineAction = (fighter, opponent) => {
  * @param {Object[]} fighters - Array of fighter objects
  * @param {number} actionFighter - Index of the current action fighter
  * @param {number} currentTime - Current time in the round
- * @returns {[number|null, number]} Winner (if any) and time passed
+ * @returns {[number|null, number, string|null]} Winner (if any), time passed, and submission type (if any)
  */
 const simulateAction = (fighters, actionFighter, currentTime) => {
   const opponent = actionFighter === 0 ? 1 : 0;
@@ -1018,6 +1018,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
 
   let outcome;
   let timePassed = 0;
+  let submissionType = null;
 
   switch (actionType) {
     case "jab":
@@ -1073,13 +1074,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       outcome = doGroundPunch(fighter, opponentFighter, staminaImpact);
       timePassed = simulateTimePassing("groundPunch");
       break;
-    case "submission":
-      outcome = doSubmission(fighter, opponentFighter);
-      timePassed = simulateTimePassing("submission");
-      if (outcome === "submissionSuccessful") {
-        return [actionFighter, timePassed];
-      }
-      break;
+      case "submission":
+        [outcome, timePassed, submissionType] = doSubmission(fighter, opponentFighter);
+        break;
     default:
       console.error(`Unknown action type: ${actionType}`);
       outcome = "unknownAction";
@@ -1098,18 +1095,19 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     return [actionFighter, timePassed];
   }
 
-  if (opponentFighter.isSubmitted) {
-    return [actionFighter, timePassed];
+  // Check for successful submission
+  if (outcome === "submissionSuccessful") {
+    return [actionFighter, timePassed, submissionType];
   }
 
-  return [null, timePassed];
+  return [null, timePassed, null];
 };
 
 /**
  * Simulate a single round of the fight
  * @param {Object[]} fighters - Array of fighter objects
  * @param {number} roundNumber - Current round number
- * @returns {number|null} Winner of the round (if any)
+ * @returns {Object} Round result including winner (if any) and submission type (if applicable)
  */
 const simulateRound = (fighters, roundNumber) => {
   console.log(`\nRound ${roundNumber} begins!`);
@@ -1131,7 +1129,7 @@ const simulateRound = (fighters, roundNumber) => {
 
   while (currentTime > 0) {
     const actionFighter = pickFighter(fighters, lastActionFighter);
-    const [roundWinner, timePassed] = simulateAction(
+    const [roundWinner, timePassed, submissionType] = simulateAction(
       fighters,
       actionFighter,
       currentTime
@@ -1142,22 +1140,12 @@ const simulateRound = (fighters, roundNumber) => {
 
     // Check for KO or submission
     if (roundWinner !== null) {
-      if (isKnockedOut(fighters[1 - roundWinner])) {
-        console.log(
-          `\n${
-            fighters[roundWinner].name
-          } wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`
-        );
+      if (submissionType) {
+        console.log(`${fighters[roundWinner].name} wins by ${submissionType} in round ${roundNumber} at ${formatTime(currentTime)}!`);
       } else {
-        console.log(
-          `\n${
-            fighters[roundWinner].name
-          } wins by submission in round ${roundNumber} at ${formatTime(
-            currentTime
-          )}!`
-        );
+        console.log(`${fighters[roundWinner].name} wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`);
       }
-      return roundWinner;
+      return { winner: roundWinner, submissionType };
     }
 
     lastActionFighter = actionFighter;
@@ -1197,7 +1185,7 @@ const simulateRound = (fighters, roundNumber) => {
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
 
-  return null; // No KO or submission
+  return { winner: null, submissionType: null }; // no KO or sub
 };
 
 /**
@@ -1366,21 +1354,22 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
 const simulateFight = (fighters) => {
   let method = "decision";
   let roundEnded = ROUNDS_PER_FIGHT;
+  let submissionType = null;
 
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
 
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
     console.log(`\n=== Round ${round} ===`);
-    const roundWinner = simulateRound(fighters, round);
+    const roundResult = simulateRound(fighters, round);
 
     // Check if the round ended early (KO or submission)
-    if (roundWinner !== null) {
-      // Determine if it's a KO or submission
-      if (isKnockedOut(fighters[1 - roundWinner])) {
-        method = "knockout";
-      } else if (fighters[1 - roundWinner].isSubmitted) {
+    if (roundResult.winner !== null) {
+      if (roundResult.submissionType) {
         method = "submission";
+        submissionType = roundResult.submissionType;
+      } else {
+        method = "knockout";
       }
       roundEnded = round;
       break;
@@ -1394,45 +1383,19 @@ const simulateFight = (fighters) => {
           fighter.maxHealth[part]
         );
       });
-      fighter.isSubmitted = false;
     });
-
-    // Display round result
-    const roundResult =
-      fighters[0].roundsWon > fighters[1].roundsWon
-        ? 0
-        : fighters[1].roundsWon > fighters[0].roundsWon
-        ? 1
-        : "draw";
-    console.log(
-      `\nRound ${round} Result: ${
-        roundResult === "draw"
-          ? "Draw"
-          : fighters[roundResult].name + " wins the round"
-      }`
-    );
   }
 
   // Determine the overall winner
   let winner;
   if (method === "decision") {
-    winner =
-      fighters[0].roundsWon > fighters[1].roundsWon
-        ? 0
-        : fighters[1].roundsWon > fighters[0].roundsWon
-        ? 1
-        : "draw";
-    if (winner === "draw") {
+    winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
+    if (fighters[0].roundsWon === fighters[1].roundsWon) {
       method = "draw";
+      winner = "draw";
     }
   } else {
-    winner =
-      fighters[0].health.head <= 0 ||
-      fighters[0].health.body <= 0 ||
-      fighters[0].health.legs <= 0 ||
-      fighters[0].isSubmitted
-        ? 1
-        : 0;
+    winner = fighters[0].health.head <= 0 || fighters[0].health.body <= 0 || fighters[0].health.legs <= 0 ? 1 : 0;
   }
 
   // Display fight result
@@ -1440,10 +1403,9 @@ const simulateFight = (fighters) => {
   if (method === "draw") {
     console.log("The fight ends in a draw!");
   } else {
+    const winMethod = method === "submission" ? `${method} (${submissionType})` : method;
     console.log(
-      `${fighters[winner].name} defeats ${
-        fighters[1 - winner].name
-      } by ${method} in round ${roundEnded}!`
+      `${fighters[winner].name} defeats ${fighters[1 - winner].name} by ${winMethod} in round ${roundEnded}!`
     );
   }
 
@@ -1452,6 +1414,7 @@ const simulateFight = (fighters) => {
     winnerName: winner === "draw" ? null : fighters[winner].name,
     loserName: winner === "draw" ? null : fighters[1 - winner].name,
     method: method,
+    submissionType: submissionType,
     roundEnded: roundEnded,
     fighterStats: [fighters[0].stats, fighters[1].stats],
     fighterHealth: [fighters[0].health, fighters[1].health],

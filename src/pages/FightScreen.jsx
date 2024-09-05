@@ -246,7 +246,11 @@ const FightScreen = () => {
             setFighters(updatedFighters);
             setFightEvents(fightEvents);
             setWinnerMessage(
-              `${result.winnerName} defeats ${result.loserName} by ${result.method} in round ${result.roundEnded}!`
+              `${result.winnerName} defeats ${result.loserName} by ${
+                result.method === 'submission' 
+                ? `${result.method} (${result.submissionType})` 
+                : result.method
+              } in round ${result.roundEnded}!`
             );
           })
           .catch((error) => console.error("Error updating fighters:", error));
