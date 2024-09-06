@@ -1,5 +1,5 @@
 import { formatTime, simulateTimePassing, isKnockedOut } from "./helper.js";
-import { calculateDamage, calculateProbabilities, calculateProbability, calculateStaminaImpact, calculateSubmissionProbability } from "./fightCalculations";
+import { calculateDamage, calculateProbabilities, calculateProbability, calculateStaminaImpact, calculateSubmissionProbability, determineStandingAction, determineClinchAction, determineGroundAction } from "./fightCalculations";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
@@ -107,42 +107,6 @@ const pickFighter = (fighters, lastActionFighter) => {
   }
   const rand = Math.random() * sum;
   return rand < ratios[0] ? 0 : 1;
-};
-
-/**
- * Gives actions that are possible from the position a fighter is in in
- * @param {Object} fighter - fighter in position
- * @returns {string} Possible actions the fighter can do
- */
-const getAvailableActions = (fighter) => {
-  switch (fighter.position) {
-    case FIGHTER_POSITIONS.STANDING:
-      return ['punch', 'kick', 'takedownAttempt', 'clinchAttempt'];
-    case FIGHTER_POSITIONS.CLINCH_OFFENCE:
-      return ['clinchStrike', 'clinchTakedown'];
-    case FIGHTER_POSITIONS.CLINCH_DEFENCE:
-      return ['clinchStrike', 'clinchTakedown', 'clinchExit'];
-    case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
-    case FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP:
-      return ['positionAdvance', 'groundPunch', 'submission'];
-    case FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM:
-    case FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM:
-      return ['sweep', 'submission', 'getUpAttempt'];
-    case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP:
-      return ['positionAdvance', 'groundPunch', 'submission'];
-    case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM:
-      return ['recoverGuard', 'escape'];
-    case FIGHTER_POSITIONS.GROUND_MOUNT_TOP:
-      return ['groundPunch', 'submission'];
-    case FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM:
-      return ['escape', 'sweep'];
-    case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE:
-      return ['groundPunch', 'submission'];
-    case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE:
-      return ['escape'];
-    default:
-      return [];
-  }
 };
 
 // Action Functions
@@ -434,6 +398,21 @@ const doCombo = (attacker, defender, initialStrike) => {
   }
 
   return [totalOutcome, totalTime];
+};
+
+/**
+ * Chance to a fighter to wait and look for openings
+ * @param {Object} fighter - Fighter looking for the opening
+ * @param {Object} opponent - Opponent Fighter
+ * @returns {string} Outcome of the action
+ */
+const doWait = (fighter, opponent) => {
+  console.log(`${fighter.name} looks for an opening.`);
+  
+  // Slightly recover stamina
+  fighter.stamina = Math.min(100, fighter.stamina + 2);
+  
+  return 'wait';
 };
 
 /**
@@ -929,72 +908,39 @@ const doSubmission = (attacker, defender) => {
 // Main Simulation Functions
 
 /**
- * Determine the next action based on fighter's position and tendencies
- * @param {Object} fighter - Current fighter
- * @param {Object} opponent - Opponent fighter
+ * Determines the next action for a fighter based on their current position
+ * @param {Object} fighter - The fighter object
+ * @param {Object} opponent - The opponent fighter object
  * @returns {string} The determined action
  */
 const determineAction = (fighter, opponent) => {
-  if (fighter.position === FIGHTER_POSITIONS.STANDING && opponent.position === FIGHTER_POSITIONS.STANDING) {
-    // Standing logic
-    const rand = Math.random() * 100;
-    let cumulativeProbability = 0;
-    const tendencies = fighter.Tendency.standingTendency;
 
-    if (rand < (cumulativeProbability += tendencies.punchTendency)) {
-      // Determine punch type
-      const punchRand = Math.random() * 100;
-      if (punchRand < 20) return "jab";
-      if (punchRand < 40) return "cross";
-      if (punchRand < 55) return "hook";
-      if (punchRand < 70) return "uppercut";
-      if (punchRand < 80) return "bodyPunch";
-      if (punchRand < 87) return "overhand";
-      if (punchRand < 94) return "spinningBackfist";
-      return "supermanPunch";
-    }
-    if (rand < (cumulativeProbability += tendencies.kickTendency)) {
-      // Determine kick type
-      const kickRand = Math.random() * 100;
-      if (kickRand < 40) return "legKick";
-      if (kickRand < 70) return "bodyKick";
-      return "headKick";
-    }
-    if (rand < (cumulativeProbability += tendencies.takedownTendency)) {
-      return "takedownAttempt";
-    }
-    if (rand < (cumulativeProbability += tendencies.clinchingTendency)) {
-      return "clinchAttempt";
-    }
-    // If none of the above, default to jab
-    return "jab";
+  // Get the current position of the fighter
+  const position = fighter.position;
+
+  if (position === FIGHTER_POSITIONS.STANDING) {
+    return determineStandingAction(fighter, opponent);
+  } else if (
+    position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP ||
+    position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM ||
+    position === FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP ||
+    position === FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM ||
+    position === FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP ||
+    position === FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM ||
+    position === FIGHTER_POSITIONS.GROUND_MOUNT_TOP ||
+    position === FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM ||
+    position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE ||
+    position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
+  ) {
+    return determineGroundAction(fighter, opponent);
+  } else if (
+    position === FIGHTER_POSITIONS.CLINCH_OFFENCE ||
+    position === FIGHTER_POSITIONS.CLINCH_DEFENCE
+  ) {
+    return determineClinchAction(fighter, opponent);
   } else {
-    // Ground and clinch logic
-    const availableActions = getAvailableActions(fighter);
-    const action = availableActions[Math.floor(Math.random() * availableActions.length)];
-    
-    switch (action) {
-      case 'positionAdvance':
-        return 'positionAdvance';
-      case 'groundPunch':
-        return 'groundPunch';
-      case 'submission':
-        return 'submission';
-      case 'sweep':
-        return 'sweep';
-      case 'escape':
-        return 'escape';
-      case 'getUpAttempt':
-        return 'getUpAttempt';
-      case 'clinchStrike':
-        return 'clinchStrike';
-      case 'clinchTakedown':
-        return 'clinchTakedown';
-      case 'clinchExit':
-        return 'clinchExit';
-      default:
-        return 'groundPunch'; // fallback action
-    }
+    console.error(`Unknown position: ${position}`);
+    return 'wait';
   }
 };
 
@@ -1050,6 +996,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       outcome = doClinchTakedown(fighter, opponentFighter);
       timePassed = simulateTimePassing("clinchTakedown");
       break;
+    case "wait":
+      outcome = doWait (fighter, opponentFighter)
+      timePassed = simulateTimePassing("wait");
+      break;
     case "takedownAttempt":
       outcome = doTakedown(fighter, opponentFighter, staminaImpact);
       timePassed = simulateTimePassing("takedownAttempt");
@@ -1074,9 +1024,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       outcome = doGroundPunch(fighter, opponentFighter, staminaImpact);
       timePassed = simulateTimePassing("groundPunch");
       break;
-      case "submission":
-        [outcome, timePassed, submissionType] = doSubmission(fighter, opponentFighter);
-        break;
+    case "submission":
+      [outcome, timePassed, submissionType] = doSubmission(fighter, opponentFighter);
+      break;
     default:
       console.error(`Unknown action type: ${actionType}`);
       outcome = "unknownAction";
