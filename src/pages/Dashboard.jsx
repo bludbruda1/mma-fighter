@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   Container,
   Table,
@@ -165,7 +165,23 @@ const Dashboard = () => {
                 {fighter.recentFights && fighter.recentFights.length > 0 ? (
                   fighter.recentFights.map((fight, index) => (
                     <TableRow key={index}>
-                      <TableCell>{fight.opponent}</TableCell>
+                      <TableCell>
+                        <Link
+                          to={`/Dashboard/${fight.opponentId}`}
+                          style={{
+                            textDecoration: "none",
+                            color: "#0000EE",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.textDecoration = "underline";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.textDecoration = "none";
+                          }}
+                        >
+                          {fight.opponent}
+                        </Link>
+                      </TableCell>
                       <TableCell>{fight.result}</TableCell>
                     </TableRow>
                   ))
