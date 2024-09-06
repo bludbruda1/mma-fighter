@@ -138,30 +138,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 35,
-        "takedownTendency": 5,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 92,
+      "aggressiveness": 80,
+      "counterVsInitiator": 65,
+      "standupPreference": {
+        "boxing": 50,
+        "kickBoxing": 25,
+        "muayThai": 10,
+        "karate": 12,
+        "taekwondo": 3
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 70,
-        "getUpTendency": 20,
-        "submissionTendency": 10
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 30,
-        "getUpTendency": 60,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 30,
+        "judo": 20,
+        "bjj": 50
       }
     },
     "roundsWon": 0
@@ -305,30 +295,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 55,
-        "kickTendency": 25,
-        "takedownTendency": 5,
-        "clinchingTendency": 15
+      "strikingVsGrappling": 70,
+      "aggressiveness": 75,
+      "counterVsInitiator": 55,
+      "standupPreference": {
+        "boxing": 55,
+        "kickBoxing": 25,
+        "muayThai": 15,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 60,
-        "getUpTendency": 20,
-        "submissionTendency": 20
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 30,
-        "getUpTendency": 50,
-        "submissionTendency": 20
+      "grapplingPreference": {
+        "wrestling": 35,
+        "judo": 10,
+        "bjj": 55
       }
     },
     "roundsWon": 0
