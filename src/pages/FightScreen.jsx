@@ -221,7 +221,8 @@ const FightScreen = () => {
               wins: (fighter.wins || 0) + 1,
               recentFights: [
                 {
-                  opponent: loserFighter.name, // Update here
+                  opponentId: loserFighter.id,
+                  opponent: loserFighter.name,
                   result: `Win by ${result.method}`,
                 },
                 ...(fighter.recentFights || []).slice(0, 4),
@@ -233,7 +234,8 @@ const FightScreen = () => {
               losses: (fighter.losses || 0) + 1,
               recentFights: [
                 {
-                  opponent: winnerFighter.name, // Update here
+                  opponentId: winnerFighter.id,
+                  opponent: winnerFighter.name,
                   result: `Loss by ${result.method}`,
                 },
                 ...(fighter.recentFights || []).slice(0, 4),
