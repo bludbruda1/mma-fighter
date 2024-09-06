@@ -44,9 +44,12 @@ const actionTimes = {
   sweep: 6,
   escape: 6,
 
-
   // Combo actions
-  comboPunch: 1 // Additional time for each punch in a combo after the first
+  comboPunch: 1, // Additional time for each punch in a combo after the first
+
+  // Other actions
+  wait: 5, // fighter looking for an oppening
+
 };
 
 /**
