@@ -178,6 +178,9 @@ const Dashboard = () => {
                           onMouseLeave={(e) => {
                             e.currentTarget.style.textDecoration = "none";
                           }}
+                          onClick={() => {
+                            window.scrollTo(0, 0); // Scrolls to the top of the page
+                          }}
                         >
                           {fight.opponent}
                         </Link>
