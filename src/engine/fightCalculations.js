@@ -126,9 +126,9 @@ const calculateSubmissionProbability = (attacker, defender, submissionType) => {
 
   // Determine which calculation to use based on relative skill levels
   if (offensiveSkill > defensiveSkill) {
-    baseSuccessChance = calculateOffenseDominantSubmission(offensiveSkill, defensiveSkill, attackerStamina, defenderStamina);
+    baseSuccessChance = calculateOffenceDominantSubmission(offensiveSkill, defensiveSkill, attackerStamina, defenderStamina);
   } else if (defensiveSkill > offensiveSkill) {
-    baseSuccessChance = calculateDefenseDominantSubmission(offensiveSkill, defensiveSkill, attackerStamina, defenderStamina);
+    baseSuccessChance = calculateDefenceDominantSubmission(offensiveSkill, defensiveSkill, attackerStamina, defenderStamina);
   } else {
     baseSuccessChance = calculateEqualSkillSubmission(offensiveSkill, attackerStamina, defenderStamina);
   }
@@ -147,7 +147,7 @@ const calculateSubmissionProbability = (attacker, defender, submissionType) => {
   return { successChance, defenceChance, escapeChance };
 };
 
-const calculateOffenseDominantSubmission = (offensiveSkill, defensiveSkill, attackerStamina, defenderStamina) => {
+const calculateOffenceDominantSubmission = (offensiveSkill, defensiveSkill, attackerStamina, defenderStamina) => {
   const skillDifference = offensiveSkill - defensiveSkill;
   const staminaFactor = calculateStaminaFactor(attackerStamina, defenderStamina);
   
@@ -165,7 +165,7 @@ const calculateOffenseDominantSubmission = (offensiveSkill, defensiveSkill, atta
   return baseChance;
 };
 
-const calculateDefenseDominantSubmission = (offensiveSkill, defensiveSkill, attackerStamina, defenderStamina) => {
+const calculateDefenceDominantSubmission = (offensiveSkill, defensiveSkill, attackerStamina, defenderStamina) => {
   const skillDifference = defensiveSkill - offensiveSkill;
   const staminaFactor = calculateStaminaFactor(attackerStamina, defenderStamina);
   
@@ -214,6 +214,12 @@ const calculateStaminaFactor = (attackerStamina, defenderStamina) => {
   return staminaFactor;
 };
 
+/**
+ * Calculates the position advantage for ground fighting
+ * @param {string} attackerPosition - The attacker's current position
+ * @param {string} defenderPosition - The defender's current position
+ * @returns {number} The position advantage (0 to 1)
+ */
 const getPositionAdvantage = (attackerPosition, defenderPosition) => {
   const advantageousPositions = {
     [FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE]: 0.3,
@@ -226,6 +232,185 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
   return advantageousPositions[attackerPosition] || 0;
 };
 
+/**
+ * Determines the next action for a fighter in a standing position
+ * @param {Object} attacker - The fighter object
+ * @param {Object} defender - The opponent fighter object
+ * @returns {string} The determined action
+ */
+const determineStandingAction = (attacker, defender) => {
+  console.log("Entering determineStandingAction");
+  const strikingOffence = attacker.Rating.striking;
+  const strikingDefence = defender.Rating.strikingDefence;
+  const takedownOffence = attacker.Rating.takedownOffence;
+  const takedownDefence = defender.Rating.takedownDefence;
+  const attackerStamina = attacker.stamina / 100;
+  const strikingPreference = attacker.Tendency.strikingVsGrappling / 100;
+
+  console.log("Attacker stats:", {
+    strikingOffence,
+    takedownOffence,
+    attackerStamina,
+    strikingPreference,
+  });
+
+  // Calculate base chances
+  let strikeChance = (strikingOffence / (strikingOffence + strikingDefence)) * strikingPreference * attackerStamina;
+  let takedownChance = (takedownOffence / (takedownOffence + takedownDefence)) * (1 - strikingPreference) * attackerStamina;
+  let waitChance = 0.1 * (1 - attackerStamina); // More likely to wait when tired
+
+  // Normalize probabilities
+  const total = strikeChance + takedownChance + waitChance;
+  strikeChance /= total;
+  takedownChance /= total;
+  waitChance /= total;
+
+  console.log("Action probabilities:", {
+    strikeChance,
+    takedownChance,
+    waitChance
+  });
+
+  // Choose action based on probabilities
+  const random = Math.random();
+  console.log("Random value:", random);
+  if (random < strikeChance) {
+    console.log("Chose to strike");
+    return determineStrikeType(attacker);
+  } else if (random < strikeChance + takedownChance) {
+    console.log("Chose takedown attempt");
+    return 'takedownAttempt';
+  } else {
+    console.log("Chose to wait");
+    return 'wait';
+  }
+};
+
+/**
+ * Determines the next action for a fighter in a ground position
+ * @param {Object} attacker - The fighter object
+ * @param {Object} defender - The opponent fighter object
+ * @returns {string} The determined action
+ */
+const determineGroundAction = (attacker, defender) => {
+  const groundOffence = attacker.Rating.groundOffence;
+  const groundDefence = defender.Rating.groundDefence;
+  const submissionOffence = attacker.Rating.submissionOffence;
+  const submissionDefence = defender.Rating.submissionDefence;
+  const attackerStamina = attacker.stamina / 100;
+  const positionAdvantage = getPositionAdvantage(attacker.position, defender.position);
+
+  // Calculate base chances
+  let strikeChance = (groundOffence / (groundOffence + groundDefence)) * 0.4 * attackerStamina * (1 + positionAdvantage);
+  let submissionChance = (submissionOffence / (submissionOffence + submissionDefence)) * 0.3 * attackerStamina * (1 + positionAdvantage);
+  let positionChance = (groundOffence / (groundOffence + groundDefence)) * 0.2 * attackerStamina * (1 + positionAdvantage);
+  let standUpChance = 0.1 * (1 - positionAdvantage) * attackerStamina;
+
+  // Normalize probabilities
+  const total = strikeChance + submissionChance + positionChance + standUpChance;
+  strikeChance /= total;
+  submissionChance /= total;
+  positionChance /= total;
+  standUpChance /= total;
+
+  // Choose action based on probabilities
+  const random = Math.random();
+  if (random < strikeChance) {
+    return 'groundPunch';
+  } else if (random < strikeChance + submissionChance) {
+    return 'submission';
+  } else if (random < strikeChance + submissionChance + positionChance) {
+    return 'positionAdvance';
+  } else {
+    return 'getUpAttempt';
+  }
+};
+
+/**
+ * Determines the next action for a fighter in a clinch position
+ * @param {Object} attacker - The fighter object
+ * @param {Object} defender - The opponent fighter object
+ * @returns {string} The determined action
+ */
+const determineClinchAction = (attacker, defender) => {
+  const clinchOffence = attacker.Rating.clinchOffence;
+  const clinchDefence = defender.Rating.clinchDefence;
+  const takedownOffence = attacker.Rating.takedownOffence;
+  const takedownDefence = defender.Rating.takedownDefence;
+  const attackerStamina = attacker.stamina / 100;
+
+  // Calculate base chances
+  let strikeChance = (clinchOffence / (clinchOffence + clinchDefence)) * 0.4 * attackerStamina;
+  let takedownChance = (takedownOffence / (takedownOffence + takedownDefence)) * 0.4 * attackerStamina;
+  let breakChance = 0.2 * (1 - attackerStamina); // More likely to break when tired
+
+  // Normalize probabilities
+  const total = strikeChance + takedownChance + breakChance;
+  strikeChance /= total;
+  takedownChance /= total;
+  breakChance /= total;
+
+  // Choose action based on probabilities
+  const random = Math.random();
+  if (random < strikeChance) {
+    return 'clinchStrike';
+  } else if (random < strikeChance + takedownChance) {
+    return 'clinchTakedown';
+  } else {
+    return 'clinchExit';
+  }
+};
+
+ /**
+ * Determines the specific type of strike for a fighter
+ * @param {Object} fighter - The fighter object
+ * @returns {string} The specific strike type
+ */
+ const determineStrikeType = (fighter) => {
+  const stamina = fighter.stamina / 1000;
+  const boxing = fighter.Tendency.standupPreference.boxing;
+  const kickBoxing = fighter.Tendency.standupPreference.kickBoxing;
+  const muayThai = fighter.Tendency.standupPreference.muayThai;
+  const karate = fighter.Tendency.standupPreference.karate;
+  const taekwondo = fighter.Tendency.standupPreference.taekwondo;
+
+  const totalPreference = boxing + kickBoxing + muayThai + karate + taekwondo;
+  const punchPreference = (boxing + kickBoxing * 0.5 + muayThai * 0.3) / totalPreference;
+
+  // Determine if it's a punch or a kick
+  if (Math.random() < punchPreference * stamina) {
+    // It's a punch
+    const punchTypes = ['jab', 'cross', 'hook', 'uppercut', 'overhand', 'spinningBackfist', 'supermanPunch' ];
+    const punchWeights = [4, 3.5 , 3, 2.5, 2, 1.5, 1];
+    return weightedRandomChoice(punchTypes, punchWeights);
+  } else {
+    // It's a kick
+    const kickTypes = ['legKick', 'bodyKick', 'headKick'];
+    const kickWeights = [3, 2, 1];
+    return weightedRandomChoice(kickTypes, kickWeights);
+  }
+};
+
+/**
+ * Chooses a random item based on weights
+ * @param {string[]} items - Array of items
+ * @param {number[]} weights - Array of weights corresponding to items
+ * @returns {string} Chosen item
+ */
+const weightedRandomChoice = (items, weights) => {
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  let random = Math.random() * totalWeight;
+  
+  for (let i = 0; i < items.length; i++) {
+    if (random < weights[i]) {
+      return items[i];
+    }
+    random -= weights[i];
+  }
+  
+  return items[items.length - 1]; // Fallback to last item if something goes wrong
+};
+
   /**
    * Calculate stamina impact on action effectiveness
    * @param {number} stamina - Current stamina of the fighter
@@ -234,7 +419,9 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
   const calculateStaminaImpact = (stamina) => {
     return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
   };
-  
+
+ 
+
   /**
    * Calculate damage for a strike
    * @param {number} baseRating - Attacker's base rating
@@ -272,5 +459,8 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
     calculateProbabilities,
     calculateProbability,
     calculateStaminaImpact,
-    calculateSubmissionProbability
+    calculateSubmissionProbability,
+    determineStandingAction,
+    determineGroundAction,
+    determineClinchAction
   };
