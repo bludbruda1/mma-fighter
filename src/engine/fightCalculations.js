@@ -239,20 +239,12 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
  * @returns {string} The determined action
  */
 const determineStandingAction = (attacker, defender) => {
-  console.log("Entering determineStandingAction");
   const strikingOffence = attacker.Rating.striking;
   const strikingDefence = defender.Rating.strikingDefence;
   const takedownOffence = attacker.Rating.takedownOffence;
   const takedownDefence = defender.Rating.takedownDefence;
   const attackerStamina = attacker.stamina / 100;
   const strikingPreference = attacker.Tendency.strikingVsGrappling / 100;
-
-  console.log("Attacker stats:", {
-    strikingOffence,
-    takedownOffence,
-    attackerStamina,
-    strikingPreference,
-  });
 
   // Calculate base chances
   let strikeChance = (strikingOffence / (strikingOffence + strikingDefence)) * strikingPreference * attackerStamina;
@@ -265,23 +257,13 @@ const determineStandingAction = (attacker, defender) => {
   takedownChance /= total;
   waitChance /= total;
 
-  console.log("Action probabilities:", {
-    strikeChance,
-    takedownChance,
-    waitChance
-  });
-
   // Choose action based on probabilities
   const random = Math.random();
-  console.log("Random value:", random);
   if (random < strikeChance) {
-    console.log("Chose to strike");
     return determineStrikeType(attacker);
   } else if (random < strikeChance + takedownChance) {
-    console.log("Chose takedown attempt");
     return 'takedownAttempt';
   } else {
-    console.log("Chose to wait");
     return 'wait';
   }
 };

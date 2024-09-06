@@ -451,30 +451,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 25,
-        "takedownTendency": 10,
-        "clinchingTendency": 15
+      "strikingVsGrappling": 95,
+      "aggressiveness": 70,
+      "counterVsInitiator": 40,
+      "standupPreference": {
+        "boxing": 35,
+        "kickBoxing": 40,
+        "muayThai": 10,
+        "karate": 12,
+        "taekwondo": 3
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 70,
-        "getUpTendency": 25,
-        "submissionTendency": 5
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 75,
-        "submissionTendency": 5
+      "grapplingPreference": {
+        "wrestling": 60,
+        "judo": 10,
+        "bjj": 30
       }
     },
     "roundsWon": 0
@@ -617,30 +607,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 40,
-        "kickTendency": 30,
-        "takedownTendency": 15,
-        "clinchingTendency": 15
+      "strikingVsGrappling": 60,
+      "aggressiveness": 75,
+      "counterVsInitiator": 60,
+      "standupPreference": {
+        "boxing": 30,
+        "kickBoxing": 25,
+        "muayThai": 35,
+        "karate": 8,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 65,
-        "getUpTendency": 15,
-        "submissionTendency": 20
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 50,
+        "judo": 10,
+        "bjj": 40
       }
     },
     "roundsWon": 0
@@ -783,30 +763,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 40,
-        "takedownTendency": 2,
-        "clinchingTendency": 8
+      "strikingVsGrappling": 98,
+      "aggressiveness": 80,
+      "counterVsInitiator": 60,
+      "standupPreference": {
+        "boxing": 35,
+        "kickBoxing": 55,
+        "muayThai": 5,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 75,
-        "getUpTendency": 20,
-        "submissionTendency": 5
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 75,
-        "submissionTendency": 5
+      "grapplingPreference": {
+        "wrestling": 60,
+        "judo": 20,
+        "bjj": 20
       }
     },
     "roundsWon": 0
@@ -949,30 +919,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 30,
-        "takedownTendency": 5,
-        "clinchingTendency": 15
+      "strikingVsGrappling": 75,
+      "aggressiveness": 70,
+      "counterVsInitiator": 60,
+      "standupPreference": {
+        "boxing": 45,
+        "kickBoxing": 35,
+        "muayThai": 15,
+        "karate": 4,
+        "taekwondo": 1
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 70,
-        "getUpTendency": 20,
-        "submissionTendency": 10
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 50,
+        "judo": 10,
+        "bjj": 40
       }
     },
     "roundsWon": 0
@@ -1116,30 +1076,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 40,
-        "kickTendency": 20,
-        "takedownTendency": 30,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 30,
+      "aggressiveness": 75,
+      "counterVsInitiator": 60,
+      "standupPreference": {
+        "boxing": 40,
+        "kickBoxing": 30,
+        "muayThai": 25,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 50,
-        "getUpTendency": 10,
-        "submissionTendency": 40
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 70,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 65,
+        "judo": 5,
+        "bjj": 30
       }
     },
     "roundsWon": 0
@@ -1283,30 +1233,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 45,
-        "kickTendency": 25,
-        "takedownTendency": 20,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 45,
+      "aggressiveness": 75,
+      "counterVsInitiator": 55,
+      "standupPreference": {
+        "boxing": 45,
+        "kickBoxing": 35,
+        "muayThai": 15,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 60,
-        "getUpTendency": 15,
-        "submissionTendency": 25
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 65,
+        "judo": 5,
+        "bjj": 30
       }
     },
     "roundsWon": 0
@@ -1450,30 +1390,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 25,
-        "takedownTendency": 15,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 55,
+      "aggressiveness": 85,
+      "counterVsInitiator": 45,
+      "standupPreference": {
+        "boxing": 50,
+        "kickBoxing": 25,
+        "muayThai": 20,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 40,
-        "getUpTendency": 10,
-        "submissionTendency": 50
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 60,
-        "submissionTendency": 20
+      "grapplingPreference": {
+        "wrestling": 25,
+        "judo": 5,
+        "bjj": 70
       }
     },
     "roundsWon": 0
@@ -1617,30 +1547,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 60,
-        "kickTendency": 30,
-        "takedownTendency": 2,
-        "clinchingTendency": 8
+      "strikingVsGrappling": 90,
+      "aggressiveness": 90,
+      "counterVsInitiator": 40,
+      "standupPreference": {
+        "boxing": 45,
+        "kickBoxing": 40,
+        "muayThai": 10,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 80,
-        "getUpTendency": 15,
-        "submissionTendency": 5
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 75,
-        "submissionTendency": 5
+      "grapplingPreference": {
+        "wrestling": 75,
+        "judo": 5,
+        "bjj": 20
       }
     },
     "roundsWon": 0
@@ -1784,30 +1704,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 45,
-        "kickTendency": 20,
-        "takedownTendency": 25,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 40,
+      "aggressiveness": 75,
+      "counterVsInitiator": 50,
+      "standupPreference": {
+        "boxing": 50,
+        "kickBoxing": 35,
+        "muayThai": 10,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 55,
-        "getUpTendency": 15,
-        "submissionTendency": 30
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 60,
+        "judo": 10,
+        "bjj": 30
       }
     },
     "roundsWon": 0
@@ -1951,30 +1861,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 55,
-        "kickTendency": 20,
-        "takedownTendency": 20,
-        "clinchingTendency": 5
+      "strikingVsGrappling": 60,
+      "aggressiveness": 85,
+      "counterVsInitiator": 40,
+      "standupPreference": {
+        "boxing": 60,
+        "kickBoxing": 30,
+        "muayThai": 5,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 70,
-        "getUpTendency": 20,
-        "submissionTendency": 10
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 30,
-        "getUpTendency": 60,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 75,
+        "judo": 5,
+        "bjj": 20
       }
     },
     "roundsWon": 0
@@ -2118,30 +2018,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 20,
-        "takedownTendency": 20,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 50,
+      "aggressiveness": 70,
+      "counterVsInitiator": 55,
+      "standupPreference": {
+        "boxing": 45,
+        "kickBoxing": 35,
+        "muayThai": 15,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 50,
-        "getUpTendency": 10,
-        "submissionTendency": 40
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 40,
+        "judo": 10,
+        "bjj": 50
       }
     },
     "roundsWon": 0
@@ -2285,30 +2175,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 40,
-        "takedownTendency": 2,
-        "clinchingTendency": 8
+      "strikingVsGrappling": 90,
+      "aggressiveness": 80,
+      "counterVsInitiator": 60,
+      "standupPreference": {
+        "boxing": 30,
+        "kickBoxing": 40,
+        "muayThai": 25,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 75,
-        "getUpTendency": 20,
-        "submissionTendency": 5
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 75,
-        "submissionTendency": 5
+      "grapplingPreference": {
+        "wrestling": 40,
+        "judo": 10,
+        "bjj": 50
       }
     },
     "roundsWon": 0
@@ -2452,30 +2332,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 65,
-        "kickTendency": 25,
-        "takedownTendency": 2,
-        "clinchingTendency": 8
+      "strikingVsGrappling": 95,
+      "aggressiveness": 85,
+      "counterVsInitiator": 50,
+      "standupPreference": {
+        "boxing": 70,
+        "kickBoxing": 20,
+        "muayThai": 7,
+        "karate": 2,
+        "taekwondo": 1
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 80,
-        "getUpTendency": 15,
-        "submissionTendency": 5
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 75,
-        "submissionTendency": 5
+      "grapplingPreference": {
+        "wrestling": 40,
+        "judo": 10,
+        "bjj": 50
       }
     },
     "roundsWon": 0
@@ -2619,30 +2489,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 50,
-        "kickTendency": 25,
-        "takedownTendency": 15,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 60,
+      "aggressiveness": 65,
+      "counterVsInitiator": 60,
+      "standupPreference": {
+        "boxing": 55,
+        "kickBoxing": 30,
+        "muayThai": 10,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 45,
-        "getUpTendency": 15,
-        "submissionTendency": 40
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 30,
+        "judo": 10,
+        "bjj": 60
       }
     },
     "roundsWon": 0
@@ -2786,30 +2646,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 55,
-        "kickTendency": 35,
-        "takedownTendency": 2,
-        "clinchingTendency": 8
+      "strikingVsGrappling": 80,
+      "aggressiveness": 75,
+      "counterVsInitiator": 55,
+      "standupPreference": {
+        "boxing": 45,
+        "kickBoxing": 30,
+        "muayThai": 20,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 70,
-        "getUpTendency": 20,
-        "submissionTendency": 10
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 70,
-        "submissionTendency": 5
+      "grapplingPreference": {
+        "wrestling": 35,
+        "judo": 15,
+        "bjj": 50
       }
     },
     "roundsWon": 0
@@ -2953,30 +2803,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 45,
-        "kickTendency": 30,
-        "takedownTendency": 15,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 55,
+      "aggressiveness": 85,
+      "counterVsInitiator": 40,
+      "standupPreference": {
+        "boxing": 40,
+        "kickBoxing": 30,
+        "muayThai": 25,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 50,
-        "getUpTendency": 10,
-        "submissionTendency": 40
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 60,
-        "submissionTendency": 15
+      "grapplingPreference": {
+        "wrestling": 35,
+        "judo": 15,
+        "bjj": 50
       }
     },
     "roundsWon": 0
@@ -3120,32 +2960,23 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 55,
-        "kickTendency": 30,
-        "takedownTendency": 5,
-        "clinchingTendency": 10
+      "strikingVsGrappling": 70,
+      "aggressiveness": 75,
+      "counterVsInitiator": 55,
+      "standupPreference": {
+        "boxing": 50,
+        "kickBoxing": 35,
+        "muayThai": 10,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 60,
-        "getUpTendency": 15,
-        "submissionTendency": 25
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 25,
-        "getUpTendency": 65,
-        "submissionTendency": 10
+      "grapplingPreference": {
+        "wrestling": 30,
+        "judo": 10,
+        "bjj": 60
       }
-    },
+    }
+,
     "roundsWon": 0
   },
   {
@@ -3287,30 +3118,20 @@
       "submissionsDefended": 0
     },
     "Tendency": {
-      "standingTendency": {
-        "punchTendency": 0,
-        "kickTendency": 0,
-        "takedownTendency": 100,
-        "clinchingTendency": 0
+      "strikingVsGrappling": 45,
+      "aggressiveness": 80,
+      "counterVsInitiator": 45,
+      "standupPreference": {
+        "boxing": 55,
+        "kickBoxing": 30,
+        "muayThai": 10,
+        "karate": 3,
+        "taekwondo": 2
       },
-      "clinchTendency": {
-        "takedownTendency": 60,
-        "strikeTendency": 40
-      },
-      "clinchDefenceTendency": {
-        "strikeTendency": 30,
-        "takedownTendency": 30,
-        "exitTendency": 40
-      },
-      "groundOffenceTendency": {
-        "punchTendency": 0,
-        "getUpTendency": 0,
-        "submissionTendency": 100
-      },
-      "groundDefenceTendency": {
-        "punchTendency": 20,
-        "getUpTendency": 60,
-        "submissionTendency": 20
+      "grapplingPreference": {
+        "wrestling": 35,
+        "judo": 15,
+        "bjj": 50
       }
     },
     "roundsWon": 0
