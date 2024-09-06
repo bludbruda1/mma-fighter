@@ -148,8 +148,12 @@ const Home = () => {
                 "&:hover": {
                   backgroundColor: "rgba(255, 0, 0, 0.6)", // Darker on hover
                 },
+                "&:disabled": {
+                  backgroundColor: "rgba(255, 0, 0, 0.3)", // Lighter red when disabled
+                  color: "#fff", // Keep text color white
+                },
               }}
-              disabled={loading}
+              disabled={loading} // Disable button during loading state
             >
               {loading ? (
                 <CircularProgress size={24} color="inherit" />
