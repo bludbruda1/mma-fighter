@@ -79,15 +79,15 @@ const FightScreen = () => {
           id: fighter.personid,
           name: `${fighter.firstname} ${fighter.lastname}`,
           health: {
-            head: Number(fighter.maxHealth) || 1000,
-            body: Number(fighter.maxHealth) || 1000,
-            legs: Number(fighter.maxHealth) || 1000,
+            head: Number(fighter.maxHealth.head) || 1000,
+            body: Number(fighter.maxHealth.body) || 1000,
+            legs: Number(fighter.maxHealth.legs) || 1000,
           },
           maxHealth: {
-            head: Number(fighter.maxHealth) || 1000,
-            body: Number(fighter.maxHealth) || 1000,
-            legs: Number(fighter.maxHealth) || 1000,
-          },
+            head: Number(fighter.maxHealth.head) || 1000,
+            body: Number(fighter.maxHealth.body) || 1000,
+            legs: Number(fighter.maxHealth.legs) || 1000,
+          },      
           stamina: Number(fighter.stamina) || 1000,
           position: FIGHTER_POSITIONS.STANDING,
           roundsWon: 0,
@@ -127,32 +127,22 @@ const FightScreen = () => {
             fightIQ: Number(fighter.Rating.fightIQ) || 0
           },
           stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
-          Tendency: fighter.Tendency || {
-            standingTendency: {
-              punchTendency: 25,
-              kickTendency: 25,
-              clinchingTendency: 25,
-              takedownTendency: 25,
-            },
-            clinchTendency: {
-              takedownTendency: 50,
-              strikeTendency: 50,
-            },
-            clinchDefenceTendency: {
-              takedownTendency: 20,
-              strikeTendency: 20,
-              exitClinch: 60,
-            },
-            groundOffenceTendency: {
-              punchTendency: 50,
-              submissionTendency: 25,
-              getUpTendency: 25,
-            },
-            groundDefenceTendency: {
-              punchTendency: 25,
-              submissionTendency: 25,
-              getUpTendency: 50,
-            },
+          Tendency: {
+              strikingVsGrappling: Number(fighter.Tendency.strikingVsGrappling) || 0,
+              aggressiveness: Number(fighter.Tendency.aggressiveness) || 0,
+              counterVsInitiator: Number(fighter.Tendency.counterVsInitiator) || 0,
+              standupPreference: {
+                boxing: Number(fighter.Tendency.standupPreference.boxing) || 0,
+                kickBoxing: Number(fighter.Tendency.standupPreference.kickBoxing) || 0,
+                muayThai: Number(fighter.Tendency.standupPreference.muayThai) || 0,
+                karate: Number(fighter.Tendency.standupPreference.karate) || 0,
+                taekwondo: Number(fighter.Tendency.standupPreference.taekwondo) || 0, // Fixed typo: was 'karate'
+              },
+              grapplingPreference: {
+                wrestling: Number(fighter.Tendency.grapplingPreference.wrestling) || 0,
+                judo: Number(fighter.Tendency.grapplingPreference.judo) || 0,
+                bjj: Number(fighter.Tendency.grapplingPreference.bjj) || 0,
+              },
           },
         };
       };
