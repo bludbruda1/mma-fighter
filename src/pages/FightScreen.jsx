@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import Select from "../components/Select";
 import StatBar from "../components/StatBar";
+import Tab from "../components/Tab";
 import { simulateFight, FIGHTER_POSITIONS } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
 import {
@@ -89,7 +90,7 @@ const FightScreen = () => {
             head: Number(fighter.maxHealth.head) || 1000,
             body: Number(fighter.maxHealth.body) || 1000,
             legs: Number(fighter.maxHealth.legs) || 1000,
-          },      
+          },
           stamina: Number(fighter.stamina) || 1000,
           position: FIGHTER_POSITIONS.STANDING,
           roundsWon: 0,
@@ -126,25 +127,31 @@ const FightScreen = () => {
             submissionDefence: Number(fighter.Rating.submissionDefence) || 0,
             getUpAbility: Number(fighter.Rating.getUpAbility) || 0,
             composure: Number(fighter.Rating.composure) || 0,
-            fightIQ: Number(fighter.Rating.fightIQ) || 0
+            fightIQ: Number(fighter.Rating.fightIQ) || 0,
           },
           stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
           Tendency: {
-              strikingVsGrappling: Number(fighter.Tendency.strikingVsGrappling) || 0,
-              aggressiveness: Number(fighter.Tendency.aggressiveness) || 0,
-              counterVsInitiator: Number(fighter.Tendency.counterVsInitiator) || 0,
-              standupPreference: {
-                boxing: Number(fighter.Tendency.standupPreference.boxing) || 0,
-                kickBoxing: Number(fighter.Tendency.standupPreference.kickBoxing) || 0,
-                muayThai: Number(fighter.Tendency.standupPreference.muayThai) || 0,
-                karate: Number(fighter.Tendency.standupPreference.karate) || 0,
-                taekwondo: Number(fighter.Tendency.standupPreference.taekwondo) || 0, // Fixed typo: was 'karate'
-              },
-              grapplingPreference: {
-                wrestling: Number(fighter.Tendency.grapplingPreference.wrestling) || 0,
-                judo: Number(fighter.Tendency.grapplingPreference.judo) || 0,
-                bjj: Number(fighter.Tendency.grapplingPreference.bjj) || 0,
-              },
+            strikingVsGrappling:
+              Number(fighter.Tendency.strikingVsGrappling) || 0,
+            aggressiveness: Number(fighter.Tendency.aggressiveness) || 0,
+            counterVsInitiator:
+              Number(fighter.Tendency.counterVsInitiator) || 0,
+            standupPreference: {
+              boxing: Number(fighter.Tendency.standupPreference.boxing) || 0,
+              kickBoxing:
+                Number(fighter.Tendency.standupPreference.kickBoxing) || 0,
+              muayThai:
+                Number(fighter.Tendency.standupPreference.muayThai) || 0,
+              karate: Number(fighter.Tendency.standupPreference.karate) || 0,
+              taekwondo:
+                Number(fighter.Tendency.standupPreference.taekwondo) || 0, // Fixed typo: was 'karate'
+            },
+            grapplingPreference: {
+              wrestling:
+                Number(fighter.Tendency.grapplingPreference.wrestling) || 0,
+              judo: Number(fighter.Tendency.grapplingPreference.judo) || 0,
+              bjj: Number(fighter.Tendency.grapplingPreference.bjj) || 0,
+            },
           },
         };
       };
@@ -253,9 +260,9 @@ const FightScreen = () => {
             setFightEvents(fightEvents);
             setWinnerMessage(
               `${result.winnerName} defeats ${result.loserName} by ${
-                result.method === 'submission' 
-                ? `${result.method} (${result.submissionType})` 
-                : result.method
+                result.method === "submission"
+                  ? `${result.method} (${result.submissionType})`
+                  : result.method
               } in round ${result.roundEnded}!`
             );
           })
@@ -283,6 +290,64 @@ const FightScreen = () => {
   const handleStatsDialogClose = () => {
     setDialogStatsOpen(false);
   };
+
+  // Handling the tabs in the fight stats
+  const tabs = fightStats
+    ? [
+        {
+          label: "All",
+          content: (
+            <>
+              <StatBar
+                redValue={fightStats.totalStrikes.red}
+                blueValue={fightStats.totalStrikes.blue}
+                title="Total Strikes"
+              />
+              <StatBar
+                redValue={fightStats.takedowns.red}
+                blueValue={fightStats.takedowns.blue}
+                title="Takedowns"
+              />
+              <StatBar
+                redValue={fightStats.submissionAttempts.red}
+                blueValue={fightStats.submissionAttempts.blue}
+                title="Submission Attempts"
+              />
+            </>
+          ),
+        },
+        {
+          label: "Total Strikes",
+          content: (
+            <StatBar
+              redValue={fightStats.totalStrikes.red}
+              blueValue={fightStats.totalStrikes.blue}
+              title="Total Strikes"
+            />
+          ),
+        },
+        {
+          label: "Takedowns",
+          content: (
+            <StatBar
+              redValue={fightStats.takedowns.red}
+              blueValue={fightStats.takedowns.blue}
+              title="Takedowns"
+            />
+          ),
+        },
+        {
+          label: "Submission Attempts",
+          content: (
+            <StatBar
+              redValue={fightStats.submissionAttempts.red}
+              blueValue={fightStats.submissionAttempts.blue}
+              title="Submission Attempts"
+            />
+          ),
+        },
+      ]
+    : [];
 
   return (
     <>
@@ -414,62 +479,87 @@ const FightScreen = () => {
           {fightStats && (
             <Grid
               container
-              spacing={3}
+              spacing={6}
               alignItems="center"
               style={{ marginTop: "20px" }}
             >
-              <Grid item xs={12} md={4}>
+              <Grid
+                item
+                xs={12}
+                md={3}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 <Typography
                   variant="h5"
                   align="center"
                   gutterBottom
-                  sx={{ marginBottom: "40px" }}
+                  sx={{ marginBottom: "20px" }} // Adjusted margin
                 >
                   {selectedItem1.firstname} {selectedItem1.lastname}
                 </Typography>
+
                 <Card style={{ border: "none", boxShadow: "none" }}>
                   <CardMedia
                     component="img"
                     style={{ objectFit: "contain" }}
-                    height="280"
+                    height="250"
                     image={selectedItem1.image}
+                    sx={{ marginBottom: "20px" }} // Adjusted margin
                   />
                 </Card>
+
+                <Typography
+                  variant="h7"
+                  align="center"
+                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
+                >
+                  {selectedItem1.nationality}
+                </Typography>
               </Grid>
-              <Grid item xs={12} md={4}>
-                <StatBar
-                  redValue={fightStats.totalStrikes.red}
-                  blueValue={fightStats.totalStrikes.blue}
-                  title="Total Strikes"
-                />
-                <StatBar
-                  redValue={fightStats.takedowns.red}
-                  blueValue={fightStats.takedowns.blue}
-                  title="Takedowns"
-                />
-                <StatBar
-                  redValue={fightStats.submissionAttempts.red}
-                  blueValue={fightStats.submissionAttempts.blue}
-                  title="Submission Attempts"
-                />
+
+              <Grid item xs={12} md={6}>
+                <Tab tabs={tabs} />
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid
+                item
+                xs={12}
+                md={3}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 <Typography
                   variant="h5"
                   align="center"
                   gutterBottom
-                  sx={{ marginBottom: "40px" }}
+                  sx={{ marginBottom: "20px" }} // Adjusted margin
                 >
                   {selectedItem2.firstname} {selectedItem2.lastname}
                 </Typography>
+
                 <Card style={{ border: "none", boxShadow: "none" }}>
                   <CardMedia
                     component="img"
                     style={{ objectFit: "contain" }}
-                    height="280"
+                    height="250"
                     image={selectedItem2.image}
+                    sx={{ marginBottom: "20px" }} // Adjusted margin
                   />
                 </Card>
+
+                <Typography
+                  variant="h7"
+                  align="center"
+                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
+                >
+                  {selectedItem2.nationality}
+                </Typography>
               </Grid>
             </Grid>
           )}
