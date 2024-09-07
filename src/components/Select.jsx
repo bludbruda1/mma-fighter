@@ -51,9 +51,6 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
               />
               <CardContent>
                 <Typography variant="body2">
-                  ID: {selectedItem.personid}
-                </Typography>
-                <Typography variant="body2">
                   Name: {selectedItem.firstname} {selectedItem.lastname}
                 </Typography>
                 <Typography variant="body2">

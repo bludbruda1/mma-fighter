@@ -38,7 +38,6 @@ const Roster = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Weight Class</TableCell>
               <TableCell>Nationality</TableCell>
@@ -61,7 +60,6 @@ const Roster = () => {
                   e.currentTarget.style.backgroundColor = "transparent";
                 }}
               >
-                <TableCell>{fighter.personid}</TableCell>
                 <TableCell>
                   <Link
                     to={`/dashboard/${fighter.personid}`}
