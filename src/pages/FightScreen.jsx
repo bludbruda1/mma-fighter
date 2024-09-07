@@ -349,6 +349,130 @@ const FightScreen = () => {
       ]
     : [];
 
+  const fightSummaryTabs = fightEvents
+    ? [
+        {
+          label: "Fight Statistics",
+          content: (
+            <>
+              {fightStats && (
+                <Grid
+                  container
+                  spacing={6}
+                  alignItems="center"
+                  justifyContent="center"
+                  style={{ marginTop: "20px" }}
+                >
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      align="center"
+                      gutterBottom
+                      sx={{ marginBottom: "20px", fontWeight: "bold" }}
+                    >
+                      {selectedItem1.firstname} {selectedItem1.lastname}
+                    </Typography>
+
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={selectedItem1.image}
+                        sx={{ marginBottom: "20px" }}
+                      />
+                    </Card>
+
+                    <Typography
+                      variant="h7"
+                      align="center"
+                      sx={{ marginTop: "10px", fontWeight: "bold" }}
+                    >
+                      {selectedItem1.nationality}
+                    </Typography>
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tab tabs={tabs} />
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      align="center"
+                      gutterBottom
+                      sx={{ marginBottom: "20px", fontWeight: "bold" }}
+                    >
+                      {selectedItem2.firstname} {selectedItem2.lastname}
+                    </Typography>
+
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={selectedItem2.image}
+                        sx={{ marginBottom: "20px" }}
+                      />
+                    </Card>
+
+                    <Typography
+                      variant="h7"
+                      align="center"
+                      sx={{ marginTop: "10px", fontWeight: "bold" }}
+                    >
+                      {selectedItem2.nationality}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </>
+          ),
+        },
+        {
+          label: "Fight Summary",
+          content: (
+            <>
+              <List>
+                {fightEvents.map((event, index) => (
+                  <ListItem key={index}>
+                    <ListItemText primary={event} />
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          ),
+        },
+      ]
+    : [];
+
   return (
     <>
       <main>
@@ -451,16 +575,15 @@ const FightScreen = () => {
           </Container>
         </div>
       </main>
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        fullWidth={true}
+        maxWidth="lg"
+      >
         <DialogTitle>Fight Summary</DialogTitle>
         <DialogContent>
-          <List>
-            {fightEvents.map((event, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={event} />
-              </ListItem>
-            ))}
-          </List>
+          <Tab tabs={fightSummaryTabs} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
