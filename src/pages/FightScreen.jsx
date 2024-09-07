@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import Select from "../components/Select";
 import StatBar from "../components/StatBar";
-import { simulateFight } from "../engine/FightSim";
+import { simulateFight, FIGHTER_POSITIONS } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
 import {
   calculateFightStats,
@@ -79,72 +79,70 @@ const FightScreen = () => {
           id: fighter.personid,
           name: `${fighter.firstname} ${fighter.lastname}`,
           health: {
-            head: Number(fighter.maxHealth) || 1000,
-            body: Number(fighter.maxHealth) || 1000,
-            legs: Number(fighter.maxHealth) || 1000,
+            head: Number(fighter.maxHealth.head) || 1000,
+            body: Number(fighter.maxHealth.body) || 1000,
+            legs: Number(fighter.maxHealth.legs) || 1000,
           },
           maxHealth: {
-            head: Number(fighter.maxHealth) || 1000,
-            body: Number(fighter.maxHealth) || 1000,
-            legs: Number(fighter.maxHealth) || 1000,
-          },
+            head: Number(fighter.maxHealth.head) || 1000,
+            body: Number(fighter.maxHealth.body) || 1000,
+            legs: Number(fighter.maxHealth.legs) || 1000,
+          },      
           stamina: Number(fighter.stamina) || 1000,
-          isStanding: true,
-          isClinchedOffence: false,
-          isClinchedDefence: false,
-          isGroundOffence: false,
-          isGroundDefence: false,
+          position: FIGHTER_POSITIONS.STANDING,
           roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
+            strength: Number(fighter.Rating.strength) || 0,
+            speed: Number(fighter.Rating.speed) || 0,
+            cardio: Number(fighter.Rating.cardio) || 0,
+            toughness: Number(fighter.Rating.toughness) || 0,
             striking: Number(fighter.Rating.striking) || 0,
+            punchPower: Number(fighter.Rating.punchPower) || 0,
             handSpeed: Number(fighter.Rating.handSpeed) || 0,
-            headMovement: Number(fighter.Rating.headMovement) || 0,
             punchAccuracy: Number(fighter.Rating.punchAccuracy) || 0,
             kicking: Number(fighter.Rating.kicking) || 0,
+            kickPower: Number(fighter.Rating.kickPower) || 0,
             kickSpeed: Number(fighter.Rating.kickSpeed) || 0,
-            footwork: Number(fighter.Rating.footwork) || 0,
             kickAccuracy: Number(fighter.Rating.kickAccuracy) || 0,
-            kickDefence: Number(fighter.Rating.kickDefence) || 0,
             strikingDefence: Number(fighter.Rating.strikingDefence) || 0,
+            kickDefence: Number(fighter.Rating.kickDefence) || 0,
+            headMovement: Number(fighter.Rating.headMovement) || 0,
+            footwork: Number(fighter.Rating.footwork) || 0,
+            takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
+            takedownDefence: Number(fighter.Rating.takedownDefence) || 0,
+            clinchOffence: Number(fighter.Rating.clinchOffence) || 0,
+            clinchDefence: Number(fighter.Rating.clinchDefence) || 0,
             clinchStriking: Number(fighter.Rating.clinchStriking) || 0,
             clinchGrappling: Number(fighter.Rating.clinchGrappling) || 0,
             clinchControl: Number(fighter.Rating.clinchControl) || 0,
-            takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
-            takedownDefence: Number(fighter.Rating.takedownDefence) || 0,
-            submissionOffence: Number(fighter.Rating.submissionOffence) || 0,
-            submissionDefence: Number(fighter.Rating.submissionDefence) || 0,
             groundOffence: Number(fighter.Rating.groundOffence) || 0,
             groundDefence: Number(fighter.Rating.groundDefence) || 0,
+            groundControl: Number(fighter.Rating.groundControl) || 0,
+            groundStriking: Number(fighter.Rating.groundStriking) || 0,
+            submissionOffence: Number(fighter.Rating.submissionOffence) || 0,
+            submissionDefence: Number(fighter.Rating.submissionDefence) || 0,
             getUpAbility: Number(fighter.Rating.getUpAbility) || 0,
+            composure: Number(fighter.Rating.composure) || 0,
+            fightIQ: Number(fighter.Rating.fightIQ) || 0
           },
           stats: {}, // Initialize empty stats object, will be filled by simulateFight if needed
-          Tendency: fighter.Tendency || {
-            standingTendency: {
-              punchTendency: 25,
-              kickTendency: 25,
-              clinchingTendency: 25,
-              takedownTendency: 25,
-            },
-            clinchTendency: {
-              takedownTendency: 50,
-              strikeTendency: 50,
-            },
-            clinchDefenceTendency: {
-              takedownTendency: 20,
-              strikeTendency: 20,
-              exitClinch: 60,
-            },
-            groundOffenceTendency: {
-              punchTendency: 50,
-              submissionTendency: 25,
-              getUpTendency: 25,
-            },
-            groundDefenceTendency: {
-              punchTendency: 25,
-              submissionTendency: 25,
-              getUpTendency: 50,
-            },
+          Tendency: {
+              strikingVsGrappling: Number(fighter.Tendency.strikingVsGrappling) || 0,
+              aggressiveness: Number(fighter.Tendency.aggressiveness) || 0,
+              counterVsInitiator: Number(fighter.Tendency.counterVsInitiator) || 0,
+              standupPreference: {
+                boxing: Number(fighter.Tendency.standupPreference.boxing) || 0,
+                kickBoxing: Number(fighter.Tendency.standupPreference.kickBoxing) || 0,
+                muayThai: Number(fighter.Tendency.standupPreference.muayThai) || 0,
+                karate: Number(fighter.Tendency.standupPreference.karate) || 0,
+                taekwondo: Number(fighter.Tendency.standupPreference.taekwondo) || 0, // Fixed typo: was 'karate'
+              },
+              grapplingPreference: {
+                wrestling: Number(fighter.Tendency.grapplingPreference.wrestling) || 0,
+                judo: Number(fighter.Tendency.grapplingPreference.judo) || 0,
+                bjj: Number(fighter.Tendency.grapplingPreference.bjj) || 0,
+              },
           },
         };
       };
@@ -252,7 +250,11 @@ const FightScreen = () => {
             setFighters(updatedFighters);
             setFightEvents(fightEvents);
             setWinnerMessage(
-              `${result.winnerName} defeats ${result.loserName} by ${result.method} in round ${result.roundEnded}!`
+              `${result.winnerName} defeats ${result.loserName} by ${
+                result.method === 'submission' 
+                ? `${result.method} (${result.submissionType})` 
+                : result.method
+              } in round ${result.roundEnded}!`
             );
           })
           .catch((error) => console.error("Error updating fighters:", error));

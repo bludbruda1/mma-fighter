@@ -215,16 +215,28 @@ const Dashboard = () => {
               <TableBody>
                 {[
                   "output",
+                  "strength",
+                  "speed",
+                  "cardio",
+                  "toughness",
                   "striking",
+                  "punchPower",
                   "kicking",
+                  "kickPower",
                   "strikingDefence",
                   "kickDefence",
                   "takedownOffence",
                   "takedownDefence",
+                  "clinchOffence",
+                  "clinchDefence",
+                  "clinchControl",
                   "groundOffence",
                   "groundDefence",
+                  "groundControl",
                   "submissionOffence",
                   "submissionDefence",
+                  "getUpAbility",
+                  "fightIQ"
                 ].map((attr) => (
                   <TableRow key={attr}>
                     <TableCell>{formatAttributeName(attr)}</TableCell>
