@@ -497,7 +497,7 @@ const FightScreen = () => {
                   variant="h5"
                   align="center"
                   gutterBottom
-                  sx={{ marginBottom: "20px" }} // Adjusted margin
+                  sx={{ marginBottom: "20px", fontWeight: "bold" }} // Adjusted margin
                 >
                   {selectedItem1.firstname} {selectedItem1.lastname}
                 </Typography>
@@ -515,7 +515,7 @@ const FightScreen = () => {
                 <Typography
                   variant="h7"
                   align="center"
-                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
+                  sx={{ marginTop: "10px", fontWeight: "bold" }} // Adjusted margin for closer alignment to the card
                 >
                   {selectedItem1.nationality}
                 </Typography>
@@ -538,7 +538,7 @@ const FightScreen = () => {
                   variant="h5"
                   align="center"
                   gutterBottom
-                  sx={{ marginBottom: "20px" }} // Adjusted margin
+                  sx={{ marginBottom: "20px", fontWeight: "bold" }} // Adjusted margin
                 >
                   {selectedItem2.firstname} {selectedItem2.lastname}
                 </Typography>
@@ -556,7 +556,7 @@ const FightScreen = () => {
                 <Typography
                   variant="h7"
                   align="center"
-                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
+                  sx={{ marginTop: "10px", fontWeight: "bold" }} // Adjusted margin for closer alignment to the card
                 >
                   {selectedItem2.nationality}
                 </Typography>
