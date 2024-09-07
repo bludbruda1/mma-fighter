@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../App.css";
 import {
   Button,
+  Card,
+  CardMedia,
   Container,
   Grid,
   Typography,
@@ -405,28 +407,71 @@ const FightScreen = () => {
         open={dialogStatsOpen}
         onClose={handleStatsDialogClose}
         fullWidth={true}
-        maxWidth="md"
+        maxWidth="lg"
       >
         <DialogTitle>Fight Statistics</DialogTitle>
         <DialogContent>
           {fightStats && (
-            <div style={{ marginTop: "20px" }}>
-              <StatBar
-                redValue={fightStats.totalStrikes.red}
-                blueValue={fightStats.totalStrikes.blue}
-                title="Total Strikes"
-              />
-              <StatBar
-                redValue={fightStats.takedowns.red}
-                blueValue={fightStats.takedowns.blue}
-                title="Takedowns"
-              />
-              <StatBar
-                redValue={fightStats.submissionAttempts.red}
-                blueValue={fightStats.submissionAttempts.blue}
-                title="Submission Attempts"
-              />
-            </div>
+            <Grid
+              container
+              spacing={3}
+              alignItems="center"
+              style={{ marginTop: "20px" }}
+            >
+              <Grid item xs={12} md={4}>
+                <Typography
+                  variant="h5"
+                  align="center"
+                  gutterBottom
+                  sx={{ marginBottom: "40px" }}
+                >
+                  {selectedItem1.firstname} {selectedItem1.lastname}
+                </Typography>
+                <Card style={{ border: "none", boxShadow: "none" }}>
+                  <CardMedia
+                    component="img"
+                    style={{ objectFit: "contain" }}
+                    height="280"
+                    image={selectedItem1.image}
+                  />
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <StatBar
+                  redValue={fightStats.totalStrikes.red}
+                  blueValue={fightStats.totalStrikes.blue}
+                  title="Total Strikes"
+                />
+                <StatBar
+                  redValue={fightStats.takedowns.red}
+                  blueValue={fightStats.takedowns.blue}
+                  title="Takedowns"
+                />
+                <StatBar
+                  redValue={fightStats.submissionAttempts.red}
+                  blueValue={fightStats.submissionAttempts.blue}
+                  title="Submission Attempts"
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography
+                  variant="h5"
+                  align="center"
+                  gutterBottom
+                  sx={{ marginBottom: "40px" }}
+                >
+                  {selectedItem2.firstname} {selectedItem2.lastname}
+                </Typography>
+                <Card style={{ border: "none", boxShadow: "none" }}>
+                  <CardMedia
+                    component="img"
+                    style={{ objectFit: "contain" }}
+                    height="280"
+                    image={selectedItem2.image}
+                  />
+                </Card>
+              </Grid>
+            </Grid>
           )}
         </DialogContent>
         <DialogActions>

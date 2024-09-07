@@ -20,7 +20,6 @@ export default function FighterCard() {
                     alt="fighter 1"
                   />
                   <CardContent>
-                    <Typography variant="body2">ID: {info.personid}</Typography>
                     <Typography variant="body2">
                       Name: {info.firstname} {info.lastname}
                     </Typography>

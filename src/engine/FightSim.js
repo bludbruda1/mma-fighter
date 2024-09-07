@@ -1,5 +1,14 @@
 import { formatTime, simulateTimePassing, isKnockedOut } from "./helper.js";
-import { calculateDamage, calculateProbabilities, calculateProbability, calculateStaminaImpact, calculateSubmissionProbability, determineStandingAction, determineClinchAction, determineGroundAction } from "./fightCalculations";
+import {
+  calculateDamage,
+  calculateProbabilities,
+  calculateProbability,
+  calculateStaminaImpact,
+  calculateSubmissionProbability,
+  determineStandingAction,
+  determineClinchAction,
+  determineGroundAction,
+} from "./fightCalculations";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
@@ -25,19 +34,19 @@ const COMBO_FOLLOW_UPS = {
 
 // Constants for positions a fighter can be in
 const FIGHTER_POSITIONS = {
-  STANDING: 'standing',
-  CLINCH_OFFENCE: 'clinchOffence',
-  CLINCH_DEFENCE: 'clinchDefence',
-  GROUND_FULL_GUARD_TOP: 'groundFullGuardTop',
-  GROUND_FULL_GUARD_BOTTOM: 'groundFullGuardBottom',
-  GROUND_HALF_GUARD_TOP: 'groundHalfGuardTop',
-  GROUND_HALF_GUARD_BOTTOM: 'groundHalfGuardBottom',
-  GROUND_SIDE_CONTROL_TOP: 'groundSideControlTop',
-  GROUND_SIDE_CONTROL_BOTTOM: 'groundSideControlBottom',
-  GROUND_MOUNT_TOP: 'groundMountTop',
-  GROUND_MOUNT_BOTTOM: 'groundMountBottom',
-  GROUND_BACK_CONTROL_OFFENCE: 'groundBackControlOffence',
-  GROUND_BACK_CONTROL_DEFENCE: 'groundBackControlDefence'
+  STANDING: "standing",
+  CLINCH_OFFENCE: "clinchOffence",
+  CLINCH_DEFENCE: "clinchDefence",
+  GROUND_FULL_GUARD_TOP: "groundFullGuardTop",
+  GROUND_FULL_GUARD_BOTTOM: "groundFullGuardBottom",
+  GROUND_HALF_GUARD_TOP: "groundHalfGuardTop",
+  GROUND_HALF_GUARD_BOTTOM: "groundHalfGuardBottom",
+  GROUND_SIDE_CONTROL_TOP: "groundSideControlTop",
+  GROUND_SIDE_CONTROL_BOTTOM: "groundSideControlBottom",
+  GROUND_MOUNT_TOP: "groundMountTop",
+  GROUND_MOUNT_BOTTOM: "groundMountBottom",
+  GROUND_BACK_CONTROL_OFFENCE: "groundBackControlOffence",
+  GROUND_BACK_CONTROL_DEFENCE: "groundBackControlDefence",
 };
 
 const SUBMISSION_TYPES = {
@@ -48,23 +57,21 @@ const SUBMISSION_TYPES = {
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
       FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
-      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
-    ]
+      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
+    ],
   },
   TRIANGLE_CHOKE: {
     name: "Triangle Choke",
     difficultyModifier: 1.2,
     applicablePositions: [
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
-      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
-    ]
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
+    ],
   },
   REAR_NAKED_CHOKE: {
     name: "Rear-Naked Choke",
     difficultyModifier: 0.8,
-    applicablePositions: [
-      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
-    ]
+    applicablePositions: [FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE],
   },
   LEG_LOCK: {
     name: "Leg Lock",
@@ -73,8 +80,8 @@ const SUBMISSION_TYPES = {
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
       FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP,
-      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM
-    ]
+      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM,
+    ],
   },
   GUILLOTINE: {
     name: "Guillotine",
@@ -83,9 +90,9 @@ const SUBMISSION_TYPES = {
       FIGHTER_POSITIONS.STANDING,
       FIGHTER_POSITIONS.CLINCH_OFFENCE,
       FIGHTER_POSITIONS.CLINCH_DEFENCE,
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP
-    ]
-  }
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+    ],
+  },
 };
 
 //Functions that set up an action
@@ -408,11 +415,11 @@ const doCombo = (attacker, defender, initialStrike) => {
  */
 const doWait = (fighter, opponent) => {
   console.log(`${fighter.name} looks for an opening.`);
-  
+
   // Slightly recover stamina
   fighter.stamina = Math.min(100, fighter.stamina + 2);
-  
-  return 'wait';
+
+  return "wait";
 };
 
 /**
@@ -649,9 +656,11 @@ const doClinchTakedown = (attacker, defender) => {
  */
 const doTakedown = (attacker, defender, staminaImpact) => {
   console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
-  attacker.stats.takedownsAttempted = (attacker.stats.takedownsAttempted || 0) + 1;
+  attacker.stats.takedownsAttempted =
+    (attacker.stats.takedownsAttempted || 0) + 1;
   if (
-    Math.random() < calculateProbability(
+    Math.random() <
+    calculateProbability(
       attacker.Rating.takedownOffence * staminaImpact,
       defender.Rating.takedownDefence
     )
@@ -697,15 +706,15 @@ const doTakedown = (attacker, defender, staminaImpact) => {
  */
 const doPositionAdvance = (attacker, defender, staminaImpact) => {
   console.log(`${attacker.name} attempts to advance position`);
-  
+
   const successProbability = calculateProbability(
     attacker.Rating.groundOffence * staminaImpact,
     defender.Rating.groundDefence
   );
-  
+
   if (Math.random() < successProbability) {
     let newAttackerPosition, newDefenderPosition;
-    
+
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
         newAttackerPosition = FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP;
@@ -724,25 +733,27 @@ const doPositionAdvance = (attacker, defender, staminaImpact) => {
         newDefenderPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE;
         break;
       default:
-        return 'positionAdvanceInvalid';
+        return "positionAdvanceInvalid";
     }
-    
+
     attacker.position = newAttackerPosition;
     defender.position = newDefenderPosition;
-    
+
     // Decrease stamina
     attacker.stamina = Math.max(0, attacker.stamina - 5);
     defender.stamina = Math.max(0, defender.stamina - 3);
-    
-    console.log(`${attacker.name} successfully advances to ${newAttackerPosition}`);
-    return 'positionAdvanceSuccessful';
+
+    console.log(
+      `${attacker.name} successfully advances to ${newAttackerPosition}`
+    );
+    return "positionAdvanceSuccessful";
   } else {
     // Decrease stamina (less than successful attempt)
     attacker.stamina = Math.max(0, attacker.stamina - 3);
     defender.stamina = Math.max(0, defender.stamina - 1);
-    
+
     console.log(`${attacker.name} fails to advance position`);
-    return 'positionAdvanceFailed';
+    return "positionAdvanceFailed";
   }
 };
 
@@ -754,15 +765,15 @@ const doPositionAdvance = (attacker, defender, staminaImpact) => {
  */
 const doSweep = (attacker, defender) => {
   console.log(`${attacker.name} attempts a sweep against ${defender.name}`);
-  
+
   const successProbability = calculateProbability(
     attacker.Rating.groundOffence,
     defender.Rating.groundDefence
   );
-  
+
   if (Math.random() < successProbability) {
     let newAttackerPosition, newDefenderPosition;
-    
+
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM:
         newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
@@ -777,18 +788,19 @@ const doSweep = (attacker, defender) => {
         newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
         break;
       default:
-        return 'sweepInvalid';
+        return "sweepInvalid";
     }
-    
+
     attacker.position = newAttackerPosition;
     defender.position = newDefenderPosition;
-    
-    console.log(`${attacker.name} successfully sweeps ${defender.name} and is now in ${newAttackerPosition}`);
-    return 'sweepSuccessful';
+
+    console.log(
+      `${attacker.name} successfully sweeps ${defender.name} and is now in ${newAttackerPosition}`
+    );
+    return "sweepSuccessful";
   } else {
-    
     console.log(`${attacker.name} fails to sweep ${defender.name}`);
-    return 'sweepFailed';
+    return "sweepFailed";
   }
 };
 
@@ -798,17 +810,17 @@ const doSweep = (attacker, defender) => {
  * @param {Object} defender - Fighter in top position
  * @returns {string} Outcome of the action
  */
-const doEscape = (attacker, defender ) => {
+const doEscape = (attacker, defender) => {
   console.log(`${attacker.name} attempts to escape from ${defender.name}`);
-  
+
   const successProbability = calculateProbability(
     attacker.Rating.groundDefence,
     defender.Rating.groundOffence
   );
-  
+
   if (Math.random() < successProbability) {
     let newAttackerPosition, newDefenderPosition;
-    
+
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM:
         newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
@@ -823,17 +835,19 @@ const doEscape = (attacker, defender ) => {
         newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
         break;
       default:
-        return 'escapeInvalid';
+        return "escapeInvalid";
     }
-    
+
     attacker.position = newAttackerPosition;
     defender.position = newDefenderPosition;
-    
-    console.log(`${attacker.name} successfully escapes to ${newAttackerPosition}`);
-    return 'escapeSuccessful';
+
+    console.log(
+      `${attacker.name} successfully escapes to ${newAttackerPosition}`
+    );
+    return "escapeSuccessful";
   } else {
     console.log(`${attacker.name} fails to escape`);
-    return 'escapeFailed';
+    return "escapeFailed";
   }
 };
 
@@ -843,7 +857,7 @@ const doEscape = (attacker, defender ) => {
  * @param {Object} defender - Opponent fighter
  * @returns {string} Outcome of the action
  */
-const doGetUp = (attacker, defender ) => {
+const doGetUp = (attacker, defender) => {
   console.log(`${attacker.name} attempts to get up`);
   attacker.stats.getUpsAttempted = (attacker.stats.getUpsAttempted || 0) + 1;
   if (
@@ -853,7 +867,8 @@ const doGetUp = (attacker, defender ) => {
       defender.Rating.groundOffence
     )
   ) {
-    attacker.stats.getUpsSuccessful = (attacker.stats.getUpsSuccessful || 0) + 1;
+    attacker.stats.getUpsSuccessful =
+      (attacker.stats.getUpsSuccessful || 0) + 1;
 
     // Reset both fighters to standing position
     attacker.position = FIGHTER_POSITIONS.STANDING;
@@ -876,31 +891,46 @@ const doGetUp = (attacker, defender ) => {
 const doSubmission = (attacker, defender) => {
   // Choose a random submission type from the applicable ones
   const applicableSubmissions = Object.values(SUBMISSION_TYPES).filter(
-    submission => submission.applicablePositions.includes(attacker.position)
+    (submission) => submission.applicablePositions.includes(attacker.position)
   );
-  const chosenSubmission = applicableSubmissions[Math.floor(Math.random() * applicableSubmissions.length)];
-  console.log(`${attacker.name} attempts a ${chosenSubmission.name} on ${defender.name}`);
+  const chosenSubmission =
+    applicableSubmissions[
+      Math.floor(Math.random() * applicableSubmissions.length)
+    ];
+  console.log(
+    `${attacker.name} attempts a ${chosenSubmission.name} on ${defender.name}`
+  );
 
-  attacker.stats.submissionsAttempted = (attacker.stats.submissionsAttempted || 0) + 1;
+  attacker.stats.submissionsAttempted =
+    (attacker.stats.submissionsAttempted || 0) + 1;
 
   // Calculate submission probabilities
-  const { successChance, defenceChance, escapeChance } = calculateSubmissionProbability(attacker, defender, chosenSubmission);
+  const { successChance, defenceChance, escapeChance } =
+    calculateSubmissionProbability(attacker, defender, chosenSubmission);
 
   // Determine the outcome
   const outcome = Math.random();
   const timePassed = simulateTimePassing("submission");
 
   if (outcome < successChance) {
-    attacker.stats.submissionsLanded = (attacker.stats.submissionsLanded || 0) + 1;
-    console.log(`${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`);
+    attacker.stats.submissionsLanded =
+      (attacker.stats.submissionsLanded || 0) + 1;
+    console.log(
+      `${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`
+    );
     defender.isSubmitted = true;
     return ["submissionSuccessful", timePassed, chosenSubmission.name];
   } else if (outcome < successChance + defenceChance) {
-    defender.stats.submissionsDefended = (defender.stats.submissionsDefended || 0) + 1;
-    console.log(`${defender.name} defends against the ${chosenSubmission.name}`);
+    defender.stats.submissionsDefended =
+      (defender.stats.submissionsDefended || 0) + 1;
+    console.log(
+      `${defender.name} defends against the ${chosenSubmission.name}`
+    );
     return ["submissionDefended", timePassed, null];
   } else if (outcome < successChance + defenceChance + escapeChance) {
-    console.log(`${defender.name} escapes from the ${chosenSubmission.name} attempt`);
+    console.log(
+      `${defender.name} escapes from the ${chosenSubmission.name} attempt`
+    );
     return ["submissionEscaped", timePassed, null];
   }
 };
@@ -914,7 +944,6 @@ const doSubmission = (attacker, defender) => {
  * @returns {string} The determined action
  */
 const determineAction = (fighter, opponent) => {
-
   // Get the current position of the fighter
   const position = fighter.position;
 
@@ -932,7 +961,7 @@ const determineAction = (fighter, opponent) => {
     position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE ||
     position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
   ) {
-    return determineGroundAction(fighter, opponent);
+    return determineGroundAction(fighter);
   } else if (
     position === FIGHTER_POSITIONS.CLINCH_OFFENCE ||
     position === FIGHTER_POSITIONS.CLINCH_DEFENCE
@@ -940,7 +969,7 @@ const determineAction = (fighter, opponent) => {
     return determineClinchAction(fighter, opponent);
   } else {
     console.error(`Unknown position: ${position}`);
-    return 'wait';
+    return "wait";
   }
 };
 
@@ -997,7 +1026,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = simulateTimePassing("clinchTakedown");
       break;
     case "wait":
-      outcome = doWait (fighter, opponentFighter)
+      outcome = doWait(fighter, opponentFighter);
       timePassed = simulateTimePassing("wait");
       break;
     case "takedownAttempt":
@@ -1013,11 +1042,11 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = simulateTimePassing("positionAdvance");
       break;
     case "sweep":
-      outcome = doSweep (fighter, opponentFighter);
+      outcome = doSweep(fighter, opponentFighter);
       timePassed = simulateTimePassing("sweep");
       break;
     case "escape":
-      outcome = doEscape (fighter, opponentFighter);
+      outcome = doEscape(fighter, opponentFighter);
       timePassed = simulateTimePassing("escape");
       break;
     case "groundPunch":
@@ -1025,7 +1054,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = simulateTimePassing("groundPunch");
       break;
     case "submission":
-      [outcome, timePassed, submissionType] = doSubmission(fighter, opponentFighter);
+      [outcome, timePassed, submissionType] = doSubmission(
+        fighter,
+        opponentFighter
+      );
       break;
     default:
       console.error(`Unknown action type: ${actionType}`);
@@ -1091,9 +1123,19 @@ const simulateRound = (fighters, roundNumber) => {
     // Check for KO or submission
     if (roundWinner !== null) {
       if (submissionType) {
-        console.log(`${fighters[roundWinner].name} wins by ${submissionType} in round ${roundNumber} at ${formatTime(currentTime)}!`);
+        console.log(
+          `${
+            fighters[roundWinner].name
+          } wins by ${submissionType} in round ${roundNumber} at ${formatTime(
+            currentTime
+          )}!`
+        );
       } else {
-        console.log(`${fighters[roundWinner].name} wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`);
+        console.log(
+          `${
+            fighters[roundWinner].name
+          } wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`
+        );
       }
       return { winner: roundWinner, submissionType };
     }
@@ -1351,16 +1393,20 @@ const simulateFight = (fighters) => {
       fighters[0].health.legs <= 0 ||
       fighters[0].isSubmitted
         ? 1
-        : 0;  }
+        : 0;
+  }
 
   // Display fight result
   console.log("\n--- Fight Simulation Ends ---\n");
   if (method === "draw") {
     console.log("The fight ends in a draw!");
   } else {
-    const winMethod = method === "submission" ? `${method} (${submissionType})` : method;
+    const winMethod =
+      method === "submission" ? `${method} (${submissionType})` : method;
     console.log(
-      `${fighters[winner].name} defeats ${fighters[1 - winner].name} by ${winMethod} in round ${roundEnded}!`
+      `${fighters[winner].name} defeats ${
+        fighters[1 - winner].name
+      } by ${winMethod} in round ${roundEnded}!`
     );
   }
 
@@ -1386,5 +1432,5 @@ export {
   doGetUp,
   doSubmission,
   FIGHTER_POSITIONS,
-  SUBMISSION_TYPES
+  SUBMISSION_TYPES,
 };
