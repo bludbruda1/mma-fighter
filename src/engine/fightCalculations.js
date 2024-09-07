@@ -270,41 +270,94 @@ const determineStandingAction = (attacker, defender) => {
 
 /**
  * Determines the next action for a fighter in a ground position
- * @param {Object} attacker - The fighter object
- * @param {Object} defender - The opponent fighter object
+ * @param {Object} fighter - The fighter object
  * @returns {string} The determined action
  */
-const determineGroundAction = (attacker, defender) => {
-  const groundOffence = attacker.Rating.groundOffence;
-  const groundDefence = defender.Rating.groundDefence;
-  const submissionOffence = attacker.Rating.submissionOffence;
-  const submissionDefence = defender.Rating.submissionDefence;
-  const attackerStamina = attacker.stamina / 100;
-  const positionAdvantage = getPositionAdvantage(attacker.position, defender.position);
+const determineGroundAction = (fighter) => {
+  const groundOffence = fighter.Rating.groundOffence;
+  const groundDefence = fighter.Rating.groundDefence;
+  const submissionOffence = fighter.Rating.submissionOffence;
+  const submissionDefence = fighter.Rating.submissionDefence;
+  const attackerStamina = fighter.stamina / 100;
 
-  // Calculate base chances
-  let strikeChance = (groundOffence / (groundOffence + groundDefence)) * 0.4 * attackerStamina * (1 + positionAdvantage);
-  let submissionChance = (submissionOffence / (submissionOffence + submissionDefence)) * 0.3 * attackerStamina * (1 + positionAdvantage);
-  let positionChance = (groundOffence / (groundOffence + groundDefence)) * 0.2 * attackerStamina * (1 + positionAdvantage);
-  let standUpChance = 0.1 * (1 - positionAdvantage) * attackerStamina;
+  // Determine if the fighter is in an offensive or defensive position
+  const isOffensive = [
+    FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+    FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP,
+    FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP,
+    FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+    FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
+  ].includes(fighter.position);
 
-  // Normalize probabilities
-  const total = strikeChance + submissionChance + positionChance + standUpChance;
-  strikeChance /= total;
-  submissionChance /= total;
-  positionChance /= total;
-  standUpChance /= total;
+  // Calculate base chances for common actions
+  let groundPunchChance = (groundOffence / (groundOffence + groundDefence)) * 0.4 * attackerStamina;
+  let submissionChance = (submissionOffence / (submissionOffence + submissionDefence)) * 0.3 * attackerStamina;
+  let getUpChance = 0.1 * attackerStamina;
+  if (isOffensive) {
+    // Offensive-specific action: positionAdvance
+    let positionAdvanceChance = (groundOffence / (groundOffence + groundDefence)) * 0.2 * attackerStamina;
 
-  // Choose action based on probabilities
-  const random = Math.random();
-  if (random < strikeChance) {
-    return 'groundPunch';
-  } else if (random < strikeChance + submissionChance) {
-    return 'submission';
-  } else if (random < strikeChance + submissionChance + positionChance) {
-    return 'positionAdvance';
+    // Normalize probabilities
+    const total = groundPunchChance + submissionChance + positionAdvanceChance + getUpChance;
+    groundPunchChance /= total;
+    submissionChance /= total;
+    positionAdvanceChance /= total;
+    getUpChance /= total;
+
+    // Choose action based on probabilities
+    const random = Math.random();
+    if (random < groundPunchChance) {
+      return 'groundPunch';
+    } else if (random < groundPunchChance + submissionChance) {
+      return 'submission';
+    } else if (random < groundPunchChance + submissionChance + positionAdvanceChance) {
+      return 'positionAdvance';
+    } else {
+      return 'getUpAttempt';
+    }
   } else {
-    return 'getUpAttempt';
+    // Defensive-specific actions: sweep and escape
+    let sweepChance = 0;
+    let escapeChance = 0;
+
+    // Calculate sweep chance only for valid positions
+    if ([FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM, 
+         FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM, 
+         FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM].includes(fighter.position)) {
+      sweepChance = (groundOffence / (groundOffence + groundDefence)) * 0.15 * attackerStamina;
+    }
+
+    // Calculate escape chance only for valid positions
+    if ([FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM, 
+         FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM, 
+         FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE].includes(fighter.position)) {
+      escapeChance = (groundDefence / (groundOffence + groundDefence)) * 0.15 * attackerStamina;
+    }
+
+    // Adjust getUpChance for defensive position
+    getUpChance = 0.2 * attackerStamina;
+
+    // Normalize probabilities
+    const total = groundPunchChance + submissionChance + sweepChance + escapeChance + getUpChance;
+    groundPunchChance /= total;
+    submissionChance /= total;
+    sweepChance /= total;
+    escapeChance /= total;
+    getUpChance /= total;
+
+    // Choose action based on probabilities
+    const random = Math.random();
+    if (random < groundPunchChance) {
+      return 'groundPunch';
+    } else if (random < groundPunchChance + submissionChance) {
+      return 'submission';
+    } else if (random < groundPunchChance + submissionChance + sweepChance) {
+      return 'sweep';
+    } else if (random < groundPunchChance + submissionChance + sweepChance + escapeChance) {
+      return 'escape';
+    } else {
+      return 'getUpAttempt';
+    }
   }
 };
 

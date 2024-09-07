@@ -932,7 +932,7 @@ const determineAction = (fighter, opponent) => {
     position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE ||
     position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
   ) {
-    return determineGroundAction(fighter, opponent);
+    return determineGroundAction(fighter);
   } else if (
     position === FIGHTER_POSITIONS.CLINCH_OFFENCE ||
     position === FIGHTER_POSITIONS.CLINCH_DEFENCE
