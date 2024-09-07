@@ -483,44 +483,83 @@ const FightScreen = () => {
               alignItems="center"
               style={{ marginTop: "20px" }}
             >
-              <Grid item xs={12} md={3}>
+              <Grid
+                item
+                xs={12}
+                md={3}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 <Typography
                   variant="h5"
                   align="center"
                   gutterBottom
-                  sx={{ marginBottom: "40px" }}
+                  sx={{ marginBottom: "20px" }} // Adjusted margin
                 >
                   {selectedItem1.firstname} {selectedItem1.lastname}
                 </Typography>
+
                 <Card style={{ border: "none", boxShadow: "none" }}>
                   <CardMedia
                     component="img"
                     style={{ objectFit: "contain" }}
                     height="250"
                     image={selectedItem1.image}
+                    sx={{ marginBottom: "20px" }} // Adjusted margin
                   />
                 </Card>
+
+                <Typography
+                  variant="h7"
+                  align="center"
+                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
+                >
+                  {selectedItem1.nationality}
+                </Typography>
               </Grid>
+
               <Grid item xs={12} md={6}>
                 <Tab tabs={tabs} />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid
+                item
+                xs={12}
+                md={3}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 <Typography
                   variant="h5"
                   align="center"
                   gutterBottom
-                  sx={{ marginBottom: "40px" }}
+                  sx={{ marginBottom: "20px" }} // Adjusted margin
                 >
                   {selectedItem2.firstname} {selectedItem2.lastname}
                 </Typography>
+
                 <Card style={{ border: "none", boxShadow: "none" }}>
                   <CardMedia
                     component="img"
                     style={{ objectFit: "contain" }}
                     height="250"
                     image={selectedItem2.image}
+                    sx={{ marginBottom: "20px" }} // Adjusted margin
                   />
                 </Card>
+
+                <Typography
+                  variant="h7"
+                  align="center"
+                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
+                >
+                  {selectedItem2.nationality}
+                </Typography>
               </Grid>
             </Grid>
           )}

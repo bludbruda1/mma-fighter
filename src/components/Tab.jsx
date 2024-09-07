@@ -34,7 +34,13 @@ function BasicTabs({ tabs }) {
   return (
     <Box sx={{ width: "100%" }}>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs value={value} onChange={handleChange} aria-label="tabs" centered>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="tabs"
+          variant="scrollable"
+          centered
+        >
           {tabs.map((tab, index) => (
             <Tab
               key={index}
