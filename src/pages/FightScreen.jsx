@@ -42,9 +42,6 @@ const FightScreen = () => {
   // handles the state of the View Fight Summary modal to tell us whether it is open or not
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // handles the state of the View Fight Stats modal to tell us whether it is open or not
-  const [dialogStatsOpen, setDialogStatsOpen] = useState(false);
-
   // New state for handling the fight statistics
   const [fightStats, setFightStats] = useState(null);
 
@@ -282,15 +279,6 @@ const FightScreen = () => {
     setDialogOpen(false);
   };
 
-  // Logic for the View Fight Stats button open state
-  const handleStatsDialogOpen = () => {
-    setDialogStatsOpen(true);
-  };
-
-  const handleStatsDialogClose = () => {
-    setDialogStatsOpen(false);
-  };
-
   // Handling the tabs in the fight stats
   const tabs = fightStats
     ? [
@@ -344,6 +332,130 @@ const FightScreen = () => {
               blueValue={fightStats.submissionAttempts.blue}
               title="Submission Attempts"
             />
+          ),
+        },
+      ]
+    : [];
+
+  const fightSummaryTabs = fightEvents
+    ? [
+        {
+          label: "Fight Statistics",
+          content: (
+            <>
+              {fightStats && (
+                <Grid
+                  container
+                  spacing={6}
+                  alignItems="center"
+                  justifyContent="center"
+                  style={{ marginTop: "20px" }}
+                >
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      align="center"
+                      gutterBottom
+                      sx={{ marginBottom: "20px", fontWeight: "bold" }}
+                    >
+                      {selectedItem1.firstname} {selectedItem1.lastname}
+                    </Typography>
+
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={selectedItem1.image}
+                        sx={{ marginBottom: "20px" }}
+                      />
+                    </Card>
+
+                    <Typography
+                      variant="h7"
+                      align="center"
+                      sx={{ marginTop: "10px", fontWeight: "bold" }}
+                    >
+                      {selectedItem1.nationality}
+                    </Typography>
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tab tabs={tabs} />
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      align="center"
+                      gutterBottom
+                      sx={{ marginBottom: "20px", fontWeight: "bold" }}
+                    >
+                      {selectedItem2.firstname} {selectedItem2.lastname}
+                    </Typography>
+
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={selectedItem2.image}
+                        sx={{ marginBottom: "20px" }}
+                      />
+                    </Card>
+
+                    <Typography
+                      variant="h7"
+                      align="center"
+                      sx={{ marginTop: "10px", fontWeight: "bold" }}
+                    >
+                      {selectedItem2.nationality}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </>
+          ),
+        },
+        {
+          label: "Fight Summary",
+          content: (
+            <>
+              <List>
+                {fightEvents.map((event, index) => (
+                  <ListItem key={index}>
+                    <ListItemText primary={event} />
+                  </ListItem>
+                ))}
+              </List>
+            </>
           ),
         },
       ]
@@ -404,21 +516,6 @@ const FightScreen = () => {
                   View Fight Summary
                 </Button>
               </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  onClick={handleStatsDialogOpen}
-                  sx={{
-                    backgroundColor: "rgba(33, 33, 33, 0.9)", // Dark grey background with slight transparency
-                    color: "#fff", // White text color for contrast
-                    "&:hover": {
-                      backgroundColor: "rgba(33, 33, 33, 0.7)", // Slightly lighter dark grey on hover
-                    },
-                  }}
-                >
-                  View Fight Stats
-                </Button>
-              </Grid>
             </Grid>
             {winnerMessage && (
               <Typography
@@ -451,121 +548,18 @@ const FightScreen = () => {
           </Container>
         </div>
       </main>
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Fight Summary</DialogTitle>
-        <DialogContent>
-          <List>
-            {fightEvents.map((event, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={event} />
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
       <Dialog
-        open={dialogStatsOpen}
-        onClose={handleStatsDialogClose}
+        open={dialogOpen}
+        onClose={handleDialogClose}
         fullWidth={true}
         maxWidth="lg"
       >
-        <DialogTitle>Fight Statistics</DialogTitle>
+        <DialogTitle>Fight Summary</DialogTitle>
         <DialogContent>
-          {fightStats && (
-            <Grid
-              container
-              spacing={6}
-              alignItems="center"
-              style={{ marginTop: "20px" }}
-            >
-              <Grid
-                item
-                xs={12}
-                md={3}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  align="center"
-                  gutterBottom
-                  sx={{ marginBottom: "20px" }} // Adjusted margin
-                >
-                  {selectedItem1.firstname} {selectedItem1.lastname}
-                </Typography>
-
-                <Card style={{ border: "none", boxShadow: "none" }}>
-                  <CardMedia
-                    component="img"
-                    style={{ objectFit: "contain" }}
-                    height="250"
-                    image={selectedItem1.image}
-                    sx={{ marginBottom: "20px" }} // Adjusted margin
-                  />
-                </Card>
-
-                <Typography
-                  variant="h7"
-                  align="center"
-                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
-                >
-                  {selectedItem1.nationality}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Tab tabs={tabs} />
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                md={3}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  align="center"
-                  gutterBottom
-                  sx={{ marginBottom: "20px" }} // Adjusted margin
-                >
-                  {selectedItem2.firstname} {selectedItem2.lastname}
-                </Typography>
-
-                <Card style={{ border: "none", boxShadow: "none" }}>
-                  <CardMedia
-                    component="img"
-                    style={{ objectFit: "contain" }}
-                    height="250"
-                    image={selectedItem2.image}
-                    sx={{ marginBottom: "20px" }} // Adjusted margin
-                  />
-                </Card>
-
-                <Typography
-                  variant="h7"
-                  align="center"
-                  sx={{ marginTop: "10px" }} // Adjusted margin for closer alignment to the card
-                >
-                  {selectedItem2.nationality}
-                </Typography>
-              </Grid>
-            </Grid>
-          )}
+          <Tab tabs={fightSummaryTabs} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleStatsDialogClose} color="primary">
+          <Button onClick={handleDialogClose} color="primary">
             Close
           </Button>
         </DialogActions>

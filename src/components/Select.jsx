@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   Box,
   Card,
@@ -51,7 +52,25 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
               />
               <CardContent>
                 <Typography variant="body2">
-                  Name: {selectedItem.firstname} {selectedItem.lastname}
+                  Name:{" "}
+                  <Link
+                    to={`/Dashboard/${selectedItem.personid}`}
+                    style={{
+                      textDecoration: "none",
+                      color: "#0000EE",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = "underline";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = "none";
+                    }}
+                    onClick={() => {
+                      window.scrollTo(0, 0); // Scrolls to the top of the page
+                    }}
+                  >
+                    {selectedItem.firstname} {selectedItem.lastname}
+                  </Link>
                 </Typography>
                 <Typography variant="body2">
                   Nationality: {selectedItem.nationality}
