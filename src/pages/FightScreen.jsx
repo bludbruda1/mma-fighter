@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
 import {
+  Box,
   Button,
   Card,
   CardMedia,
@@ -44,6 +45,9 @@ const FightScreen = () => {
 
   // New state for handling the fight statistics
   const [fightStats, setFightStats] = useState(null);
+
+  // New state for storing round-by-round statistics
+  const [roundStats, setRoundStats] = useState([]);
 
   useEffect(() => {
     // Fetch the JSON data from the file
@@ -201,6 +205,9 @@ const FightScreen = () => {
         );
         setFightStats(stats);
 
+        // Store round statistics
+        setRoundStats(result.roundStats);
+
         // Display detailed fight stats
         displayFightStats([
           {
@@ -279,63 +286,70 @@ const FightScreen = () => {
     setDialogOpen(false);
   };
 
-  // Handling the tabs in the fight stats
-  const tabs = fightStats
-    ? [
-        {
-          label: "All",
-          content: (
-            <>
-              <StatBar
-                redValue={fightStats.totalStrikes.red}
-                blueValue={fightStats.totalStrikes.blue}
-                title="Total Strikes"
-              />
-              <StatBar
-                redValue={fightStats.takedowns.red}
-                blueValue={fightStats.takedowns.blue}
-                title="Takedowns"
-              />
-              <StatBar
-                redValue={fightStats.submissionAttempts.red}
-                blueValue={fightStats.submissionAttempts.blue}
-                title="Submission Attempts"
-              />
-            </>
-          ),
-        },
-        {
-          label: "Total Strikes",
-          content: (
-            <StatBar
-              redValue={fightStats.totalStrikes.red}
-              blueValue={fightStats.totalStrikes.blue}
-              title="Total Strikes"
-            />
-          ),
-        },
-        {
-          label: "Takedowns",
-          content: (
-            <StatBar
-              redValue={fightStats.takedowns.red}
-              blueValue={fightStats.takedowns.blue}
-              title="Takedowns"
-            />
-          ),
-        },
-        {
-          label: "Submission Attempts",
-          content: (
-            <StatBar
-              redValue={fightStats.submissionAttempts.red}
-              blueValue={fightStats.submissionAttempts.blue}
-              title="Submission Attempts"
-            />
-          ),
-        },
-      ]
-    : [];
+  // Function to render total stats
+  const renderTotalStats = () => (
+    <>
+      <StatBar
+        redValue={fightStats.totalStrikes.red}
+        blueValue={fightStats.totalStrikes.blue}
+        title="Total Strikes"
+      />
+      <StatBar
+        redValue={fightStats.takedowns.red}
+        blueValue={fightStats.takedowns.blue}
+        title="Total Takedowns"
+      />
+      <StatBar
+        redValue={fightStats.submissionAttempts.red}
+        blueValue={fightStats.submissionAttempts.blue}
+        title="Total Submission Attempts"
+      />
+    </>
+  );
+
+  // Function to render round stats
+  const renderRoundStats = (roundIndex) => {
+    if (roundStats && roundStats[roundIndex]) {
+      return (
+        <>
+          <StatBar
+            redValue={roundStats[roundIndex].punchesThrown.red}
+            blueValue={roundStats[roundIndex].punchesThrown.blue}
+            title="Punches Thrown"
+          />
+          <StatBar
+            redValue={roundStats[roundIndex].takedowns.red}
+            blueValue={roundStats[roundIndex].takedowns.blue}
+            title="Successful Takedowns"
+          />
+          <StatBar
+            redValue={roundStats[roundIndex].submissionAttempts.red}
+            blueValue={roundStats[roundIndex].submissionAttempts.blue}
+            title="Submissions Attempted"
+          />
+        </>
+      );
+    }
+    return <Typography>No data available for this round.</Typography>;
+  };
+
+  // Prepare tabs data
+  const prepareTabs = () => {
+    const tabs = [
+      { label: "Total Stats", content: renderTotalStats() },
+      { label: "Round 1", content: renderRoundStats(0) },
+    ];
+
+    if (roundStats.length >= 2) {
+      tabs.push({ label: "Round 2", content: renderRoundStats(1) });
+    }
+
+    if (roundStats.length >= 3) {
+      tabs.push({ label: "Round 3", content: renderRoundStats(2) });
+    }
+
+    return tabs;
+  };
 
   const fightSummaryTabs = fightEvents
     ? [
@@ -399,9 +413,8 @@ const FightScreen = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Tab tabs={tabs} />
+                    <Tab tabs={prepareTabs()} />
                   </Grid>
-
                   <Grid
                     item
                     xs={12}
@@ -448,13 +461,21 @@ const FightScreen = () => {
           label: "Fight Summary",
           content: (
             <>
-              <List>
-                {fightEvents.map((event, index) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={event} />
-                  </ListItem>
-                ))}
-              </List>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <List>
+                  {fightEvents.map((event, index) => (
+                    <ListItem key={index}>
+                      <ListItemText primary={event} />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
             </>
           ),
         },
