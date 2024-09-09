@@ -487,7 +487,6 @@ const determineClinchAction = (attacker, defender) => {
  * @returns {string} The specific strike type
  */
 const determineStrikeType = (fighter) => {
-  const stamina = fighter.stamina / 1000;
   const boxing = fighter.Tendency.standupPreference.boxing;
   const kickBoxing = fighter.Tendency.standupPreference.kickBoxing;
   const muayThai = fighter.Tendency.standupPreference.muayThai;
@@ -499,7 +498,7 @@ const determineStrikeType = (fighter) => {
     (boxing + kickBoxing * 0.5 + muayThai * 0.3) / totalPreference;
 
   // Determine if it's a punch or a kick
-  if (Math.random() < punchPreference * stamina) {
+  if (Math.random() < punchPreference) {
     // It's a punch
     const punchTypes = [
       "jab",

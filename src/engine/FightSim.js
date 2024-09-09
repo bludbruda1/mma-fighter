@@ -972,7 +972,6 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
 
-
   let outcome;
   let timePassed = 0;
   let submissionType = null;
