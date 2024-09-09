@@ -432,6 +432,7 @@ const doWait = (fighter, opponent) => {
  */
 const doGroundPunch = (attacker, defender, staminaImpact) => {
   console.log(`${attacker.name} throws a ground punch at ${defender.name}`);
+  attacker.stats.punchesThrown = (attacker.stats.punchesThrown || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
