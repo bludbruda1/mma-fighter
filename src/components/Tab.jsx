@@ -39,7 +39,6 @@ function BasicTabs({ tabs }) {
           onChange={handleChange}
           aria-label="tabs"
           variant="scrollable"
-          centered
         >
           {tabs.map((tab, index) => (
             <Tab
