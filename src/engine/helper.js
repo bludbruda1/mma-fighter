@@ -10,46 +10,70 @@ function formatTime(seconds) {
 }
 
 /**
- * Object containing the base time (in seconds) for each action
- * @type {Object.<string, number>}
+ * Object containing the base time (in seconds) and stamina impact for each action
+ * @type {Object.<string, {time: number, staminaImpact: number}>}
  */
-const actionTimes = {
+const actionProperties = {
   // Punches
-  jab: 1,
-  cross: 1,
-  hook: 2,
-  uppercut: 2,
-  overhand: 2,
-  spinningBackfist: 3,
-  supermanPunch: 3,
-  bodyPunch: 2,
+  jab: { time: 1, staminaImpact: 1 },
+  cross: { time: 1, staminaImpact: 2 },
+  hook: { time: 2, staminaImpact: 3 },
+  uppercut: { time: 2, staminaImpact: 3 },
+  overhand: { time: 2, staminaImpact: 4 },
+  spinningBackfist: { time: 3, staminaImpact: 5 },
+  supermanPunch: { time: 3, staminaImpact: 5 },
+  bodyPunch: { time: 2, staminaImpact: 2 },
 
   // Kicks
-  headKick: 3,
-  bodyKick: 3,
-  legKick: 2,
+  headKick: { time: 3, staminaImpact: 6 },
+  bodyKick: { time: 3, staminaImpact: 5 },
+  legKick: { time: 2, staminaImpact: 4 },
 
   // Grappling and clinch
-  takedownAttempt: 5,
-  getUpAttempt: 4,
-  clinchAttempt: 3,
-  clinchStrike: 2,
-  clinchTakedown: 4,
-  clinchExit: 2,
+  takedownAttempt: { time: 5, staminaImpact: 7 },
+  getUpAttempt: { time: 4, staminaImpact: 5 },
+  clinchAttempt: { time: 3, staminaImpact: 4 },
+  clinchStrike: { time: 2, staminaImpact: 3 },
+  clinchTakedown: { time: 4, staminaImpact: 6 },
+  clinchExit: { time: 2, staminaImpact: 3 },
 
   // Ground actions
-  groundPunch: 1,
-  submission: 8,
-  positionAdvance: 6,
-  sweep: 6,
-  escape: 6,
+  groundPunch: { time: 1, staminaImpact: 2 },
+  submission: { time: 8, staminaImpact: 10 },
+  positionAdvance: { time: 6, staminaImpact: 5 },
+  sweep: { time: 6, staminaImpact: 7 },
+  escape: { time: 6, staminaImpact: 6 },
 
   // Combo actions
-  comboPunch: 1, // Additional time for each punch in a combo after the first
+  comboPunch: { time: 1, staminaImpact: 1 }, // Additional time and stamina for each punch in a combo after the first
 
   // Other actions
-  wait: 5, // fighter looking for an oppening
+  wait: { time: 5, staminaImpact: -2 }, // Negative stamina impact means recovery
+};
 
+/**
+ * Calculate stamina change for a given action
+ * @param {string} action - The type of action being performed
+ * @param {number} cardio - Cardio rating of the fighter
+ * @returns {number} The amount of stamina to be reduced
+ */
+const calculateStaminaChange = (action, cardio) => {
+  const baseStaminaImpact = actionProperties[action].staminaImpact;
+  const cardioFactor = 1 - (cardio - 50) / 200; // Cardio rating effect (50 is considered average)
+  return baseStaminaImpact * cardioFactor;
+};
+
+/**
+ * Recover stamina at the end of a round
+ * @param {number} currentStamina - Current stamina of the fighter
+ * @param {number} cardio - Cardio rating of the fighter
+ * @returns {number} The amount of stamina recovered
+ */
+const recoverStaminaEndRound = (currentStamina, cardio) => {
+  const baseRecovery = 20;
+  const cardioFactor = 1 + (cardio - 50) / 100; // Cardio rating effect (50 is considered average)
+  const recovery = baseRecovery * cardioFactor;
+  return Math.min(100, currentStamina + recovery);
 };
 
 /**
@@ -58,7 +82,7 @@ const actionTimes = {
  * @returns {number} The amount of time that passes, in seconds
  */
 function simulateTimePassing(action) {
-  const baseTime = actionTimes[action];
+  const baseTime = actionProperties[action].time;
   // Add some slight randomness (0.5 seconds either way)
   return Math.round(baseTime + (Math.random() - 0.5));
 }
@@ -73,4 +97,4 @@ const isKnockedOut = (fighter) => {
 };
 
 
-export { formatTime, simulateTimePassing, actionTimes, isKnockedOut };
+export { formatTime, simulateTimePassing, actionProperties, isKnockedOut, calculateStaminaChange, recoverStaminaEndRound };
