@@ -45,7 +45,7 @@ const actionProperties = {
   escape: { time: 6, staminaImpact: 6 },
 
   // Combo actions
-  comboPunch: { time: 1, staminaImpact: 1 }, // Additional time and stamina for each punch in a combo after the first
+  comboPunch: { time: 1, staminaImpact: null }, // Additional time and stamina for each punch in a combo after the first
 
   // Other actions
   wait: { time: 5, staminaImpact: -2 }, // Negative stamina impact means recovery
