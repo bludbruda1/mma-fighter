@@ -8,7 +8,8 @@ import {
   determineStandingAction,
   determineClinchAction,
   determineGroundAction,
-} from "./fightCalculations";
+} from "./fightCalculations.js";
+import { calculateRoundStats } from "./FightStatistics.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
@@ -431,6 +432,7 @@ const doWait = (fighter, opponent) => {
  */
 const doGroundPunch = (attacker, defender, staminaImpact) => {
   console.log(`${attacker.name} throws a ground punch at ${defender.name}`);
+  attacker.stats.punchesThrown = (attacker.stats.punchesThrown || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
@@ -1137,13 +1139,28 @@ const simulateRound = (fighters, roundNumber) => {
           } wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`
         );
       }
-      return { winner: roundWinner, submissionType };
+      // Calculate round statistics before returning
+      const roundStats = calculateRoundStats(
+        fighters[0],
+        fighters[1],
+        initialStats[0],
+        initialStats[1]
+      );
+      return { winner: roundWinner, submissionType, roundStats };
     }
 
     lastActionFighter = actionFighter;
   }
 
   console.log("\n===End of Round===");
+
+  // Calculate round statistics
+  const roundStats = calculateRoundStats(
+    fighters[0],
+    fighters[1],
+    initialStats[0],
+    initialStats[1]
+  );
 
   // Calculate health lost for each fighter during this round
   const healthLost = fighters.map((fighter, index) => {
@@ -1177,7 +1194,7 @@ const simulateRound = (fighters, roundNumber) => {
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
 
-  return { winner: null, submissionType: null }; // no KO or sub
+  return { winner: null, submissionType: null, roundStats }; // no KO or sub
 };
 
 /**
@@ -1347,6 +1364,7 @@ const simulateFight = (fighters) => {
   let method = "decision";
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
+  let roundStats = [];
 
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
@@ -1354,6 +1372,9 @@ const simulateFight = (fighters) => {
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
     console.log(`\n=== Round ${round} ===`);
     const roundResult = simulateRound(fighters, round);
+
+    // Store round statistics
+    roundStats.push(roundResult.roundStats);
 
     // Check if the round ended early (KO or submission)
     if (roundResult.winner !== null) {
@@ -1420,6 +1441,7 @@ const simulateFight = (fighters) => {
     fighterStats: [fighters[0].stats, fighters[1].stats],
     fighterHealth: [fighters[0].health, fighters[1].health],
     fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],
+    roundStats: roundStats, // Add round-by-round statistics to the return object
   };
 };
 
