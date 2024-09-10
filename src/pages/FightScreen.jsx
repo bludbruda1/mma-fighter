@@ -49,6 +49,9 @@ const FightScreen = () => {
   // New state for storing round-by-round statistics
   const [roundStats, setRoundStats] = useState([]);
 
+  // New state for storing our winner index to determine the winner of the fight for winning message logic in the fight summary
+  const [winnerIndex, setWinnerIndex] = useState(null);
+
   useEffect(() => {
     // Fetch the JSON data from the file
     getAllFighters()
@@ -186,6 +189,9 @@ const FightScreen = () => {
       const result = simulateFight(opponents);
 
       if (result) {
+        // Store the winner's index (0 or 1) in the state
+        setWinnerIndex(result.winner);
+
         // Store the winner and loser of the fight
         const winnerFighter = opponents[result.winner];
         const loserFighter = opponents[result.winner === 0 ? 1 : 0];
@@ -382,6 +388,15 @@ const FightScreen = () => {
                       sx={{ marginBottom: "20px", fontWeight: "bold" }}
                     >
                       {selectedItem1.firstname} {selectedItem1.lastname}
+                      {winnerIndex === 0 && (
+                        <Typography
+                          variant="body1"
+                          color="green"
+                          sx={{ fontWeight: "bold", marginLeft: "8px" }}
+                        >
+                          Winner
+                        </Typography>
+                      )}
                     </Typography>
 
                     <Card style={{ border: "none", boxShadow: "none" }}>
@@ -402,7 +417,6 @@ const FightScreen = () => {
                       {selectedItem1.nationality}
                     </Typography>
                   </Grid>
-
                   <Grid
                     item
                     xs={12}
@@ -432,6 +446,15 @@ const FightScreen = () => {
                       sx={{ marginBottom: "20px", fontWeight: "bold" }}
                     >
                       {selectedItem2.firstname} {selectedItem2.lastname}
+                      {winnerIndex === 1 && (
+                        <Typography
+                          variant="body1"
+                          color="green"
+                          sx={{ fontWeight: "bold", marginLeft: "8px" }}
+                        >
+                          Winner
+                        </Typography>
+                      )}
                     </Typography>
 
                     <Card style={{ border: "none", boxShadow: "none" }}>
