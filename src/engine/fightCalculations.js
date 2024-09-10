@@ -18,8 +18,17 @@ const STRIKE_DAMAGE = {
   groundPunch: { damage: 3, target: "head" },
 };
 
+//Will eventually remove the below 2
 const DAMAGE_VARIATION_FACTOR = 0.25;
 const RATING_DAMAGE_FACTOR = 0.3;
+
+const POWER_FACTOR = 0.5;
+const VARIABILITY_FACTOR = 0.3;
+const CRITICAL_HIT_CHANCE = 0.05;
+const CRITICAL_HIT_MULTIPLIER = 2;
+const STUN_CHANCE = 0.1;
+const KNOCKOUT_THRESHOLD = 90;
+
 
 /**
  * Calculate probability of a successful action
@@ -487,7 +496,6 @@ const determineClinchAction = (attacker, defender) => {
  * @returns {string} The specific strike type
  */
 const determineStrikeType = (fighter) => {
-  const stamina = fighter.stamina / 1000;
   const boxing = fighter.Tendency.standupPreference.boxing;
   const kickBoxing = fighter.Tendency.standupPreference.kickBoxing;
   const muayThai = fighter.Tendency.standupPreference.muayThai;
@@ -499,7 +507,7 @@ const determineStrikeType = (fighter) => {
     (boxing + kickBoxing * 0.5 + muayThai * 0.3) / totalPreference;
 
   // Determine if it's a punch or a kick
-  if (Math.random() < punchPreference * stamina) {
+  if (Math.random() < punchPreference) {
     // It's a punch
     const punchTypes = [
       "jab",
@@ -581,8 +589,63 @@ const calculateDamage = (baseRating, strikeType) => {
   return { damage: totalDamage, target };
 };
 
+/**
+ * Calculate damage for a strike
+ * @param {number} baseRating - Attacker's base rating
+ * @param {string} strikeType - Type of strike
+ * @returns {Object} Calculated damage and effects
+ */
+const calculatePunchDamage = (baseRating, strikeType) => {
+  if (!STRIKE_DAMAGE[strikeType]) {
+    throw new Error("Invalid strike type " + strikeType);
+  }
+
+  let { damage: baseDamage, target } = STRIKE_DAMAGE[strikeType];
+
+  // Special case for ground punches: randomize between head and body
+  if (strikeType === "groundPunch") {
+    target = Math.random() < 0.7 ? "head" : "body";
+  }
+
+  // Special case for clinch strikes: randomize between head and body
+  if (strikeType === "clinchStrike") {
+    target = Math.random() < 0.7 ? "head" : "body";
+  }
+
+  // Apply power factor based on the attacker's rating
+  const powerFactor = 1 + (baseRating / 100) * POWER_FACTOR;
+
+  // Add variability to the damage
+  const variability = 1 + (Math.random() * 2 - 1) * VARIABILITY_FACTOR;
+
+  // Calculate total damage
+  let totalDamage = Math.round(baseDamage * powerFactor * variability);
+
+  // Check for critical hit
+  const isCritical = Math.random() < CRITICAL_HIT_CHANCE;
+  if (isCritical) {
+    totalDamage *= CRITICAL_HIT_MULTIPLIER;
+  }
+
+  // Determine if the strike causes a stun
+  const isStun = Math.random() < STUN_CHANCE;
+
+  // Determine if the strike causes a knockout (only for head strikes)
+  const isKnockout = target === "head" && totalDamage > KNOCKOUT_THRESHOLD;
+
+  return {
+    damage: totalDamage,
+    target,
+    isCritical,
+    isStun,
+    isKnockout
+  };
+};
+
+
 export {
   calculateDamage,
+  calculatePunchDamage,
   calculateProbabilities,
   calculateProbability,
   calculateStaminaImpact,

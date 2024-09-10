@@ -49,6 +49,7 @@ const actionTimes = {
 
   // Other actions
   wait: 5, // fighter looking for an oppening
+  seekFinish: 10 // fighter trying to finish the fight off
 
 };
 
