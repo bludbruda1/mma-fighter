@@ -49,6 +49,8 @@ const actionProperties = {
 
   // Other actions
   wait: { time: 5, staminaImpact: -2 }, // Negative stamina impact means recovery
+  seekFinish: {time: 10, staminaImpact: 15} // fighter trying to finish the fight off
+
 };
 
 /**
