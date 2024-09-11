@@ -1,10 +1,9 @@
-import { formatTime, simulateTimePassing, isKnockedOut } from "./helper.js";
+import { formatTime, simulateTimePassing, isKnockedOut, calculateStaminaChange, recoverStaminaEndRound } from "./helper.js";
 import {
   calculateDamage,
   calculatePunchDamage,
   calculateProbabilities,
   calculateProbability,
-  calculateStaminaImpact,
   calculateSubmissionProbability,
   determineStandingAction,
   determineClinchAction,
@@ -420,8 +419,6 @@ const doCombo = (attacker, defender, initialStrike) => {
 
     console.log(`${attacker.name} follows up with a ${displayStrikeType}`);
 
-    // Decrease stamina for each additional punch in the combo
-    attacker.stamina = Math.max(0, attacker.stamina - 1);
   }
 
   return [totalOutcome, totalTime];
@@ -507,9 +504,6 @@ const doSeekFinish = (attacker, defender) => {
 const doWait = (fighter, opponent) => {
   console.log(`${fighter.name} looks for an opening.`);
 
-  // Slightly recover stamina
-  fighter.stamina = Math.min(100, fighter.stamina + 2);
-
   return "wait";
 };
 
@@ -517,21 +511,20 @@ const doWait = (fighter, opponent) => {
  * Perform a ground punch action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
  * @returns {string} Outcome of the action
  */
-const doGroundPunch = (attacker, defender, staminaImpact) => {
+const doGroundPunch = (attacker, defender) => {
   console.log(`${attacker.name} throws a ground punch at ${defender.name}`);
   attacker.stats.punchesThrown = (attacker.stats.punchesThrown || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
-      attacker.Rating.groundOffence * staminaImpact,
+      attacker.Rating.groundOffence,
       defender.Rating.groundDefence
     )
   ) {
     const { damage, target } = calculateDamage(
-      attacker.Rating.groundOffence * staminaImpact,
+      attacker.Rating.groundOffence,
       "groundPunch"
     );
     defender.health[target] = Math.max(0, defender.health[target] - damage);
@@ -743,17 +736,16 @@ const doClinchTakedown = (attacker, defender) => {
  * Perform a takedown action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
  * @returns {string} Outcome of the action
  */
-const doTakedown = (attacker, defender, staminaImpact) => {
+const doTakedown = (attacker, defender) => {
   console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
   attacker.stats.takedownsAttempted =
     (attacker.stats.takedownsAttempted || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
-      attacker.Rating.takedownOffence * staminaImpact,
+      attacker.Rating.takedownOffence,
       defender.Rating.takedownDefence
     )
   ) {
@@ -765,7 +757,7 @@ const doTakedown = (attacker, defender, staminaImpact) => {
 
     // Calculate damage for successful takedowns
     const { damage, target } = calculateDamage(
-      attacker.Rating.takedownOffence * staminaImpact,
+      attacker.Rating.takedownOffence,
       "takedown"
     );
 
@@ -793,14 +785,13 @@ const doTakedown = (attacker, defender, staminaImpact) => {
  * Attempt to advance position in ground fighting
  * @param {Object} attacker - Attacking fighter attempting to advance position
  * @param {Object} defender - Defending fighter
- * @param {number} staminaImpact - Stamina impact on the action
  * @returns {string} Outcome of the action
  */
-const doPositionAdvance = (attacker, defender, staminaImpact) => {
+const doPositionAdvance = (attacker, defender) => {
   console.log(`${attacker.name} attempts to advance position`);
 
   const successProbability = calculateProbability(
-    attacker.Rating.groundOffence * staminaImpact,
+    attacker.Rating.groundOffence,
     defender.Rating.groundDefence
   );
 
@@ -831,19 +822,11 @@ const doPositionAdvance = (attacker, defender, staminaImpact) => {
     attacker.position = newAttackerPosition;
     defender.position = newDefenderPosition;
 
-    // Decrease stamina
-    attacker.stamina = Math.max(0, attacker.stamina - 5);
-    defender.stamina = Math.max(0, defender.stamina - 3);
-
     console.log(
       `${attacker.name} successfully advances to ${newAttackerPosition}`
     );
     return "positionAdvanceSuccessful";
   } else {
-    // Decrease stamina (less than successful attempt)
-    attacker.stamina = Math.max(0, attacker.stamina - 3);
-    defender.stamina = Math.max(0, defender.stamina - 1);
-
     console.log(`${attacker.name} fails to advance position`);
     return "positionAdvanceFailed";
   }
@@ -1079,10 +1062,6 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
 
-  // Decrease stamina for the initial action
-  fighter.stamina = Math.max(0, fighter.stamina - 2);
-  const staminaImpact = calculateStaminaImpact(fighter.stamina);
-
   let outcome;
   let timePassed = 0;
   let submissionType = null;
@@ -1124,11 +1103,11 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = simulateTimePassing("wait");
       break;
     case "takedownAttempt":
-      outcome = doTakedown(fighter, opponentFighter, staminaImpact);
+      outcome = doTakedown(fighter, opponentFighter);
       timePassed = simulateTimePassing("takedownAttempt");
       break;
     case "getUpAttempt":
-      outcome = doGetUp(fighter, opponentFighter, staminaImpact);
+      outcome = doGetUp(fighter, opponentFighter);
       timePassed = simulateTimePassing("getUpAttempt");
       break;
     case "positionAdvance":
@@ -1144,7 +1123,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = simulateTimePassing("escape");
       break;
     case "groundPunch":
-      outcome = doGroundPunch(fighter, opponentFighter, staminaImpact);
+      outcome = doGroundPunch(fighter, opponentFighter);
       timePassed = simulateTimePassing("groundPunch");
       break;
     case "submission":
@@ -1159,13 +1138,25 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = 1; // Default to 1 second for unknown actions
       break;
   }
+  
+  // Apply stamina impact after the action
+  const staminaChange = calculateStaminaChange(actionType, fighter.Rating.cardio);
+  fighter.stamina = Math.max(0, fighter.stamina - staminaChange);
 
+  // Handle special cases for stamina impact on the defender
+  if (outcome.includes('Landed') && (actionType === 'bodyKick' || actionType === 'bodyPunch')) {
+    const defenderStaminaChange = staminaChange / 2; // Reduce defender's stamina by half the attacker's stamina change
+    opponentFighter.stamina = Math.max(0, opponentFighter.stamina - defenderStaminaChange);
+  }
+  console.log(`Action: ${actionType}, Outcome: ${outcome}`);
+  console.log(`Stamina - ${fighter.name}: ${fighter.stamina.toFixed(2)}, ${opponentFighter.name}: ${opponentFighter.stamina.toFixed(2)}`);
+  
   // Check for knockout (this is for one hit or seek knockouts)
   if (opponentFighter.isKnockedOut) {
     console.log(`${opponentFighter.name} has been knocked out!`);
     return [actionFighter, timePassed];
   }
-
+  
   // Check for knockout using the isKnockedOut function
   if (isKnockedOut(opponentFighter)) {
     const knockoutPart = Object.keys(opponentFighter.health).find(
@@ -1197,7 +1188,7 @@ const simulateRound = (fighters, roundNumber) => {
   // Reset fighters to standing position and recover some stamina at the start of the round
   fighters.forEach((fighter) => {
     fighter.position = FIGHTER_POSITIONS.STANDING;
-    fighter.stamina = Math.min(100, fighter.stamina + 20); // Recover 20 stamina between rounds
+    fighter.stamina = recoverStaminaEndRound(fighter.stamina, fighter.Rating.cardio);
   });
 
   // Track initial stats for this round

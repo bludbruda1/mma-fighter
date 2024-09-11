@@ -551,10 +551,13 @@ const weightedRandomChoice = (items, weights) => {
 /**
  * Calculate stamina impact on action effectiveness
  * @param {number} stamina - Current stamina of the fighter
+ * @param {number} cardio - Cardio rating of the fighter
  * @returns {number} Stamina impact factor
  */
-const calculateStaminaImpact = (stamina) => {
-  return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+const calculateStaminaImpact = (stamina, cardio) => {
+  const baseImpact = 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+  const cardioFactor = 1 + (cardio - 50) / 100; // Cardio rating effect (50 is considered average)
+  return baseImpact * cardioFactor;
 };
 
 /**
