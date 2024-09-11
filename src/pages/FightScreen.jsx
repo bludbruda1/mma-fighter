@@ -101,6 +101,7 @@ const FightScreen = () => {
             speed: Number(fighter.Rating.speed) || 0,
             cardio: Number(fighter.Rating.cardio) || 0,
             toughness: Number(fighter.Rating.toughness) || 0,
+            chin: Number(fighter.Rating.chin) || 0,
             striking: Number(fighter.Rating.striking) || 0,
             punchPower: Number(fighter.Rating.punchPower) || 0,
             handSpeed: Number(fighter.Rating.handSpeed) || 0,
