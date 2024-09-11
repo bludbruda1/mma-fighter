@@ -26,10 +26,9 @@ const POWER_FACTOR = 0.5;
 const VARIABILITY_FACTOR = 0.3;
 const CRITICAL_HIT_CHANCE = 0.05;
 const CRITICAL_HIT_MULTIPLIER = 2;
-const KNOCKOUT_BASE_CHANCE = 0.005; 
-const MAX_KNOCKOUT_CHANCE = 0.15;
-const STUN_BASE_CHANCE = 0.03;
-const MAX_STUN_CHANCE = 0.25; 
+const KNOCKOUT_BASE_CHANCE = 0.05; 
+const MAX_KNOCKOUT_CHANCE = 0.25;
+const MAX_STUN_CHANCE = 0.30; 
 
 
 /**
@@ -623,19 +622,8 @@ const calculatePunchDamage = (attacker, defender, strikeType) => {
 
   // Calculate effective toughness (combination of toughness and chin for head strikes)
   const effectiveToughness = target === "head" 
-    ? (defender.Rating.toughness * 0.5 + defender.Rating.chin * 0.5)
+    ? (defender.Rating.toughness * 0.35 + defender.Rating.chin * 0.65)
     : defender.Rating.toughness;
-
-  // Calculate knockout probability
-  const knockoutFactor = (attacker.Rating.punchPower / effectiveToughness) * (totalDamage / defender.health[target]);
-  const knockoutProbability = Math.min(knockoutFactor * KNOCKOUT_BASE_CHANCE, MAX_KNOCKOUT_CHANCE);
-  const isKnockout = target === "head" && Math.random() < knockoutProbability;
-
-  // Determine if the strike causes a stun
-  const stunFactor = (totalDamage / defender.health[target]) * (attacker.Rating.punchPower / effectiveToughness);
-  const stunProbability = Math.min(stunFactor * STUN_BASE_CHANCE, MAX_STUN_CHANCE);
-  const isStun = !isKnockout && Math.random() < stunProbability;
-
 
   // Calculate damage reduction based on defender's toughness and chin
   const damageReduction = target === "head" 
@@ -644,13 +632,62 @@ const calculatePunchDamage = (attacker, defender, strikeType) => {
 
   totalDamage = Math.round(totalDamage * damageReduction);
 
+   // Calculate knockout probability
+   const knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target);
+   const isKnockout = Math.random() < knockoutProbability;
+ 
+
+  // Determine if the strike causes a stun (more likely than a knockout)
+  const stunProbability = Math.min(knockoutProbability * 2, MAX_STUN_CHANCE);
+  const isStun = !isKnockout && Math.random() < stunProbability;
+
   return {
     damage: totalDamage,
     target,
     isCritical,
     isStun,
-    isKnockout
+    isKnockout,
+    knockoutProbability  // Added for debugging purposes
+
   };
+};
+
+const calculateKnockoutProbability = (attacker, defender, damageDealt, target) => {
+  if (target !== "head") {
+    return 0; // Only head strikes can cause a knockout
+  }
+
+  const basePunchPower = attacker.Rating.punchPower;
+  const defenderChin = defender.Rating.chin;
+  const defenderCurrentHealth = defender.health.head;
+  const defenderMaxHealth = defender.maxHealth.head;
+
+  // Calculate power factor (emphasize very high punch power)
+  let powerFactor = basePunchPower / 100;
+  if (basePunchPower >= 95) {
+    powerFactor *= 1.5; // 50% boost for very high punch power
+  }
+
+  // Calculate chin vulnerability (emphasize weak chin)
+  let chinVulnerability = (100 - defenderChin) / 100;
+  if (defenderChin <= 70) {
+    chinVulnerability *= 1.5; // 50% increased vulnerability for weak chin
+  }
+
+  // Calculate health factor
+  const healthFactor = 1 - (defenderCurrentHealth / defenderMaxHealth);
+
+  // Calculate damage factor
+  const damageFactor = damageDealt / 100; // Normalize damage to 0-1 range
+
+  // Calculate base knockout probability
+  let knockoutProbability = KNOCKOUT_BASE_CHANCE * powerFactor * chinVulnerability * (1 + healthFactor) * (1 + damageFactor);
+
+  // Apply random factor
+  knockoutProbability *= (1 + (Math.random() - 0.5) * 0.4); // +/- 20% randomness
+
+  // Clamp the probability between 0 and MAX_KNOCKOUT_CHANCE
+  return Math.min(Math.max(knockoutProbability, 0), MAX_KNOCKOUT_CHANCE);
 };
 
 export {
