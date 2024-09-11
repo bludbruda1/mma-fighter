@@ -334,7 +334,6 @@ const determineGroundAction = (fighter) => {
   const groundOffence = fighter.Rating.groundOffence;
   const groundDefence = fighter.Rating.groundDefence;
   const submissionOffence = fighter.Rating.submissionOffence;
-  const submissionDefence = fighter.Rating.submissionDefence;
   const attackerStamina = fighter.stamina / 100;
 
   // Determine if the fighter is in an offensive or defensive position
@@ -346,110 +345,92 @@ const determineGroundAction = (fighter) => {
     FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
   ].includes(fighter.position);
 
-  // Calculate base chances for common actions
-  let groundPunchChance =
-    (groundOffence / (groundOffence + groundDefence)) * 0.4 * attackerStamina;
-  let submissionChance =
-    (submissionOffence / (submissionOffence + submissionDefence)) *
-    0.3 *
-    attackerStamina;
-  let getUpChance = 0.1 * attackerStamina;
+  // Define available actions based on position
+  let availableActions = ['groundPunch', 'getUpAttempt'];
+
   if (isOffensive) {
-    // Offensive-specific action: positionAdvance
-    let positionAdvanceChance =
-      (groundOffence / (groundOffence + groundDefence)) * 0.2 * attackerStamina;
-
-    // Normalize probabilities
-    const total =
-      groundPunchChance +
-      submissionChance +
-      positionAdvanceChance +
-      getUpChance;
-    groundPunchChance /= total;
-    submissionChance /= total;
-    positionAdvanceChance /= total;
-    getUpChance /= total;
-
-    // Choose action based on probabilities
-    const random = Math.random();
-    if (random < groundPunchChance) {
-      return "groundPunch";
-    } else if (random < groundPunchChance + submissionChance) {
-      return "submission";
-    } else if (
-      random <
-      groundPunchChance + submissionChance + positionAdvanceChance
-    ) {
-      return "positionAdvance";
-    } else {
-      return "getUpAttempt";
+    availableActions.push('positionAdvance');
+    // Add submission option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+      FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
+    ].includes(fighter.position)) {
+      availableActions.push('submission');
     }
   } else {
-    // Defensive-specific actions: sweep and escape
-    let sweepChance = 0;
-    let escapeChance = 0;
-
-    // Calculate sweep chance only for valid positions
-    if (
-      [
-        FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
-      ].includes(fighter.position)
-    ) {
-      sweepChance =
-        (groundOffence / (groundOffence + groundDefence)) *
-        0.15 *
-        attackerStamina;
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position)) {
+      availableActions.push('sweep');
     }
-
-    // Calculate escape chance only for valid positions
-    if (
-      [
-        FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE,
-      ].includes(fighter.position)
-    ) {
-      escapeChance =
-        (groundDefence / (groundOffence + groundDefence)) *
-        0.15 *
-        attackerStamina;
+    if ([
+      FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
+    ].includes(fighter.position)) {
+      availableActions.push('escape');
     }
-
-    // Adjust getUpChance for defensive position
-    getUpChance = 0.2 * attackerStamina;
-
-    // Normalize probabilities
-    const total =
-      groundPunchChance +
-      submissionChance +
-      sweepChance +
-      escapeChance +
-      getUpChance;
-    groundPunchChance /= total;
-    submissionChance /= total;
-    sweepChance /= total;
-    escapeChance /= total;
-    getUpChance /= total;
-
-    // Choose action based on probabilities
-    const random = Math.random();
-    if (random < groundPunchChance) {
-      return "groundPunch";
-    } else if (random < groundPunchChance + submissionChance) {
-      return "submission";
-    } else if (random < groundPunchChance + submissionChance + sweepChance) {
-      return "sweep";
-    } else if (
-      random <
-      groundPunchChance + submissionChance + sweepChance + escapeChance
-    ) {
-      return "escape";
-    } else {
-      return "getUpAttempt";
+    // Add submission option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM
+    ].includes(fighter.position)) {
+      availableActions.push('submission');
     }
   }
+
+  // Calculate probabilities for each available action
+  let actionProbabilities = {};
+  let totalProbability = 0;
+
+  availableActions.forEach(action => {
+    let probability;
+    switch (action) {
+      case 'groundPunch':
+        probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
+        break;
+      case 'submission':
+        probability = submissionOffence * 0.3 * attackerStamina;
+        break;
+      case 'positionAdvance':
+        probability = groundOffence * 0.2 * attackerStamina;
+        break;
+      case 'sweep':
+        probability = groundOffence * 0.15 * attackerStamina;
+        break;
+      case 'escape':
+        probability = groundDefence * 0.15 * attackerStamina;
+        break;
+      case 'getUpAttempt':
+        probability = (isOffensive ? 0.1 : 0.2) * attackerStamina;
+        break;
+      default:
+        probability = 0;
+    }
+    actionProbabilities[action] = probability;
+    totalProbability += probability;
+  });
+
+  // Normalize probabilities
+  Object.keys(actionProbabilities).forEach(action => {
+    actionProbabilities[action] /= totalProbability;
+  });
+
+  // Choose action based on probabilities
+  const random = Math.random();
+  let cumulativeProbability = 0;
+  for (let action in actionProbabilities) {
+    cumulativeProbability += actionProbabilities[action];
+    if (random < cumulativeProbability) {
+      return action;
+    }
+  }
+
+  // Fallback to groundPunch if something goes wrong
+  return 'groundPunch';
 };
 
 /**

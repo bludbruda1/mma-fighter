@@ -981,6 +981,7 @@ const doSubmission = (attacker, defender) => {
     applicableSubmissions[
       Math.floor(Math.random() * applicableSubmissions.length)
     ];
+
   console.log(
     `${attacker.name} attempts a ${chosenSubmission.name} on ${defender.name}`
   );
@@ -1157,7 +1158,8 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   }
   console.log(`Action: ${actionType}, Outcome: ${outcome}`);
   console.log(`Stamina - ${fighter.name}: ${fighter.stamina.toFixed(2)}, ${opponentFighter.name}: ${opponentFighter.stamina.toFixed(2)}`);
-  
+  console.log(`Position - ${fighter.name}: ${fighter.position}`);
+
   // Check for knockout (this is for one hit or seek knockouts)
   if (opponentFighter.isKnockedOut) {
     console.log(`${opponentFighter.name} has been knocked out!`);
