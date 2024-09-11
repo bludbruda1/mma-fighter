@@ -298,37 +298,33 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
   const outcome = Math.random();
   const timePassed = comboCount === 0 ? simulateTimePassing(punchType) : 2; // Combo punches are quicker
 
-  // Use COMBO_CHANCE, reduced for each punch in the combo
-  const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);
-
-  // Determine if a combo follows (only for certain punch types and if not at max combo length)
-  const comboFollows =
-    ["jab", "cross", "hook", "uppercut", "bodyPunch"].includes(punchType) &&
-    Math.random() < comboChance &&
-    comboCount < MAX_COMBO_LENGTH - 1;
-
+  let totalTimePassed = timePassed;
   let outcomeDescription = '';
-  let totalTimePassed = simulateTimePassing(punchType);
 
   if (outcome < hitChance) {
     // Hit logic
-    const damageResult = calculateDamage(attacker.Rating.punchPower, punchType);
+    const damageResult = calculatePunchDamage(attacker, defender, punchType);
     defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
 
     // Update attacker's stats
     attacker.stats.punchesLanded = (attacker.stats.punchesLanded || 0) + 1;
     attacker.stats[`${punchType}sLanded`] = (attacker.stats[`${punchType}sLanded`] || 0) + 1;
 
-    let outcomeDescription = `${punchType}Landed`;
+    outcomeDescription = `${punchType}Landed`;
     if (damageResult.isCritical) {
       outcomeDescription += "Critical";
+      console.log("It's a critical hit!");
     }
     
     console.log(
-      `${defender.name} is hit by the ${punchType} for ${damageResult.damage} damage to the ${damageResult.target}`
+      `${defender.name} is hit by the ${displayPunchType} for ${damageResult.damage} damage to the ${damageResult.target}`
     );
 
-    if (damageResult.isStun) {
+    if (damageResult.isKnockout) {
+      outcomeDescription += "Knockout";
+      console.log(`${defender.name} has been knocked out!`);
+      defender.isKnockedOut = true;
+    } else if (damageResult.isStun) {
       outcomeDescription += "Stun";
       console.log(`${defender.name} is stunned!`);
       const finishAttempt = doSeekFinish(attacker, defender);
@@ -340,12 +336,9 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       
       // Add the time passed during the finish attempt
       totalTimePassed += finishAttempt.timePassed;
-    } else if (damageResult.isKnockout) {
-      outcomeDescription += "Knockout";
-      defender.isKnockedOut = true;
     }
 
-    return [outcomeDescription, totalTimePassed, false]; // Set comboFollows to false as the action is concluded
+    console.log(`${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`);
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
@@ -370,8 +363,19 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       `${attacker.name}'s ${displayPunchType} misses ${defender.name}`
     );
   }
-  return [outcomeDescription, timePassed, comboFollows];
 
+  // Use COMBO_CHANCE, reduced for each punch in the combo
+  const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);
+
+  // Determine if a combo follows (only for certain punch types and if not at max combo length)
+  const comboFollows =
+    ["jab", "cross", "hook", "uppercut", "bodyPunch"].includes(punchType) &&
+    Math.random() < comboChance &&
+    comboCount < MAX_COMBO_LENGTH - 1 &&
+    !outcomeDescription.includes("Knockout") &&
+    !outcomeDescription.includes("Stun");
+
+  return [outcomeDescription, totalTimePassed, comboFollows];
 };
 
 /**
@@ -455,6 +459,9 @@ const doSeekFinish = (attacker, defender) => {
       totalDamage += damageResult.damage;
 
       console.log(`${attacker.name} lands a ${strikeType} for ${damageResult.damage} damage!`);
+      if (damageResult.isCritical) {
+        console.log("It's a clean hit!");
+      }
 
       // Apply damage
       defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
@@ -462,30 +469,32 @@ const doSeekFinish = (attacker, defender) => {
       // Check for knockout
       if (damageResult.isKnockout || defender.health.head <= 0) {
         finishResult = 'knockout';
+        console.log(`${defender.name} has been knocked out!`);
         break;
       }
 
-      // Check if defender recovers from stun
-      if (Math.random() < 0.2) { // 20% chance to recover per strike
-        console.log(`${defender.name} has recovered!`);
+      // Check for stun extension
+      if (damageResult.isStun) {
+        console.log(`${defender.name} remains stunned!`);
+      } else if (Math.random() < 0.15) { // 15% chance to recover if not re-stunned
+        console.log(`${defender.name} has recovered from the stun!`);
         break;
       }
     } else {
       console.log(`${attacker.name}'s ${strikeType} misses!`);
       // Higher chance for defender to recover when attacker misses
-      if (Math.random() < 0.4) { // 40% chance to recover on a miss
+      if (Math.random() < 0.20) { // 20% chance to recover on a miss
         console.log(`${defender.name} has recovered!`);
         break;
       }
     }
+    console.log(`${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`);
   }
 
   const timePassed = simulateTimePassing('seekFinish') * attempts;
 
   if (!finishResult) {
     console.log(`${attacker.name} couldn't finish the fight. ${defender.name} survives the onslaught!`);
-  } else {
-    console.log(`${attacker.name} has knocked out ${defender.name}!`);
   }
 
   return {
@@ -1075,8 +1084,6 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "overhand":
     case "spinningBackfist":
     case "supermanPunch":
-      [outcome, timePassed] = doPunch(fighter, opponentFighter, actionType);
-      break;
     case "headKick":
     case "bodyKick":
     case "legKick":
