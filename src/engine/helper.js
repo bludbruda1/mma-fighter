@@ -15,31 +15,31 @@ function formatTime(seconds) {
  */
 const actionProperties = {
   // Punches
-  jab: { time: 1, staminaImpact: 1 },
-  cross: { time: 1, staminaImpact: 2 },
-  hook: { time: 2, staminaImpact: 3 },
-  uppercut: { time: 2, staminaImpact: 3 },
-  overhand: { time: 2, staminaImpact: 4 },
-  spinningBackfist: { time: 3, staminaImpact: 5 },
-  supermanPunch: { time: 3, staminaImpact: 5 },
+  jab: { time: 2, staminaImpact: 1 },
+  cross: { time: 2, staminaImpact: 2 },
+  hook: { time: 3, staminaImpact: 3 },
+  uppercut: { time: 3, staminaImpact: 3 },
+  overhand: { time: 3, staminaImpact: 4 },
+  spinningBackfist: { time: 4, staminaImpact: 5 },
+  supermanPunch: { time: 4, staminaImpact: 5 },
   bodyPunch: { time: 2, staminaImpact: 2 },
 
   // Kicks
-  headKick: { time: 3, staminaImpact: 6 },
-  bodyKick: { time: 3, staminaImpact: 5 },
-  legKick: { time: 2, staminaImpact: 4 },
+  headKick: { time: 4, staminaImpact: 6 },
+  bodyKick: { time: 4, staminaImpact: 5 },
+  legKick: { time: 3, staminaImpact: 4 },
 
   // Grappling and clinch
-  takedownAttempt: { time: 5, staminaImpact: 7 },
-  getUpAttempt: { time: 4, staminaImpact: 5 },
+  takedownAttempt: { time: 8, staminaImpact: 7 },
+  getUpAttempt: { time: 6, staminaImpact: 5 },
   clinchAttempt: { time: 3, staminaImpact: 4 },
   clinchStrike: { time: 2, staminaImpact: 3 },
-  clinchTakedown: { time: 4, staminaImpact: 6 },
+  clinchTakedown: { time: 7, staminaImpact: 6 },
   clinchExit: { time: 2, staminaImpact: 3 },
 
   // Ground actions
-  groundPunch: { time: 1, staminaImpact: 2 },
-  submission: { time: 8, staminaImpact: 10 },
+  groundPunch: { time: 2, staminaImpact: 2 },
+  submission: { time: 10, staminaImpact: 10 },
   positionAdvance: { time: 6, staminaImpact: 5 },
   sweep: { time: 6, staminaImpact: 7 },
   escape: { time: 6, staminaImpact: 6 },
@@ -49,7 +49,7 @@ const actionProperties = {
 
   // Other actions
   wait: { time: 5, staminaImpact: -2 }, // Negative stamina impact means recovery
-  seekFinish: {time: 10, staminaImpact: 15} // fighter trying to finish the fight off
+  seekFinish: {time: 2, staminaImpact: 15} // fighter trying to finish the fight off
 
 };
 
