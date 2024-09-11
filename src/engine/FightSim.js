@@ -1,7 +1,7 @@
 import { formatTime, simulateTimePassing, isKnockedOut, calculateStaminaChange, recoverStaminaEndRound } from "./helper.js";
 import {
   calculateDamage,
-  calculatePunchDamage,
+  calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
   calculateSubmissionProbability,
@@ -125,7 +125,7 @@ const pickFighter = (fighters, lastActionFighter) => {
  * @param {Object} defender - Defending fighter
  * @param {string} kickType - Type of kick (leg kick, body kick, head kick etc)
  * @param {number} comboCount - Number of strikes already in this combo
- * @returns {string} Outcome of the action
+ * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
  */
 const doKick = (attacker, defender, kickType, comboCount = 0) => {
   // This just cleans up the text output
@@ -170,22 +170,13 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
   const outcome = Math.random();
   const timePassed = comboCount === 0 ? simulateTimePassing(kickType) : 3; // Combo kicks are quicker
 
-  // Use COMBO_CHANCE, reduced for each strike in the combo
-  const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);
-
-  // Determine if a combo follows (only for certain kick types and if not at max combo length)
-  const comboFollows =
-    ["headKick", "bodyKick", "legKick"].includes(kickType) &&
-    Math.random() < comboChance &&
-    comboCount < MAX_COMBO_LENGTH - 1;
+  let totalTimePassed = timePassed;
+  let outcomeDescription = '';
 
   if (outcome < hitChance) {
     // Hit logic
-    const { damage, target } = calculateDamage(
-      attacker.Rating.kicking,
-      kickType
-    );
-    defender.health[target] = Math.max(0, defender.health[target] - damage);
+    const damageResult = calculateStrikeDamage(attacker, defender, kickType);
+    defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
 
     // Update attacker's stats
     attacker.stats.kicksLanded = (attacker.stats.kicksLanded || 0) + 1;
@@ -193,9 +184,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
       (attacker.stats[`${kickType}sLanded`] || 0) + 1;
 
     console.log(
-      `${defender.name} is hit by the ${displayKickType} for ${JSON.stringify(
-        damage
-      )} damage`
+      `${defender.name} is hit by the ${displayKickType} for ${damageResult.damage} damage to the ${damageResult.target}`
     );
 
     // Special case for leg kicks
@@ -204,7 +193,29 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
       // We could implement additional effects here, like reduced movement or increased chance of knockdown
     }
 
-    return [`${kickType}Landed`, timePassed, comboFollows];
+    outcomeDescription = `${kickType}Landed`;
+    if (damageResult.isCritical) {
+      outcomeDescription += "Critical";
+      console.log("It's a critical hit!");
+    }
+    
+    if (damageResult.isKnockout) {
+      outcomeDescription += "Knockout";
+      console.log(`${defender.name} has been knocked out!`);
+      defender.isKnockedOut = true;
+    } else if (damageResult.isStun) {
+      outcomeDescription += "Stun";
+      console.log(`${defender.name} is stunned!`);
+      const finishAttempt = doSeekFinish(attacker, defender);
+      
+      if (finishAttempt.result === 'knockout') {
+        outcomeDescription += "Knockout";
+        defender.isKnockedOut = true;
+      }
+      
+      // Add the time passed during the finish attempt
+      totalTimePassed += finishAttempt.timePassed;
+    }
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.kicksBlocked = (defender.stats.kicksBlocked || 0) + 1;
@@ -215,17 +226,14 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
 
     // Special case for checked leg kicks
     if (kickType === "legKick") {
-      const { damage, target } = calculateDamage(
-        defender.Rating.kickDefence,
-        "legKick"
-      );
-      attacker.health[target] = Math.max(0, attacker.health[target] - damage);
+      const damageResult = calculateStrikeDamage(defender, attacker, "legKick");
+      attacker.health[damageResult.target] = Math.max(0, attacker.health[damageResult.target] - damageResult.damage);
       console.log(
-        `${attacker.name} takes ${damage} damage to the ${target} from the checked leg kick`
+        `${attacker.name} takes ${damageResult.damage} damage to the ${damageResult.target} from the checked leg kick`
       );
     }
 
-    return [`${kickType}Blocked`, timePassed, comboFollows];
+    outcomeDescription = `${kickType}Blocked`;
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.kicksEvaded = (defender.stats.kicksEvaded || 0) + 1;
@@ -233,7 +241,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
       (defender.stats[`${kickType}sEvaded`] || 0) + 1;
 
     console.log(`${defender.name} evades the ${displayKickType}`);
-    return [`${kickType}Evaded`, timePassed, comboFollows];
+    outcomeDescription = `${kickType}Evaded`;
   } else {
     // Miss logic
     attacker.stats.kicksMissed = (attacker.stats.kicksMissed || 0) + 1;
@@ -243,8 +251,21 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
     console.log(
       `${attacker.name}'s ${displayKickType} misses ${defender.name}`
     );
-    return [`${kickType}Missed`, timePassed, comboFollows];
+    outcomeDescription = `${kickType}Missed`;
   }
+
+  // Use COMBO_CHANCE, reduced for each strike in the combo
+  const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);
+
+  // Determine if a combo follows (only for certain kick types and if not at max combo length)
+  const comboFollows =
+    ["headKick", "bodyKick", "legKick"].includes(kickType) &&
+    Math.random() < comboChance &&
+    comboCount < MAX_COMBO_LENGTH - 1 &&
+    !outcomeDescription.includes("Knockout") &&
+    !outcomeDescription.includes("Stun");
+
+  return [outcomeDescription, totalTimePassed, comboFollows];
 };
 
 /**
@@ -303,7 +324,7 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
 
   if (outcome < hitChance) {
     // Hit logic
-    const damageResult = calculatePunchDamage(attacker, defender, punchType);
+    const damageResult = calculateStrikeDamage(attacker, defender, punchType);
     defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
 
     // Update attacker's stats
@@ -455,7 +476,7 @@ const doSeekFinish = (attacker, defender) => {
 
     if (Math.random() < stunnedHitChance) {
       // Strike lands
-      const damageResult = calculatePunchDamage(attacker, defender, strikeType);
+      const damageResult = calculateStrikeDamage(attacker, defender, strikeType);
       totalDamage += damageResult.damage;
 
       console.log(`${attacker.name} lands a ${strikeType} for ${damageResult.damage} damage!`);

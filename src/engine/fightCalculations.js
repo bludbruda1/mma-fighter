@@ -2,6 +2,7 @@ import { FIGHTER_POSITIONS } from "./FightSim.js";
 
 // Constants for strike damages
 const STRIKE_DAMAGE = {
+  //punches
   jab: { damage: 2, target: "head" },
   cross: { damage: 4, target: "head" },
   hook: { damage: 5, target: "head" },
@@ -10,9 +11,11 @@ const STRIKE_DAMAGE = {
   spinningBackfist: { damage: 5, target: "head" },
   supermanPunch: { damage: 6, target: "head" },
   bodyPunch: { damage: 3, target: "body" },
+  //kicks
   headKick: { damage: 9, target: "head" },
   bodyKick: { damage: 8, target: "body" },
   legKick: { damage: 7, target: "legs" },
+  //other
   takedown: { damage: 9, target: "body" },
   clinchStrike: { damage: 3, target: "head" },
   groundPunch: { damage: 3, target: "head" },
@@ -574,7 +577,7 @@ const calculateDamage = (baseRating, strikeType) => {
   return { damage: totalDamage, target };
 };
 
-const calculatePunchDamage = (attacker, defender, strikeType) => {
+const calculateStrikeDamage = (attacker, defender, strikeType) => {
   if (!STRIKE_DAMAGE[strikeType]) {
     throw new Error("Invalid strike type " + strikeType);
   }
@@ -586,8 +589,11 @@ const calculatePunchDamage = (attacker, defender, strikeType) => {
     target = Math.random() < 0.7 ? "head" : "body";
   }
 
+   // Determine if it's a punch or a kick
+  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch"].includes(strikeType);
+
   // Apply power factor based on the attacker's rating
-  const powerFactor = 1 + (attacker.Rating.punchPower / 100) * POWER_FACTOR;
+  const powerFactor = 1 + (isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower) / 100 * POWER_FACTOR;
 
   // Add variability to the damage
   const variability = 1 + (Math.random() * 2 - 1) * VARIABILITY_FACTOR;
@@ -633,19 +639,20 @@ const calculatePunchDamage = (attacker, defender, strikeType) => {
 };
 
 const calculateKnockoutProbability = (attacker, defender, damageDealt, target, strikeType) => {
-  if (target !== "head" || strikeType === "jab" || strikeType === "cross") {
-    return 0; // No knockout chance for body shots, jabs, or crosses
+  if (target !== "head" || strikeType === "jab") {
+    return 0; // No knockout chance for body shots or jabs
   }
 
-  const basePunchPower = attacker.Rating.punchPower;
+  const isPunch = ["hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch"].includes(strikeType);
+  const strikePower = isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower;
   const defenderChin = defender.Rating.chin;
   const defenderCurrentHealth = defender.health.head;
   const defenderMaxHealth = defender.maxHealth.head;
 
   // Calculate power factor (emphasize very high punch power)
-  let powerFactor = basePunchPower / 100;
-  if (basePunchPower >= 95) {
-    powerFactor *= 1.5; // 50% boost for very high punch power
+  let powerFactor = strikePower / 100;
+  if (strikePower >= 95) {
+    powerFactor *= 1.5; // 50% boost for very high strike power
   }
 
   // Calculate chin vulnerability (emphasize weak chin)
@@ -663,6 +670,11 @@ const calculateKnockoutProbability = (attacker, defender, damageDealt, target, s
   // Calculate base knockout probability
   let knockoutProbability = KNOCKOUT_BASE_CHANCE * powerFactor * chinVulnerability * (1 + healthFactor) * (1 + damageFactor);
 
+  // Adjust probability for kicks (generally lower than punches)
+  if (!isPunch) {
+    knockoutProbability *= 0.8; // 20% reduction for kicks
+  }
+
   // Apply random factor
   knockoutProbability *= (1 + (Math.random() - 0.5) * 0.4); // +/- 20% randomness
 
@@ -672,7 +684,7 @@ const calculateKnockoutProbability = (attacker, defender, damageDealt, target, s
 
 export {
   calculateDamage,
-  calculatePunchDamage,
+  calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
   calculateStaminaImpact,
