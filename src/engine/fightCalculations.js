@@ -13,12 +13,12 @@ const STRIKE_DAMAGE = {
   bodyPunch: { damage: 3, target: "body" },
   //kicks
   headKick: { damage: 9, target: "head" },
-  bodyKick: { damage: 8, target: "body" },
+  bodyKick: { damage: 7, target: "body" },
   legKick: { damage: 7, target: "legs" },
   //other
-  takedown: { damage: 9, target: "body" },
-  clinchStrike: { damage: 3, target: "head" },
-  groundPunch: { damage: 3, target: "head" },
+  takedown: { damage: 1, target: "body" },
+  clinchStrike: { damage: 1, target: "head" },
+  groundPunch: { damage: 1, target: "head" },
 };
 
 //Will eventually remove the below 2
