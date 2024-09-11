@@ -633,7 +633,7 @@ const calculatePunchDamage = (attacker, defender, strikeType) => {
   totalDamage = Math.round(totalDamage * damageReduction);
 
    // Calculate knockout probability
-   const knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target);
+   const knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
    const isKnockout = Math.random() < knockoutProbability;
  
 
@@ -648,13 +648,12 @@ const calculatePunchDamage = (attacker, defender, strikeType) => {
     isStun,
     isKnockout,
     knockoutProbability  // Added for debugging purposes
-
   };
 };
 
-const calculateKnockoutProbability = (attacker, defender, damageDealt, target) => {
-  if (target !== "head") {
-    return 0; // Only head strikes can cause a knockout
+const calculateKnockoutProbability = (attacker, defender, damageDealt, target, strikeType) => {
+  if (target !== "head" || strikeType === "jab" || strikeType === "cross") {
+    return 0; // No knockout chance for body shots, jabs, or crosses
   }
 
   const basePunchPower = attacker.Rating.punchPower;
