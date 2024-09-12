@@ -663,11 +663,8 @@ const doClinchStrike = (attacker, defender) => {
 
   if (outcome < hitChance) {
     // Hit logic
-    const { damage, target } = calculateDamage(
-      attacker.Rating.clinchStriking,
-      "clinchStrike"
-    );
-    defender.health[target] = Math.max(0, defender.health[target] - damage);
+    const damageResult = calculateStrikeDamage(attacker, defender, "clinchStrike");
+    defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
 
     updateFightStats(attacker, defender, 'punch', 'clinchStrike', 'landed');
 

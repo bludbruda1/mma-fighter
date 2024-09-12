@@ -2,7 +2,7 @@ import { FIGHTER_POSITIONS } from "./FightSim.js";
 
 // Constants for strike damages
 const STRIKE_DAMAGE = {
-  //punches
+  //standing punches
   jab: { damage: 2, target: "head" },
   cross: { damage: 4, target: "head" },
   hook: { damage: 5, target: "head" },
@@ -577,6 +577,19 @@ const calculateDamage = (baseRating, strikeType) => {
   return { damage: totalDamage, target };
 };
 
+/**
+ * Calculate the damage and effects of a strike
+ * @param {Object} attacker - The attacking fighter
+ * @param {Object} defender - The defending fighter
+ * @param {string} strikeType - The type of strike (e.g., 'jab', 'cross', 'hook', 'uppercut', 'headKick', 'bodyKick', 'legKick')
+ * @returns {Object} An object containing the following properties:
+ *   - damage {number}: The amount of damage dealt
+ *   - target {string}: The body part targeted ('head', 'body', or 'legs')
+ *   - isCritical {boolean}: Whether the strike was a critical hit
+ *   - isKnockout {boolean}: Whether the strike resulted in a knockout
+ *   - isStun {boolean}: Whether the strike resulted in a stun
+ *   - knockoutProbability {number}: The calculated probability of a knockout
+ */
 const calculateStrikeDamage = (attacker, defender, strikeType) => {
   if (!STRIKE_DAMAGE[strikeType]) {
     throw new Error("Invalid strike type " + strikeType);
@@ -590,7 +603,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   }
 
    // Determine if it's a punch or a kick
-  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch"].includes(strikeType);
+  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch", "clinchStrike"].includes(strikeType);
 
   // Apply power factor based on the attacker's rating
   const powerFactor = 1 + (isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower) / 100 * POWER_FACTOR;
@@ -624,7 +637,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   let isKnockout = false;
   let isStun = false;
 
-  if (strikeType !== "groundPunch") {
+  if (strikeType !== "groundPunch" || strikeType !== "clinchStrike") {
     knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
     isKnockout = Math.random() < knockoutProbability;
 
@@ -642,6 +655,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
     knockoutProbability  // Added for debugging purposes
   };
 };
+
 
 const calculateKnockoutProbability = (attacker, defender, damageDealt, target, strikeType) => {
   if (target !== "head" || strikeType === "jab") {
