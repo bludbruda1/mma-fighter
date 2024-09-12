@@ -7,7 +7,6 @@ import {
   updateFightStats 
 } from "./helper.js";
 import {
-  calculateDamage,
   calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
@@ -669,7 +668,7 @@ const doClinchStrike = (attacker, defender) => {
     updateFightStats(attacker, defender, 'punch', 'clinchStrike', 'landed');
 
     console.log(
-      `${defender.name} is hit by the clinch strike for ${damage} damage to the ${target}`
+      `${defender.name} is hit by the clinch strike for ${damageResult.damage} damage to the ${damageResult.target}`
     );
     return [`clinchStrikeLanded`, timePassed];
   } else if (outcome < hitChance + blockChance) {
@@ -764,22 +763,7 @@ const doTakedown = (attacker, defender) => {
 
     updateFightStats(attacker, defender, 'takedown', 'singleLeg', 'landed');
 
-    // Update ground states
-    attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
-    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-
-    // Calculate damage for successful takedowns
-    const { damage, target } = calculateDamage(
-      attacker.Rating.takedownOffence,
-      "takedown"
-    );
-
-    // Apply damage
-    defender.health[target] = Math.max(0, defender.health[target] - damage);
-
-    console.log(
-      `${attacker.name} successfully takes down ${defender.name} for ${damage} damage`
-    );
+    console.log(`${attacker.name} successfully takes down ${defender.name}`);
     return "takedownLanded";
   } else {
     updateFightStats(attacker, defender, 'takedown', 'singleLeg', 'defended');

@@ -21,10 +21,6 @@ const STRIKE_DAMAGE = {
   groundPunch: { damage: 1, target: "head" },
 };
 
-//Will eventually remove the below 2
-const DAMAGE_VARIATION_FACTOR = 0.25;
-const RATING_DAMAGE_FACTOR = 0.3;
-
 const POWER_FACTOR = 0.5;
 const VARIABILITY_FACTOR = 0.3;
 const CRITICAL_HIT_CHANCE = 0.05;
@@ -546,38 +542,6 @@ const calculateStaminaImpact = (stamina, cardio) => {
 };
 
 /**
- * Calculate damage for a strike
- * @param {number} baseRating - Attacker's base rating
- * @param {string} strikeType - Type of strike
- * @returns {number} Calculated damage
- */
-const calculateDamage = (baseRating, strikeType) => {
-  if (!STRIKE_DAMAGE[strikeType]) {
-    throw new Error("Invalid strike type " + strikeType);
-  }
-
-  let { damage: baseDamage, target } = STRIKE_DAMAGE[strikeType];
-
-  // Special case for ground punches: randomize between head and body
-  if (strikeType === "groundPunch") {
-    target = Math.random() < 0.7 ? "head" : "body";
-  }
-
-  // Special case for clinch strikes: randomize between head and body
-  if (strikeType === "clinchStrike") {
-    target = Math.random() < 0.7 ? "head" : "body";
-  }
-
-  const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
-  const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
-
-  // Calculate total damage
-  const totalDamage = Math.round((baseDamage + ratingFactor) * randomFactor);
-
-  return { damage: totalDamage, target };
-};
-
-/**
  * Calculate the damage and effects of a strike
  * @param {Object} attacker - The attacking fighter
  * @param {Object} defender - The defending fighter
@@ -637,7 +601,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   let isKnockout = false;
   let isStun = false;
 
-  if (strikeType !== "groundPunch" || strikeType !== "clinchStrike") {
+  if (strikeType !== "groundPunch" || strikeType !== "clinchStrike" ) {
     knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
     isKnockout = Math.random() < knockoutProbability;
 
@@ -702,7 +666,6 @@ const calculateKnockoutProbability = (attacker, defender, damageDealt, target, s
 };
 
 export {
-  calculateDamage,
   calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
