@@ -98,5 +98,65 @@ const isKnockedOut = (fighter) => {
   return Object.values(fighter.health).some(health => health <= 0);
 };
 
+/**
+ * Update fight statistics for both fighters
+ * @param {Object} attacker - The attacking fighter
+ * @param {Object} defender - The defending fighter
+ * @param {string} actionType - The type of action (e.g., 'punch', 'takedown', 'submission')
+ * @param {string} specificAction - The specific action (e.g., 'jab', 'singleLegTakedown', 'armbar')
+ * @param {string} outcome - The outcome of the action ('landed', 'blocked', 'evaded', 'missed', 'defended', 'attempted', 'successful')
+ */
+const updateFightStats = (attacker, defender, actionType, specificAction, outcome) => {
 
-export { formatTime, simulateTimePassing, actionProperties, isKnockedOut, calculateStaminaChange, recoverStaminaEndRound };
+  // Update outcome-specific stats
+  switch (outcome) {
+    case 'landed':
+      attacker.stats[`${(actionType)}sThrown`] = (attacker.stats[`${(actionType)}sThrown`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sThrown`] = (attacker.stats[`${(specificAction)}sThrown`] || 0) + 1;
+      attacker.stats[`${(actionType)}sLanded`] = (attacker.stats[`${(actionType)}sLanded`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sLanded`] = (attacker.stats[`${(specificAction)}sLanded`] || 0) + 1;
+      break;
+    case 'blocked':
+      attacker.stats[`${(actionType)}sThrown`] = (attacker.stats[`${(actionType)}sThrown`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sThrown`] = (attacker.stats[`${(specificAction)}sThrown`] || 0) + 1;
+      defender.stats[`${(actionType)}sBlocked`] = (defender.stats[`${(actionType)}sBlocked`] || 0) + 1;
+      defender.stats[`${(specificAction)}sBlocked`] = (defender.stats[`${(specificAction)}sBlocked`] || 0) + 1;
+      break;
+    case 'evaded':
+      attacker.stats[`${(actionType)}sThrown`] = (attacker.stats[`${(actionType)}sThrown`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sThrown`] = (attacker.stats[`${(specificAction)}sThrown`] || 0) + 1;
+      defender.stats[`${(actionType)}sEvaded`] = (attacker.stats[`${(actionType)}sEvaded`] || 0) + 1;
+      defender.stats[`${(specificAction)}sEvaded`] = (attacker.stats[`${(specificAction)}sEvaded`] || 0) + 1;
+      break;
+    case 'missed':
+      attacker.stats[`${(actionType)}sThrown`] = (attacker.stats[`${(actionType)}sThrown`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sThrown`] = (attacker.stats[`${(specificAction)}sThrown`] || 0) + 1;
+      attacker.stats[`${(actionType)}sMissed`] = (attacker.stats[`${(actionType)}sMissed`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sMissed`] = (attacker.stats[`${(specificAction)}sMissed`] || 0) + 1;
+      break;
+    case 'defended':
+      attacker.stats[`${(actionType)}sAttempted`] = (attacker.stats[`${(actionType)}sAttempted`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sAttempted`] = (attacker.stats[`${(specificAction)}sAttempted`] || 0) + 1;
+      defender.stats[`${(actionType)}sDefended`] = (defender.stats[`${(actionType)}sDefended`] || 0) + 1;
+      defender.stats[`${(specificAction)}sDefended`] = (defender.stats[`${(specificAction)}sDefended`] || 0) + 1;
+      break;
+    case 'successful':
+      attacker.stats[`${(actionType)}sAttempted`] = (attacker.stats[`${(actionType)}sAttempted`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sAttempted`] = (attacker.stats[`${(specificAction)}sAttempted`] || 0) + 1;
+      attacker.stats[`${(actionType)}sSuccessful`] = (attacker.stats[`${(actionType)}sSuccessful`] || 0) + 1;
+      attacker.stats[`${(specificAction)}sSuccessful`] = (attacker.stats[`${(specificAction)}sSuccessful`] || 0) + 1;
+      break;
+    default:
+      console.warn(`Unknown action outcome: ${outcome}`);
+  }
+
+  // If it's a strike, update the total strikes stats
+  if (['punch', 'kick', 'groundPunch', 'clinchStrike'].includes(actionType)) {
+    attacker.stats.totalStrikesAttempted = (attacker.stats.totalStrikesAttempted || 0) + 1;
+    if (outcome === 'landed') {
+      attacker.stats.totalStrikesLanded = (attacker.stats.totalStrikesLanded || 0) + 1;
+    }
+  }
+};
+
+export { formatTime, simulateTimePassing, actionProperties, isKnockedOut, calculateStaminaChange, recoverStaminaEndRound, updateFightStats };

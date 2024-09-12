@@ -590,7 +590,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   }
 
    // Determine if it's a punch or a kick
-  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch"].includes(strikeType);
+  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch"].includes(strikeType);
 
   // Apply power factor based on the attacker's rating
   const powerFactor = 1 + (isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower) / 100 * POWER_FACTOR;
@@ -619,14 +619,19 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
 
   totalDamage = Math.round(totalDamage * damageReduction);
 
-   // Calculate knockout probability
-   const knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
-   const isKnockout = Math.random() < knockoutProbability;
- 
+  // Calculate knockout and stun probabilities (not applicable for ground strikes)
+  let knockoutProbability = 0;
+  let isKnockout = false;
+  let isStun = false;
 
-  // Determine if the strike causes a stun (more likely than a knockout)
-  const stunProbability = Math.min(knockoutProbability * 2, MAX_STUN_CHANCE);
-  const isStun = !isKnockout && Math.random() < stunProbability;
+  if (strikeType !== "groundPunch") {
+    knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
+    isKnockout = Math.random() < knockoutProbability;
+
+    // Determine if the strike causes a stun (more likely than a knockout)
+    const stunProbability = Math.min(knockoutProbability * 2, MAX_STUN_CHANCE);
+    isStun = !isKnockout && Math.random() < stunProbability;
+  }
 
   return {
     damage: totalDamage,
