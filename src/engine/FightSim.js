@@ -599,13 +599,15 @@ const doClinch = (attacker, defender) => {
     attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENCE;
     defender.position = FIGHTER_POSITIONS.CLINCH_DEFENCE;
 
-    attacker.stats.clinchEntered = (attacker.stats.clinchEntered || 0) + 1;
+    updateFightStats(attacker, defender, 'clinch', 'clinch', 'successful');
+
     console.log(
       `${attacker.name} successfully gets ${defender.name} in a clinch against the cage`
     );
     return "clinchSuccessful";
   } else {
     console.log(`${defender.name} defends the clinch attempt`);
+    updateFightStats(attacker, defender, 'clinch', 'clinch', 'defended');
     return "clinchFailed";
   }
 };
@@ -630,8 +632,6 @@ const exitClinch = (defender, attacker) => {
     // Successfully exit the clinch
     attacker.position = FIGHTER_POSITIONS.STANDING;
     defender.position = FIGHTER_POSITIONS.STANDING;
-
-    attacker.stats.clinchExits = (attacker.stats.clinchExits || 0) + 1;
 
     console.log(`${defender.name} successfully exits the clinch`);
     return "clinchExitSuccessful";
@@ -727,13 +727,11 @@ const doClinchTakedown = (attacker, defender) => {
     }
 
     defender.health.body = Math.max(0, defender.health.body - damage);
-    attacker.stats.takedownsSuccessful = (attacker.stats.takedownsSuccessful || 0) + 1;
-    attacker.stats.clinchTakedownsSuccessful =
-      (attacker.stats.clinchTakedownsSuccessful || 0) + 1;
+    updateFightStats(attacker, defender, 'takedown', takedownType, 'landed');
 
     // Reset clinch state and move to ground
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
-    defender.position = FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM;
+    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
 
     console.log(
       `${attacker.name} successfully ${takedownType}s ${defender.name} for ${damage} damage`
@@ -742,10 +740,7 @@ const doClinchTakedown = (attacker, defender) => {
       takedownType.charAt(0).toUpperCase() + takedownType.slice(1)
     }Successful`;
   } else {
-    defender.stats.takedownsDefended =
-      (attacker.stats.takedownsDefended || 0) + 1;
-    defender.stats.clinchTakedownsDefended =
-      (attacker.stats.clinchTakedownsDefended || 0) + 1;
+    updateFightStats(attacker, defender, 'takedown', takedownType, 'defended');
     console.log(`${defender.name} defends the clinch ${takedownType}`);
     return `clinch${
       takedownType.charAt(0).toUpperCase() + takedownType.slice(1)
@@ -761,8 +756,7 @@ const doClinchTakedown = (attacker, defender) => {
  */
 const doTakedown = (attacker, defender) => {
   console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
-  attacker.stats.takedownsAttempted =
-    (attacker.stats.takedownsAttempted || 0) + 1;
+
   if (
     Math.random() <
     calculateProbability(
@@ -770,7 +764,8 @@ const doTakedown = (attacker, defender) => {
       defender.Rating.takedownDefence
     )
   ) {
-    attacker.stats.takedownsSuccessful = (attacker.stats.takedownsSuccessful || 0) + 1;
+
+    updateFightStats(attacker, defender, 'takedown', 'singleLeg', 'landed');
 
     // Update ground states
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
@@ -790,8 +785,7 @@ const doTakedown = (attacker, defender) => {
     );
     return "takedownLanded";
   } else {
-    defender.stats.takedownsDefended =
-      (defender.stats.takedownsDefended || 0) + 1;
+    updateFightStats(attacker, defender, 'takedown', 'singleLeg', 'defended');
 
     console.log(`${defender.name} defends the takedown`);
     // Both fighters remain standing
@@ -955,7 +949,6 @@ const doEscape = (attacker, defender) => {
  */
 const doGetUp = (attacker, defender) => {
   console.log(`${attacker.name} attempts to get up`);
-  attacker.stats.getUpsAttempted = (attacker.stats.getUpsAttempted || 0) + 1;
   if (
     Math.random() <
     calculateProbability(
@@ -963,8 +956,6 @@ const doGetUp = (attacker, defender) => {
       defender.Rating.groundOffence
     )
   ) {
-    attacker.stats.getUpsSuccessful =
-      (attacker.stats.getUpsSuccessful || 0) + 1;
 
     // Reset both fighters to standing position
     attacker.position = FIGHTER_POSITIONS.STANDING;
@@ -998,9 +989,6 @@ const doSubmission = (attacker, defender) => {
     `${attacker.name} attempts a ${chosenSubmission.name} on ${defender.name}`
   );
 
-  attacker.stats.submissionsAttempted =
-    (attacker.stats.submissionsAttempted || 0) + 1;
-
   // Calculate submission probabilities
   const { successChance, defenceChance, escapeChance } =
     calculateSubmissionProbability(attacker, defender, chosenSubmission);
@@ -1010,21 +998,22 @@ const doSubmission = (attacker, defender) => {
   const timePassed = simulateTimePassing("submission");
 
   if (outcome < successChance) {
-    attacker.stats.submissionsLanded =
-      (attacker.stats.submissionsLanded || 0) + 1;
+
+    updateFightStats(attacker, defender, 'submission', chosenSubmission, 'successful');
+
     console.log(
       `${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`
     );
     defender.isSubmitted = true;
     return ["submissionSuccessful", timePassed, chosenSubmission.name];
   } else if (outcome < successChance + defenceChance) {
-    defender.stats.submissionsDefended =
-      (defender.stats.submissionsDefended || 0) + 1;
+    updateFightStats(attacker, defender, 'submission', chosenSubmission, 'defended');
     console.log(
       `${defender.name} defends against the ${chosenSubmission.name}`
     );
     return ["submissionDefended", timePassed, null];
   } else if (outcome < successChance + defenceChance + escapeChance) {
+    updateFightStats(attacker, defender, 'submission', chosenSubmission, 'defended');
     console.log(
       `${defender.name} escapes from the ${chosenSubmission.name} attempt`
     );

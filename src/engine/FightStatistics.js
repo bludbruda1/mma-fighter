@@ -1,8 +1,8 @@
 const calculateFightStats = (fighter1, fighter2) => {
   return {
     totalStrikes: {
-      red: fighter1.stats.punchsLanded + fighter1.stats.kicksLanded,
-      blue: fighter2.stats.punchsLanded + fighter2.stats.kicksLanded,
+      red: fighter1.stats.totalStrikesLanded,
+      blue: fighter2.stats.totalStrikesLanded,
     },
     takedowns: {
       red: fighter1.stats.takedownsSuccessful,
