@@ -19,6 +19,7 @@ import {
 import Select from "../components/Select";
 import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
+import ResultCard from "../components/ResultCard";
 import { simulateFight, FIGHTER_POSITIONS } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
 import {
@@ -51,6 +52,8 @@ const FightScreen = () => {
 
   // New state for storing our winner index to determine the winner of the fight for winning message logic in the fight summary
   const [winnerIndex, setWinnerIndex] = useState(null);
+
+  const [fightResult, setFightResult] = useState(null);
 
   useEffect(() => {
     // Fetch the JSON data from the file
@@ -192,6 +195,9 @@ const FightScreen = () => {
         // Store the winner's index (0 or 1) in the state
         setWinnerIndex(result.winner);
 
+        // Store the result in state
+        setFightResult(result);
+
         // Store the winner and loser of the fight
         const winnerFighter = opponents[result.winner];
         const loserFighter = opponents[result.winner === 0 ? 1 : 0];
@@ -270,7 +276,7 @@ const FightScreen = () => {
             setFightEvents(fightEvents);
             setWinnerMessage(
               `${result.winnerName} defeats ${result.loserName} by ${
-                result.method === "submission"
+                result.method === "Submission"
                   ? `${result.method} (${result.submissionType})`
                   : result.method
               } in round ${result.roundEnded}!`
@@ -366,11 +372,12 @@ const FightScreen = () => {
               {fightStats && (
                 <Grid
                   container
-                  spacing={6}
+                  spacing={4}
                   alignItems="center"
                   justifyContent="center"
                   style={{ marginTop: "20px" }}
                 >
+                  {/* Left Fighter Details */}
                   <Grid
                     item
                     xs={12}
@@ -417,18 +424,42 @@ const FightScreen = () => {
                       {selectedItem1.nationality}
                     </Typography>
                   </Grid>
+
+                  {/* ResultCard */}
                   <Grid
                     item
                     xs={12}
                     md={6}
                     style={{
                       display: "flex",
-                      justifyContent: "center",
+                      flexDirection: "column",
                       alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    <Tab tabs={prepareTabs()} />
+                    {fightResult && (
+                      <ResultCard
+                        round={fightResult.roundEnded}
+                        time="3:38"
+                        method={fightResult.method}
+                      />
+                    )}
+
+                    {/* Tabs */}
+                    <Grid
+                      item
+                      xs={12}
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "20px", // Space between ResultCard and Tabs
+                      }}
+                    >
+                      <Tab tabs={prepareTabs()} />
+                    </Grid>
                   </Grid>
+
+                  {/* Right Fighter Details */}
                   <Grid
                     item
                     xs={12}
