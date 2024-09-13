@@ -976,7 +976,7 @@ const doSubmission = (attacker, defender) => {
 
   // Determine the outcome
   const outcome = Math.random();
-  const timePassed = simulateTimePassing("submission");
+  const timePassed = simulateTimePassing("Submission");
 
   if (outcome < successChance) {
 
@@ -1115,7 +1115,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "groundPunch":
       [outcome, timePassed] = doGroundPunch(fighter, opponentFighter);
       break;
-    case "submission":
+    case "Submission":
       [outcome, timePassed, submissionType] = doSubmission(
         fighter,
         opponentFighter
@@ -1440,7 +1440,7 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
  * @returns {Object} Fight result including winner, method, and round ended
  */
 const simulateFight = (fighters) => {
-  let method = "decision";
+  let method = "Decision";
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
   let roundStats = [];
@@ -1458,10 +1458,10 @@ const simulateFight = (fighters) => {
     // Check if the round ended early (KO or submission)
     if (roundResult.winner !== null) {
       if (roundResult.submissionType) {
-        method = "submission";
+        method = "Submission";
         submissionType = roundResult.submissionType;
       } else {
-        method = "knockout";
+        method = "Knockout";
       }
       roundEnded = round;
       break;
@@ -1480,7 +1480,7 @@ const simulateFight = (fighters) => {
 
   // Determine the overall winner
   let winner;
-  if (method === "decision") {
+  if (method === "Decision") {
     winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
     if (fighters[0].roundsWon === fighters[1].roundsWon) {
       method = "draw";
@@ -1502,7 +1502,7 @@ const simulateFight = (fighters) => {
     console.log("The fight ends in a draw!");
   } else {
     const winMethod =
-      method === "submission" ? `${method} (${submissionType})` : method;
+      method === "Submission" ? `${method} (${submissionType})` : method;
     console.log(
       `${fighters[winner].name} defeats ${
         fighters[1 - winner].name
