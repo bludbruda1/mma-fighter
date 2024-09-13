@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardMedia,
+  Chip,
   Container,
   Grid,
   Typography,
@@ -396,13 +397,20 @@ const FightScreen = () => {
                     >
                       {selectedItem1.firstname} {selectedItem1.lastname}
                       {winnerIndex === 0 && (
-                        <Typography
-                          variant="body1"
-                          color="green"
-                          sx={{ fontWeight: "bold", marginLeft: "8px" }}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
                         >
-                          Winner
-                        </Typography>
+                          <Chip
+                            label="Winner"
+                            size="small"
+                            color="success"
+                            sx={{ marginTop: "8px" }}
+                          />
+                        </Box>
                       )}
                     </Typography>
 
@@ -478,13 +486,20 @@ const FightScreen = () => {
                     >
                       {selectedItem2.firstname} {selectedItem2.lastname}
                       {winnerIndex === 1 && (
-                        <Typography
-                          variant="body1"
-                          color="green"
-                          sx={{ fontWeight: "bold", marginLeft: "8px" }}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
                         >
-                          Winner
-                        </Typography>
+                          <Chip
+                            label="Winner"
+                            size="small"
+                            color="success"
+                            sx={{ marginTop: "8px" }}
+                          />
+                        </Box>
                       )}
                     </Typography>
 
