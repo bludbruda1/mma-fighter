@@ -365,7 +365,7 @@ const determineGroundAction = (fighter) => {
     if (random < groundPunchChance) {
       return "groundPunch";
     } else if (random < groundPunchChance + submissionChance) {
-      return "submission";
+      return "Submission";
     } else if (
       random <
       groundPunchChance + submissionChance + positionAdvanceChance
@@ -428,7 +428,7 @@ const determineGroundAction = (fighter) => {
     if (random < groundPunchChance) {
       return "groundPunch";
     } else if (random < groundPunchChance + submissionChance) {
-      return "submission";
+      return "Submission";
     } else if (random < groundPunchChance + submissionChance + sweepChance) {
       return "sweep";
     } else if (
