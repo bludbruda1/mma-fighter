@@ -1,12 +1,12 @@
 const calculateFightStats = (fighter1, fighter2) => {
   return {
     totalStrikes: {
-      red: fighter1.stats.punchesLanded + fighter1.stats.kicksLanded,
-      blue: fighter2.stats.punchesLanded + fighter2.stats.kicksLanded,
+      red: fighter1.stats.totalStrikesLanded,
+      blue: fighter2.stats.totalStrikesLanded,
     },
     takedowns: {
-      red: fighter1.stats.takedownsLanded,
-      blue: fighter2.stats.takedownsLanded,
+      red: fighter1.stats.takedownsSuccessful,
+      blue: fighter2.stats.takedownsSuccessful,
     },
     submissionAttempts: {
       red: fighter1.stats.submissionsAttempted,
@@ -31,33 +31,33 @@ const calculateRoundStats = (
   initialStats2
 ) => {
   return {
-    punchesThrown: {
+    punchsThrown: {
       red:
-        (fighter1.stats.punchesThrown || 0) -
-        (initialStats1.punchesThrown || 0),
+        (fighter1.stats.punchsThrown || 0) -
+        (initialStats1.punchsThrown || 0),
       blue:
-        (fighter2.stats.punchesThrown || 0) -
-        (initialStats2.punchesThrown || 0),
+        (fighter2.stats.punchsThrown || 0) -
+        (initialStats2.punchsThrown || 0),
     },
     totalStrikes: {
       red:
-        (fighter1.stats.punchesLanded || 0) -
-        (initialStats1.punchesLanded || 0) +
+        (fighter1.stats.punchsLanded || 0) -
+        (initialStats1.punchsLanded || 0) +
         (fighter1.stats.kicksLanded || 0) -
         (initialStats1.kicksLanded || 0),
       blue:
-        (fighter2.stats.punchesLanded || 0) -
-        (initialStats2.punchesLanded || 0) +
+        (fighter2.stats.punchsLanded || 0) -
+        (initialStats2.punchsLanded || 0) +
         (fighter2.stats.kicksLanded || 0) -
         (initialStats2.kicksLanded || 0),
     },
     takedowns: {
       red:
-        (fighter1.stats.takedownsLanded || 0) -
-        (initialStats1.takedownsLanded || 0),
+        (fighter1.stats.takedownsSuccessful || 0) -
+        (initialStats1.takedownsSuccessful || 0),
       blue:
-        (fighter2.stats.takedownsLanded || 0) -
-        (initialStats2.takedownsLanded || 0),
+        (fighter2.stats.takedownsSuccessful || 0) -
+        (initialStats2.takedownsSuccessful || 0),
     },
     submissionAttempts: {
       red:
@@ -84,12 +84,12 @@ const displayFightStats = (fighters) => {
 
     // Striking stats
     console.log("Striking:");
-    console.log(`  Total Punches Thrown: ${fighter.stats.punchesThrown || 0}`);
-    console.log(`  Total Punches Landed: ${fighter.stats.punchesLanded || 0}`);
+    console.log(`  Total Punches Thrown: ${fighter.stats.punchsThrown || 0}`);
+    console.log(`  Total Punches Landed: ${fighter.stats.punchsLanded || 0}`);
     console.log(
       `  Punch Accuracy: ${(
-        ((fighter.stats.punchesLanded || 0) /
-          (fighter.stats.punchesThrown || 1)) *
+        ((fighter.stats.punchsLanded || 0) /
+          (fighter.stats.punchsThrown || 1)) *
         100
       ).toFixed(2)}%`
     );
@@ -123,10 +123,10 @@ const displayFightStats = (fighters) => {
     console.log(
       `  Takedowns Attempted: ${fighter.stats.takedownsAttempted || 0}`
     );
-    console.log(`  Takedowns Landed: ${fighter.stats.takedownsLanded || 0}`);
+    console.log(`  Takedowns Landed: ${fighter.stats.takedownsSuccessful || 0}`);
     console.log(
       `  Takedown Accuracy: ${(
-        ((fighter.stats.takedownsLanded || 0) /
+        ((fighter.stats.takedownsSuccessful || 0) /
           (fighter.stats.takedownsAttempted || 1)) *
         100
       ).toFixed(2)}%`
@@ -187,8 +187,8 @@ const displayFightStats = (fighters) => {
     console.log("Defence:");
     console.log(
       `  Strikes Blocked/Evaded: ${
-        (fighter.stats.punchesBlocked || 0) +
-        (fighter.stats.punchesEvaded || 0) +
+        (fighter.stats.punchsBlocked || 0) +
+        (fighter.stats.punchsEvaded || 0) +
         (fighter.stats.kicksBlocked || 0) +
         (fighter.stats.kicksEvaded || 0)
       }`

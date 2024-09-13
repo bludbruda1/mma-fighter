@@ -2,6 +2,7 @@ import { FIGHTER_POSITIONS } from "./FightSim.js";
 
 // Constants for strike damages
 const STRIKE_DAMAGE = {
+  //standing punches
   jab: { damage: 2, target: "head" },
   cross: { damage: 4, target: "head" },
   hook: { damage: 5, target: "head" },
@@ -10,16 +11,24 @@ const STRIKE_DAMAGE = {
   spinningBackfist: { damage: 5, target: "head" },
   supermanPunch: { damage: 6, target: "head" },
   bodyPunch: { damage: 3, target: "body" },
+  //kicks
   headKick: { damage: 9, target: "head" },
-  bodyKick: { damage: 8, target: "body" },
+  bodyKick: { damage: 7, target: "body" },
   legKick: { damage: 7, target: "legs" },
-  takedown: { damage: 9, target: "body" },
-  clinchStrike: { damage: 3, target: "head" },
-  groundPunch: { damage: 3, target: "head" },
+  //other
+  takedown: { damage: 1, target: "body" },
+  clinchStrike: { damage: 1, target: "head" },
+  groundPunch: { damage: 1, target: "head" },
 };
 
-const DAMAGE_VARIATION_FACTOR = 0.25;
-const RATING_DAMAGE_FACTOR = 0.3;
+const POWER_FACTOR = 0.5;
+const VARIABILITY_FACTOR = 0.3;
+const CRITICAL_HIT_CHANCE = 0.05;
+const CRITICAL_HIT_MULTIPLIER = 2;
+const KNOCKOUT_BASE_CHANCE = 0.05; 
+const MAX_KNOCKOUT_CHANCE = 0.25;
+const MAX_STUN_CHANCE = 0.30; 
+
 
 /**
  * Calculate probability of a successful action
@@ -324,7 +333,6 @@ const determineGroundAction = (fighter) => {
   const groundOffence = fighter.Rating.groundOffence;
   const groundDefence = fighter.Rating.groundDefence;
   const submissionOffence = fighter.Rating.submissionOffence;
-  const submissionDefence = fighter.Rating.submissionDefence;
   const attackerStamina = fighter.stamina / 100;
 
   // Determine if the fighter is in an offensive or defensive position
@@ -336,110 +344,92 @@ const determineGroundAction = (fighter) => {
     FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
   ].includes(fighter.position);
 
-  // Calculate base chances for common actions
-  let groundPunchChance =
-    (groundOffence / (groundOffence + groundDefence)) * 0.4 * attackerStamina;
-  let submissionChance =
-    (submissionOffence / (submissionOffence + submissionDefence)) *
-    0.3 *
-    attackerStamina;
-  let getUpChance = 0.1 * attackerStamina;
+  // Define available actions based on position
+  let availableActions = ['groundPunch', 'getUpAttempt'];
+
   if (isOffensive) {
-    // Offensive-specific action: positionAdvance
-    let positionAdvanceChance =
-      (groundOffence / (groundOffence + groundDefence)) * 0.2 * attackerStamina;
-
-    // Normalize probabilities
-    const total =
-      groundPunchChance +
-      submissionChance +
-      positionAdvanceChance +
-      getUpChance;
-    groundPunchChance /= total;
-    submissionChance /= total;
-    positionAdvanceChance /= total;
-    getUpChance /= total;
-
-    // Choose action based on probabilities
-    const random = Math.random();
-    if (random < groundPunchChance) {
-      return "groundPunch";
-    } else if (random < groundPunchChance + submissionChance) {
-      return "submission";
-    } else if (
-      random <
-      groundPunchChance + submissionChance + positionAdvanceChance
-    ) {
-      return "positionAdvance";
-    } else {
-      return "getUpAttempt";
+    availableActions.push('positionAdvance');
+    // Add submission option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+      FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
+    ].includes(fighter.position)) {
+      availableActions.push('submission');
     }
   } else {
-    // Defensive-specific actions: sweep and escape
-    let sweepChance = 0;
-    let escapeChance = 0;
-
-    // Calculate sweep chance only for valid positions
-    if (
-      [
-        FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
-      ].includes(fighter.position)
-    ) {
-      sweepChance =
-        (groundOffence / (groundOffence + groundDefence)) *
-        0.15 *
-        attackerStamina;
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position)) {
+      availableActions.push('sweep');
     }
-
-    // Calculate escape chance only for valid positions
-    if (
-      [
-        FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
-        FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE,
-      ].includes(fighter.position)
-    ) {
-      escapeChance =
-        (groundDefence / (groundOffence + groundDefence)) *
-        0.15 *
-        attackerStamina;
+    if ([
+      FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
+    ].includes(fighter.position)) {
+      availableActions.push('escape');
     }
-
-    // Adjust getUpChance for defensive position
-    getUpChance = 0.2 * attackerStamina;
-
-    // Normalize probabilities
-    const total =
-      groundPunchChance +
-      submissionChance +
-      sweepChance +
-      escapeChance +
-      getUpChance;
-    groundPunchChance /= total;
-    submissionChance /= total;
-    sweepChance /= total;
-    escapeChance /= total;
-    getUpChance /= total;
-
-    // Choose action based on probabilities
-    const random = Math.random();
-    if (random < groundPunchChance) {
-      return "groundPunch";
-    } else if (random < groundPunchChance + submissionChance) {
-      return "submission";
-    } else if (random < groundPunchChance + submissionChance + sweepChance) {
-      return "sweep";
-    } else if (
-      random <
-      groundPunchChance + submissionChance + sweepChance + escapeChance
-    ) {
-      return "escape";
-    } else {
-      return "getUpAttempt";
+    // Add submission option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM
+    ].includes(fighter.position)) {
+      availableActions.push('submission');
     }
   }
+
+  // Calculate probabilities for each available action
+  let actionProbabilities = {};
+  let totalProbability = 0;
+
+  availableActions.forEach(action => {
+    let probability;
+    switch (action) {
+      case 'groundPunch':
+        probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
+        break;
+      case 'submission':
+        probability = submissionOffence * 0.3 * attackerStamina;
+        break;
+      case 'positionAdvance':
+        probability = groundOffence * 0.2 * attackerStamina;
+        break;
+      case 'sweep':
+        probability = groundOffence * 0.15 * attackerStamina;
+        break;
+      case 'escape':
+        probability = groundDefence * 0.15 * attackerStamina;
+        break;
+      case 'getUpAttempt':
+        probability = (isOffensive ? 0.1 : 0.2) * attackerStamina;
+        break;
+      default:
+        probability = 0;
+    }
+    actionProbabilities[action] = probability;
+    totalProbability += probability;
+  });
+
+  // Normalize probabilities
+  Object.keys(actionProbabilities).forEach(action => {
+    actionProbabilities[action] /= totalProbability;
+  });
+
+  // Choose action based on probabilities
+  const random = Math.random();
+  let cumulativeProbability = 0;
+  for (let action in actionProbabilities) {
+    cumulativeProbability += actionProbabilities[action];
+    if (random < cumulativeProbability) {
+      return action;
+    }
+  }
+
+  // Fallback to groundPunch if something goes wrong
+  return 'groundPunch';
 };
 
 /**
@@ -487,7 +477,6 @@ const determineClinchAction = (attacker, defender) => {
  * @returns {string} The specific strike type
  */
 const determineStrikeType = (fighter) => {
-  const stamina = fighter.stamina / 1000;
   const boxing = fighter.Tendency.standupPreference.boxing;
   const kickBoxing = fighter.Tendency.standupPreference.kickBoxing;
   const muayThai = fighter.Tendency.standupPreference.muayThai;
@@ -499,7 +488,7 @@ const determineStrikeType = (fighter) => {
     (boxing + kickBoxing * 0.5 + muayThai * 0.3) / totalPreference;
 
   // Determine if it's a punch or a kick
-  if (Math.random() < punchPreference * stamina) {
+  if (Math.random() < punchPreference) {
     // It's a punch
     const punchTypes = [
       "jab",
@@ -543,46 +532,141 @@ const weightedRandomChoice = (items, weights) => {
 /**
  * Calculate stamina impact on action effectiveness
  * @param {number} stamina - Current stamina of the fighter
+ * @param {number} cardio - Cardio rating of the fighter
  * @returns {number} Stamina impact factor
  */
-const calculateStaminaImpact = (stamina) => {
-  return 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+const calculateStaminaImpact = (stamina, cardio) => {
+  const baseImpact = 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
+  const cardioFactor = 1 + (cardio - 50) / 100; // Cardio rating effect (50 is considered average)
+  return baseImpact * cardioFactor;
 };
 
 /**
- * Calculate damage for a strike
- * @param {number} baseRating - Attacker's base rating
- * @param {string} strikeType - Type of strike
- * @returns {number} Calculated damage
+ * Calculate the damage and effects of a strike
+ * @param {Object} attacker - The attacking fighter
+ * @param {Object} defender - The defending fighter
+ * @param {string} strikeType - The type of strike (e.g., 'jab', 'cross', 'hook', 'uppercut', 'headKick', 'bodyKick', 'legKick')
+ * @returns {Object} An object containing the following properties:
+ *   - damage {number}: The amount of damage dealt
+ *   - target {string}: The body part targeted ('head', 'body', or 'legs')
+ *   - isCritical {boolean}: Whether the strike was a critical hit
+ *   - isKnockout {boolean}: Whether the strike resulted in a knockout
+ *   - isStun {boolean}: Whether the strike resulted in a stun
+ *   - knockoutProbability {number}: The calculated probability of a knockout
  */
-const calculateDamage = (baseRating, strikeType) => {
+const calculateStrikeDamage = (attacker, defender, strikeType) => {
   if (!STRIKE_DAMAGE[strikeType]) {
     throw new Error("Invalid strike type " + strikeType);
   }
 
   let { damage: baseDamage, target } = STRIKE_DAMAGE[strikeType];
 
-  // Special case for ground punches: randomize between head and body
-  if (strikeType === "groundPunch") {
+  // Special case for ground punches and clinch strikes: randomize between head and body
+  if (strikeType === "groundPunch" || strikeType === "clinchStrike") {
     target = Math.random() < 0.7 ? "head" : "body";
   }
 
-  // Special case for clinch strikes: randomize between head and body
-  if (strikeType === "clinchStrike") {
-    target = Math.random() < 0.7 ? "head" : "body";
-  }
+   // Determine if it's a punch or a kick
+  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch", "clinchStrike"].includes(strikeType);
 
-  const randomFactor = 1 + (Math.random() * 2 - 1) * DAMAGE_VARIATION_FACTOR;
-  const ratingFactor = baseRating * RATING_DAMAGE_FACTOR;
+  // Apply power factor based on the attacker's rating
+  const powerFactor = 1 + (isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower) / 100 * POWER_FACTOR;
+
+  // Add variability to the damage
+  const variability = 1 + (Math.random() * 2 - 1) * VARIABILITY_FACTOR;
 
   // Calculate total damage
-  const totalDamage = Math.round((baseDamage + ratingFactor) * randomFactor);
+  let totalDamage = Math.round(baseDamage * powerFactor * variability);
 
-  return { damage: totalDamage, target };
+  // Check for critical hit
+  const isCritical = Math.random() < CRITICAL_HIT_CHANCE;
+  if (isCritical) {
+    totalDamage *= CRITICAL_HIT_MULTIPLIER;
+  }
+
+  // Calculate effective toughness (combination of toughness and chin for head strikes)
+  const effectiveToughness = target === "head" 
+    ? (defender.Rating.toughness * 0.35 + defender.Rating.chin * 0.65)
+    : defender.Rating.toughness;
+
+  // Calculate damage reduction based on defender's toughness and chin
+  const damageReduction = target === "head" 
+    ? 1 - (effectiveToughness / 200) // Max 50% reduction for head strikes
+    : 1 - (defender.Rating.toughness / 300); // Max 33% reduction for body strikes
+
+  totalDamage = Math.round(totalDamage * damageReduction);
+
+  // Calculate knockout and stun probabilities (not applicable for ground strikes)
+  let knockoutProbability = 0;
+  let isKnockout = false;
+  let isStun = false;
+
+  if (strikeType !== "groundPunch" || strikeType !== "clinchStrike" ) {
+    knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
+    isKnockout = Math.random() < knockoutProbability;
+
+    // Determine if the strike causes a stun (more likely than a knockout)
+    const stunProbability = Math.min(knockoutProbability * 2, MAX_STUN_CHANCE);
+    isStun = !isKnockout && Math.random() < stunProbability;
+  }
+
+  return {
+    damage: totalDamage,
+    target,
+    isCritical,
+    isStun,
+    isKnockout,
+    knockoutProbability  // Added for debugging purposes
+  };
+};
+
+
+const calculateKnockoutProbability = (attacker, defender, damageDealt, target, strikeType) => {
+  if (target !== "head" || strikeType === "jab") {
+    return 0; // No knockout chance for body shots or jabs
+  }
+
+  const isPunch = ["hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch"].includes(strikeType);
+  const strikePower = isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower;
+  const defenderChin = defender.Rating.chin;
+  const defenderCurrentHealth = defender.health.head;
+  const defenderMaxHealth = defender.maxHealth.head;
+
+  // Calculate power factor (emphasize very high punch power)
+  let powerFactor = strikePower / 100;
+  if (strikePower >= 95) {
+    powerFactor *= 1.5; // 50% boost for very high strike power
+  }
+
+  // Calculate chin vulnerability (emphasize weak chin)
+  let chinVulnerability = (100 - defenderChin) / 100;
+  if (defenderChin <= 70) {
+    chinVulnerability *= 1.5; // 50% increased vulnerability for weak chin
+  }
+
+  // Calculate health factor
+  const healthFactor = 1 - (defenderCurrentHealth / defenderMaxHealth);
+
+  // Calculate damage factor
+  const damageFactor = damageDealt / 100; // Normalize damage to 0-1 range
+
+  // Calculate base knockout probability
+  let knockoutProbability = KNOCKOUT_BASE_CHANCE * powerFactor * chinVulnerability * (1 + healthFactor) * (1 + damageFactor);
+
+  // Adjust probability for kicks (generally lower than punches)
+  if (!isPunch) {
+    knockoutProbability *= 0.8; // 20% reduction for kicks
+  }
+
+  // Apply random factor
+  knockoutProbability *= (1 + (Math.random() - 0.5) * 0.4); // +/- 20% randomness
+
+  // Clamp the probability between 0 and MAX_KNOCKOUT_CHANCE
+  return Math.min(Math.max(knockoutProbability, 0), MAX_KNOCKOUT_CHANCE);
 };
 
 export {
-  calculateDamage,
+  calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
   calculateStaminaImpact,
