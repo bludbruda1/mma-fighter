@@ -166,15 +166,24 @@ const FightScreen = () => {
             uppercutsBlocked: Number(fighter.stats.uppercutsBlocked) || 0,
             uppercutsEvaded: Number(fighter.stats.uppercutsEvaded) || 0,
             uppercutsMissed: Number(fighter.stats.uppercutsMissed) || 0,
-            spinningBackfistsThrown: Number(fighter.stats.spinningBackfistsThrown) || 0,
-            spinningBackfistsLanded: Number(fighter.stats.spinningBackfistsLanded) || 0,
-            spinningBackfistsBlocked: Number(fighter.stats.spinningBackfistsBlocked) || 0,
-            spinningBackfistsEvaded: Number(fighter.stats.spinningBackfistsEvaded) || 0,
-            spinningBackfistsMissed: Number(fighter.stats.spinningBackfistsMissed) || 0,
-            supermanPunchsLanded: Number(fighter.stats.supermanPunchsLanded) || 0,
-            supermanPunchsBlocked: Number(fighter.stats.supermanPunchsBlocked) || 0,
-            supermanPunchsEvaded: Number(fighter.stats.supermanPunchsEvaded) || 0,
-            supermanPunchsMissed: Number(fighter.stats.supermanPunchsMissed) || 0,
+            spinningBackfistsThrown:
+              Number(fighter.stats.spinningBackfistsThrown) || 0,
+            spinningBackfistsLanded:
+              Number(fighter.stats.spinningBackfistsLanded) || 0,
+            spinningBackfistsBlocked:
+              Number(fighter.stats.spinningBackfistsBlocked) || 0,
+            spinningBackfistsEvaded:
+              Number(fighter.stats.spinningBackfistsEvaded) || 0,
+            spinningBackfistsMissed:
+              Number(fighter.stats.spinningBackfistsMissed) || 0,
+            supermanPunchsLanded:
+              Number(fighter.stats.supermanPunchsLanded) || 0,
+            supermanPunchsBlocked:
+              Number(fighter.stats.supermanPunchsBlocked) || 0,
+            supermanPunchsEvaded:
+              Number(fighter.stats.supermanPunchsEvaded) || 0,
+            supermanPunchsMissed:
+              Number(fighter.stats.supermanPunchsMissed) || 0,
             bodyPunchsThrown: Number(fighter.stats.bodyPunchsThrown) || 0,
             bodyPunchsLanded: Number(fighter.stats.bodyPunchsLanded) || 0,
             bodyPunchsBlocked: Number(fighter.stats.bodyPunchsBlocked) || 0,
@@ -209,7 +218,8 @@ const FightScreen = () => {
             throwsDefended: Number(fighter.stats.throwsDefended) || 0,
             clinchStrikesThrown: Number(fighter.stats.clinchStrikesThrown) || 0,
             clinchStrikesLanded: Number(fighter.stats.clinchStrikesLanded) || 0,
-            clinchStrikesBlocked: Number(fighter.stats.clinchStrikesBlocked) || 0,
+            clinchStrikesBlocked:
+              Number(fighter.stats.clinchStrikesBlocked) || 0,
             clinchStrikesEvaded: Number(fighter.stats.clinchStrikesEvaded) || 0,
             clinchStrikesMissed: Number(fighter.stats.clinchStrikesMissed) || 0,
             takedownsAttempted: Number(fighter.stats.takedownsAttempted) || 0,
@@ -220,24 +230,32 @@ const FightScreen = () => {
             singleLegDefended: Number(fighter.stats.singleLegDefended) || 0,
             groundPunchsLanded: Number(fighter.stats.groundPunchsLanded) || 0,
             groundPunchsBlocked: Number(fighter.stats.groundPunchsBlocked) || 0,
-            submissionsAttempted: Number(fighter.stats.submissionsAttempted) || 0,
+            submissionsAttempted:
+              Number(fighter.stats.submissionsAttempted) || 0,
             submissionsLanded: Number(fighter.stats.submissionsLanded) || 0,
-            submissionsDefended: Number(fighter.stats.submissionsDefended) || 0, 
+            submissionsDefended: Number(fighter.stats.submissionsDefended) || 0,
             armbarsAttempted: Number(fighter.stats.submissionsAttempted) || 0,
             armbarsSuccessful: Number(fighter.stats.submissionsLanded) || 0,
-            armbarsDefended: Number(fighter.stats.submissionsDefended) || 0, 
-            triangleChokesAttempted: Number(fighter.stats.submissionsAttempted) || 0,
-            triangleChokesSuccessful: Number(fighter.stats.submissionsLanded) || 0,
-            triangleChokesDefended: Number(fighter.stats.submissionsDefended) || 0,
-            rearNakedChokesAttempted: Number(fighter.stats.submissionsAttempted) || 0,
-            rearNakedChokesSuccessful: Number(fighter.stats.submissionsLanded) || 0,
-            rearNakedChokesDefended: Number(fighter.stats.submissionsDefended) || 0,
+            armbarsDefended: Number(fighter.stats.submissionsDefended) || 0,
+            triangleChokesAttempted:
+              Number(fighter.stats.submissionsAttempted) || 0,
+            triangleChokesSuccessful:
+              Number(fighter.stats.submissionsLanded) || 0,
+            triangleChokesDefended:
+              Number(fighter.stats.submissionsDefended) || 0,
+            rearNakedChokesAttempted:
+              Number(fighter.stats.submissionsAttempted) || 0,
+            rearNakedChokesSuccessful:
+              Number(fighter.stats.submissionsLanded) || 0,
+            rearNakedChokesDefended:
+              Number(fighter.stats.submissionsDefended) || 0,
             legLocksAttempted: Number(fighter.stats.submissionsAttempted) || 0,
             legLocksSuccessful: Number(fighter.stats.submissionsLanded) || 0,
             legLocksDefended: Number(fighter.stats.submissionsDefended) || 0,
-            guillotinesAttempted: Number(fighter.stats.submissionsAttempted) || 0,
+            guillotinesAttempted:
+              Number(fighter.stats.submissionsAttempted) || 0,
             guillotinesSuccessful: Number(fighter.stats.submissionsLanded) || 0,
-            guillotinesDefended: Number(fighter.stats.submissionsDefended) || 0,                     
+            guillotinesDefended: Number(fighter.stats.submissionsDefended) || 0,
           },
           Tendency: {
             strikingVsGrappling:
@@ -378,7 +396,7 @@ const FightScreen = () => {
             setFightEvents(fightEvents);
             setWinnerMessage(
               `${result.winnerName} defeats ${result.loserName} by ${
-                result.method === "Submission"
+                result.method === "submission"
                   ? `${result.method} (${result.submissionType})`
                   : result.method
               } in round ${result.roundEnded}!`
