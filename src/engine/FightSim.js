@@ -1,10 +1,10 @@
-import { 
-  formatTime, 
-  simulateTimePassing, 
-  isKnockedOut, 
-  calculateStaminaChange, 
-  recoverStaminaEndRound, 
-  updateFightStats 
+import {
+  formatTime,
+  simulateTimePassing,
+  isKnockedOut,
+  calculateStaminaChange,
+  recoverStaminaEndRound,
+  updateFightStats,
 } from "./helper.js";
 import {
   calculateStrikeDamage,
@@ -172,14 +172,17 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
   const timePassed = comboCount === 0 ? simulateTimePassing(kickType) : 3; // Combo kicks are quicker
 
   let totalTimePassed = timePassed;
-  let outcomeDescription = '';
+  let outcomeDescription = "";
 
   if (outcome < hitChance) {
     // Hit logic
     const damageResult = calculateStrikeDamage(attacker, defender, kickType);
-    defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
+    defender.health[damageResult.target] = Math.max(
+      0,
+      defender.health[damageResult.target] - damageResult.damage
+    );
 
-    updateFightStats(attacker, defender, 'kick', kickType, 'landed');
+    updateFightStats(attacker, defender, "kick", kickType, "landed");
 
     console.log(
       `${defender.name} is hit by the ${displayKickType} for ${damageResult.damage} damage to the ${damageResult.target}`
@@ -196,35 +199,38 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
       outcomeDescription += "Critical";
       console.log("It's a critical hit!");
     }
-    
+
     if (damageResult.isKnockout) {
-      outcomeDescription += "Knockout";
+      outcomeDescription += "knockout";
       console.log(`${defender.name} has been knocked out!`);
       defender.isKnockedOut = true;
     } else if (damageResult.isStun) {
       outcomeDescription += "Stun";
       console.log(`${defender.name} is stunned!`);
       const finishAttempt = doSeekFinish(attacker, defender);
-      
-      if (finishAttempt.result === 'knockout') {
-        outcomeDescription += "Knockout";
+
+      if (finishAttempt.result === "knockout") {
+        outcomeDescription += "knockout";
         defender.isKnockedOut = true;
       }
-      
+
       // Add the time passed during the finish attempt
       totalTimePassed += finishAttempt.timePassed;
     }
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.kicksBlocked = (defender.stats.kicksBlocked || 0) + 1;
-    updateFightStats(attacker, defender, 'kick', kickType, 'blocked');
+    updateFightStats(attacker, defender, "kick", kickType, "blocked");
 
     console.log(`${defender.name} blocks the ${displayKickType}`);
 
     // Special case for checked leg kicks
     if (kickType === "legKick") {
       const damageResult = calculateStrikeDamage(defender, attacker, "legKick");
-      attacker.health[damageResult.target] = Math.max(0, attacker.health[damageResult.target] - damageResult.damage);
+      attacker.health[damageResult.target] = Math.max(
+        0,
+        attacker.health[damageResult.target] - damageResult.damage
+      );
       console.log(
         `${attacker.name} takes ${damageResult.damage} damage to the ${damageResult.target} from the checked leg kick`
       );
@@ -234,14 +240,14 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.kicksEvaded = (defender.stats.kicksEvaded || 0) + 1;
-    updateFightStats(attacker, defender, 'kick', kickType, 'evaded');
+    updateFightStats(attacker, defender, "kick", kickType, "evaded");
 
     console.log(`${defender.name} evades the ${displayKickType}`);
     outcomeDescription = `${kickType}Evaded`;
   } else {
     // Miss logic
     attacker.stats.kicksMissed = (attacker.stats.kicksMissed || 0) + 1;
-    updateFightStats(attacker, defender, 'kick', kickType, 'missed');
+    updateFightStats(attacker, defender, "kick", kickType, "missed");
 
     console.log(
       `${attacker.name}'s ${displayKickType} misses ${defender.name}`
@@ -310,21 +316,24 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
   const timePassed = comboCount === 0 ? simulateTimePassing(punchType) : 2; // Combo punches are quicker
 
   let totalTimePassed = timePassed;
-  let outcomeDescription = '';
+  let outcomeDescription = "";
 
   if (outcome < hitChance) {
     // Hit logic
     const damageResult = calculateStrikeDamage(attacker, defender, punchType);
-    defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
+    defender.health[damageResult.target] = Math.max(
+      0,
+      defender.health[damageResult.target] - damageResult.damage
+    );
 
-    updateFightStats(attacker, defender, 'punch', punchType, 'landed');
+    updateFightStats(attacker, defender, "punch", punchType, "landed");
 
     outcomeDescription = `${punchType}Landed`;
     if (damageResult.isCritical) {
       outcomeDescription += "Critical";
       console.log("It's a critical hit!");
     }
-    
+
     console.log(
       `${defender.name} is hit by the ${displayPunchType} for ${damageResult.damage} damage to the ${damageResult.target}`
     );
@@ -337,48 +346,50 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       outcomeDescription += "Stun";
       console.log(`${defender.name} is stunned!`);
       const finishAttempt = doSeekFinish(attacker, defender);
-      
-      if (finishAttempt.result === 'knockout') {
+
+      if (finishAttempt.result === "knockout") {
         outcomeDescription += "Knockout";
         defender.isKnockedOut = true;
       }
-      
+
       // Add the time passed during the finish attempt
       totalTimePassed += finishAttempt.timePassed;
     }
 
-    console.log(`${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`);
+    console.log(
+      `${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`
+    );
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
-    updateFightStats(attacker, defender, 'punch', punchType, 'blocked');
+    updateFightStats(attacker, defender, "punch", punchType, "blocked");
     outcomeDescription = `${punchType}Blocked`;
     console.log(`${defender.name} blocks the ${displayPunchType}`);
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.punchesEvaded = (defender.stats.punchesEvaded || 0) + 1;
-    updateFightStats(attacker, defender, 'punch', punchType, 'evaded');
+    updateFightStats(attacker, defender, "punch", punchType, "evaded");
     outcomeDescription = `${punchType}Evaded`;
     console.log(`${defender.name} evades the ${displayPunchType}`);
   } else {
     // Miss logic
     attacker.stats.punchesMissed = (attacker.stats.punchesMissed || 0) + 1;
-    updateFightStats(attacker, defender, 'punch', punchType, 'missed');
+    updateFightStats(attacker, defender, "punch", punchType, "missed");
     outcomeDescription = `${punchType}Missed`;
     console.log(
       `${attacker.name}'s ${displayPunchType} misses ${defender.name}`
     );
   }
 
-    // Log the updated stats after the punch
-    console.log("\n--- Updated Stats After Punch ---");
-    console.log(`\n--- ${attacker.name}'s Punch Stats ---`);
-    console.log(`Total Punches Thrown: ${attacker.stats.punchsThrown || 0}`);
-    console.log(`Total Punches Landed: ${attacker.stats.punchsLanded || 0}`);
-    console.log(`Total Punches Blocked: ${attacker.stats.punchsBlocked || 0}`);
-    console.log(`Total Punches Evaded: ${attacker.stats.punchsEvaded || 0}`);
-    console.log(`Total Punches Missed: ${attacker.stats.punchsMissed || 0}`);  
-    console.log("--- End of Updated Stats ---\n");
+  // Log the updated stats after the punch
+  console.log("\n--- Updated Stats After Punch ---");
+  console.log(`\n--- ${attacker.name}'s Punch Stats ---`);
+  console.log(`Total Punches Thrown: ${attacker.stats.punchsThrown || 0}`);
+  console.log(`Total Punches Landed: ${attacker.stats.punchsLanded || 0}`);
+  console.log(`Total Punches Blocked: ${attacker.stats.punchsBlocked || 0}`);
+  console.log(`Total Punches Evaded: ${attacker.stats.punchsEvaded || 0}`);
+  console.log(`Total Punches Missed: ${attacker.stats.punchsMissed || 0}`);
+  console.log("--- End of Updated Stats ---\n");
 
   // Use COMBO_CHANCE, reduced for each punch in the combo
   const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);
@@ -391,13 +402,13 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
     !outcomeDescription.includes("Knockout") &&
     !outcomeDescription.includes("Stun");
 
-    console.log(
-      `Attacker -${attacker.name} 
+  console.log(
+    `Attacker -${attacker.name} 
        Defender - ${defender.name}
        Punch - ${punchType}
        Punch Thrown - ${attacker.stats.punchsThrown}
        `
-      );
+  );
 
   return [outcomeDescription, totalTimePassed, comboFollows];
 };
@@ -446,7 +457,6 @@ const doCombo = (attacker, defender, initialStrike) => {
       .toLowerCase();
 
     console.log(`${attacker.name} follows up with a ${displayStrikeType}`);
-
   }
 
   return [totalOutcome, totalTime];
@@ -459,7 +469,9 @@ const doCombo = (attacker, defender, initialStrike) => {
  * @returns {Object} The result of the finishing sequence
  */
 const doSeekFinish = (attacker, defender) => {
-  console.log(`${attacker.name} is seeking to finish the fight against the stunned ${defender.name}!`);
+  console.log(
+    `${attacker.name} is seeking to finish the fight against the stunned ${defender.name}!`
+  );
 
   const MAX_ATTEMPTS = 10;
   let attempts = 0;
@@ -470,31 +482,41 @@ const doSeekFinish = (attacker, defender) => {
     attempts++;
 
     // Determine strike type (favoring power strikes)
-    const strikeTypes = ['cross', 'hook', 'uppercut', 'overhand'];
-    const strikeType = strikeTypes[Math.floor(Math.random() * strikeTypes.length)];
+    const strikeTypes = ["cross", "hook", "uppercut", "overhand"];
+    const strikeType =
+      strikeTypes[Math.floor(Math.random() * strikeTypes.length)];
 
     // Calculate hit probability (higher due to opponent being stunned)
-    const { hitChance } = calculateProbabilities(attacker, defender, 'punch');
+    const { hitChance } = calculateProbabilities(attacker, defender, "punch");
     const stunnedHitChance = Math.min(hitChance * 1.5, 0.9); // 50% increase, max 90%
 
     if (Math.random() < stunnedHitChance) {
       // Strike lands
-      const damageResult = calculateStrikeDamage(attacker, defender, strikeType);
+      const damageResult = calculateStrikeDamage(
+        attacker,
+        defender,
+        strikeType
+      );
       totalDamage += damageResult.damage;
 
-      updateFightStats(attacker, defender, 'punch', strikeType, 'landed');
+      updateFightStats(attacker, defender, "punch", strikeType, "landed");
 
-      console.log(`${attacker.name} lands a ${strikeType} for ${damageResult.damage} damage!`);
+      console.log(
+        `${attacker.name} lands a ${strikeType} for ${damageResult.damage} damage!`
+      );
       if (damageResult.isCritical) {
         console.log("It's a clean hit!");
       }
 
       // Apply damage
-      defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
+      defender.health[damageResult.target] = Math.max(
+        0,
+        defender.health[damageResult.target] - damageResult.damage
+      );
 
       // Check for knockout
       if (damageResult.isKnockout || defender.health.head <= 0) {
-        finishResult = 'knockout';
+        finishResult = "knockout";
         console.log(`${defender.name} has been knocked out!`);
         break;
       }
@@ -502,32 +524,38 @@ const doSeekFinish = (attacker, defender) => {
       // Check for stun extension
       if (damageResult.isStun) {
         console.log(`${defender.name} remains stunned!`);
-      } else if (Math.random() < 0.15) { // 15% chance to recover if not re-stunned
+      } else if (Math.random() < 0.15) {
+        // 15% chance to recover if not re-stunned
         console.log(`${defender.name} has recovered from the stun!`);
         break;
       }
     } else {
       console.log(`${attacker.name}'s ${strikeType} misses!`);
-      updateFightStats(attacker, defender, 'punch', strikeType, 'missed');
+      updateFightStats(attacker, defender, "punch", strikeType, "missed");
       // Higher chance for defender to recover when attacker misses
-      if (Math.random() < 0.20) { // 20% chance to recover on a miss
+      if (Math.random() < 0.2) {
+        // 20% chance to recover on a miss
         console.log(`${defender.name} has recovered!`);
         break;
       }
     }
-    console.log(`${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`);
+    console.log(
+      `${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`
+    );
   }
 
-  const timePassed = simulateTimePassing('seekFinish') * attempts;
+  const timePassed = simulateTimePassing("seekFinish") * attempts;
 
   if (!finishResult) {
-    console.log(`${attacker.name} couldn't finish the fight. ${defender.name} survives the onslaught!`);
+    console.log(
+      `${attacker.name} couldn't finish the fight. ${defender.name} survives the onslaught!`
+    );
   }
 
   return {
-    result: finishResult || 'survived',
+    result: finishResult || "survived",
     damageDealt: totalDamage,
-    timePassed: timePassed
+    timePassed: timePassed,
   };
 };
 
@@ -561,20 +589,29 @@ const doGroundPunch = (attacker, defender) => {
 
   if (Math.random() < hitChance) {
     // Hit logic
-    const damageResult = calculateStrikeDamage(attacker, defender, "groundPunch");
-    defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
+    const damageResult = calculateStrikeDamage(
+      attacker,
+      defender,
+      "groundPunch"
+    );
+    defender.health[damageResult.target] = Math.max(
+      0,
+      defender.health[damageResult.target] - damageResult.damage
+    );
 
-    updateFightStats(attacker, defender, 'punch', 'groundPunch', 'landed');
+    updateFightStats(attacker, defender, "punch", "groundPunch", "landed");
 
     console.log(
       `${defender.name} is hit by the ground punch for ${damageResult.damage} damage to the ${damageResult.target}`
     );
 
-    console.log(`${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`);
+    console.log(
+      `${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`
+    );
     return ["groundPunchLanded", timePassed];
   } else {
     // Block logic
-    updateFightStats(attacker, defender, 'punch', 'groundPunch', 'blocked');
+    updateFightStats(attacker, defender, "punch", "groundPunch", "blocked");
     console.log(`${defender.name} blocks the ground punch`);
     return ["groundPunchBlocked", timePassed];
   }
@@ -598,7 +635,7 @@ const doClinch = (attacker, defender) => {
     attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENCE;
     defender.position = FIGHTER_POSITIONS.CLINCH_DEFENCE;
 
-    updateFightStats(attacker, defender, 'clinch', 'clinch', 'successful');
+    updateFightStats(attacker, defender, "clinch", "clinch", "successful");
 
     console.log(
       `${attacker.name} successfully gets ${defender.name} in a clinch against the cage`
@@ -606,7 +643,7 @@ const doClinch = (attacker, defender) => {
     return "clinchSuccessful";
   } else {
     console.log(`${defender.name} defends the clinch attempt`);
-    updateFightStats(attacker, defender, 'clinch', 'clinch', 'defended');
+    updateFightStats(attacker, defender, "clinch", "clinch", "defended");
     return "clinchFailed";
   }
 };
@@ -662,10 +699,17 @@ const doClinchStrike = (attacker, defender) => {
 
   if (outcome < hitChance) {
     // Hit logic
-    const damageResult = calculateStrikeDamage(attacker, defender, "clinchStrike");
-    defender.health[damageResult.target] = Math.max(0, defender.health[damageResult.target] - damageResult.damage);
+    const damageResult = calculateStrikeDamage(
+      attacker,
+      defender,
+      "clinchStrike"
+    );
+    defender.health[damageResult.target] = Math.max(
+      0,
+      defender.health[damageResult.target] - damageResult.damage
+    );
 
-    updateFightStats(attacker, defender, 'punch', 'clinchStrike', 'landed');
+    updateFightStats(attacker, defender, "punch", "clinchStrike", "landed");
 
     console.log(
       `${defender.name} is hit by the clinch strike for ${damageResult.damage} damage to the ${damageResult.target}`
@@ -673,19 +717,19 @@ const doClinchStrike = (attacker, defender) => {
     return [`clinchStrikeLanded`, timePassed];
   } else if (outcome < hitChance + blockChance) {
     // Block logic
-    updateFightStats(attacker, defender, 'punch', 'clinchStrike', 'blocked');
+    updateFightStats(attacker, defender, "punch", "clinchStrike", "blocked");
 
     console.log(`${defender.name} blocks the clinch strike`);
     return [`clinchStrikeBlocked`, timePassed];
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
-    updateFightStats(attacker, defender, 'punch', 'clinchStrike', 'evaded');
+    updateFightStats(attacker, defender, "punch", "clinchStrike", "evaded");
 
     console.log(`${defender.name} evades the clinch strike`);
     return [`clinchStrikeEvaded`, timePassed];
   } else {
     // Miss logic
-    updateFightStats(attacker, defender, 'punch', 'clinchStrike', 'missed');
+    updateFightStats(attacker, defender, "punch", "clinchStrike", "missed");
 
     console.log(`${attacker.name}'s clinch strike misses ${defender.name}`);
     return [`clinchStrikeMissed`, timePassed];
@@ -723,7 +767,7 @@ const doClinchTakedown = (attacker, defender) => {
     }
 
     defender.health.body = Math.max(0, defender.health.body - damage);
-    updateFightStats(attacker, defender, 'takedown', takedownType, 'landed');
+    updateFightStats(attacker, defender, "takedown", takedownType, "landed");
 
     // Reset clinch state and move to ground
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
@@ -736,7 +780,7 @@ const doClinchTakedown = (attacker, defender) => {
       takedownType.charAt(0).toUpperCase() + takedownType.slice(1)
     }Successful`;
   } else {
-    updateFightStats(attacker, defender, 'takedown', takedownType, 'defended');
+    updateFightStats(attacker, defender, "takedown", takedownType, "defended");
     console.log(`${defender.name} defends the clinch ${takedownType}`);
     return `clinch${
       takedownType.charAt(0).toUpperCase() + takedownType.slice(1)
@@ -760,13 +804,15 @@ const doTakedown = (attacker, defender) => {
       defender.Rating.takedownDefence
     )
   ) {
+    attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
 
-    updateFightStats(attacker, defender, 'takedown', 'singleLeg', 'landed');
+    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GROUND_BOTTOM;
+    updateFightStats(attacker, defender, "takedown", "singleLeg", "landed");
 
     console.log(`${attacker.name} successfully takes down ${defender.name}`);
     return "takedownLanded";
   } else {
-    updateFightStats(attacker, defender, 'takedown', 'singleLeg', 'defended');
+    updateFightStats(attacker, defender, "takedown", "singleLeg", "defended");
 
     console.log(`${defender.name} defends the takedown`);
     // Both fighters remain standing
@@ -937,7 +983,6 @@ const doGetUp = (attacker, defender) => {
       defender.Rating.groundOffence
     )
   ) {
-
     // Reset both fighters to standing position
     attacker.position = FIGHTER_POSITIONS.STANDING;
     defender.position = FIGHTER_POSITIONS.STANDING;
@@ -976,11 +1021,16 @@ const doSubmission = (attacker, defender) => {
 
   // Determine the outcome
   const outcome = Math.random();
-  const timePassed = simulateTimePassing("Submission");
+  const timePassed = simulateTimePassing("submission");
 
   if (outcome < successChance) {
-
-    updateFightStats(attacker, defender, 'submission', chosenSubmission, 'successful');
+    updateFightStats(
+      attacker,
+      defender,
+      "submission",
+      chosenSubmission,
+      "successful"
+    );
 
     console.log(
       `${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`
@@ -988,13 +1038,25 @@ const doSubmission = (attacker, defender) => {
     defender.isSubmitted = true;
     return ["submissionSuccessful", timePassed, chosenSubmission.name];
   } else if (outcome < successChance + defenceChance) {
-    updateFightStats(attacker, defender, 'submission', chosenSubmission, 'defended');
+    updateFightStats(
+      attacker,
+      defender,
+      "submission",
+      chosenSubmission,
+      "defended"
+    );
     console.log(
       `${defender.name} defends against the ${chosenSubmission.name}`
     );
     return ["submissionDefended", timePassed, null];
   } else if (outcome < successChance + defenceChance + escapeChance) {
-    updateFightStats(attacker, defender, 'submission', chosenSubmission, 'defended');
+    updateFightStats(
+      attacker,
+      defender,
+      "submission",
+      chosenSubmission,
+      "defended"
+    );
     console.log(
       `${defender.name} escapes from the ${chosenSubmission.name} attempt`
     );
@@ -1115,7 +1177,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "groundPunch":
       [outcome, timePassed] = doGroundPunch(fighter, opponentFighter);
       break;
-    case "Submission":
+    case "submission":
       [outcome, timePassed, submissionType] = doSubmission(
         fighter,
         opponentFighter
@@ -1127,18 +1189,31 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = 1; // Default to 1 second for unknown actions
       break;
   }
-  
+
   // Apply stamina impact after the action
-  const staminaChange = calculateStaminaChange(actionType, fighter.Rating.cardio);
+  const staminaChange = calculateStaminaChange(
+    actionType,
+    fighter.Rating.cardio
+  );
   fighter.stamina = Math.max(0, fighter.stamina - staminaChange);
 
   // Handle special cases for stamina impact on the defender
-  if (outcome.includes('Landed') && (actionType === 'bodyKick' || actionType === 'bodyPunch')) {
+  if (
+    outcome.includes("Landed") &&
+    (actionType === "bodyKick" || actionType === "bodyPunch")
+  ) {
     const defenderStaminaChange = staminaChange / 2; // Reduce defender's stamina by half the attacker's stamina change
-    opponentFighter.stamina = Math.max(0, opponentFighter.stamina - defenderStaminaChange);
+    opponentFighter.stamina = Math.max(
+      0,
+      opponentFighter.stamina - defenderStaminaChange
+    );
   }
   console.log(`Action: ${actionType}, Outcome: ${outcome}`);
-  console.log(`Stamina - ${fighter.name}: ${fighter.stamina.toFixed(2)}, ${opponentFighter.name}: ${opponentFighter.stamina.toFixed(2)}`);
+  console.log(
+    `Stamina - ${fighter.name}: ${fighter.stamina.toFixed(2)}, ${
+      opponentFighter.name
+    }: ${opponentFighter.stamina.toFixed(2)}`
+  );
   console.log(`Position - ${fighter.name}: ${fighter.position}`);
 
   // Check for knockout (this is for one hit or seek knockouts)
@@ -1146,7 +1221,7 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     console.log(`${opponentFighter.name} has been knocked out!`);
     return [actionFighter, timePassed];
   }
-  
+
   // Check for knockout using the isKnockedOut function
   if (isKnockedOut(opponentFighter)) {
     const knockoutPart = Object.keys(opponentFighter.health).find(
@@ -1178,7 +1253,10 @@ const simulateRound = (fighters, roundNumber) => {
   // Reset fighters to standing position and recover some stamina at the start of the round
   fighters.forEach((fighter) => {
     fighter.position = FIGHTER_POSITIONS.STANDING;
-    fighter.stamina = recoverStaminaEndRound(fighter.stamina, fighter.Rating.cardio);
+    fighter.stamina = recoverStaminaEndRound(
+      fighter.stamina,
+      fighter.Rating.cardio
+    );
   });
 
   // Track initial stats for this round
@@ -1440,7 +1518,7 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
  * @returns {Object} Fight result including winner, method, and round ended
  */
 const simulateFight = (fighters) => {
-  let method = "Decision";
+  let method = "decision";
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
   let roundStats = [];
@@ -1458,10 +1536,10 @@ const simulateFight = (fighters) => {
     // Check if the round ended early (KO or submission)
     if (roundResult.winner !== null) {
       if (roundResult.submissionType) {
-        method = "Submission";
+        method = "submission";
         submissionType = roundResult.submissionType;
       } else {
-        method = "Knockout";
+        method = "knockout";
       }
       roundEnded = round;
       break;
@@ -1480,7 +1558,7 @@ const simulateFight = (fighters) => {
 
   // Determine the overall winner
   let winner;
-  if (method === "Decision") {
+  if (method === "decision") {
     winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
     if (fighters[0].roundsWon === fighters[1].roundsWon) {
       method = "draw";
@@ -1502,7 +1580,7 @@ const simulateFight = (fighters) => {
     console.log("The fight ends in a draw!");
   } else {
     const winMethod =
-      method === "Submission" ? `${method} (${submissionType})` : method;
+      method === "submission" ? `${method} (${submissionType})` : method;
     console.log(
       `${fighters[winner].name} defeats ${
         fighters[1 - winner].name
