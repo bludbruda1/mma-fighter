@@ -574,15 +574,23 @@ const FightScreen = () => {
 
                     {/* Tabs */}
                     <Grid
-                      item
-                      xs={12}
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        marginTop: "20px", // Space between ResultCard and Tabs
+                      container
+                      spacing={2}
+                      sx={{
+                        maxWidth: "600px", // Increase the max-width to accommodate longer text
+                        margin: "0 auto", // Center align the container
                       }}
                     >
-                      <Tab tabs={prepareTabs()} />
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          justifyContent: "center",
+                          marginTop: "20px", // Space between ResultCard and Tabs
+                        }}
+                      >
+                        <Tab tabs={prepareTabs()} />
+                      </Grid>
                     </Grid>
                   </Grid>
 
