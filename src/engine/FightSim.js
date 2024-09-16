@@ -1216,21 +1216,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   );
   console.log(`Position - ${fighter.name}: ${fighter.position}`);
 
-  // Check for knockout (this is for one hit or seek knockouts)
-  if (opponentFighter.isKnockedOut) {
+  // Check for knockout
+  if (opponentFighter.isKnockedOut || isKnockedOut(opponentFighter)) {
     console.log(`${opponentFighter.name} has been knocked out!`);
-    return [actionFighter, timePassed];
-  }
-
-  // Check for knockout using the isKnockedOut function
-  if (isKnockedOut(opponentFighter)) {
-    const knockoutPart = Object.keys(opponentFighter.health).find(
-      (part) => opponentFighter.health[part] <= 0
-    );
-    console.log(
-      `${opponentFighter.name} is knocked out due to ${knockoutPart} damage!`
-    );
-    return [actionFighter, timePassed];
+    return [actionFighter, timePassed]; // Return the index of the winning fighter
   }
 
   // Check for successful submission
