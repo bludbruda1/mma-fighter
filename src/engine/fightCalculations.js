@@ -1,4 +1,5 @@
 import { FIGHTER_POSITIONS } from "./FightSim.js";
+import { FIGHTING_STYLES } from "./mmaStyles.js";
 
 // Constants for strike damages
 const STRIKE_DAMAGE = {
@@ -289,28 +290,39 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
  * @returns {string} The determined action
  */
 const determineStandingAction = (attacker, defender) => {
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
   const strikingOffence = attacker.Rating.striking;
   const strikingDefence = defender.Rating.strikingDefence;
   const takedownOffence = attacker.Rating.takedownOffence;
   const takedownDefence = defender.Rating.takedownDefence;
+  const clinchOffence = attacker.Rating.clinchOffence;
+  const clinchDefence = defender.Rating.clinchDefence;
   const attackerStamina = attacker.stamina / 100;
-  const strikingPreference = attacker.Tendency.strikingVsGrappling / 100;
+
+  // Evaluate attackers strengths
+  const strikingVsTakedown = strikingOffence - takedownOffence;
+  const strikingVsClinch = strikingOffence - clinchOffence;
+  const takedownVsClinch = takedownOffence - clinchOffence; 
+  const takedownVsStriking = takedownOffence - strikingOffence;
+  const clinchVsStriking = clinchOffence - strikingOffence;
+  const clinchVsTakedown = clinchOffence - takedownOffence;
+
+  // Evaluate differences between attacker and defender
+  const strikingDif = strikingOffence - strikingDefence;
+  const takedownDif = takedownOffence - takedownDefence;
+  const clinchDif = clinchOffence - clinchDefence;
 
   // Calculate base chances
-  let strikeChance =
-    (strikingOffence / (strikingOffence + strikingDefence)) *
-    strikingPreference *
-    attackerStamina;
-  let takedownChance =
-    (takedownOffence / (takedownOffence + takedownDefence)) *
-    (1 - strikingPreference) *
-    attackerStamina;
-  let waitChance = 0.1 * (1 - attackerStamina); // More likely to wait when tired
+  let strikeChance = style.strikeChance + ((strikingVsTakedown / 50 + strikingVsClinch / 50 ) / 2) + (strikingDif / 50);
+  let takedownChance = style.takedownChance + ((takedownVsClinch / 50 + takedownVsStriking / 50 ) / 2) + (takedownDif / 50);
+  let clinchChance = style.clinchChance + ((clinchVsStriking / 50 + clinchVsTakedown / 50 ) / 2) + (clinchDif / 50);
+  let waitChance = style.waitChance + (1 - attackerStamina); // More likely to wait when tired
 
   // Normalize probabilities
-  const total = strikeChance + takedownChance + waitChance;
+  const total = strikeChance + takedownChance + clinchChance + waitChance;
   strikeChance /= total;
   takedownChance /= total;
+  clinchChance /= total;
   waitChance /= total;
 
   // Choose action based on probabilities
@@ -319,6 +331,8 @@ const determineStandingAction = (attacker, defender) => {
     return determineStrikeType(attacker);
   } else if (random < strikeChance + takedownChance) {
     return "takedownAttempt";
+  } else if (random < strikeChance + takedownChance + clinchChance) {
+    return "clinchAttempt";
   } else {
     return "wait";
   }

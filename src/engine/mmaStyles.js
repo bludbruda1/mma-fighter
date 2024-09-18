@@ -8,7 +8,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.2,
       takedownChance: 0.7,
       clinchChance: 0.7,
-      waitChance: 0.8,
+      waitChance: 0.5,
       punchPreference: 1.2,
       punchWeights: [2, 3.5, 4, 3, 4, 1.5, 2], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -21,7 +21,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 0.9,
       takedownChance: 0.7,
       clinchChance: 0.6,
-      waitChance: 1.3,
+      waitChance: 1.0,
       punchPreference: 1.2,
       punchWeights: [3, 4, 3, 3, 2, 1.5, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -34,7 +34,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.3,
       takedownChance: 0.7,
       clinchChance: 0.8,
-      waitChance: 0.7,
+      waitChance: 0.4,
       punchPreference: 1.2,
       punchWeights: [5, 4, 3, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -47,7 +47,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.3,
       takedownChance: 1.1,
       clinchChance: 1.2,
-      waitChance: 0.6,
+      waitChance: 0.3,
       punchPreference: 1.2,
       punchWeights: [3, 4, 4, 3, 3, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -60,7 +60,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.3,
       takedownChance: 0.8,
       clinchChance: 1.2,
-      waitChance: 0.7,
+      waitChance: 0.4,
       punchPreference: 1.2,
       punchWeights: [2, 3, 5, 4, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -73,7 +73,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.1,
       takedownChance: 0.8,
       clinchChance: 0.6,
-      waitChance: 1.1,
+      waitChance: 0.8,
       punchPreference: 1.2,
       punchWeights: [5, 4, 2, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -86,7 +86,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 0.9,
       takedownChance: 0.8,
       clinchChance: 0.7,
-      waitChance: 1.3,
+      waitChance: 1,
       punchPreference: 1.2,
       punchWeights: [4, 4, 3, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -99,7 +99,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.1,
       takedownChance: 0.9,
       clinchChance: 0.9,
-      waitChance: 0.9,
+      waitChance: 0.6,
       punchPreference: 1.2,
       punchWeights: [3, 3, 3, 3, 3, 2, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -112,7 +112,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.2,
       takedownChance: 0.8,
       clinchChance: 0.8,
-      waitChance: 0.9,
+      waitChance: 0.6,
       punchPreference: 0.8,
       punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 3, 2], // legKick, bodyKick, headKick
@@ -125,7 +125,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 1.2,
       takedownChance: 0.7,
       clinchChance: 1.4,
-      waitChance: 0.9,
+      waitChance: 0.6,
       punchPreference: 0.8,
       punchWeights: [2, 3, 3, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [4, 3, 2], // legKick, bodyKick, headKick
@@ -138,7 +138,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 0.8,
       takedownChance: 1.5,
       clinchChance: 1.3,
-      waitChance: 0.9,
+      waitChance: 0.6,
       punchPreference: 1.0,
       punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -151,7 +151,7 @@ export const FIGHTING_STYLES = {
       strikeChance: 0.7,
       takedownChance: 1.3,
       clinchChance: 1.1,
-      waitChance: 1.1,
+      waitChance: 0.8,
       punchPreference: 1.0,
       punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
       kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -164,7 +164,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 0.8,
         takedownChance: 1.4,
         clinchChance: 1.5,
-        waitChance: 1.0,
+        waitChance: 0.7,
         punchPreference: 0.9,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [2, 2, 1], // legKick, bodyKick, headKick
@@ -177,7 +177,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 1.3,
         takedownChance: 0.7,
         clinchChance: 0.6,
-        waitChance: 1.1,
+        waitChance: 0.8,
         punchPreference: 0.7,
         punchWeights: [3, 4, 2, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [3, 4, 3], // legKick, bodyKick, headKick
@@ -190,7 +190,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 0.9,
         takedownChance: 1.4,
         clinchChance: 1.3,
-        waitChance: 0.9,
+        waitChance: 0.6,
         punchPreference: 0.9,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -203,7 +203,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 1.4,
         takedownChance: 0.6,
         clinchChance: 0.5,
-        waitChance: 1.1,
+        waitChance: 0.8,
         punchPreference: 0.5,
         punchWeights: [3, 3, 2, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [3, 4, 5], // legKick, bodyKick, headKick
@@ -216,7 +216,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 0.7,
         takedownChance: 1.5,
         clinchChance: 1.6,
-        waitChance: 0.9,
+        waitChance: 0.6,
         punchPreference: 0.9,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [2, 2, 1], // legKick, bodyKick, headKick
@@ -229,7 +229,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 0.8,
         takedownChance: 1.4,
         clinchChance: 1.3,
-        waitChance: 0.9,
+        waitChance: 0.6,
         punchPreference: 1.0,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [2, 2, 1], // legKick, bodyKick, headKick
@@ -242,7 +242,7 @@ export const FIGHTING_STYLES = {
         strikeChance: 0.8,
         takedownChance: 1.6,
         clinchChance: 1.2,
-        waitChance: 0.9,
+        waitChance: 0.6,
         punchPreference: 0.9,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [2, 2, 1], // legKick, bodyKick, headKick
