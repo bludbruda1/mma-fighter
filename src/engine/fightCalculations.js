@@ -313,10 +313,10 @@ const determineStandingAction = (attacker, defender) => {
   const clinchDif = clinchOffence - clinchDefence;
 
   // Calculate base chances
-  let strikeChance = style.strikeChance + ((strikingVsTakedown / 50 + strikingVsClinch / 50 ) / 2) + (strikingDif / 50);
-  let takedownChance = style.takedownChance + ((takedownVsClinch / 50 + takedownVsStriking / 50 ) / 2) + (takedownDif / 50);
-  let clinchChance = style.clinchChance + ((clinchVsStriking / 50 + clinchVsTakedown / 50 ) / 2) + (clinchDif / 50);
-  let waitChance = style.waitChance + (1 - attackerStamina); // More likely to wait when tired
+  let strikeChance = style.standing.strikeChance + ((strikingVsTakedown / 50 + strikingVsClinch / 50 ) / 2) + (strikingDif / 50);
+  let takedownChance = style.standing.takedownChance + ((takedownVsClinch / 50 + takedownVsStriking / 50 ) / 2) + (takedownDif / 50);
+  let clinchChance = style.standing.clinchChance + ((clinchVsStriking / 50 + clinchVsTakedown / 50 ) / 2) + (clinchDif / 50);
+  let waitChance = style.standing.waitChance + (1 - attackerStamina); // More likely to wait when tired
 
   // Normalize probabilities
   const total = strikeChance + takedownChance + clinchChance + waitChance;
