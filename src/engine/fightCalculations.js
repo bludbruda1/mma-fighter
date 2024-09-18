@@ -487,38 +487,53 @@ const determineClinchAction = (attacker, defender) => {
 
 /**
  * Determines the specific type of strike for a fighter
- * @param {Object} fighter - The fighter object
+ * @param {Object} attacker - The fighter object
  * @returns {string} The specific strike type
  */
-const determineStrikeType = (fighter) => {
-  const boxing = fighter.Tendency.standupPreference.boxing;
-  const kickBoxing = fighter.Tendency.standupPreference.kickBoxing;
-  const muayThai = fighter.Tendency.standupPreference.muayThai;
-  const karate = fighter.Tendency.standupPreference.karate;
-  const taekwondo = fighter.Tendency.standupPreference.taekwondo;
+const determineStrikeType = (attacker) => {
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
+  
+  // Relevant ratings
+  const punchPower = attacker.Rating.punchPower;
+  const kickPower = attacker.Rating.kickPower;
+  const punchSpeed = attacker.Rating.handSpeed;
+  const kickSpeed = attacker.Rating.kickSpeed;
+  const punchAccuracy = attacker.Rating.punchAccuracy;
+  const kickAccuracy = attacker.Rating.kickAccuracy;
 
-  const totalPreference = boxing + kickBoxing + muayThai + karate + taekwondo;
-  const punchPreference =
-    (boxing + kickBoxing * 0.5 + muayThai * 0.3) / totalPreference;
+  // Evaluate striker's strengths
+  const punchVsKick = (punchPower + punchSpeed + punchAccuracy) - (kickPower + kickSpeed + kickAccuracy);
+
+  // Calculate punch vs kick probability
+  let punchProbability = style.standing.punchPreference + (punchVsKick / 150);  // Dividing by 150 to keep the influence moderate
+  punchProbability = Math.max(0.1, Math.min(0.9, punchProbability));  // Clamp between 0.1 and 0.9
 
   // Determine if it's a punch or a kick
-  if (Math.random() < punchPreference) {
+  if (Math.random() < punchProbability) {
     // It's a punch
-    const punchTypes = [
-      "jab",
-      "cross",
-      "hook",
-      "uppercut",
-      "overhand",
-      "spinningBackfist",
-      "supermanPunch",
-    ];
-    const punchWeights = [4, 3.5, 3, 2.5, 2, 1.5, 1];
+    const punchTypes = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch"];
+    let punchWeights = [...style.standing.punchWeights];  // Create a copy of the style's punch weights
+
+    // Adjust weights based on fighter's ratings
+    punchWeights[0] *= (punchSpeed + punchAccuracy) / 100;  // jab
+    punchWeights[1] *= (punchPower + punchAccuracy) / 100;  // cross
+    punchWeights[2] *= (punchPower + punchSpeed) / 100;     // hook
+    punchWeights[3] *= punchPower / 50;                     // uppercut
+    punchWeights[4] *= punchPower / 50;                     // overhand
+    punchWeights[5] *= (punchSpeed + punchAccuracy) / 100;  // spinningBackfist
+    punchWeights[6] *= (punchPower + punchAccuracy) / 100;  // supermanPunch
+
     return weightedRandomChoice(punchTypes, punchWeights);
   } else {
     // It's a kick
     const kickTypes = ["legKick", "bodyKick", "headKick"];
-    const kickWeights = [3, 2, 1];
+    let kickWeights = [...style.standing.kickWeights];  // Create a copy of the style's kick weights
+
+    // Adjust weights based on fighter's ratings
+    kickWeights[0] *= (kickSpeed + kickAccuracy) / 100;  // legKick
+    kickWeights[1] *= (kickPower + kickAccuracy) / 100;  // bodyKick
+    kickWeights[2] *= (kickPower + kickSpeed) / 100;     // headKick
+
     return weightedRandomChoice(kickTypes, kickWeights);
   }
 };
