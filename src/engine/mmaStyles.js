@@ -269,10 +269,10 @@ export const FIGHTING_STYLES = {
       weakness:"Vulnerable to takedowns if not well-rounded",
       characteristics:"Blends kicks and punches, strong striking variety",
       standing: {
-        strikeChance: 1.2,
-        takedownChance: 0.8,
-        clinchChance: 0.8,
-        waitChance: 0.6,
+        strikeChance: 1.4,
+        takedownChance: 0.6,
+        clinchChance: 0.6,
+        waitChance: 0.8,
         punchPreference: 0.8,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [3, 3, 2], // legKick, bodyKick, headKick
