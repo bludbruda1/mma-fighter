@@ -47,11 +47,28 @@ const calculateProbability = (offenceRating, defenceRating) => {
  * @returns {number} Probability of success
  */
 const calculateTDProbability = (attacker, defender) => {
-if (attacker.Rating.takedownOffence >= defender.Rating.takedownDefence) {
-  return 0.5 / (1 + Math.pow(attacker.Rating.takedownOffence - defender.Rating.takedownDefence, 0.5));
-} else {
-  const diff = defender.Rating.takedownDefence - attacker.Rating.takedownOffence;
-  return 0.5 / (1 + Math.pow(diff, 0.8) + Math.pow(Math.max(0, diff - 5), 2) / 20);
+  const offensiveSkill = attacker.Rating.takedownOffence;
+  const defensiveSkill = defender.Rating.takedownDefence;
+  const difference = offensiveSkill - defensiveSkill;
+
+  if (difference >= 15) {
+    return 0.60;
+  } else if (difference >= 10) {
+    return 0.50;
+  } else if (difference >= 5) {
+    return 0.40;
+  } else if (difference >= 1) {
+    return 0.33;
+  } else if (difference === 0) {
+    return 0.25;
+  } else if (difference >= -4) {
+    return 0.20;
+  } else if (difference >= -9) {
+    return 0.125;
+  } else if (difference >= -14) {
+    return 0.075;
+  } else {
+    return 0.02;
   }
 };
 
