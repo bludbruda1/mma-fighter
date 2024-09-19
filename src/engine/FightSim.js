@@ -802,7 +802,7 @@ const doTakedown = (attacker, defender) => {
   ) {
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
 
-    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GROUND_BOTTOM;
+    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
     updateFightStats(attacker, defender, "takedown", "singleLeg", "successful");
 
     console.log(`${attacker.name} successfully takes down ${defender.name}`);
