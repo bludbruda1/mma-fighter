@@ -427,9 +427,14 @@ const FightScreen = () => {
         title="Total Strikes"
       />
       <StatBar
-        redValue={fightStats.takedowns.red}
-        blueValue={fightStats.takedowns.blue}
-        title="Total Takedowns"
+        redValue={fightStats.takedownsAttempted.red}
+        blueValue={fightStats.takedownsAttempted.blue}
+        title="Total Attempted Takedowns"
+      />
+      <StatBar
+        redValue={fightStats.takedownsSuccessful.red}
+        blueValue={fightStats.takedownsSuccessful.blue}
+        title="Total Successful Takedowns"
       />
       <StatBar
         redValue={fightStats.submissionAttempts.red}
