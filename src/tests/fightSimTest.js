@@ -1,4 +1,4 @@
-// tests/fightSimTest.js
+// to run the test: src/tests/fightSimTest.js
 
 import { simulateFight, FIGHTER_POSITIONS } from '../engine/FightSim.js';
 import { 
