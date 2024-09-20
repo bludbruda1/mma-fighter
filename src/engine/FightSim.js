@@ -135,10 +135,12 @@ const pickFighter = (fighters, lastActionFighter) => {
 const doFightStart = (fighter, opponent) => {
   const events = [
     `${fighter.name} and ${opponent.name} touch gloves`,
-    `${fighter.name} takes the center of the octagon`,
+    `${fighter.name} refuses glove touch`,
+    `${fighter.name} immediately steps forward and takes the center of the octagon`,
     `${fighter.name} and ${opponent.name} cautiously circle each other`,
     `${fighter.name} feints, looking for an opening`,
-    `${fighter.name} and ${opponent.name} gauge the distance`
+    `${fighter.name} verbally taunts ${opponent.name}`,
+    `${fighter.name} and ${opponent.name} both stay outside of stiking range moving slowly`
   ];
 
   const event = events[Math.floor(Math.random() * events.length)];
