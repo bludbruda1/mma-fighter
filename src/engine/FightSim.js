@@ -10,6 +10,7 @@ import {
   calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
+  calculateTDProbability,
   calculateSubmissionProbability,
   determineStandingAction,
   determineClinchAction,
@@ -797,17 +798,12 @@ const doClinchTakedown = (attacker, defender) => {
 const doTakedown = (attacker, defender) => {
   console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
 
-  if (
-    Math.random() <
-    calculateProbability(
-      attacker.Rating.takedownOffence,
-      defender.Rating.takedownDefence
-    )
+  if (Math.random() < calculateTDProbability(attacker, defender)
   ) {
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
 
-    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GROUND_BOTTOM;
-    updateFightStats(attacker, defender, "takedown", "singleLeg", "landed");
+    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+    updateFightStats(attacker, defender, "takedown", "singleLeg", "successful");
 
     console.log(`${attacker.name} successfully takes down ${defender.name}`);
     return "takedownLanded";
