@@ -89,6 +89,7 @@ const FightScreen = () => {
         return {
           id: fighter.personid,
           name: `${fighter.firstname} ${fighter.lastname}`,
+          fightingStyle: fighter.fightingStyle, 
           health: {
             head: Number(fighter.maxHealth.head) || 100,
             body: Number(fighter.maxHealth.body) || 100,

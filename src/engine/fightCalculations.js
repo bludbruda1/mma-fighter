@@ -1,4 +1,5 @@
 import { FIGHTER_POSITIONS } from "./FightSim.js";
+import { FIGHTING_STYLES } from "./mmaStyles.js";
 
 // Constants for strike damages
 const STRIKE_DAMAGE = {
@@ -321,28 +322,39 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
  * @returns {string} The determined action
  */
 const determineStandingAction = (attacker, defender) => {
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
   const strikingOffence = attacker.Rating.striking;
   const strikingDefence = defender.Rating.strikingDefence;
   const takedownOffence = attacker.Rating.takedownOffence;
   const takedownDefence = defender.Rating.takedownDefence;
+  const clinchOffence = attacker.Rating.clinchOffence;
+  const clinchDefence = defender.Rating.clinchDefence;
   const attackerStamina = attacker.stamina / 100;
-  const strikingPreference = attacker.Tendency.strikingVsGrappling / 100;
+
+  // Evaluate attackers strengths
+  const strikingVsTakedown = strikingOffence - takedownOffence;
+  const strikingVsClinch = strikingOffence - clinchOffence;
+  const takedownVsClinch = takedownOffence - clinchOffence; 
+  const takedownVsStriking = takedownOffence - strikingOffence;
+  const clinchVsStriking = clinchOffence - strikingOffence;
+  const clinchVsTakedown = clinchOffence - takedownOffence;
+
+  // Evaluate differences between attacker and defender
+  const strikingDif = strikingOffence - strikingDefence;
+  const takedownDif = takedownOffence - takedownDefence;
+  const clinchDif = clinchOffence - clinchDefence;
 
   // Calculate base chances
-  let strikeChance =
-    (strikingOffence / (strikingOffence + strikingDefence)) *
-    strikingPreference *
-    attackerStamina;
-  let takedownChance =
-    (takedownOffence / (takedownOffence + takedownDefence)) *
-    (1 - strikingPreference) *
-    attackerStamina;
-  let waitChance = 0.1 * (1 - attackerStamina); // More likely to wait when tired
+  let strikeChance = style.standing.strikeChance + ((strikingVsTakedown / 50 + strikingVsClinch / 50 ) / 2) + (strikingDif / 50);
+  let takedownChance = style.standing.takedownChance + ((takedownVsClinch / 50 + takedownVsStriking / 50 ) / 2) + (takedownDif / 50);
+  let clinchChance = style.standing.clinchChance + ((clinchVsStriking / 50 + clinchVsTakedown / 50 ) / 2) + (clinchDif / 50);
+  let waitChance = style.standing.waitChance + (1 - attackerStamina); // More likely to wait when tired
 
   // Normalize probabilities
-  const total = strikeChance + takedownChance + waitChance;
+  const total = strikeChance + takedownChance + clinchChance + waitChance;
   strikeChance /= total;
   takedownChance /= total;
+  clinchChance /= total;
   waitChance /= total;
 
   // Choose action based on probabilities
@@ -351,6 +363,8 @@ const determineStandingAction = (attacker, defender) => {
     return determineStrikeType(attacker);
   } else if (random < strikeChance + takedownChance) {
     return "takedownAttempt";
+  } else if (random < strikeChance + takedownChance + clinchChance) {
+    return "clinchAttempt";
   } else {
     return "wait";
   }
@@ -505,38 +519,53 @@ const determineClinchAction = (attacker, defender) => {
 
 /**
  * Determines the specific type of strike for a fighter
- * @param {Object} fighter - The fighter object
+ * @param {Object} attacker - The fighter object
  * @returns {string} The specific strike type
  */
-const determineStrikeType = (fighter) => {
-  const boxing = fighter.Tendency.standupPreference.boxing;
-  const kickBoxing = fighter.Tendency.standupPreference.kickBoxing;
-  const muayThai = fighter.Tendency.standupPreference.muayThai;
-  const karate = fighter.Tendency.standupPreference.karate;
-  const taekwondo = fighter.Tendency.standupPreference.taekwondo;
+const determineStrikeType = (attacker) => {
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
+  
+  // Relevant ratings
+  const punchPower = attacker.Rating.punchPower;
+  const kickPower = attacker.Rating.kickPower;
+  const punchSpeed = attacker.Rating.handSpeed;
+  const kickSpeed = attacker.Rating.kickSpeed;
+  const punchAccuracy = attacker.Rating.punchAccuracy;
+  const kickAccuracy = attacker.Rating.kickAccuracy;
 
-  const totalPreference = boxing + kickBoxing + muayThai + karate + taekwondo;
-  const punchPreference =
-    (boxing + kickBoxing * 0.5 + muayThai * 0.3) / totalPreference;
+  // Evaluate striker's strengths
+  const punchVsKick = (punchPower + punchSpeed + punchAccuracy) - (kickPower + kickSpeed + kickAccuracy);
+
+  // Calculate punch vs kick probability
+  let punchProbability = style.standing.punchPreference + (punchVsKick / 150);  // Dividing by 150 to keep the influence moderate
+  punchProbability = Math.max(0.1, Math.min(0.9, punchProbability));  // Clamp between 0.1 and 0.9
 
   // Determine if it's a punch or a kick
-  if (Math.random() < punchPreference) {
+  if (Math.random() < punchProbability) {
     // It's a punch
-    const punchTypes = [
-      "jab",
-      "cross",
-      "hook",
-      "uppercut",
-      "overhand",
-      "spinningBackfist",
-      "supermanPunch",
-    ];
-    const punchWeights = [4, 3.5, 3, 2.5, 2, 1.5, 1];
+    const punchTypes = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch"];
+    let punchWeights = [...style.standing.punchWeights];  // Create a copy of the style's punch weights
+
+    // Adjust weights based on fighter's ratings
+    punchWeights[0] *= (punchSpeed + punchAccuracy) / 100;  // jab
+    punchWeights[1] *= (punchPower + punchAccuracy) / 100;  // cross
+    punchWeights[2] *= (punchPower + punchSpeed) / 100;     // hook
+    punchWeights[3] *= punchPower / 50;                     // uppercut
+    punchWeights[4] *= punchPower / 50;                     // overhand
+    punchWeights[5] *= (punchSpeed + punchAccuracy) / 100;  // spinningBackfist
+    punchWeights[6] *= (punchPower + punchAccuracy) / 100;  // supermanPunch
+
     return weightedRandomChoice(punchTypes, punchWeights);
   } else {
     // It's a kick
     const kickTypes = ["legKick", "bodyKick", "headKick"];
-    const kickWeights = [3, 2, 1];
+    let kickWeights = [...style.standing.kickWeights];  // Create a copy of the style's kick weights
+
+    // Adjust weights based on fighter's ratings
+    kickWeights[0] *= (kickSpeed + kickAccuracy) / 100;  // legKick
+    kickWeights[1] *= (kickPower + kickAccuracy) / 100;  // bodyKick
+    kickWeights[2] *= (kickPower + kickSpeed) / 100;     // headKick
+
     return weightedRandomChoice(kickTypes, kickWeights);
   }
 };
