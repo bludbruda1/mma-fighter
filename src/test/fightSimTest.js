@@ -1,7 +1,8 @@
 // to run the test: src/tests/fightSimTest.js
 
 import { simulateFight, FIGHTER_POSITIONS } from '../engine/FightSim.js';
-import { 
+import {FIGHTING_STYLES} from '../engine/mmaStyles.js';
+import {
   doKick, 
   doPunch, 
   doGroundPunch, 
@@ -17,6 +18,7 @@ const createFighter = (name, attributes) => ({
   maxHealth: { head: 1000, body: 1000, legs: 1000 },
   stamina: 1000,
   position: FIGHTER_POSITIONS.STANDING,
+  fightingStyle: "POWER_PUNCHER",
   roundsWon: 0,
   Rating: {
     output: 94,
@@ -39,11 +41,10 @@ const createFighter = (name, attributes) => ({
     footwork: 88,
     takedownOffence: 73,
     takedownDefence: 87,
-    clinchOffence: 88,
-    clinchDefence: 87,
-    clinchStriking: 92,
-    clinchGrappling: 85,
-    clinchControl: 86,
+    clinchStriking: 81,
+    clinchTakedown: 62,
+    clinchControl: 71,
+    clinchDefence: 76,
     groundOffence: 84,
     groundDefence: 86,
     groundControl: 83,
