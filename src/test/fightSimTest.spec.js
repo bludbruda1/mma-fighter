@@ -52,6 +52,7 @@ const createFighter = (name, attributes) => ({
     getUpAbility: 89,
     composure: 92,
     fightIQ: 90,
+    ...attributes.Rating, // Override default ratings with passed values
   },
   stats: {},
   Tendency: {
@@ -165,5 +166,22 @@ describe("FightSim Tests", () => {
     expect(result).toHaveProperty("winner");
     expect(result).toHaveProperty("method", "knockout"); // Expect method to be 'KO'
     console.log("Fight Result:", result);
+  });
+
+  // Test submission scenario
+  test("Submission Scenario", () => {
+    const fighter1 = createFighter("Fighter 1", {
+      Rating: { submissionOffence: 100 },
+    });
+    const fighter2 = createFighter("Fighter 2", {
+      Rating: { submissionDefence: 0 },
+    });
+
+    console.log(fighter1.Rating.submissionOffence);
+    fighter1.position = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
+    fighter2.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
+    const submissionResult = doSubmission(fighter1, fighter2);
+    console.log("Submission Result:", submissionResult);
+    expect(submissionResult).toContain("submissionSuccessful");
   });
 });
