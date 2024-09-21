@@ -6,7 +6,7 @@ export const FIGHTING_STYLES = {
       weakness:"Sacrifice speed and defense, struggle in longer fights",
       characteristics:"Heavy punches, knockout-focused, forward pressure",
       standing: {
-        strikeChance: 1.3,
+        strikeChance: 1.6,
         takedownChance: 0.7,
         clinchChance: 0.7,
         waitChance: 0.5,
@@ -28,7 +28,7 @@ export const FIGHTING_STYLES = {
         },
       },clinch: {
         strikeChance: 1.3,
-        takedownChance: 0.7,
+        takedownChance: 0.4,
         exitChance: 1.1,
       },
     },
@@ -38,7 +38,7 @@ export const FIGHTING_STYLES = {
       weakness:"Less aggressive, relies on opponent engaging",
       characteristics:"Wait for opponents' mistakes, counterattack with precision",
       standing: {
-        strikeChance: 1.1,
+        strikeChance: 1.4,
         takedownChance: 0.7,
         clinchChance: 0.6,
         waitChance: 1.0,
@@ -61,7 +61,7 @@ export const FIGHTING_STYLES = {
       },
       clinch: {
         strikeChance: 1.3,
-        takedownChance: 0.7,
+        takedownChance: 0.4,
         exitChance: 1.1,
       },
     },
@@ -71,7 +71,7 @@ export const FIGHTING_STYLES = {
       weakness:"Less knockout power, open to counters",
       characteristics:"Consistent pressure, overwhelms with high volume",
       standing: {
-        strikeChance: 1.3,
+        strikeChance: 1.6,
         takedownChance: 0.7,
         clinchChance: 0.8,
         waitChance: 0.4,
@@ -94,7 +94,7 @@ export const FIGHTING_STYLES = {
       },
       clinch: {
         strikeChance: 1.3,
-        takedownChance: 0.6,
+        takedownChance: 0.4,
         exitChance: 1.2,
       },
     },
@@ -104,7 +104,7 @@ export const FIGHTING_STYLES = {
       weakness:"Vulnerable to counters, overextension",
       characteristics:"Push forward, force opponents to fight backward",
       standing: {
-        strikeChance: 1.3,
+        strikeChance: 1.6,
         takedownChance: 1.1,
         clinchChance: 1.2,
         waitChance: 0.3,
@@ -127,7 +127,7 @@ export const FIGHTING_STYLES = {
       },
       clinch: {
         strikeChance: 1.3,
-        takedownChance: 0.6,
+        takedownChance: 0.4,
         exitChance: 1.1,
       },
     },
@@ -137,7 +137,7 @@ export const FIGHTING_STYLES = {
       weakness:"Struggles with range fighters",
       characteristics:"Smother opponents, body shots and hooks in close quarters",
       standing: {
-        strikeChance: 1.3,
+        strikeChance: 1.6,
         takedownChance: 0.8,
         clinchChance: 1.2,
         waitChance: 0.4,
@@ -160,7 +160,7 @@ export const FIGHTING_STYLES = {
       },
       clinch: {
         strikeChance: 1.3,
-        takedownChance: 0.9,
+        takedownChance: 0.5,
         exitChance: 0.8,
       },
     },
@@ -170,10 +170,10 @@ export const FIGHTING_STYLES = {
       weakness:"Struggles against pressure fighters",
       characteristics:"Keeps opponents at range with jabs and straight punches",
       standing: {
-        strikeChance: 1.1,
-        takedownChance: 0.8,
-        clinchChance: 0.6,
-        waitChance: 0.8,
+        strikeChance: 1.9,
+        takedownChance: 0.4,
+        clinchChance: 0.4,
+        waitChance: 1.2,
         punchPreference: 1.2,
         punchWeights: [5, 4, 2, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -192,8 +192,8 @@ export const FIGHTING_STYLES = {
         },
       },
       clinch: {
-        strikeChance: 1.0,
-        takedownChance: 0.7,
+        strikeChance: 0.8,
+        takedownChance: 0.4,
         exitChance: 1.3,
       },
     },
@@ -203,10 +203,10 @@ export const FIGHTING_STYLES = {
       weakness:"Less aggressive, lacks finishing power",
       characteristics:"Focus on head movement, footwork, making opponents miss",
       standing: {
-        strikeChance: 0.9,
-        takedownChance: 0.8,
+        strikeChance: 1.3,
+        takedownChance: 0.6,
         clinchChance: 0.7,
-        waitChance: 1,
+        waitChance: 1.3,
         punchPreference: 1.2,
         punchWeights: [4, 4, 3, 2, 1, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
         kickWeights: [3, 2, 1], // legKick, bodyKick, headKick
@@ -226,8 +226,8 @@ export const FIGHTING_STYLES = {
       },
       clinch: {
         strikeChance: 0.9,
-        takedownChance: 0.8,
-        exitChance: 1.2,
+        takedownChance: 0.5,
+        exitChance: 1.4,
       },
     },
     SWITCH_HITTER: {
@@ -236,7 +236,7 @@ export const FIGHTING_STYLES = {
       weakness:"May become predictable with stance switching",
       characteristics:"Switch between orthodox and southpaw, open new striking opportunities",
       standing: {
-        strikeChance: 1.1,
+        strikeChance: 1.4,
         takedownChance: 0.9,
         clinchChance: 0.9,
         waitChance: 0.6,
@@ -259,7 +259,7 @@ export const FIGHTING_STYLES = {
       },
       clinch: {
         strikeChance: 1.1,
-        takedownChance: 0.9,
+        takedownChance: 0.5,
         exitChance: 1.0,
       },
     },
@@ -269,7 +269,7 @@ export const FIGHTING_STYLES = {
       weakness:"Vulnerable to takedowns if not well-rounded",
       characteristics:"Blends kicks and punches, strong striking variety",
       standing: {
-        strikeChance: 1.4,
+        strikeChance: 1.7,
         takedownChance: 0.6,
         clinchChance: 0.6,
         waitChance: 0.8,
@@ -291,9 +291,9 @@ export const FIGHTING_STYLES = {
         },
       },
       clinch: {
-        strikeChance: 1.2,
-        takedownChance: 0.6,
-        exitChance: 1.1,
+        strikeChance: 0.9,
+        takedownChance: 0.5,
+        exitChance: 1.3,
       },
     },
     MUAY_THAI: {
@@ -302,7 +302,7 @@ export const FIGHTING_STYLES = {
       weakness:"Vulnerable to wrestlers, may rely on clinch",
       characteristics:"Utilizes all limbs, strong in clinch positions",
       standing: {
-        strikeChance: 1.2,
+        strikeChance: 1.5,
         takedownChance: 0.7,
         clinchChance: 1.4,
         waitChance: 0.6,
@@ -324,9 +324,9 @@ export const FIGHTING_STYLES = {
         },
       },
       clinch: {
-        strikeChance: 1.4,
-        takedownChance: 0.8,
-        exitChance: 0.9,
+        strikeChance: 1.6,
+        takedownChance: 0.5,
+        exitChance: 0.8,
       },
     },
     WRESTLER: {
@@ -335,9 +335,9 @@ export const FIGHTING_STYLES = {
       weakness:"May struggle with striking-focused opponents",
       characteristics:"Focus on takedowns, ground control, neutralizes striking",
       standing: {
-        strikeChance: 0.8,
+        strikeChance: 1.1,
         takedownChance: 1.5,
-        clinchChance: 1.3,
+        clinchChance: 0.9,
         waitChance: 0.6,
         punchPreference: 1.0,
         punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
@@ -368,7 +368,7 @@ export const FIGHTING_STYLES = {
       weakness:"Weak in striking, depends on takedowns",
       characteristics:"Focus on submissions, sweeps, and positional control",
       standing: {
-        strikeChance: 0.7,
+        strikeChance: 1.0,
         takedownChance: 1.3,
         clinchChance: 1.1,
         waitChance: 0.8,
@@ -401,9 +401,9 @@ export const FIGHTING_STYLES = {
         weakness:"Can struggle with strong strikers",
         characteristics:"Throws, trips, transitioning into submissions",
         standing: {
-          strikeChance: 0.8,
+          strikeChance: 1.1,
           takedownChance: 1.4,
-          clinchChance: 1.5,
+          clinchChance: 1.3,
           waitChance: 0.7,
           punchPreference: 0.9,
           punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
@@ -434,7 +434,7 @@ export const FIGHTING_STYLES = {
         weakness: "Can be vulnerable to pressure and close-range fighting",
         characteristics: "Wide stance, explosive in-and-out movement, counterstriking",
         standing: {
-          strikeChance: 1.3,
+          strikeChance: 1.6,
           takedownChance: 0.7,
           clinchChance: 0.6,
           waitChance: 0.8,
@@ -456,9 +456,9 @@ export const FIGHTING_STYLES = {
           },
         },
         clinch: {
-          strikeChance: 1.1,
-          takedownChance: 0.7,
-          exitChance: 1.2,
+          strikeChance: 1.0,
+          takedownChance: 0.4,
+          exitChance: 1.3,
         },
       },
       SAMBO: {
@@ -467,7 +467,7 @@ export const FIGHTING_STYLES = {
         weakness: "Can struggle with elite strikers",
         characteristics: "Blends wrestling and judo with submissions, relentless grappling",
         standing: {
-          strikeChance: 0.9,
+          strikeChance: 1.2,
           takedownChance: 1.4,
           clinchChance: 1.3,
           waitChance: 0.6,
@@ -500,7 +500,7 @@ export const FIGHTING_STYLES = {
         weakness: "Lacks striking power with hands, susceptible to takedowns",
         characteristics: "Focus on fast, agile kicks, unpredictable striking style",
         standing: {
-          strikeChance: 1.4,
+          strikeChance: 1.7,
           takedownChance: 0.6,
           clinchChance: 0.5,
           waitChance: 0.8,
@@ -522,9 +522,9 @@ export const FIGHTING_STYLES = {
           },
         },
         clinch: {
-          strikeChance: 1.0,
-          takedownChance: 0.6,
-          exitChance: 1.3,
+          strikeChance: 0.9,
+          takedownChance: 0.5,
+          exitChance: 1.4,
         },
       },
       GRECO_ROMAN_WRESTLER: {
@@ -533,9 +533,9 @@ export const FIGHTING_STYLES = {
         weakness: "Limited in lower-body attacks",
         characteristics: "Clinch fighting, throws from upper-body control, no leg attacks",
         standing: {
-          strikeChance: 0.7,
+          strikeChance: 1.0,
           takedownChance: 1.5,
-          clinchChance: 1.6,
+          clinchChance: 1.4,
           waitChance: 0.6,
           punchPreference: 0.9,
           punchWeights: [3, 3, 3, 2, 2, 1, 1], // jab, cross, hook, uppercut, overhand, spinningBackfist, supermanPunch
@@ -566,7 +566,7 @@ export const FIGHTING_STYLES = {
         weakness: "Less refined in striking",
         characteristics: "Aggressive submission grappling, control focus",
         standing: {
-          strikeChance: 0.8,
+          strikeChance: 1.1,
           takedownChance: 1.4,
           clinchChance: 1.3,
           waitChance: 0.6,
@@ -599,7 +599,7 @@ export const FIGHTING_STYLES = {
         weakness: "May struggle in striking exchanges",
         characteristics: "Mix of upper and lower-body takedowns, ground control",
         standing: {
-          strikeChance: 0.8,
+          strikeChance: 1.1,
           takedownChance: 1.6,
           clinchChance: 1.2,
           waitChance: 0.6,
