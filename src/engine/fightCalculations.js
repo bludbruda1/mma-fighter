@@ -327,7 +327,7 @@ const determineStandingAction = (attacker, defender) => {
   const strikingDefence = defender.Rating.strikingDefence;
   const takedownOffence = attacker.Rating.takedownOffence;
   const takedownDefence = defender.Rating.takedownDefence;
-  const clinchOffence = attacker.Rating.clinchOffence;
+  const clinchOffence = (attacker.Rating.clinchStriking + attacker.Rating.clinchTakedown + attacker.Rating.clinchControl) / 3;
   const clinchDefence = defender.Rating.clinchDefence;
   const attackerStamina = attacker.stamina / 100;
 
@@ -484,27 +484,25 @@ const determineGroundAction = (fighter) => {
  * @param {Object} defender - The opponent fighter object
  * @returns {string} The determined action
  */
-const determineClinchAction = (attacker, defender) => {
-  const clinchOffence = attacker.Rating.clinchOffence;
-  const clinchDefence = defender.Rating.clinchDefence;
-  const takedownOffence = attacker.Rating.takedownOffence;
-  const takedownDefence = defender.Rating.takedownDefence;
-  const attackerStamina = attacker.stamina / 100;
+const determineClinchAction = (attacker) => {
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
+  const clinchStriking = attacker.Rating.clinchStriking;
+  const clinchTakedown = attacker.Rating.clinchTakedown;
+
+  // Evaluate attackers clinch strengths
+  const clinchStrikingVsClinchTakedown = clinchStriking - clinchTakedown;
 
   // Calculate base chances
-  let strikeChance =
-    (clinchOffence / (clinchOffence + clinchDefence)) * 0.4 * attackerStamina;
-  let takedownChance =
-    (takedownOffence / (takedownOffence + takedownDefence)) *
-    0.4 *
-    attackerStamina;
-  let breakChance = 0.2 * (1 - attackerStamina); // More likely to break when tired
+  let total = style.clinch.strikeChance + style.clinch.takedownChance + style.clinch.exitChance;
+  let strikeChance = Math.MAX( 0,( style.clinch.strikeChance / total ) + (clinchStrikingVsClinchTakedown / 50))
+  let takedownChance = Math.MAX( 0,( style.clinch.takedownChance / total ) + (clinchStrikingVsClinchTakedown / 50));
+  let exitChance = style.clinch.exitChance / total;
 
   // Normalize probabilities
-  const total = strikeChance + takedownChance + breakChance;
+  total = strikeChance + takedownChance + exitChance;
   strikeChance /= total;
   takedownChance /= total;
-  breakChance /= total;
+  exitChance /= total;
 
   // Choose action based on probabilities
   const random = Math.random();
