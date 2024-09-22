@@ -20,6 +20,7 @@ import { calculateRoundStats } from "./FightStatistics.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
+let totalActionsPerformed = 0;
 
 // Constants for combinations
 const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
@@ -125,6 +126,31 @@ const pickFighter = (fighters, lastActionFighter) => {
 };
 
 // Action Functions
+
+/**
+ * Simulate the start of the fight
+ * @param {Object} fighter - The fighter initiating the fight start
+ * @param {Object} opponent - The opponent fighter
+ * @returns {[string, number]} Outcome of the action and time passed
+ */
+const doFightStart = (fighter, opponent) => {
+  const events = [
+    `${fighter.name} and ${opponent.name} touch gloves`,
+    `${fighter.name} refuses glove touch`,
+    `${fighter.name} immediately steps forward and takes the center of the octagon`,
+    `${fighter.name} and ${opponent.name} cautiously circle each other`,
+    `${fighter.name} feints, looking for an opening`,
+    `${fighter.name} verbally taunts ${opponent.name}`,
+    `${fighter.name} and ${opponent.name} both stay outside of stiking range moving slowly`
+  ];
+
+  const event = events[Math.floor(Math.random() * events.length)];
+  console.log(event);
+  
+  const timePassed = simulateTimePassing("fightStart");
+  
+  return ["fightStarted", timePassed];
+};
 
 /**
  * Perform a kick action
@@ -1072,6 +1098,13 @@ const determineAction = (fighter, opponent) => {
   // Get the current position of the fighter
   const position = fighter.position;
 
+  // this ensures that the first action in a fight is 'fight start'
+  if (totalActionsPerformed === 0) {
+    totalActionsPerformed++;
+    return "fightStart";
+  }
+  totalActionsPerformed++;
+
   if (position === FIGHTER_POSITIONS.STANDING) {
     return determineStandingAction(fighter, opponent);
   } else if (
@@ -1117,6 +1150,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   let submissionType = null;
 
   switch (actionType) {
+    case "fightStart":
+      [outcome, timePassed] = doFightStart(fighter, opponentFighter);
+      break;
     case "jab":
     case "cross":
     case "hook":
@@ -1507,6 +1543,9 @@ const simulateFight = (fighters) => {
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
   let roundStats = [];
+
+  // Reset the total actions performed counter
+  totalActionsPerformed = 0;
 
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
