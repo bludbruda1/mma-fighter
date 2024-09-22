@@ -356,40 +356,41 @@ const FightScreen = () => {
           },
         ]);
 
-        // Update the record of the fighters after the fight
         const updatedFighters = fighters.map((fighter) => {
           if (fighter.personid === winnerFighter.id) {
             return {
               ...fighter,
               wins: (fighter.wins || 0) + 1,
-              recentFights: [
+              fightHistory: [
                 {
                   opponentId: loserFighter.id,
                   opponent: loserFighter.name,
-                  result: `Win by ${result.method}`,
+                  result: `Win`,
+                  method: result.method,
                 },
-                ...(fighter.recentFights || []).slice(0, 4),
+                ...(fighter.fightHistory || []),
               ],
             };
           } else if (fighter.personid === loserFighter.id) {
             return {
               ...fighter,
               losses: (fighter.losses || 0) + 1,
-              recentFights: [
+              fightHistory: [
                 {
                   opponentId: winnerFighter.id,
                   opponent: winnerFighter.name,
-                  result: `Loss by ${result.method}`,
+                  result: `Loss`,
+                  method: result.method,
                 },
-                ...(fighter.recentFights || []).slice(0, 4),
+                ...(fighter.fightHistory || []),
               ],
             };
           } else {
             return fighter;
           }
         });
-
-        // Set the updated fighters, and display the winning message
+        
+        // Update the fighters in the database
         Promise.all(updatedFighters.map(updateFighter))
           .then(() => {
             setFighters(updatedFighters);
