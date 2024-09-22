@@ -78,6 +78,9 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
                 <Typography variant="body2">
                   Record: {selectedItem.wins}W-{selectedItem.losses}L
                 </Typography>
+                <Typography variant="body2">
+                  Fighting Style: {selectedItem.fightingStyle.replace(/_/g, ' ')}
+                </Typography>
               </CardContent>
             </Card>
           </Paper>

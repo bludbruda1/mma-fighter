@@ -160,6 +160,10 @@ const Dashboard = () => {
                 <Typography variant="body1">Weight Class:</Typography>
                 <Chip label={fighter.weightClass} color="secondary" />
               </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body1">Fighting Style:</Typography>
+                <Chip label={fighter.fightingStyle.replace(/_/g, ' ')} color="primary" />
+              </Box>
             </CardContent>
           </Card>
 
