@@ -194,12 +194,18 @@ const Dashboard = () => {
                     <ListItem key={index} divider>
                       <ListItemText
                         primary={
-                          <Link
-                            to={`/Dashboard/${fight.opponentId}`}
-                            style={{ textDecoration: "none", color: "#1976d2" }}
-                          >
-                            {fight.opponent}
-                          </Link>
+                          fight.opponentId ? (
+                            <Link
+                              to={`/Dashboard/${fight.opponentId}`}
+                              style={{ textDecoration: "none", color: "#1976d2" }}
+                            >
+                              {fight.opponent}
+                            </Link>
+                          ) : (
+                            <Typography component="span" color="textPrimary">
+                              {fight.opponent}
+                            </Typography>
+                          )
                         }
                         secondary={
                           <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
