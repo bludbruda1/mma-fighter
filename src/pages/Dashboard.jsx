@@ -20,6 +20,7 @@ import {
   Divider,
 } from "@mui/material";
 import { getAllFighters } from "../utils/indexedDB";
+import { formatFightingStyle } from "../utils/uiHelpers"
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -162,7 +163,7 @@ const Dashboard = () => {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="body1">Fighting Style:</Typography>
-                <Chip label={fighter.fightingStyle.replace(/_/g, ' ')} color="primary" />
+                <Chip label={formatFightingStyle(fighter.fightingStyle)} color="primary" />
               </Box>
             </CardContent>
           </Card>

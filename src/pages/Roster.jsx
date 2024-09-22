@@ -12,6 +12,7 @@ import {
   Paper,
 } from "@mui/material";
 import { getAllFighters } from "../utils/indexedDB"; // Import the getAllFighters function
+import { formatFightingStyle } from "../utils/uiHelpers"
 
 const Roster = () => {
   const [fighters, setFighters] = useState([]);
@@ -79,7 +80,7 @@ const Roster = () => {
                   </Link>
                 </TableCell>
                 <TableCell>{fighter.weightClass}</TableCell>
-                <TableCell>{fighter.fightingStyle.replace(/_/g, ' ')}</TableCell>
+                <TableCell>{formatFightingStyle(fighter.fightingStyle)}</TableCell>
                 <TableCell>{fighter.nationality}</TableCell>
                 <TableCell>{fighter.hometown}</TableCell>
                 <TableCell>
