@@ -362,7 +362,7 @@ export const FIGHTING_STYLES = {
         exitChance: 0.7,
       },
     },
-    BJJ: {
+    BRAZILIAN_JIU_JITSU: {
       name: "Brazilian Jiu-Jitsu",
       strength:"Excellent submissions, control on the ground",
       weakness:"Weak in striking, depends on takedowns",

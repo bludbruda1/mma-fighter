@@ -721,7 +721,7 @@
     "losses": 9,
     "image": "/assets/images/charlesoliveira.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "BJJ",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1433,7 +1433,7 @@
     "losses": 5,
     "image": "/assets/images/beneildariush.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "BJJ",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1967,7 +1967,7 @@
     "losses": 5,
     "image": "/assets/images/renatomoicano.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "BJJ",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2323,7 +2323,7 @@
     "losses": 1,
     "image": "/assets/images/benoitsaintdenis.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "BJJ",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2680,7 +2680,7 @@
     "losses": 3,
     "image": "/assets/images/paddypimblett.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "BJJ",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
