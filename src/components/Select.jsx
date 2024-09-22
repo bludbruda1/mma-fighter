@@ -46,6 +46,7 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
                   height: 280, // Adjust the height as needed
                   width: "100%", // Ensures the image spans the width of the Card
                   objectFit: "contain", // Ensures the entire image fits within the CardMedia without distortion
+                  bgcolor: "grey.200",
                 }}
                 image={selectedItem.image}
                 alt={`${selectedItem.firstname} ${selectedItem.lastname}`}
