@@ -19,6 +19,8 @@ import {
   LinearProgress,
   Divider,
 } from "@mui/material";
+import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
+import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { getAllFighters } from "../utils/indexedDB";
 
 const Dashboard = () => {
@@ -34,7 +36,7 @@ const Dashboard = () => {
       try {
         const fighters = await getAllFighters();
         // Extract and sort fighter IDs
-        const ids = fighters.map(f => f.personid).sort((a, b) => a - b);
+        const ids = fighters.map((f) => f.personid).sort((a, b) => a - b);
         setAllFighterIds(ids);
       } catch (error) {
         console.error("Error fetching all fighter IDs:", error);
@@ -49,7 +51,9 @@ const Dashboard = () => {
     const fetchFighterData = async () => {
       try {
         const fighters = await getAllFighters();
-        const selectedFighter = fighters.find(f => f.personid === parseInt(id));
+        const selectedFighter = fighters.find(
+          (f) => f.personid === parseInt(id)
+        );
         if (selectedFighter) {
           setFighter(selectedFighter);
         } else {
@@ -67,12 +71,14 @@ const Dashboard = () => {
   const navigateToFighter = (direction) => {
     const currentIndex = allFighterIds.indexOf(parseInt(id));
     let newIndex;
-    if (direction === 'next') {
+    if (direction === "next") {
       // If at the end, loop back to the start
-      newIndex = currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
+      newIndex =
+        currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
     } else {
       // If at the start, loop to the end
-      newIndex = currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
+      newIndex =
+        currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
     }
     navigate(`/dashboard/${allFighterIds[newIndex]}`);
   };
@@ -101,62 +107,100 @@ const Dashboard = () => {
 
   // Helper function to render rating bars
   const renderRatingBar = (rating) => (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
         <LinearProgress variant="determinate" value={rating} />
       </Box>
       <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${rating}`}</Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+        >{`${rating}`}</Typography>
       </Box>
     </Box>
   );
 
   // Helper function to format attribute names
   const formatAttributeName = (attr) => {
-    return attr.split(/(?=[A-Z])/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    return attr
+      .split(/(?=[A-Z])/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 5, mb: 5 }}>
-     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Button onClick={() => navigateToFighter('previous')} variant="contained">Previous</Button>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Button
+          onClick={() => navigateToFighter("previous")}
+          variant="text"
+          sx={{ color: "black" }}
+        >
+          <ArrowBackOutlinedIcon />
+        </Button>
         <Typography variant="h3" align="center">
           {`${fighter.firstname} ${fighter.lastname}`}
         </Typography>
-        <Button onClick={() => navigateToFighter('next')} variant="contained">Next</Button>
+        <Button
+          onClick={() => navigateToFighter("next")}
+          variant="text"
+          sx={{ color: "black" }}
+        >
+          <ArrowForwardOutlinedIcon />
+        </Button>
       </Box>
-      
+
       <Grid container spacing={3}>
         {/* Fighter's basic information and image */}
         <Grid item xs={12} md={4}>
           <Card elevation={3}>
             <CardMedia
               component="img"
-              sx={{ 
+              sx={{
                 height: 300, // Reduced height
                 objectFit: "contain", // Changed to "contain" to fit the whole image
-                bgcolor: 'grey.200' // Added a background color to make the image more visible if it doesn't fill the space
+                bgcolor: "grey.200", // Added a background color to make the image more visible if it doesn't fill the space
               }}
               image={fighter.image}
               alt={`${fighter.firstname} ${fighter.lastname}`}
             />
             <CardContent>
-              <Typography variant="h5" gutterBottom>Basic Information</Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="h5" gutterBottom>
+                Basic Information
+              </Typography>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+              >
                 <Typography variant="body1">Nationality:</Typography>
-                <Typography variant="body1">{fighter.nationality}</Typography> {/* Changed from Chip to Typography */}
+                <Typography variant="body1">
+                  {fighter.nationality}
+                </Typography>{" "}
+                {/* Changed from Chip to Typography */}
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+              >
                 <Typography variant="body1">Hometown:</Typography>
                 <Typography variant="body1">{fighter.hometown}</Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+              >
                 <Typography variant="body1">Record:</Typography>
-                <Typography variant="body1" fontWeight="bold">{fighter.wins}W-{fighter.losses}L</Typography>
+                <Typography variant="body1" fontWeight="bold">
+                  {fighter.wins}W-{fighter.losses}L
+                </Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+              >
                 <Typography variant="body1">Weight Class:</Typography>
                 <Chip label={fighter.weightClass} color="secondary" />
               </Box>
@@ -166,7 +210,9 @@ const Dashboard = () => {
           {/* Recent Fights section */}
           <Card elevation={3} sx={{ mt: 3 }}>
             <CardContent>
-              <Typography variant="h5" gutterBottom>Recent Fights</Typography>
+              <Typography variant="h5" gutterBottom>
+                Recent Fights
+              </Typography>
               <TableContainer>
                 <Table size="small">
                   <TableHead>
@@ -182,15 +228,22 @@ const Dashboard = () => {
                           <TableCell>
                             <Link
                               to={`/Dashboard/${fight.opponentId}`}
-                              style={{ textDecoration: "none", color: "#1976d2" }}
+                              style={{
+                                textDecoration: "none",
+                                color: "#1976d2",
+                              }}
                             >
                               {fight.opponent}
                             </Link>
                           </TableCell>
                           <TableCell>
-                            <Chip 
-                              label={fight.result} 
-                              color={fight.result.toLowerCase().includes('win') ? 'success' : 'error'}
+                            <Chip
+                              label={fight.result}
+                              color={
+                                fight.result.toLowerCase().includes("win")
+                                  ? "success"
+                                  : "error"
+                              }
                               size="small"
                             />
                           </TableCell>
@@ -214,17 +267,39 @@ const Dashboard = () => {
         <Grid item xs={12} md={8}>
           <Card elevation={3}>
             <CardContent>
-              <Typography variant="h5" gutterBottom>Fighter Ratings</Typography>
+              <Typography variant="h5" gutterBottom>
+                Fighter Ratings
+              </Typography>
               <Grid container spacing={2}>
                 {[
-                  "output", "strength", "speed", "cardio", "toughness", "striking",
-                  "punchPower", "kicking", "kickPower", "strikingDefence", "kickDefence",
-                  "takedownOffence", "takedownDefence", "clinchOffence", "clinchDefence",
-                  "clinchControl", "groundOffence", "groundDefence", "groundControl",
-                  "submissionOffence", "submissionDefence", "getUpAbility", "fightIQ"
+                  "output",
+                  "strength",
+                  "speed",
+                  "cardio",
+                  "toughness",
+                  "striking",
+                  "punchPower",
+                  "kicking",
+                  "kickPower",
+                  "strikingDefence",
+                  "kickDefence",
+                  "takedownOffence",
+                  "takedownDefence",
+                  "clinchOffence",
+                  "clinchDefence",
+                  "clinchControl",
+                  "groundOffence",
+                  "groundDefence",
+                  "groundControl",
+                  "submissionOffence",
+                  "submissionDefence",
+                  "getUpAbility",
+                  "fightIQ",
                 ].map((attr) => (
                   <Grid item xs={12} sm={6} key={attr}>
-                    <Typography variant="body2">{formatAttributeName(attr)}</Typography>
+                    <Typography variant="body2">
+                      {formatAttributeName(attr)}
+                    </Typography>
                     {renderRatingBar(fighter.Rating[attr])}
                   </Grid>
                 ))}
@@ -234,21 +309,29 @@ const Dashboard = () => {
 
           <Card elevation={3} sx={{ mt: 3 }}>
             <CardContent>
-              <Typography variant="h5" gutterBottom>Fighting Style</Typography>
-              {Object.entries(fighter.Tendency).map(([position, tendencies]) => (
-                <Box key={position} sx={{ mb: 2 }}>
-                  <Typography variant="h6">{formatAttributeName(position)}</Typography>
-                  <Grid container spacing={1}>
-                    {Object.entries(tendencies).map(([action, value]) => (
-                      <Grid item xs={6} sm={4} key={action}>
-                        <Typography variant="body2">{formatAttributeName(action)}</Typography>
-                        {renderRatingBar(value)}
-                      </Grid>
-                    ))}
-                  </Grid>
-                  <Divider sx={{ my: 2 }} />
-                </Box>
-              ))}
+              <Typography variant="h5" gutterBottom>
+                Fighting Style
+              </Typography>
+              {Object.entries(fighter.Tendency).map(
+                ([position, tendencies]) => (
+                  <Box key={position} sx={{ mb: 2 }}>
+                    <Typography variant="h6">
+                      {formatAttributeName(position)}
+                    </Typography>
+                    <Grid container spacing={1}>
+                      {Object.entries(tendencies).map(([action, value]) => (
+                        <Grid item xs={6} sm={4} key={action}>
+                          <Typography variant="body2">
+                            {formatAttributeName(action)}
+                          </Typography>
+                          {renderRatingBar(value)}
+                        </Grid>
+                      ))}
+                    </Grid>
+                    <Divider sx={{ my: 2 }} />
+                  </Box>
+                )
+              )}
             </CardContent>
           </Card>
         </Grid>

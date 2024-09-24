@@ -164,7 +164,7 @@ describe("FightSim Tests", () => {
     const result = simulateFight([fighter1, fighter2]);
 
     expect(result).toHaveProperty("winner");
-    expect(result).toHaveProperty("method", "knockout"); // Expect method to be 'KO'
+    expect(result).toHaveProperty("method", "Knockout"); // Expect method to be 'KO'
     console.log("Fight Result:", result);
   });
 

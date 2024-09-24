@@ -396,7 +396,7 @@ const FightScreen = () => {
             setFightEvents(fightEvents);
             setWinnerMessage(
               `${result.winnerName} defeats ${result.loserName} by ${
-                result.method === "submission"
+                result.method === "Submission"
                   ? `${result.method} (${result.submissionType})`
                   : result.method
               } in round ${result.roundEnded}!`
