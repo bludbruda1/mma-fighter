@@ -826,7 +826,7 @@ const doTakedown = (attacker, defender) => {
  * @returns {string} Outcome of the action
  */
 const doPositionAdvance = (attacker, defender) => {
-  console.log(`${attacker.name} attempts to advance position`);
+  console.log(`${attacker.name} attempts to advance  position`);
 
   const successProbability = calculateProbability(
     attacker.Rating.groundOffence,
