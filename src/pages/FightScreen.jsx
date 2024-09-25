@@ -322,6 +322,17 @@ const FightScreen = () => {
         const winnerFighter = opponents[result.winner];
         const loserFighter = opponents[result.winner === 0 ? 1 : 0];
 
+        // Format the end time
+        const minutes = Math.floor(result.endTime / 60);
+        const seconds = result.endTime % 60;
+        const formattedEndTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        // Update the fightResult state with the formatted end time
+        setFightResult({
+          ...result,
+          formattedEndTime: formattedEndTime
+        });
+
         // Calculate fight statistics
         const stats = calculateFightStats(
           {
@@ -573,7 +584,7 @@ const FightScreen = () => {
                     {fightResult && (
                       <ResultCard
                         round={fightResult.roundEnded}
-                        time="3:38"
+                        time={fightResult.formattedEndTime}
                         method={fightResult.method}
                       />
                     )}

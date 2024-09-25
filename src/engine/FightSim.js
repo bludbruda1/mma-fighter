@@ -1323,7 +1323,7 @@ const simulateRound = (fighters, roundNumber) => {
         initialStats[0],
         initialStats[1]
       );
-      return { winner: roundWinner, submissionType, roundStats };
+      return { winner: roundWinner, submissionType, roundStats, timeRemaining: currentTime };
     }
 
     lastActionFighter = actionFighter;
@@ -1371,7 +1371,7 @@ const simulateRound = (fighters, roundNumber) => {
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
 
-  return { winner: null, submissionType: null, roundStats }; // no KO or sub
+  return { winner: null, submissionType: null, roundStats, timeRemaining: 0 }; // no KO or sub
 };
 
 /**
@@ -1542,6 +1542,7 @@ const simulateFight = (fighters) => {
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
   let roundStats = [];
+  let endTime = 0; // Initialize end time
 
   // Reset the total actions performed counter
   totalActionsPerformed = 0;
@@ -1555,6 +1556,9 @@ const simulateFight = (fighters) => {
 
     // Store round statistics
     roundStats.push(roundResult.roundStats);
+
+    // Calculate end time based on the round and remaining time
+    endTime = (round - 1) * 300 + (300 - roundResult.timeRemaining);
 
     // Check if the round ended early (KO or submission)
     if (roundResult.winner !== null) {
@@ -1618,6 +1622,7 @@ const simulateFight = (fighters) => {
     method: method,
     submissionType: submissionType,
     roundEnded: roundEnded,
+    endTime: endTime,
     fighterStats: [fighters[0].stats, fighters[1].stats],
     fighterHealth: [fighters[0].health, fighters[1].health],
     fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],
