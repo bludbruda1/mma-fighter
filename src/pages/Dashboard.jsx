@@ -2,12 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Container,
-  Table,
-  TableContainer,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableBody,
   Typography,
   Grid,
   Card,
@@ -18,6 +12,9 @@ import {
   Chip,
   LinearProgress,
   Divider,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
@@ -128,6 +125,30 @@ const Dashboard = () => {
       .join(" ");
   };
 
+  // Helper function to format the method naming
+  const getMethodAbbreviation = (method) => {
+    if (method.toLowerCase().includes('Decision')) return 'DEC';
+    if (method.toLowerCase().includes('Submission')) return 'SUB';
+    if (method.toLowerCase().includes('Knockout')) return 'KO';
+    return method.toUpperCase().slice(0, 3); // Fallback for other methods
+  };
+
+  // Helper function to format the result naming
+  const getResultAbbreviation = (result) => {
+    if (result.toLowerCase().includes('win')) return 'W';
+    if (result.toLowerCase().includes('loss')) return 'L';
+    if (result.toLowerCase().includes('draw')) return 'D';
+    return result[0].toUpperCase(); // Fallback to first letter
+  };
+
+  // Helper function to get the colour for wins and losses
+  const getChipColor = (result) => {
+    if (result.toLowerCase().includes('win')) return 'success';
+    if (result.toLowerCase().includes('loss')) return 'error';
+    return 'default'; // For draws or any other result
+  };
+
+
   return (
     <Container maxWidth="lg" sx={{ mt: 5, mb: 5 }}>
       <Box
@@ -207,25 +228,17 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Fights section */}
-          <Card elevation={3} sx={{ mt: 3 }}>
+          {/* Fight History section */}
+          <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: 'auto' }}>
             <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Recent Fights
-              </Typography>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Opponent</TableCell>
-                      <TableCell>Result</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {fighter.recentFights && fighter.recentFights.length > 0 ? (
-                      fighter.recentFights.map((fight, index) => (
-                        <TableRow key={index}>
-                          <TableCell>
+              <Typography variant="h5" gutterBottom>Fight History</Typography>
+              <List>
+                {fighter.fightHistory && fighter.fightHistory.length > 0 ? (
+                  fighter.fightHistory.map((fight, index) => (
+                    <ListItem key={index} divider>
+                      <ListItemText
+                        primary={
+                          fight.opponentId ? (
                             <Link
                               to={`/Dashboard/${fight.opponentId}`}
                               style={{
@@ -235,30 +248,36 @@ const Dashboard = () => {
                             >
                               {fight.opponent}
                             </Link>
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={fight.result}
-                              color={
-                                fight.result.toLowerCase().includes("win")
-                                  ? "success"
-                                  : "error"
-                              }
+                          ) : (
+                            <Typography component="span" color="textPrimary">
+                              {fight.opponent}
+                            </Typography>
+                          )
+                        }
+                        secondary={
+                          <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                            <Chip 
+                              label={getResultAbbreviation(fight.result)}
+                              color={getChipColor(fight.result)}
                               size="small"
                             />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={2} align="center">
-                          No recent fights available.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                            <Chip 
+                              label={getMethodAbbreviation(fight.method)}
+                              color={getChipColor(fight.result)}
+                              size="small"
+                              variant="outlined"
+                            />
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItem>
+                    <ListItemText primary="No fight history available." />
+                  </ListItem>
+                )}
+              </List>
             </CardContent>
           </Card>
         </Grid>
