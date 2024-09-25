@@ -51,8 +51,8 @@
       "groundDefence": 70,
       "groundControl": 71,
       "groundStriking": 75,
-      "submissionOffence": 68,
-      "submissionDefence": 75,
+      "SubmissionOffence": 68,
+      "SubmissionDefence": 75,
       "getUpAbility": 80,
       "composure": 82,
       "fightIQ": 84
@@ -139,9 +139,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -180,187 +180,187 @@
       "opponentId": 2,
       "opponent": "Dustin Poirier",
       "result": "Loss",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": 2,
       "opponent": "Dustin Poirier",
       "result": "Loss",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Donald Cerrone",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Khabib Nurmagomedov",
       "result": "Loss",
-      "method": "submission"
+      "method": "Submission"
     },
     {
       "opponentId": null,
       "opponent": "Eddie Alvarez",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Nate Diaz",
       "result": "Win",
-      "method": "decision"
+      "method": "Decision"
     },
     {
       "opponentId": null,
       "opponent": "Nate Diaz",
       "result": "Loss",
-      "method": "submission"
+      "method": "Submission"
     },
     {
       "opponentId": null,
       "opponent": "Jose Aldo",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Chad Mendes",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Dennis Siver",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": 2,
       "opponent": "Dustin Poirier",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Diego Brandao",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": 15,
       "opponent": "Max Holloway",
       "result": "Win",
-      "method": "decision"
+      "method": "Decision"
     },
     {
       "opponentId": null,
       "opponent": "Marcus Brimage",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Ivan Buchinger",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Dave Hill",
       "result": "Win",
-      "method": "submission"
+      "method": "Submission"
     },
     {
       "opponentId": null,
       "opponent": "Steve O'Keefe",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Aaron Jahnsen",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Paddy Doherty",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Artur Sowinski",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Mike Wood",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Hugh Brady",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Connor Dillon",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Joseph Duffy",
       "result": "Loss",
-      "method": "submission"
+      "method": "Submission"
     },
     {
       "opponentId": null,
       "opponent": "Stephen Bailey",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Gary Morris",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Mo Taylor",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Artemij Sitenkov",
       "result": "Loss",
-      "method": "submission"
+      "method": "Submission"
     },
     {
       "opponentId": null,
       "opponent": "Mo Taylor",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Gary Morris",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     },
     {
       "opponentId": null,
       "opponent": "Gary Morris",
       "result": "Win",
-      "method": "knockout"
+      "method": "Knockout"
     }
   ],
     "roundsWon": 0
@@ -417,8 +417,8 @@
       "groundDefence": 86,
       "groundControl": 85,
       "groundStriking": 88,
-      "submissionOffence": 85,
-      "submissionDefence": 87,
+      "SubmissionOffence": 85,
+      "SubmissionDefence": 87,
       "getUpAbility": 88,
       "composure": 90,
       "fightIQ": 92
@@ -505,9 +505,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -546,199 +546,199 @@
         "opponentId": 7,
         "opponent": "Islam Makhachev",
         "result": "Loss",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": 18,
         "opponent": "Benoît Saint Denis",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 10,
         "opponent": "Justin Gaethje",
         "result": "Loss",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 10,
         "opponent": "Justin Gaethje",
         "result": "Loss",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 12,
         "opponent": "Michael Chandler",
         "result": "Loss",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 9,
         "opponent": "Charles Oliveira",
         "result": "Loss",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": 1,
         "opponent": "Conor McGregor",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 1,
         "opponent": "Conor McGregor",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 17,
         "opponent": "Dan Hooker",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Khabib Nurmagomedov",
         "result": "Loss",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": 15,
         "opponent": "Max Holloway",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Eddie Alvarez",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 10,
         "opponent": "Justin Gaethje",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Anthony Pettis",
         "result": "Win",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": null,
         "opponent": "Jim Miller",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Michael Johnson",
         "result": "Loss",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Bobby Green",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Joe Duffy",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Yancy Medeiros",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Carlos Diego Ferreira",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": 1,
         "opponent": "Conor McGregor",
         "result": "Loss",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Akira Corassani",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Diego Brandão",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Erik Koch",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Cub Swanson",
         "result": "Loss",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Jonathan Brookins",
         "result": "Win",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": null,
         "opponent": "Chan Sung Jung",
         "result": "Loss",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": null,
         "opponent": "Max Holloway",
         "result": "Win",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": null,
         "opponent": "Pablo Garza",
         "result": "Win",
-        "method": "submission"
+        "method": "Submission"
       },
       {
         "opponentId": null,
         "opponent": "Jason Young",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Josh Grispi",
         "result": "Win",
-        "method": "decision"
+        "method": "Decision"
       },
       {
         "opponentId": null,
         "opponent": "Zach Micklewright",
         "result": "Win",
-        "method": "knockout"
+        "method": "Knockout"
       },
       {
         "opponentId": null,
         "opponent": "Danny Castillo",
         "result": "Loss",
-        "method": "decision"
+        "method": "Decision"
       }
     ],
     "roundsWon": 0
@@ -794,8 +794,8 @@
       "groundDefence": 83,
       "groundControl": 77,
       "groundStriking": 82,
-      "submissionOffence": 75,
-      "submissionDefence": 85,
+      "SubmissionOffence": 75,
+      "SubmissionDefence": 85,
       "getUpAbility": 88,
       "composure": 94,
       "fightIQ": 95
@@ -882,9 +882,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -971,8 +971,8 @@
       "groundDefence": 93,
       "groundControl": 95,
       "groundStriking": 93,
-      "submissionOffence": 90,
-      "submissionDefence": 93,
+      "SubmissionOffence": 90,
+      "SubmissionDefence": 93,
       "getUpAbility": 92,
       "composure": 95,
       "fightIQ": 97
@@ -1059,9 +1059,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -1148,8 +1148,8 @@
       "groundDefence": 75,
       "groundControl": 72,
       "groundStriking": 85,
-      "submissionOffence": 70,
-      "submissionDefence": 75,
+      "SubmissionOffence": 70,
+      "SubmissionDefence": 75,
       "getUpAbility": 78,
       "composure": 88,
       "fightIQ": 86
@@ -1236,9 +1236,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -1325,8 +1325,8 @@
       "groundDefence": 90,
       "groundControl": 88,
       "groundStriking": 89,
-      "submissionOffence": 83,
-      "submissionDefence": 89,
+      "SubmissionOffence": 83,
+      "SubmissionDefence": 89,
       "getUpAbility": 91,
       "composure": 93,
       "fightIQ": 94
@@ -1413,9 +1413,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -1503,8 +1503,8 @@
       "groundDefence": 95,
       "groundControl": 97,
       "groundStriking": 92,
-      "submissionOffence": 95,
-      "submissionDefence": 94,
+      "SubmissionOffence": 95,
+      "SubmissionDefence": 94,
       "getUpAbility": 93,
       "composure": 93,
       "fightIQ": 96
@@ -1591,9 +1591,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -1681,8 +1681,8 @@
       "groundDefence": 91,
       "groundControl": 93,
       "groundStriking": 90,
-      "submissionOffence": 89,
-      "submissionDefence": 90,
+      "SubmissionOffence": 89,
+      "SubmissionDefence": 90,
       "getUpAbility": 91,
       "composure": 89,
       "fightIQ": 91
@@ -1769,9 +1769,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -1859,8 +1859,8 @@
       "groundDefence": 92,
       "groundControl": 95,
       "groundStriking": 91,
-      "submissionOffence": 98,
-      "submissionDefence": 94,
+      "SubmissionOffence": 98,
+      "SubmissionDefence": 94,
       "getUpAbility": 91,
       "composure": 90,
       "fightIQ": 94
@@ -1947,9 +1947,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -2037,8 +2037,8 @@
       "groundDefence": 86,
       "groundControl": 83,
       "groundStriking": 87,
-      "submissionOffence": 80,
-      "submissionDefence": 86,
+      "SubmissionOffence": 80,
+      "SubmissionDefence": 86,
       "getUpAbility": 89,
       "composure": 92,
       "fightIQ": 90
@@ -2125,9 +2125,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -2215,8 +2215,8 @@
       "groundDefence": 91,
       "groundControl": 94,
       "groundStriking": 89,
-      "submissionOffence": 91,
-      "submissionDefence": 90,
+      "SubmissionOffence": 91,
+      "SubmissionDefence": 90,
       "getUpAbility": 91,
       "composure": 90,
       "fightIQ": 93
@@ -2303,9 +2303,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -2393,8 +2393,8 @@
       "groundDefence": 89,
       "groundControl": 92,
       "groundStriking": 92,
-      "submissionOffence": 86,
-      "submissionDefence": 88,
+      "SubmissionOffence": 86,
+      "SubmissionDefence": 88,
       "getUpAbility": 91,
       "composure": 89,
       "fightIQ": 90
@@ -2481,9 +2481,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -2571,8 +2571,8 @@
       "groundDefence": 90,
       "groundControl": 91,
       "groundStriking": 89,
-      "submissionOffence": 92,
-      "submissionDefence": 90,
+      "SubmissionOffence": 92,
+      "SubmissionDefence": 90,
       "getUpAbility": 88,
       "composure": 91,
       "fightIQ": 93
@@ -2659,9 +2659,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -2749,8 +2749,8 @@
       "groundDefence": 86,
       "groundControl": 83,
       "groundStriking": 86,
-      "submissionOffence": 82,
-      "submissionDefence": 85,
+      "SubmissionOffence": 82,
+      "SubmissionDefence": 85,
       "getUpAbility": 87,
       "composure": 89,
       "fightIQ": 90
@@ -2837,9 +2837,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -2927,8 +2927,8 @@
       "groundDefence": 88,
       "groundControl": 84,
       "groundStriking": 89,
-      "submissionOffence": 83,
-      "submissionDefence": 89,
+      "SubmissionOffence": 83,
+      "SubmissionDefence": 89,
       "getUpAbility": 91,
       "composure": 96,
       "fightIQ": 95
@@ -3015,9 +3015,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -3105,8 +3105,8 @@
       "groundDefence": 89,
       "groundControl": 90,
       "groundStriking": 88,
-      "submissionOffence": 92,
-      "submissionDefence": 89,
+      "SubmissionOffence": 92,
+      "SubmissionDefence": 89,
       "getUpAbility": 88,
       "composure": 88,
       "fightIQ": 90
@@ -3193,9 +3193,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -3283,8 +3283,8 @@
       "groundDefence": 86,
       "groundControl": 84,
       "groundStriking": 87,
-      "submissionOffence": 84,
-      "submissionDefence": 86,
+      "SubmissionOffence": 84,
+      "SubmissionDefence": 86,
       "getUpAbility": 87,
       "composure": 91,
       "fightIQ": 89
@@ -3371,9 +3371,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -3461,8 +3461,8 @@
       "groundDefence": 88,
       "groundControl": 90,
       "groundStriking": 88,
-      "submissionOffence": 92,
-      "submissionDefence": 89,
+      "SubmissionOffence": 92,
+      "SubmissionDefence": 89,
       "getUpAbility": 87,
       "composure": 92,
       "fightIQ": 89
@@ -3549,9 +3549,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -3639,8 +3639,8 @@
       "groundDefence": 85,
       "groundControl": 84,
       "groundStriking": 88,
-      "submissionOffence": 89,
-      "submissionDefence": 86,
+      "SubmissionOffence": 89,
+      "SubmissionDefence": 86,
       "getUpAbility": 86,
       "composure": 87,
       "fightIQ": 86
@@ -3727,9 +3727,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
@@ -3818,8 +3818,8 @@
       "groundDefence": 87,
       "groundControl": 89,
       "groundStriking": 86,
-      "submissionOffence": 91,
-      "submissionDefence": 88,
+      "SubmissionOffence": 91,
+      "SubmissionDefence": 88,
       "getUpAbility": 86,
       "composure": 88,
       "fightIQ": 87
@@ -3906,9 +3906,9 @@
       "singleLegDefended": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
-      "submissionsAttempted": 0,
-      "submissionsSuccessful": 0,
-      "submissionsDefended": 0,
+      "SubmissionsAttempted": 0,
+      "SubmissionsSuccessful": 0,
+      "SubmissionsDefended": 0,
       "armbarsAttempted": 0,
       "armbarsSuccessful": 0,
       "armbarsDefended": 0,
