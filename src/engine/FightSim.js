@@ -20,6 +20,7 @@ import { calculateRoundStats } from "./FightStatistics.js";
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
+let totalActionsPerformed = 0;
 
 // Constants for combinations
 const COMBO_CHANCE = 0.4; // 40% chance to attempt a combo after a successful punch
@@ -127,6 +128,31 @@ const pickFighter = (fighters, lastActionFighter) => {
 // Action Functions
 
 /**
+ * Simulate the start of the fight
+ * @param {Object} fighter - The fighter initiating the fight start
+ * @param {Object} opponent - The opponent fighter
+ * @returns {[string, number]} Outcome of the action and time passed
+ */
+const doFightStart = (fighter, opponent) => {
+  const events = [
+    `${fighter.name} and ${opponent.name} touch gloves`,
+    `${fighter.name} refuses glove touch`,
+    `${fighter.name} immediately steps forward and takes the center of the octagon`,
+    `${fighter.name} and ${opponent.name} cautiously circle each other`,
+    `${fighter.name} feints, looking for an opening`,
+    `${fighter.name} verbally taunts ${opponent.name}`,
+    `${fighter.name} and ${opponent.name} both stay outside of stiking range moving slowly`,
+  ];
+
+  const event = events[Math.floor(Math.random() * events.length)];
+  console.log(event);
+
+  const timePassed = simulateTimePassing("fightStart");
+
+  return ["fightStarted", timePassed];
+};
+
+/**
  * Perform a kick action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
@@ -202,7 +228,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
     }
 
     if (damageResult.isKnockout) {
-      outcomeDescription += "knockout";
+      outcomeDescription += "Knockout";
       console.log(`${defender.name} has been knocked out!`);
       defender.isKnockedOut = true;
     } else if (damageResult.isStun) {
@@ -210,8 +236,8 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
       console.log(`${defender.name} is stunned!`);
       const finishAttempt = doSeekFinish(attacker, defender);
 
-      if (finishAttempt.result === "knockout") {
-        outcomeDescription += "knockout";
+      if (finishAttempt.result === "Knockout") {
+        outcomeDescription += "Knockout";
         defender.isKnockedOut = true;
       }
 
@@ -348,7 +374,7 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       console.log(`${defender.name} is stunned!`);
       const finishAttempt = doSeekFinish(attacker, defender);
 
-      if (finishAttempt.result === "knockout") {
+      if (finishAttempt.result === "Knockout") {
         outcomeDescription += "Knockout";
         defender.isKnockedOut = true;
       }
@@ -798,8 +824,7 @@ const doClinchTakedown = (attacker, defender) => {
 const doTakedown = (attacker, defender) => {
   console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
 
-  if (Math.random() < calculateTDProbability(attacker, defender)
-  ) {
+  if (Math.random() < calculateTDProbability(attacker, defender)) {
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
 
     defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
@@ -1072,6 +1097,13 @@ const determineAction = (fighter, opponent) => {
   // Get the current position of the fighter
   const position = fighter.position;
 
+  // this ensures that the first action in a fight is 'fight start'
+  if (totalActionsPerformed === 0) {
+    totalActionsPerformed++;
+    return "fightStart";
+  }
+  totalActionsPerformed++;
+
   if (position === FIGHTER_POSITIONS.STANDING) {
     return determineStandingAction(fighter, opponent);
   } else if (
@@ -1117,6 +1149,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   let submissionType = null;
 
   switch (actionType) {
+    case "fightStart":
+      [outcome, timePassed] = doFightStart(fighter, opponentFighter);
+      break;
     case "jab":
     case "cross":
     case "hook":
@@ -1288,7 +1323,7 @@ const simulateRound = (fighters, roundNumber) => {
         initialStats[0],
         initialStats[1]
       );
-      return { winner: roundWinner, submissionType, roundStats };
+      return { winner: roundWinner, submissionType, roundStats, timeRemaining: currentTime };
     }
 
     lastActionFighter = actionFighter;
@@ -1336,7 +1371,7 @@ const simulateRound = (fighters, roundNumber) => {
   // Display round stats
   displayRoundStats(fighters, roundNumber, initialStats);
 
-  return { winner: null, submissionType: null, roundStats }; // no KO or sub
+  return { winner: null, submissionType: null, roundStats, timeRemaining: 0 }; // no KO or sub
 };
 
 /**
@@ -1503,10 +1538,14 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
  * @returns {Object} Fight result including winner, method, and round ended
  */
 const simulateFight = (fighters) => {
-  let method = "decision";
+  let method = "Decision";
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
   let roundStats = [];
+  let endTime = 0; // Initialize end time
+
+  // Reset the total actions performed counter
+  totalActionsPerformed = 0;
 
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
@@ -1518,13 +1557,16 @@ const simulateFight = (fighters) => {
     // Store round statistics
     roundStats.push(roundResult.roundStats);
 
+    // Calculate end time based on the round and remaining time
+    endTime = (round - 1) * 300 + (300 - roundResult.timeRemaining);
+
     // Check if the round ended early (KO or submission)
     if (roundResult.winner !== null) {
       if (roundResult.submissionType) {
-        method = "submission";
+        method = "Submission";
         submissionType = roundResult.submissionType;
       } else {
-        method = "knockout";
+        method = "Knockout";
       }
       roundEnded = round;
       break;
@@ -1543,7 +1585,7 @@ const simulateFight = (fighters) => {
 
   // Determine the overall winner
   let winner;
-  if (method === "decision") {
+  if (method === "Decision") {
     winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
     if (fighters[0].roundsWon === fighters[1].roundsWon) {
       method = "draw";
@@ -1565,7 +1607,7 @@ const simulateFight = (fighters) => {
     console.log("The fight ends in a draw!");
   } else {
     const winMethod =
-      method === "submission" ? `${method} (${submissionType})` : method;
+      method === "Submission" ? `${method} (${submissionType})` : method;
     console.log(
       `${fighters[winner].name} defeats ${
         fighters[1 - winner].name
@@ -1580,6 +1622,7 @@ const simulateFight = (fighters) => {
     method: method,
     submissionType: submissionType,
     roundEnded: roundEnded,
+    endTime: endTime,
     fighterStats: [fighters[0].stats, fighters[1].stats],
     fighterHealth: [fighters[0].health, fighters[1].health],
     fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],

@@ -175,6 +175,194 @@
         "bjj": 50
       }
     },
+    "fightHistory": [
+    {
+      "opponentId": 2,
+      "opponent": "Dustin Poirier",
+      "result": "Loss",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": 2,
+      "opponent": "Dustin Poirier",
+      "result": "Loss",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Donald Cerrone",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Khabib Nurmagomedov",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Eddie Alvarez",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Nate Diaz",
+      "result": "Win",
+      "method": "Decision"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Nate Diaz",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Jose Aldo",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Chad Mendes",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Dennis Siver",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": 2,
+      "opponent": "Dustin Poirier",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Diego Brandao",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": 15,
+      "opponent": "Max Holloway",
+      "result": "Win",
+      "method": "Decision"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Marcus Brimage",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Ivan Buchinger",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Dave Hill",
+      "result": "Win",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Steve O'Keefe",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Aaron Jahnsen",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Paddy Doherty",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Artur Sowinski",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Mike Wood",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Hugh Brady",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Connor Dillon",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Joseph Duffy",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Stephen Bailey",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Gary Morris",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Mo Taylor",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Artemij Sitenkov",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Mo Taylor",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Gary Morris",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Gary Morris",
+      "result": "Win",
+      "method": "Knockout"
+    }
+  ],
     "roundsWon": 0
   },
   {
@@ -353,6 +541,206 @@
         "bjj": 55
       }
     },
+    "fightHistory": [
+      {
+        "opponentId": 7,
+        "opponent": "Islam Makhachev",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": 18,
+        "opponent": "Benoît Saint Denis",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 10,
+        "opponent": "Justin Gaethje",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 10,
+        "opponent": "Justin Gaethje",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 12,
+        "opponent": "Michael Chandler",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 9,
+        "opponent": "Charles Oliveira",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": 1,
+        "opponent": "Conor McGregor",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 1,
+        "opponent": "Conor McGregor",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 17,
+        "opponent": "Dan Hooker",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Khabib Nurmagomedov",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": 15,
+        "opponent": "Max Holloway",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Eddie Alvarez",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 10,
+        "opponent": "Justin Gaethje",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Anthony Pettis",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Jim Miller",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Michael Johnson",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Bobby Green",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Joe Duffy",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Yancy Medeiros",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Carlos Diego Ferreira",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 1,
+        "opponent": "Conor McGregor",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Akira Corassani",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Diego Brandão",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Erik Koch",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Cub Swanson",
+        "result": "Loss",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Jonathan Brookins",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Chan Sung Jung",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Max Holloway",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Pablo Garza",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Jason Young",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Josh Grispi",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Zach Micklewright",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Danny Castillo",
+        "result": "Loss",
+        "method": "Decision"
+      }
+    ],
     "roundsWon": 0
   },
   {
