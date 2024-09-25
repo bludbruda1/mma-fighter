@@ -10,48 +10,47 @@ function formatTime(seconds) {
 }
 
 /**
- * Object containing the base time (in seconds) and stamina impact for each action
- * @type {Object.<string, {time: number, staminaImpact: number}>}
+ * Object containing the base time range (in seconds) and stamina impact for each action
+ * @type {Object.<string, {timeRange: [number, number], staminaImpact: number}>}
  */
 const actionProperties = {
   // Punches
-  jab: { time: 2, staminaImpact: 1 },
-  cross: { time: 2, staminaImpact: 2 },
-  hook: { time: 3, staminaImpact: 3 },
-  uppercut: { time: 3, staminaImpact: 3 },
-  overhand: { time: 3, staminaImpact: 4 },
-  spinningBackfist: { time: 4, staminaImpact: 5 },
-  supermanPunch: { time: 4, staminaImpact: 5 },
-  bodyPunch: { time: 2, staminaImpact: 2 },
+  jab: { timeRange: [2,3], staminaImpact: 1 },
+  cross: { timeRange: [2,3], staminaImpact: 2 },
+  hook: { timeRange: [3,4], staminaImpact: 3 },
+  uppercut: { timeRange: [3,4], staminaImpact: 3 },
+  overhand: { timeRange: [3,4], staminaImpact: 4 },
+  spinningBackfist: { timeRange: [3,5], staminaImpact: 5 },
+  supermanPunch: { timeRange: [3,5], staminaImpact: 5 },
+  bodyPunch: { timeRange: [2,3], staminaImpact: 2 },
 
   // Kicks
-  headKick: { time: 4, staminaImpact: 6 },
-  bodyKick: { time: 4, staminaImpact: 5 },
-  legKick: { time: 3, staminaImpact: 4 },
+  headKick: { timeRange: [4,6], staminaImpact: 6 },
+  bodyKick: { timeRange: [4,6], staminaImpact: 5 },
+  legKick: { timeRange: [2,4], staminaImpact: 3 },
 
   // Grappling and clinch
-  takedownAttempt: { time: 8, staminaImpact: 7 },
-  getUpAttempt: { time: 6, staminaImpact: 5 },
-  clinchAttempt: { time: 3, staminaImpact: 4 },
-  clinchStrike: { time: 2, staminaImpact: 3 },
-  clinchTakedown: { time: 7, staminaImpact: 6 },
-  clinchExit: { time: 2, staminaImpact: 3 },
+  takedownAttempt: { timeRange: [7,10], staminaImpact: 7 },
+  getUpAttempt: { timeRange: [5,10], staminaImpact: 5 },
+  clinchAttempt: { timeRange: [2,4], staminaImpact: 4 },
+  clinchStrike: { timeRange: [2,3], staminaImpact: 3 },
+  clinchTakedown: { timeRange: [5,10], staminaImpact: 6 },
+  clinchExit: { timeRange: [2,4], staminaImpact: 3 },
 
   // Ground actions
-  groundPunch: { time: 2, staminaImpact: 2 },
-  submission: { time: 10, staminaImpact: 10 },
-  positionAdvance: { time: 6, staminaImpact: 5 },
-  sweep: { time: 6, staminaImpact: 7 },
-  escape: { time: 6, staminaImpact: 6 },
+  groundPunch: { timeRange: [1,2], staminaImpact: 2 },
+  submission: { timeRange: [7,14], staminaImpact: 10 },
+  positionAdvance: { timeRange: [6,10], staminaImpact: 5 },
+  sweep: { timeRange: [6,10], staminaImpact: 7 },
+  escape: { timeRange: [4,8], staminaImpact: 6 },
 
   // Combo actions
-  comboPunch: { time: 1, staminaImpact: null }, // Additional time and stamina for each punch in a combo after the first
+  comboPunch: { timeRange: [1,2], staminaImpact: null }, // Additional time and stamina for each punch in a combo after the first
 
   // Other actions
-  wait: { time: 5, staminaImpact: -2 }, // Negative stamina impact means recovery
-  seekFinish: {time: 2, staminaImpact: 15}, // fighter trying to finish the fight off
-  fightStart: { time: 5, staminaImpact: 0 } // 5 seconds, no stamina impact
-
+  wait: { timeRange: [3,9], staminaImpact: -2 }, // Negative stamina impact means recovery
+  seekFinish: { timeRange: [1,3], staminaImpact: 15}, // fighter trying to finish the fight off
+  fightStart: { timeRange: [2,15], staminaImpact: 0 } // no stamina impact
 };
 
 /**
@@ -85,9 +84,14 @@ const recoverStaminaEndRound = (currentStamina, cardio) => {
  * @returns {number} The amount of time that passes, in seconds
  */
 function simulateTimePassing(action) {
-  const baseTime = actionProperties[action].time;
-  // Add some slight randomness (0.5 seconds either way)
-  return Math.round(baseTime + (Math.random() - 0.5));
+  const { timeRange } = actionProperties[action];
+  const [minTime, maxTime] = timeRange;
+
+  // Calculate a random time within the range
+  const randomTime = minTime + Math.random() * (maxTime - minTime);
+  
+  // Round to the nearest second
+  return Math.round(randomTime);
 }
 
 /**
