@@ -41,6 +41,38 @@ const calculateProbability = (offenceRating, defenceRating) => {
 };
 
 /**
+ * Calculate probability of a successful action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {number} Probability of success
+ */
+const calculateTDProbability = (attacker, defender) => {
+  const offensiveSkill = attacker.Rating.takedownOffence;
+  const defensiveSkill = defender.Rating.takedownDefence;
+  const difference = offensiveSkill - defensiveSkill;
+
+  if (difference >= 15) {
+    return 0.60;
+  } else if (difference >= 10) {
+    return 0.50;
+  } else if (difference >= 5) {
+    return 0.40;
+  } else if (difference >= 1) {
+    return 0.33;
+  } else if (difference === 0) {
+    return 0.25;
+  } else if (difference >= -4) {
+    return 0.20;
+  } else if (difference >= -9) {
+    return 0.125;
+  } else if (difference >= -14) {
+    return 0.075;
+  } else {
+    return 0.02;
+  }
+};
+
+/**
  * Calculate outcome probabilities for a fighting action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
@@ -669,6 +701,7 @@ export {
   calculateStrikeDamage,
   calculateProbabilities,
   calculateProbability,
+  calculateTDProbability,
   calculateStaminaImpact,
   calculateSubmissionProbability,
   determineStandingAction,

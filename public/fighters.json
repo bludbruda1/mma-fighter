@@ -40,8 +40,8 @@
       "kickDefence": 76,
       "headMovement": 82,
       "footwork": 85,
-      "takedownOffence": 72, 
-      "takedownDefence": 76,
+      "takedownOffence": 66, 
+      "takedownDefence": 74,
       "clinchOffence": 77, 
       "clinchDefence": 74,
       "clinchStriking": 79,
@@ -175,6 +175,194 @@
         "bjj": 50
       }
     },
+    "fightHistory": [
+    {
+      "opponentId": 2,
+      "opponent": "Dustin Poirier",
+      "result": "Loss",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": 2,
+      "opponent": "Dustin Poirier",
+      "result": "Loss",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Donald Cerrone",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Khabib Nurmagomedov",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Eddie Alvarez",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Nate Diaz",
+      "result": "Win",
+      "method": "Decision"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Nate Diaz",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Jose Aldo",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Chad Mendes",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Dennis Siver",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": 2,
+      "opponent": "Dustin Poirier",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Diego Brandao",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": 15,
+      "opponent": "Max Holloway",
+      "result": "Win",
+      "method": "Decision"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Marcus Brimage",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Ivan Buchinger",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Dave Hill",
+      "result": "Win",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Steve O'Keefe",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Aaron Jahnsen",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Paddy Doherty",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Artur Sowinski",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Mike Wood",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Hugh Brady",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Connor Dillon",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Joseph Duffy",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Stephen Bailey",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Gary Morris",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Mo Taylor",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Artemij Sitenkov",
+      "result": "Loss",
+      "method": "Submission"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Mo Taylor",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Gary Morris",
+      "result": "Win",
+      "method": "Knockout"
+    },
+    {
+      "opponentId": null,
+      "opponent": "Gary Morris",
+      "result": "Win",
+      "method": "Knockout"
+    }
+  ],
     "roundsWon": 0
   },
   {
@@ -218,8 +406,8 @@
       "kickDefence": 86,
       "headMovement": 87,
       "footwork": 88,
-      "takedownOffence": 84,
-      "takedownDefence": 86,
+      "takedownOffence": 73,
+      "takedownDefence": 81,
       "clinchOffence": 87,
       "clinchDefence": 86,
       "clinchStriking": 89,
@@ -353,6 +541,206 @@
         "bjj": 55
       }
     },
+    "fightHistory": [
+      {
+        "opponentId": 7,
+        "opponent": "Islam Makhachev",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": 18,
+        "opponent": "Benoît Saint Denis",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 10,
+        "opponent": "Justin Gaethje",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 10,
+        "opponent": "Justin Gaethje",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 12,
+        "opponent": "Michael Chandler",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 9,
+        "opponent": "Charles Oliveira",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": 1,
+        "opponent": "Conor McGregor",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 1,
+        "opponent": "Conor McGregor",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 17,
+        "opponent": "Dan Hooker",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Khabib Nurmagomedov",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": 15,
+        "opponent": "Max Holloway",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Eddie Alvarez",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 10,
+        "opponent": "Justin Gaethje",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Anthony Pettis",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Jim Miller",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Michael Johnson",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Bobby Green",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Joe Duffy",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Yancy Medeiros",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Carlos Diego Ferreira",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": 1,
+        "opponent": "Conor McGregor",
+        "result": "Loss",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Akira Corassani",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Diego Brandão",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Erik Koch",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Cub Swanson",
+        "result": "Loss",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Jonathan Brookins",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Chan Sung Jung",
+        "result": "Loss",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Max Holloway",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Pablo Garza",
+        "result": "Win",
+        "method": "Submission"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Jason Young",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Josh Grispi",
+        "result": "Win",
+        "method": "Decision"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Zach Micklewright",
+        "result": "Win",
+        "method": "Knockout"
+      },
+      {
+        "opponentId": null,
+        "opponent": "Danny Castillo",
+        "result": "Loss",
+        "method": "Decision"
+      }
+    ],
     "roundsWon": 0
   },
   {
@@ -1104,8 +1492,8 @@
       "kickDefence": 90,
       "headMovement": 89,
       "footwork": 90,
-      "takedownOffence": 97,
-      "takedownDefence": 95,
+      "takedownOffence": 94,
+      "takedownDefence": 96,
       "clinchOffence": 96,
       "clinchDefence": 94,
       "clinchStriking": 89,
@@ -1282,8 +1670,8 @@
       "kickDefence": 87,
       "headMovement": 87,
       "footwork": 89,
-      "takedownOffence": 94,
-      "takedownDefence": 92,
+      "takedownOffence": 86,
+      "takedownDefence": 88,
       "clinchOffence": 93,
       "clinchDefence": 91,
       "clinchStriking": 88,
@@ -1460,8 +1848,8 @@
       "kickDefence": 84,
       "headMovement": 85,
       "footwork": 87,
-      "takedownOffence": 92,
-      "takedownDefence": 88,
+      "takedownOffence": 79,
+      "takedownDefence": 78,
       "clinchOffence": 93,
       "clinchDefence": 90,
       "clinchStriking": 91,
@@ -1638,8 +2026,8 @@
       "kickDefence": 86,
       "headMovement": 84,
       "footwork": 88,
-      "takedownOffence": 85,
-      "takedownDefence": 90,
+      "takedownOffence": 73,
+      "takedownDefence": 87,
       "clinchOffence": 88,
       "clinchDefence": 87,
       "clinchStriking": 92,
@@ -1816,8 +2204,8 @@
       "kickDefence": 87,
       "headMovement": 87,
       "footwork": 89,
-      "takedownOffence": 94,
-      "takedownDefence": 92,
+      "takedownOffence": 89,
+      "takedownDefence": 94,
       "clinchOffence": 92,
       "clinchDefence": 91,
       "clinchStriking": 88,
@@ -1994,8 +2382,8 @@
       "kickDefence": 84,
       "headMovement": 85,
       "footwork": 87,
-      "takedownOffence": 93,
-      "takedownDefence": 90,
+      "takedownOffence": 84,
+      "takedownDefence": 85,
       "clinchOffence": 91,
       "clinchDefence": 89,
       "clinchStriking": 89,
@@ -2172,8 +2560,8 @@
       "kickDefence": 85,
       "headMovement": 85,
       "footwork": 86,
-      "takedownOffence": 91,
-      "takedownDefence": 89,
+      "takedownOffence": 80,
+      "takedownDefence": 86,
       "clinchOffence": 90,
       "clinchDefence": 88,
       "clinchStriking": 87,
@@ -2350,7 +2738,7 @@
       "kickDefence": 90,
       "headMovement": 92,
       "footwork": 93,
-      "takedownOffence": 83,
+      "takedownOffence": 65,
       "takedownDefence": 87,
       "clinchOffence": 88,
       "clinchDefence": 86,
@@ -2528,8 +2916,8 @@
       "kickDefence": 89,
       "headMovement": 92,
       "footwork": 94,
-      "takedownOffence": 84,
-      "takedownDefence": 90,
+      "takedownOffence": 69,
+      "takedownDefence": 82,
       "clinchOffence": 88,
       "clinchDefence": 87,
       "clinchStriking": 92,
@@ -2706,8 +3094,8 @@
       "kickDefence": 86,
       "headMovement": 86,
       "footwork": 87,
-      "takedownOffence": 89,
-      "takedownDefence": 87,
+      "takedownOffence": 81,
+      "takedownDefence": 79,
       "clinchOffence": 88,
       "clinchDefence": 87,
       "clinchStriking": 87,
@@ -2884,8 +3272,8 @@
       "kickDefence": 87,
       "headMovement": 85,
       "footwork": 88,
-      "takedownOffence": 84,
-      "takedownDefence": 86,
+      "takedownOffence": 73,
+      "takedownDefence": 82,
       "clinchOffence": 88,
       "clinchDefence": 86,
       "clinchStriking": 89,
@@ -3062,8 +3450,8 @@
       "kickDefence": 84,
       "headMovement": 84,
       "footwork": 86,
-      "takedownOffence": 89,
-      "takedownDefence": 87,
+      "takedownOffence": 85,
+      "takedownDefence": 76,
       "clinchOffence": 88,
       "clinchDefence": 87,
       "clinchStriking": 86,
@@ -3240,8 +3628,8 @@
       "kickDefence": 85,
       "headMovement": 85,
       "footwork": 87,
-      "takedownOffence": 84,
-      "takedownDefence": 85,
+      "takedownOffence": 74,
+      "takedownDefence": 82,
       "clinchOffence": 86,
       "clinchDefence": 85,
       "clinchStriking": 88,
@@ -3419,8 +3807,8 @@
       "kickDefence": 82,
       "headMovement": 83,
       "footwork": 85,
-      "takedownOffence": 88,
-      "takedownDefence": 86,
+      "takedownOffence": 72,
+      "takedownDefence": 71,
       "clinchOffence": 87,
       "clinchDefence": 85,
       "clinchStriking": 85,

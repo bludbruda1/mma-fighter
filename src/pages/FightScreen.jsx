@@ -322,6 +322,17 @@ const FightScreen = () => {
         const winnerFighter = opponents[result.winner];
         const loserFighter = opponents[result.winner === 0 ? 1 : 0];
 
+        // Format the end time
+        const minutes = Math.floor(result.endTime / 60);
+        const seconds = result.endTime % 60;
+        const formattedEndTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        // Update the fightResult state with the formatted end time
+        setFightResult({
+          ...result,
+          formattedEndTime: formattedEndTime
+        });
+
         // Calculate fight statistics
         const stats = calculateFightStats(
           {
@@ -356,47 +367,48 @@ const FightScreen = () => {
           },
         ]);
 
-        // Update the record of the fighters after the fight
         const updatedFighters = fighters.map((fighter) => {
           if (fighter.personid === winnerFighter.id) {
             return {
               ...fighter,
               wins: (fighter.wins || 0) + 1,
-              recentFights: [
+              fightHistory: [
                 {
                   opponentId: loserFighter.id,
                   opponent: loserFighter.name,
-                  result: `Win by ${result.method}`,
+                  result: `Win`,
+                  method: result.method,
                 },
-                ...(fighter.recentFights || []).slice(0, 4),
+                ...(fighter.fightHistory || []),
               ],
             };
           } else if (fighter.personid === loserFighter.id) {
             return {
               ...fighter,
               losses: (fighter.losses || 0) + 1,
-              recentFights: [
+              fightHistory: [
                 {
                   opponentId: winnerFighter.id,
                   opponent: winnerFighter.name,
-                  result: `Loss by ${result.method}`,
+                  result: `Loss`,
+                  method: result.method,
                 },
-                ...(fighter.recentFights || []).slice(0, 4),
+                ...(fighter.fightHistory || []),
               ],
             };
           } else {
             return fighter;
           }
         });
-
-        // Set the updated fighters, and display the winning message
+        
+        // Update the fighters in the database
         Promise.all(updatedFighters.map(updateFighter))
           .then(() => {
             setFighters(updatedFighters);
             setFightEvents(fightEvents);
             setWinnerMessage(
               `${result.winnerName} defeats ${result.loserName} by ${
-                result.method === "submission"
+                result.method === "Submission"
                   ? `${result.method} (${result.submissionType})`
                   : result.method
               } in round ${result.roundEnded}!`
@@ -427,9 +439,14 @@ const FightScreen = () => {
         title="Total Strikes"
       />
       <StatBar
-        redValue={fightStats.takedowns.red}
-        blueValue={fightStats.takedowns.blue}
-        title="Total Takedowns"
+        redValue={fightStats.takedownsAttempted.red}
+        blueValue={fightStats.takedownsAttempted.blue}
+        title="Total Attempted Takedowns"
+      />
+      <StatBar
+        redValue={fightStats.takedownsSuccessful.red}
+        blueValue={fightStats.takedownsSuccessful.blue}
+        title="Total Successful Takedowns"
       />
       <StatBar
         redValue={fightStats.submissionAttempts.red}
@@ -567,7 +584,7 @@ const FightScreen = () => {
                     {fightResult && (
                       <ResultCard
                         round={fightResult.roundEnded}
-                        time="3:38"
+                        time={fightResult.formattedEndTime}
                         method={fightResult.method}
                       />
                     )}
