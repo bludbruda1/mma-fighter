@@ -13,12 +13,12 @@ const {FIGHTING_STYLES} = require('../engine/mmaStyles.js');
 // Helper function to create a basic fighter object
 const createFighter = (name, attributes) => ({
   name,
-  health: attributes.health || { head: 100, body: 100, legs: 100 }, // Use passed health or default to 1000
+  health: attributes.health || { head: 100, body: 100, legs: 100 },
   maxHealth: attributes.maxHealth ||
-    attributes.health || { head: 100, body: 100, legs: 100 }, // Use passed maxHealth or default to health
+    attributes.health || { head: 100, body: 100, legs: 100 },
   stamina: 1000,
   position: FIGHTER_POSITIONS.STANDING,
-  fightingStlye: "POWER_PUNCHER",
+  fightingStyle: attributes.fightingStyle || "POWER_PUNCHER", // Add this line
   roundsWon: 0,
   Rating: {
     output: 94,
@@ -54,26 +54,10 @@ const createFighter = (name, attributes) => ({
     getUpAbility: 89,
     composure: 92,
     fightIQ: 90,
-    ...attributes.Rating, // Override default ratings with passed values
+    ...attributes.Rating,
   },
   stats: {},
-  Tendency: {
-    strikingVsGrappling: 50,
-    aggressiveness: 50,
-    counterVsInitiator: 50,
-    standupPreference: {
-      boxing: 20,
-      kickBoxing: 20,
-      muayThai: 20,
-      karate: 20,
-      taekwondo: 20,
-    },
-    grapplingPreference: {
-      wrestling: 33,
-      judo: 33,
-      bjj: 34,
-    },
-  },
+  Tendency: FIGHTING_STYLES[attributes.fightingStyle || "POWER_PUNCHER"].Tendency, // Update this line
 });
 
 describe("FightSim Tests", () => {
