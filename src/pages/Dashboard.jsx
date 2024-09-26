@@ -19,6 +19,7 @@ import {
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { getAllFighters } from "../utils/indexedDB";
+import { formatFightingStyle } from "../utils/uiHelpers"
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -224,6 +225,10 @@ const Dashboard = () => {
               >
                 <Typography variant="body1">Weight Class:</Typography>
                 <Chip label={fighter.weightClass} color="secondary" />
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body1">Fighting Style:</Typography>
+                <Chip label={formatFightingStyle(fighter.fightingStyle)} color="primary" />
               </Box>
             </CardContent>
           </Card>

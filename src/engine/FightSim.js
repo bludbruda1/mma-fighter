@@ -775,11 +775,6 @@ const doClinchTakedown = (attacker, defender) => {
     `${attacker.name} attempts a ${takedownType} from the clinch on ${defender.name}`
   );
 
-  attacker.stats.takedownsAttempted =
-    (attacker.stats.takedownsAttempted || 0) + 1;
-  attacker.stats.clinchTakedownsAttempted =
-    (attacker.stats.clinchTakedownsAttempted || 0) + 1;
-
   const takedownChance = calculateProbability(
     attacker.Rating.clinchGrappling,
     defender.Rating.clinchControl
@@ -794,7 +789,7 @@ const doClinchTakedown = (attacker, defender) => {
     }
 
     defender.health.body = Math.max(0, defender.health.body - damage);
-    updateFightStats(attacker, defender, "takedown", takedownType, "landed");
+    updateFightStats(attacker, defender, "takedown", takedownType, "successful");
 
     // Reset clinch state and move to ground
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;

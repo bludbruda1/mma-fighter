@@ -7,15 +7,18 @@ const {
   doGetUp,
   doSubmission,
 } = require("../engine/FightSim.js");
+const {FIGHTING_STYLES} = require('../engine/mmaStyles.js');
+
 
 // Helper function to create a basic fighter object
 const createFighter = (name, attributes) => ({
   name,
-  health: attributes.health || { head: 1000, body: 1000, legs: 1000 }, // Use passed health or default to 1000
+  health: attributes.health || { head: 100, body: 100, legs: 100 }, // Use passed health or default to 1000
   maxHealth: attributes.maxHealth ||
-    attributes.health || { head: 1000, body: 1000, legs: 1000 }, // Use passed maxHealth or default to health
+    attributes.health || { head: 100, body: 100, legs: 100 }, // Use passed maxHealth or default to health
   stamina: 1000,
   position: FIGHTER_POSITIONS.STANDING,
+  fightingStlye: "POWER_PUNCHER",
   roundsWon: 0,
   Rating: {
     output: 94,
@@ -38,11 +41,10 @@ const createFighter = (name, attributes) => ({
     footwork: 88,
     takedownOffence: 73,
     takedownDefence: 87,
-    clinchOffence: 88,
-    clinchDefence: 87,
-    clinchStriking: 92,
-    clinchGrappling: 85,
-    clinchControl: 86,
+    clinchStriking: 88,
+    clinchTakedown: 87,
+    clinchControl: 92,
+    clinchDefence: 85,
     groundOffence: 84,
     groundDefence: 86,
     groundControl: 83,
