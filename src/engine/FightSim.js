@@ -383,9 +383,6 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       totalTimePassed += finishAttempt.timePassed;
     }
 
-    console.log(
-      `${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`
-    );
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
@@ -407,16 +404,6 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       `${attacker.name}'s ${displayPunchType} misses ${defender.name}`
     );
   }
-
-  // Log the updated stats after the punch
-  console.log("\n--- Updated Stats After Punch ---");
-  console.log(`\n--- ${attacker.name}'s Punch Stats ---`);
-  console.log(`Total Punches Thrown: ${attacker.stats.punchsThrown || 0}`);
-  console.log(`Total Punches Landed: ${attacker.stats.punchsLanded || 0}`);
-  console.log(`Total Punches Blocked: ${attacker.stats.punchsBlocked || 0}`);
-  console.log(`Total Punches Evaded: ${attacker.stats.punchsEvaded || 0}`);
-  console.log(`Total Punches Missed: ${attacker.stats.punchsMissed || 0}`);
-  console.log("--- End of Updated Stats ---\n");
 
   // Use COMBO_CHANCE, reduced for each punch in the combo
   const comboChance = COMBO_CHANCE * Math.pow(0.8, comboCount);

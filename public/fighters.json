@@ -9,7 +9,7 @@
     "losses": 6,
     "image": "/assets/images/connormc.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.POWER_PUNCHER",
+    "fightingStyle": "POWER_PUNCHER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -375,7 +375,7 @@
     "losses": 7,
     "image": "/assets/images/dustinpo.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.PRESSURE_FIGHTER",
+    "fightingStyle": "PRESSURE_FIGHTER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -747,7 +747,7 @@
     "losses": 1,
     "image": "/assets/images/islammakhachev.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.SAMBO",
+    "fightingStyle": "SAMBO",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -925,7 +925,7 @@
     "losses": 3,
     "image": "/assets/images/armantsarukyan.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.FREESTYLE_WRESTLER",
+    "fightingStyle": "FREESTYLE_WRESTLER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1103,7 +1103,7 @@
     "losses": 9,
     "image": "/assets/images/charlesoliveira.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.BRAZILIAN_JIU_JITSU",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1281,7 +1281,7 @@
     "losses": 4,
     "image": "/assets/images/justingaethje.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.PRESSURE_FIGHTER",
+    "fightingStyle": "PRESSURE_FIGHTER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1459,7 +1459,7 @@
     "losses": 2,
     "image": "/assets/images/mateuszgamrot.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.WRESTLER",
+    "fightingStyle": "WRESTLER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1637,7 +1637,7 @@
     "losses": 8,
     "image": "/assets/images/michaelchandler.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.WRESTLER",
+    "fightingStyle": "WRESTLER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1815,7 +1815,7 @@
     "losses": 5,
     "image": "/assets/images/beneildariush.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.BRAZILIAN_JIU_JITSU",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -1993,7 +1993,7 @@
     "losses": 2,
     "image": "/assets/images/rafaelfiziev.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.MUAY_THAI",
+    "fightingStyle": "MUAY_THAI",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2171,7 +2171,7 @@
     "losses": 7,
     "image": "/assets/images/maxholloway.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.VOLUME_STRIKER",
+    "fightingStyle": "VOLUME_STRIKER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2349,7 +2349,7 @@
     "losses": 5,
     "image": "/assets/images/renatomoicano.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.BRAZILIAN_JIU_JITSU",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2527,7 +2527,7 @@
     "losses": 12,
     "image": "/assets/images/danhooker.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.KICKBOXER",
+    "fightingStyle": "KICKBOXER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2705,7 +2705,7 @@
     "losses": 1,
     "image": "/assets/images/benoitsaintdenis.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.BRAZILIAN_JIU_JITSU",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -2883,7 +2883,7 @@
     "losses": 7,
     "image": "/assets/images/jalinturner.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.KICKBOXER",
+    "fightingStyle": "KICKBOXER",
     "maxHealth": {
       "head": 100,
       "body": 100,
@@ -3062,7 +3062,7 @@
     "losses": 3,
     "image": "/assets/images/paddypimblett.png",
     "weightClass": "Lightweight",
-    "fightingStyle": "FIGHTING_STYLES.BRAZILIAN_JIU_JITSU",
+    "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
       "head": 100,
       "body": 100,

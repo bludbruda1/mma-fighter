@@ -1,5 +1,4 @@
-
-export const FIGHTING_STYLES = {
+const FIGHTING_STYLES = {
     POWER_PUNCHER: {
       name: "Power Puncher",
       strength:"Knockout power, aggressive forward pressure",
@@ -627,3 +626,5 @@ export const FIGHTING_STYLES = {
         },
       },
     };
+
+export { FIGHTING_STYLES };

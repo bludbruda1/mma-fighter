@@ -322,8 +322,7 @@ const getPositionAdvantage = (attackerPosition, defenderPosition) => {
  * @returns {string} The determined action
  */
 const determineStandingAction = (attacker, defender) => {
-  const style = [attacker.fightingStyle];
-  console.log(`${attacker.name} is a ${style}`);
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
   const strikingOffence = attacker.Rating.striking;
   const strikingDefence = defender.Rating.strikingDefence;
   const takedownOffence = attacker.Rating.takedownOffence;
