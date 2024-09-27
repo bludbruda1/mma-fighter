@@ -30,7 +30,10 @@ const actionProperties = {
   legKick: { timeRange: [2,4], staminaImpact: 3 },
 
   // Grappling and clinch
-  takedownAttempt: { timeRange: [7,10], staminaImpact: 7 },
+  singleLegTakedown: { timeRange: [5,8], staminaImpact: 6 },
+  doubleLegTakedown: { timeRange: [6,9], staminaImpact: 7 },
+  tripTakedown: { timeRange: [4,7], staminaImpact: 5 },
+  throwTakedown: { timeRange: [5,8], staminaImpact: 8 },
   getUpAttempt: { timeRange: [5,10], staminaImpact: 5 },
   clinchAttempt: { timeRange: [2,4], staminaImpact: 4 },
   clinchStrike: { timeRange: [2,3], staminaImpact: 3 },
