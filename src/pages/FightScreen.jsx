@@ -89,6 +89,7 @@ const FightScreen = () => {
         return {
           id: fighter.personid,
           name: `${fighter.firstname} ${fighter.lastname}`,
+          fightingStyle: fighter.fightingStyle, 
           health: {
             head: Number(fighter.maxHealth.head) || 100,
             body: Number(fighter.maxHealth.body) || 100,
@@ -123,11 +124,10 @@ const FightScreen = () => {
             footwork: Number(fighter.Rating.footwork) || 0,
             takedownOffence: Number(fighter.Rating.takedownOffence) || 0,
             takedownDefence: Number(fighter.Rating.takedownDefence) || 0,
-            clinchOffence: Number(fighter.Rating.clinchOffence) || 0,
-            clinchDefence: Number(fighter.Rating.clinchDefence) || 0,
             clinchStriking: Number(fighter.Rating.clinchStriking) || 0,
-            clinchGrappling: Number(fighter.Rating.clinchGrappling) || 0,
+            clinchTakedown: Number(fighter.Rating.clinchTakedown) || 0,
             clinchControl: Number(fighter.Rating.clinchControl) || 0,
+            clinchDefence: Number(fighter.Rating.clinchDefence) || 0,
             groundOffence: Number(fighter.Rating.groundOffence) || 0,
             groundDefence: Number(fighter.Rating.groundDefence) || 0,
             groundControl: Number(fighter.Rating.groundControl) || 0,

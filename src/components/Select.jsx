@@ -12,6 +12,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
+import { formatFightingStyle } from "../utils/uiHelpers"
 
 /* BasicSelect component that passes a fighters, selectedItem, and onSelectChange prop 
 so that when we call this component we can dynamically add the info instead of the value being fixed at the component level. **/
@@ -78,6 +79,9 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
                 </Typography>
                 <Typography variant="body2">
                   Record: {selectedItem.wins}W-{selectedItem.losses}L
+                </Typography>
+                <Typography variant="body2">
+                  Fighting Style: {formatFightingStyle(selectedItem.fightingStyle)}
                 </Typography>
               </CardContent>
             </Card>
