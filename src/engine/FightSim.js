@@ -854,15 +854,12 @@ return [outcome, timePassed];
  */
 const doSprawl = (defender, attacker) => {
   console.log(`${defender.name} attempts to sprawl against ${attacker.name}'s takedown`);
-  let sprawlOutcome = "";
-
   const sprawlChance = calculateProbability(defender.Rating.takedownDefence, attacker.Rating.takedownOffence);
   const timePassed = simulateTimePassing("sprawl");
 
   if (Math.random() < sprawlChance) {
     // Successful sprawl
     console.log(`${defender.name} successfully sprawls and defends the takedown`);
-    sprawlOutcome = "successful" 
     
     // Determine if the defender can capitalize on the sprawl
     if (Math.random() < 0.3) {  // 30% chance to capitalize
