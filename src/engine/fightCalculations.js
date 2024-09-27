@@ -574,8 +574,7 @@ const determineStrikeType = (attacker) => {
  * @returns {string} The specific takedown type
  */
 const determineTakedownType = (attacker) => {
-  const style = FIGHTING_STYLES[attacker.fightingStyle];
-  
+    
   // Relevant ratings
   const wrestlingSkill = attacker.Rating.takedownOffence;
   const judoSkill = attacker.Rating.clinchTakedown;
