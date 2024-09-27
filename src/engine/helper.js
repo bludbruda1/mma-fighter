@@ -34,6 +34,7 @@ const actionProperties = {
   doubleLegTakedown: { timeRange: [6,9], staminaImpact: 7 },
   tripTakedown: { timeRange: [4,7], staminaImpact: 5 },
   throwTakedown: { timeRange: [5,8], staminaImpact: 8 },
+  sprawl: { timeRange: [3, 6], staminaImpact: 4 },
   getUpAttempt: { timeRange: [5,10], staminaImpact: 5 },
   clinchAttempt: { timeRange: [2,4], staminaImpact: 4 },
   clinchStrike: { timeRange: [2,3], staminaImpact: 3 },

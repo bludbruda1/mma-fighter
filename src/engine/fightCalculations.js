@@ -52,25 +52,48 @@ const calculateTDProbability = (attacker, defender) => {
   const defensiveSkill = defender.Rating.takedownDefence;
   const difference = offensiveSkill - defensiveSkill;
 
+  // Base probabilities
+  let landsChance, defendedChance, sprawlChance;
+
   if (difference >= 15) {
-    return 0.60;
+    landsChance = 0.60;
+    defendedChance = 0.30;
+    sprawlChance = 0.10;
   } else if (difference >= 10) {
-    return 0.50;
+    landsChance = 0.50;
+    defendedChance = 0.35;
+    sprawlChance = 0.15;
   } else if (difference >= 5) {
-    return 0.40;
+    landsChance = 0.40;
+    defendedChance = 0.40;
+    sprawlChance = 0.20;
   } else if (difference >= 1) {
-    return 0.33;
+    landsChance = 0.33;
+    defendedChance = 0.42;
+    sprawlChance = 0.25;
   } else if (difference === 0) {
-    return 0.25;
+    landsChance = 0.25;
+    defendedChance = 0.45;
+    sprawlChance = 0.30;
   } else if (difference >= -4) {
-    return 0.20;
+    landsChance = 0.20;
+    defendedChance = 0.45;
+    sprawlChance = 0.35;
   } else if (difference >= -9) {
-    return 0.125;
+    landsChance = 0.125;
+    defendedChance = 0.475;
+    sprawlChance = 0.40;
   } else if (difference >= -14) {
-    return 0.075;
+    landsChance = 0.075;
+    defendedChance = 0.475;
+    sprawlChance = 0.45;
   } else {
-    return 0.02;
+    landsChance = 0.02;
+    defendedChance = 0.48;
+    sprawlChance = 0.50;
   }
+
+  return { landsChance, defendedChance, sprawlChance };
 };
 
 /**

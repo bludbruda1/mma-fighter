@@ -807,28 +807,82 @@ const doClinchTakedown = (attacker, defender) => {
 const doTakedown = (attacker, defender, takedownType) => {
   console.log(`${attacker.name} attempts a ${takedownType} takedown on ${defender.name}`);
 
-  const timePassed = simulateTimePassing(takedownType);
+  let timePassed = simulateTimePassing(takedownType);
   let outcome = "";
 
+  const { landsChance, defendedChance, sprawlChance } = calculateTDProbability(attacker, defender);
 
-  if (Math.random() < calculateTDProbability(attacker, defender)) {
+  const random = Math.random();
+
+  if (random < landsChance) {
+    // Fight moves to the ground
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
     defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-    updateFightStats(attacker, defender, "takedown", takedownType, "successful");
 
+    updateFightStats(attacker, defender, "takedown", takedownType, "successful");
     console.log(`${attacker.name} successfully takes down ${defender.name} with a ${takedownType}`);
     outcome = `${takedownType}Landed`;
-  } else {
+  } else if (random < landsChance + defendedChance) {
     updateFightStats(attacker, defender, "takedown", takedownType, "defended");
-
     console.log(`${defender.name} defends the ${takedownType} takedown`);
+
     // Both fighters remain standing
     attacker.position = FIGHTER_POSITIONS.STANDING;
     defender.position = FIGHTER_POSITIONS.STANDING;
     outcome = `${takedownType}Defended`;
+  } else if (random < landsChance + defendedChance + sprawlChance) {
+    // Sprawl situation
+    const [sprawlOutcome, sprawlTimePassed] = doSprawl(defender, attacker);
+    if (sprawlOutcome === "successful") {
+      updateFightStats(attacker, defender, "takedown", takedownType, "defended");
+      outcome = `${takedownType}Defended`;
+    } else if (sprawlOutcome === "unsuccessful") {
+      updateFightStats(attacker, defender, "takedown", takedownType, "successful");
+      outcome = `${takedownType}Landed`;
     }
+    timePassed += sprawlTimePassed;
+  }
 
 return [outcome, timePassed];
+};
+
+/**
+ * Perform a sprawl action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {[string, number]} Outcome of the action, time passed
+ */
+const doSprawl = (defender, attacker) => {
+  console.log(`${defender.name} attempts to sprawl against ${attacker.name}'s takedown`);
+  let sprawlOutcome = "";
+
+  const sprawlChance = calculateProbability(defender.Rating.takedownDefence, attacker.Rating.takedownOffence);
+  const timePassed = simulateTimePassing("sprawl");
+
+  if (Math.random() < sprawlChance) {
+    // Successful sprawl
+    console.log(`${defender.name} successfully sprawls and defends the takedown`);
+    sprawlOutcome = "successful" 
+    
+    // Determine if the defender can capitalize on the sprawl
+    if (Math.random() < 0.3) {  // 30% chance to capitalize
+      defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+      attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+      console.log(`${defender.name} capitalizes on the sprawl and ends up in top position`);
+      return ["successful", timePassed];
+    } else {
+      // Both fighters return to standing
+      defender.position = FIGHTER_POSITIONS.STANDING;
+      attacker.position = FIGHTER_POSITIONS.STANDING;
+      return ["successful", timePassed];
+    }
+  } else {
+    // Failed sprawl, takedown succeeds
+    console.log(`${defender.name}'s sprawl attempt fails, ${attacker.name} completes the takedown`);
+    attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+    defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+    return ["unsuccessful", timePassed];
+  }
 };
 
 /**
