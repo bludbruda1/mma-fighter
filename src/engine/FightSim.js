@@ -801,29 +801,34 @@ const doClinchTakedown = (attacker, defender) => {
  * Perform a takedown action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
- * @returns {string} Outcome of the action
+ * @param {string} takedownType - Type of takedown (single leg, double leg, trip, throw)
+ * @returns {[string, number]} Outcome of the action, time passed
  */
-const doTakedown = (attacker, defender) => {
-  console.log(`${attacker.name} attempts a takedown on ${defender.name}`);
+const doTakedown = (attacker, defender, takedownType) => {
+  console.log(`${attacker.name} attempts a ${takedownType} takedown on ${defender.name}`);
+
+  const timePassed = simulateTimePassing(takedownType);
+  let outcome = "";
+
 
   if (Math.random() < calculateTDProbability(attacker, defender)) {
     attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
-
     defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-    updateFightStats(attacker, defender, "takedown", "singleLeg", "successful");
+    updateFightStats(attacker, defender, "takedown", takedownType, "successful");
 
-    console.log(`${attacker.name} successfully takes down ${defender.name}`);
-    return "takedownLanded";
+    console.log(`${attacker.name} successfully takes down ${defender.name} with a ${takedownType}`);
+    outcome = `${takedownType}Landed`;
   } else {
-    updateFightStats(attacker, defender, "takedown", "singleLeg", "defended");
+    updateFightStats(attacker, defender, "takedown", takedownType, "defended");
 
-    console.log(`${defender.name} defends the takedown`);
+    console.log(`${defender.name} defends the ${takedownType} takedown`);
     // Both fighters remain standing
     attacker.position = FIGHTER_POSITIONS.STANDING;
     defender.position = FIGHTER_POSITIONS.STANDING;
+    outcome = `${takedownType}Defended`;
+    }
 
-    return "takedownDefended";
-  }
+return [outcome, timePassed];
 };
 
 /**
@@ -1167,9 +1172,11 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       outcome = doWait(fighter, opponentFighter);
       timePassed = simulateTimePassing("wait");
       break;
-    case "takedownAttempt":
-      outcome = doTakedown(fighter, opponentFighter);
-      timePassed = simulateTimePassing("takedownAttempt");
+    case "singleLegTakedown":
+    case "doubleLegTakedown":
+    case "tripTakedown":
+    case "throwTakedown":     
+      [outcome, timePassed] = doTakedown(fighter, opponentFighter, actionType);
       break;
     case "getUpAttempt":
       outcome = doGetUp(fighter, opponentFighter);
