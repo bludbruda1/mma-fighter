@@ -362,7 +362,7 @@ const determineStandingAction = (attacker, defender) => {
   if (random < strikeChance) {
     return determineStrikeType(attacker);
   } else if (random < strikeChance + takedownChance) {
-    return "takedownAttempt";
+    return determineTakedownType(attacker);
   } else if (random < strikeChance + takedownChance + clinchChance) {
     return "clinchAttempt";
   } else {
@@ -565,6 +565,44 @@ const determineStrikeType = (attacker) => {
     kickWeights[2] *= (kickPower + kickSpeed) / 100;     // headKick
 
     return weightedRandomChoice(kickTypes, kickWeights);
+  }
+};
+
+/**
+ * Determines the specific type of takedown for a fighter
+ * @param {Object} attacker - The fighter object
+ * @returns {string} The specific takedown type
+ */
+const determineTakedownType = (attacker) => {
+  const style = FIGHTING_STYLES[attacker.fightingStyle];
+  
+  // Relevant ratings
+  const wrestlingSkill = attacker.Rating.takedownOffence;
+  const judoSkill = attacker.Rating.clinchTakedown;
+
+  // Calculate probabilities
+  let singleLegProb = 0.3 + (wrestlingSkill / 200);
+  let doubleLegProb = 0.3 + (wrestlingSkill / 200);
+  let tripProb = 0.2 + (judoSkill / 200);
+  let throwProb = 0.2 + (judoSkill / 200);
+
+  // Normalize probabilities
+  const total = singleLegProb + doubleLegProb + tripProb + throwProb;
+  singleLegProb /= total;
+  doubleLegProb /= total;
+  tripProb /= total;
+  throwProb /= total;
+
+  // Choose takedown type based on probabilities
+  const random = Math.random();
+  if (random < singleLegProb) {
+    return "singleLegTakedown";
+  } else if (random < singleLegProb + doubleLegProb) {
+    return "doubleLegTakedown";
+  } else if (random < singleLegProb + doubleLegProb + tripProb) {
+    return "tripTakedown";
+  } else {
+    return "throwTakedown";
   }
 };
 
