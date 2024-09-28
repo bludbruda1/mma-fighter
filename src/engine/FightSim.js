@@ -17,6 +17,7 @@ import {
   determineGroundAction,
 } from "./fightCalculations.js";
 import { calculateRoundStats } from "./FightStatistics.js";
+import { doApplyChoke, doEngageArm, doLockChoke } from "./subStages.js"
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
@@ -1123,6 +1124,49 @@ const doSubmission = (attacker, defender) => {
   }
 };
 
+/**
+ * Perform a rear naked choke action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {[string, number]} Outcome of the action, time passed
+ */
+
+const doRearNakedChoke = (attacker, defender) => {
+  console.log(`${attacker.name} is looking for a Rear Naked Choke on ${defender.name}`);
+
+  let timePassed = 0 // This will be updated with each stage in the submission
+  let outcome = "";
+
+  // Stage 1: Engage Arm
+  if (doEngageArm(attacker, defender)) {
+    timePassed += simulateTimePassing("submission");
+
+    // Stage 2: Lock Choke
+    if (doLockChoke(attacker, defender)) {
+      timePassed += simulateTimePassing("submission");
+
+      // Stage 3: Apply Choke
+      if (doApplyChoke(attacker, defender)) {
+        timePassed += simulateTimePassing("submission");
+        outcome = "submissionSuccessful";
+        updateFightStats(attacker, defender, "submission", "rearNakedChoke", "successful");
+        console.log(`${attacker.name} successfully submits ${defender.name} with a Rear Naked Choke!`);
+      } else {
+        outcome = "submissionDefended";
+        updateFightStats(attacker, defender, "submission", "rearNakedChoke", "defended");
+      }
+    } else {
+      outcome = "submissionDefended";
+      updateFightStats(attacker, defender, "submission", "rearNakedChoke", "defended");
+    }
+  } else {
+    outcome = "submissionDefended";
+    updateFightStats(attacker, defender, "submission", "rearNakedChoke", "defended");
+  }
+
+  return [outcome, timePassed, "Rear-Naked Choke" ];
+};
+
 // Main Simulation Functions
 
 /**
@@ -1249,10 +1293,10 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       [outcome, timePassed] = doGroundPunch(fighter, opponentFighter);
       break;
     case "submission":
-      [outcome, timePassed, submissionType] = doSubmission(
-        fighter,
-        opponentFighter
-      );
+      [outcome, timePassed, submissionType] = doSubmission(fighter,opponentFighter);
+      break;
+    case "rearNakedChoke":
+      [outcome, timePassed, submissionType] = doRearNakedChoke(fighter,opponentFighter);
       break;
     default:
       console.error(`Unknown action type: ${actionType}`);
@@ -1678,6 +1722,7 @@ export {
   doTakedown,
   doGetUp,
   doSubmission,
+  doRearNakedChoke,
   FIGHTER_POSITIONS,
   SUBMISSION_TYPES,
 };
