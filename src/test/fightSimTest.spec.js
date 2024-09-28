@@ -6,6 +6,7 @@ const {
   doTakedown,
   doGetUp,
   doSubmission,
+  doRearNakedChoke
 } = require("../engine/FightSim.js");
 const {FIGHTING_STYLES} = require('../engine/mmaStyles.js');
 
@@ -169,5 +170,22 @@ describe("FightSim Tests", () => {
     const submissionResult = doSubmission(fighter1, fighter2);
     console.log("Submission Result:", submissionResult);
     expect(submissionResult).toContain("submissionSuccessful");
+  });
+
+  // Test rear naked choke scenario
+  test("Rear Naked Choke Action", () => {
+    const fighter1 = createFighter("Fighter 1", {
+      Rating: { submissionOffence: 100 },
+    });
+    const fighter2 = createFighter("Fighter 2", {
+      Rating: { submissionDefence: 10 },
+    });
+
+    console.log(fighter1.Rating.submissionOffence);
+    fighter1.position = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE;
+    fighter2.position = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE;
+    const rearNakedChokeResult = doRearNakedChoke(fighter1, fighter2);
+    console.log("Rear-Naked Choke Result:", rearNakedChokeResult);
+    expect(rearNakedChokeResult).toContain("submissionSuccessful");
   });
 });
