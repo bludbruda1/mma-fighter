@@ -422,9 +422,12 @@ const determineGroundAction = (fighter) => {
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
       FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
-      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
     ].includes(fighter.position)) {
       availableActions.push('submission');
+    }
+    // Rear naked choke option for back control
+    if (fighter.position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE) {
+      availableActions.push('rearNakedChoke');
     }
   } else {
     if ([
@@ -462,6 +465,9 @@ const determineGroundAction = (fighter) => {
         break;
       case 'submission':
         probability = submissionOffence * 0.3 * attackerStamina;
+        break;
+      case 'rearNakedChoke':
+        probability = submissionOffence * 0.35 * attackerStamina; // Slightly higher probability for RNC
         break;
       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
