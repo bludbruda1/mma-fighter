@@ -444,12 +444,12 @@ const determineGroundAction = (fighter) => {
     ].includes(fighter.position)) {
       availableActions.push('escape');
     }
-    // Add submission option for positions where it's applicable
+    // Add guillotine option for positions where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
       FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM
     ].includes(fighter.position)) {
-      availableActions.push('submission');
+      availableActions.push('guillotine');
     }
     // Add traingle option for positions where it's applicable
     if ([
@@ -471,13 +471,16 @@ const determineGroundAction = (fighter) => {
         probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
         break;
       case 'submission':
-        probability = submissionOffence * 0.3 * attackerStamina;
+        probability = submissionOffence * 0.1 * attackerStamina;
         break;
       case 'rearNakedChoke':
         probability = submissionOffence * 0.35 * attackerStamina;
         break;
       case 'triangleChoke':
         probability = submissionOffence * 0.2 * attackerStamina;
+        break;
+      case 'guillotine':
+        probability = submissionOffence * 0.25 * attackerStamina;
         break;
       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
