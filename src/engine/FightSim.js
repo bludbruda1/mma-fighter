@@ -17,7 +17,7 @@ import {
   determineGroundAction,
 } from "./fightCalculations.js";
 import { calculateRoundStats } from "./FightStatistics.js";
-import { doApplyChoke, doEngageArm, doLockChoke } from "./subStages.js"
+import { doApplyChoke, doEngageArm, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure } from "./subStages.js"
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
@@ -1125,14 +1125,14 @@ const doSubmission = (attacker, defender) => {
 };
 
 /**
- * Perform a rear naked choke action
+ * Perform a rear-naked choke action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @returns {[string, number]} Outcome of the action, time passed
  */
 
 const doRearNakedChoke = (attacker, defender) => {
-  console.log(`${attacker.name} is looking for a Rear Naked Choke on ${defender.name}`);
+  console.log(`${attacker.name} is looking for a Rear-Naked Choke on ${defender.name}`);
 
   let timePassed = 0 // This will be updated with each stage in the submission
   let outcome = "";
@@ -1150,7 +1150,8 @@ const doRearNakedChoke = (attacker, defender) => {
         timePassed += simulateTimePassing("submission");
         outcome = "submissionSuccessful";
         updateFightStats(attacker, defender, "submission", "rearNakedChoke", "successful");
-        console.log(`${attacker.name} successfully submits ${defender.name} with a Rear Naked Choke!`);
+        console.log(`${attacker.name} successfully submits ${defender.name} with a Rear-Naked Choke!`);
+        defender.isSubmitted = true;
       } else {
         outcome = "submissionDefended";
         updateFightStats(attacker, defender, "submission", "rearNakedChoke", "defended");
@@ -1165,6 +1166,50 @@ const doRearNakedChoke = (attacker, defender) => {
   }
 
   return [outcome, timePassed, "Rear-Naked Choke" ];
+};
+
+/**
+ * Perform a triangle choke action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {[string, number]} Outcome of the action, time passed
+ */
+
+const doTriangleChoke = (attacker, defender) => {
+  console.log(`${attacker.name} is looking for a Triangle Choke on ${defender.name}`);
+
+  let timePassed = 0 // This will be updated with each stage in the submission
+  let outcome = "";
+
+  // Stage 1: Engage Arm
+  if (doIsolateArm(attacker, defender)) {
+    timePassed += simulateTimePassing("submission");
+
+    // Stage 2: Lock Choke
+    if (doLockTriangle(attacker, defender)) {
+      timePassed += simulateTimePassing("submission");
+
+      // Stage 3: Apply Choke
+      if (doApplyPressure(attacker, defender)) {
+        timePassed += simulateTimePassing("submission");
+        outcome = "submissionSuccessful";
+        updateFightStats(attacker, defender, "submission", "triangleChoke", "successful");
+        console.log(`${attacker.name} successfully submits ${defender.name} with a Triangle Choke!`);
+        defender.isSubmitted = true;
+      } else {
+        outcome = "submissionDefended";
+        updateFightStats(attacker, defender, "submission", "triangleChoke", "defended");
+      }
+    } else {
+      outcome = "submissionDefended";
+      updateFightStats(attacker, defender, "submission", "triangleChoke", "defended");
+    }
+  } else {
+    outcome = "submissionDefended";
+    updateFightStats(attacker, defender, "submission", "triangleChoke", "defended");
+  }
+
+  return [outcome, timePassed, "Triangle Choke" ];
 };
 
 // Main Simulation Functions
@@ -1297,6 +1342,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
     case "rearNakedChoke":
       [outcome, timePassed, submissionType] = doRearNakedChoke(fighter,opponentFighter);
+      break;
+    case "triangleChoke":
+      [outcome, timePassed, submissionType] = doTriangleChoke(fighter,opponentFighter);
       break;
     default:
       console.error(`Unknown action type: ${actionType}`);
@@ -1723,6 +1771,7 @@ export {
   doGetUp,
   doSubmission,
   doRearNakedChoke,
+  doTriangleChoke,
   FIGHTER_POSITIONS,
   SUBMISSION_TYPES,
 };
