@@ -451,6 +451,13 @@ const determineGroundAction = (fighter) => {
     ].includes(fighter.position)) {
       availableActions.push('submission');
     }
+    // Add traingle option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position)) {
+      availableActions.push('triangleChoke');
+    }
   }
 
   // Calculate probabilities for each available action
@@ -467,7 +474,10 @@ const determineGroundAction = (fighter) => {
         probability = submissionOffence * 0.3 * attackerStamina;
         break;
       case 'rearNakedChoke':
-        probability = submissionOffence * 0.35 * attackerStamina; // Slightly higher probability for RNC
+        probability = submissionOffence * 0.35 * attackerStamina;
+        break;
+      case 'triangleChoke':
+        probability = submissionOffence * 0.2 * attackerStamina;
         break;
       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
