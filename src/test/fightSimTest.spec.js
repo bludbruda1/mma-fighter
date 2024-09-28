@@ -8,7 +8,8 @@ const {
   doGetUp,
   doSubmission,
   doRearNakedChoke,
-  doTriangleChoke
+  doTriangleChoke,
+  doGuillotine
 } = require("../engine/FightSim.js");
 const {FIGHTING_STYLES} = require('../engine/mmaStyles.js');
 
@@ -206,5 +207,22 @@ describe("FightSim Tests", () => {
       const triangleChokeResult = doTriangleChoke(fighter1, fighter2);
       console.log("Rear-Naked Choke Result:", triangleChokeResult);
       expect(triangleChokeResult).toContain("submissionSuccessful");
+    });
+
+    // Test guillotine choke scenario
+    test("Guillotine Action", () => {
+      const fighter1 = createFighter("Fighter 1", {
+        Rating: { submissionOffence: 100 },
+      });
+      const fighter2 = createFighter("Fighter 2", {
+        Rating: { submissionDefence: 0 },
+      });
+  
+      console.log(fighter1.Rating.submissionOffence);
+      fighter1.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+      fighter2.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+      const guillotineResult = doGuillotine(fighter1, fighter2);
+      console.log("Rear-Naked Choke Result:", guillotineResult);
+      expect(guillotineResult).toContain("submissionSuccessful");
     });
 });
