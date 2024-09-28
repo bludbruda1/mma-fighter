@@ -30,7 +30,11 @@ const actionProperties = {
   legKick: { timeRange: [2,4], staminaImpact: 3 },
 
   // Grappling and clinch
-  takedownAttempt: { timeRange: [7,10], staminaImpact: 7 },
+  singleLegTakedown: { timeRange: [5,8], staminaImpact: 6 },
+  doubleLegTakedown: { timeRange: [6,9], staminaImpact: 7 },
+  tripTakedown: { timeRange: [4,7], staminaImpact: 5 },
+  throwTakedown: { timeRange: [5,8], staminaImpact: 8 },
+  sprawl: { timeRange: [3, 6], staminaImpact: 4 },
   getUpAttempt: { timeRange: [5,10], staminaImpact: 5 },
   clinchAttempt: { timeRange: [2,4], staminaImpact: 4 },
   clinchStrike: { timeRange: [2,3], staminaImpact: 3 },
@@ -40,6 +44,7 @@ const actionProperties = {
   // Ground actions
   groundPunch: { timeRange: [1,2], staminaImpact: 2 },
   submission: { timeRange: [7,14], staminaImpact: 10 },
+  rearNakedChoke: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function
   positionAdvance: { timeRange: [6,10], staminaImpact: 5 },
   sweep: { timeRange: [6,10], staminaImpact: 7 },
   escape: { timeRange: [4,8], staminaImpact: 6 },

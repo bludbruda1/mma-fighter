@@ -52,25 +52,48 @@ const calculateTDProbability = (attacker, defender) => {
   const defensiveSkill = defender.Rating.takedownDefence;
   const difference = offensiveSkill - defensiveSkill;
 
+  // Base probabilities
+  let landsChance, defendedChance, sprawlChance;
+
   if (difference >= 15) {
-    return 0.60;
+    landsChance = 0.60;
+    defendedChance = 0.30;
+    sprawlChance = 0.10;
   } else if (difference >= 10) {
-    return 0.50;
+    landsChance = 0.50;
+    defendedChance = 0.35;
+    sprawlChance = 0.15;
   } else if (difference >= 5) {
-    return 0.40;
+    landsChance = 0.40;
+    defendedChance = 0.40;
+    sprawlChance = 0.20;
   } else if (difference >= 1) {
-    return 0.33;
+    landsChance = 0.33;
+    defendedChance = 0.42;
+    sprawlChance = 0.25;
   } else if (difference === 0) {
-    return 0.25;
+    landsChance = 0.25;
+    defendedChance = 0.45;
+    sprawlChance = 0.30;
   } else if (difference >= -4) {
-    return 0.20;
+    landsChance = 0.20;
+    defendedChance = 0.45;
+    sprawlChance = 0.35;
   } else if (difference >= -9) {
-    return 0.125;
+    landsChance = 0.125;
+    defendedChance = 0.475;
+    sprawlChance = 0.40;
   } else if (difference >= -14) {
-    return 0.075;
+    landsChance = 0.075;
+    defendedChance = 0.475;
+    sprawlChance = 0.45;
   } else {
-    return 0.02;
+    landsChance = 0.02;
+    defendedChance = 0.48;
+    sprawlChance = 0.50;
   }
+
+  return { landsChance, defendedChance, sprawlChance };
 };
 
 /**
@@ -362,7 +385,7 @@ const determineStandingAction = (attacker, defender) => {
   if (random < strikeChance) {
     return determineStrikeType(attacker);
   } else if (random < strikeChance + takedownChance) {
-    return "takedownAttempt";
+    return determineTakedownType(attacker);
   } else if (random < strikeChance + takedownChance + clinchChance) {
     return "clinchAttempt";
   } else {
@@ -399,9 +422,12 @@ const determineGroundAction = (fighter) => {
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
       FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
-      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
     ].includes(fighter.position)) {
       availableActions.push('submission');
+    }
+    // Rear naked choke option for back control
+    if (fighter.position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE) {
+      availableActions.push('rearNakedChoke');
     }
   } else {
     if ([
@@ -439,6 +465,9 @@ const determineGroundAction = (fighter) => {
         break;
       case 'submission':
         probability = submissionOffence * 0.3 * attackerStamina;
+        break;
+      case 'rearNakedChoke':
+        probability = submissionOffence * 0.35 * attackerStamina; // Slightly higher probability for RNC
         break;
       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
@@ -565,6 +594,43 @@ const determineStrikeType = (attacker) => {
     kickWeights[2] *= (kickPower + kickSpeed) / 100;     // headKick
 
     return weightedRandomChoice(kickTypes, kickWeights);
+  }
+};
+
+/**
+ * Determines the specific type of takedown for a fighter
+ * @param {Object} attacker - The fighter object
+ * @returns {string} The specific takedown type
+ */
+const determineTakedownType = (attacker) => {
+    
+  // Relevant ratings
+  const wrestlingSkill = attacker.Rating.takedownOffence;
+  const judoSkill = attacker.Rating.clinchTakedown;
+
+  // Calculate probabilities
+  let singleLegProb = 0.3 + (wrestlingSkill / 200);
+  let doubleLegProb = 0.3 + (wrestlingSkill / 200);
+  let tripProb = 0.2 + (judoSkill / 200);
+  let throwProb = 0.2 + (judoSkill / 200);
+
+  // Normalize probabilities
+  const total = singleLegProb + doubleLegProb + tripProb + throwProb;
+  singleLegProb /= total;
+  doubleLegProb /= total;
+  tripProb /= total;
+  throwProb /= total;
+
+  // Choose takedown type based on probabilities
+  const random = Math.random();
+  if (random < singleLegProb) {
+    return "singleLegTakedown";
+  } else if (random < singleLegProb + doubleLegProb) {
+    return "doubleLegTakedown";
+  } else if (random < singleLegProb + doubleLegProb + tripProb) {
+    return "tripTakedown";
+  } else {
+    return "throwTakedown";
   }
 };
 
