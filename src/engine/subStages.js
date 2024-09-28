@@ -1,7 +1,9 @@
 import { calculateProbability } from "./fightCalculations.js";
 
+// Rear-Naked Choke stages
+
 const doEngageArm = (attacker, defender) => {
-    console.log(`${attacker.name} attempts to engage arm for Rear Naked Choke.`);
+    console.log(`${attacker.name} is attempting to get his arm under ${defender.name}'s neck.`);
     
     const successProbability = calculateProbability(
       attacker.Rating.submissionOffence,
@@ -11,10 +13,10 @@ const doEngageArm = (attacker, defender) => {
     const isSuccessful = Math.random() < successProbability;
   
     if (isSuccessful) {
-      console.log(`${attacker.name} successfully engages arm.`);
+      console.log(`${attacker.name} successfully gets his arm under the necks.`);
       return true;
     } else {
-      console.log(`${defender.name} prevents arm engagement.`);
+      console.log(`${defender.name} fights off the arm.`);
       return false;
     }
   };
@@ -40,7 +42,7 @@ const doEngageArm = (attacker, defender) => {
   };
   
   const doApplyChoke = (attacker, defender) => {
-    console.log(`${attacker.name} attempts to apply the Rear Naked Choke.`);
+    console.log(`${attacker.name} is looking to finish the fight .`);
     
     const successProbability = calculateProbability(
       attacker.Rating.submissionOffence,
@@ -50,7 +52,7 @@ const doEngageArm = (attacker, defender) => {
     const isSuccessful = Math.random() < successProbability;
   
     if (isSuccessful) {
-      console.log(`${attacker.name} successfully applies the choke.`);
+      console.log(`${defender.name} taps out.`);
       return true;
     } else {
       console.log(`${defender.name} escapes the choke attempt.`);
@@ -58,4 +60,65 @@ const doEngageArm = (attacker, defender) => {
     }
   };
 
-export { doEngageArm, doApplyChoke, doLockChoke };
+// Triangle Choke stages
+const doIsolateArm = (attacker, defender) => {
+    console.log(`${attacker.name} is trying to to isolate ${attacker.name}'s arm.`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+      console.log(`${attacker.name} successfully trapped the arm.`);
+      return true;
+    } else {
+      console.log(`${defender.name} slips his arm out.`);
+      return false;
+    }
+  };
+
+const doLockTriangle = (attacker, defender) => {
+    console.log(`${attacker.name} is trying to lock in the choke.`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+      console.log(`${attacker.name} successfully forms the triangle.`);
+      return true;
+    } else {
+      console.log(`${defender.name} prevents the choke from being locked in.`);
+      return false;
+    }
+  };
+
+  const doApplyPressure = (attacker, defender) => {
+    console.log(`The triangle choke is locked in!`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+        console.log(`${defender.name} taps out.`);
+        return true;
+    } else {
+        console.log(`${defender.name} escapes.`);
+        return false;
+    }
+  };
+
+
+
+
+export { doEngageArm, doApplyChoke, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure };
