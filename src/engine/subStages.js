@@ -40,29 +40,10 @@ const doEngageArm = (attacker, defender) => {
       return false;
     }
   };
-  
-  const doApplyChoke = (attacker, defender) => {
-    console.log(`${attacker.name} is looking to finish the fight .`);
-    
-    const successProbability = calculateProbability(
-      attacker.Rating.submissionOffence,
-      defender.Rating.submissionDefence
-    );
-  
-    const isSuccessful = Math.random() < successProbability;
-  
-    if (isSuccessful) {
-      console.log(`${defender.name} taps out.`);
-      return true;
-    } else {
-      console.log(`${defender.name} escapes the choke attempt.`);
-      return false;
-    }
-  };
 
 // Triangle Choke stages
 const doIsolateArm = (attacker, defender) => {
-    console.log(`${attacker.name} is trying to to isolate ${attacker.name}'s arm.`);
+    console.log(`${attacker.name} is trying to to isolate ${defender.name}'s arm.`);
     
     const successProbability = calculateProbability(
       attacker.Rating.submissionOffence,
@@ -118,7 +99,67 @@ const doLockTriangle = (attacker, defender) => {
     }
   };
 
+  // Guillotine specific stages
+const doTrapHead = (attacker, defender) => {
+    console.log(`${attacker.name} is trying to to trap ${defender.name}'s head.`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+      console.log(`${attacker.name} successfully trapped the head.`);
+      return true;
+    } else {
+      console.log(`${attacker.name} can't lock in the guillotine.`);
+      return false;
+    }
+  };
+
+const doCloseGuard = (attacker, defender) => {
+    console.log(`${attacker.name} is trying to lock in the choke.`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+      console.log(`${attacker.name} successfully applys the guillotine.`);
+      return true;
+    } else {
+      console.log(`${defender.name} slips his head out.`);
+      return false;
+    }
+  };
+
+  // Multi submission stages
+
+  const doApplyChoke = (attacker, defender) => {
+    console.log(`${attacker.name} is looking to finish the fight .`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+      console.log(`${defender.name} taps out.`);
+      return true;
+    } else {
+      console.log(`${defender.name} escapes the choke attempt.`);
+      return false;
+    }
+  };
 
 
 
-export { doEngageArm, doApplyChoke, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure };
+
+export { doEngageArm, doApplyChoke, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure, doTrapHead, doCloseGuard };
