@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 import { Button, Container, Grid, Typography } from "@mui/material";
@@ -8,8 +8,10 @@ import {
   addEventToDB,
   getNextEventId,
 } from "../utils/indexedDB";
+import { EventContext } from "../contexts/EventContext";
 
 const CreateEvent = () => {
+  const { setEventIds } = useContext(EventContext);
   const [fighters, setFighters] = useState([]);
   const [fights, setFights] = useState(
     Array(5).fill({ fighter1: null, fighter2: null })
@@ -44,6 +46,7 @@ const CreateEvent = () => {
 
         console.log("Event saved successfully:", eventData); // Debugging
 
+        setEventIds((prevEventIds) => [...prevEventIds, eventId]);
         // Redirect to the event's route, passing the event ID
         navigate(`/event/${eventId}`);
       } else {
