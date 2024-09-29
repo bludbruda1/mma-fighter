@@ -27,6 +27,10 @@ const Home = () => {
     navigate("/roster");
   };
 
+  const handleCreateEvent = () => {
+    navigate("/createevent");
+  };
+
   const handleGetStarted = () => {
     navigate("/fight");
   };
@@ -119,6 +123,22 @@ const Home = () => {
               }}
             >
               View Roster
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleCreateEvent}
+              sx={{
+                ...fadeIn,
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
+                color: "#000", // Text color
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.6)", // Darker on hover
+                },
+              }}
+            >
+              Create Event
             </Button>
           </Grid>
           <Grid item>
