@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getEventFromDB } from "../utils/indexedDB"; // Import your function to get event data
-import {
-  Container,
-  Grid,
-  Paper,
-  Typography,
-  Card,
-  CardMedia,
-  CardContent,
-} from "@mui/material";
+import { Container, Grid, Typography } from "@mui/material";
+import FightCard from "../components/FightCard";
 import { formatFightingStyle } from "../utils/uiHelpers";
 
 const Event = () => {
@@ -41,25 +34,32 @@ const Event = () => {
       maxWidth="md"
       style={{ marginTop: "50px", marginBottom: "20px" }}
     >
+      <Typography variant="h4" align="center" gutterBottom>
+        Main Card
+      </Typography>
       {fights.map((fight, index) => {
         const { fighter1, fighter2 } = fight;
         return (
           <Grid
             container
             spacing={3}
-            justifyContent="space-between"
             key={index}
             style={{ marginBottom: "40px" }}
           >
-            <Grid item xs={12}>
-              <Typography variant="h4" align="center" gutterBottom>
-                Fight {index + 1}: {fighter1.firstname} {fighter1.lastname} vs{" "}
-                {fighter2.firstname} {fighter2.lastname}
-              </Typography>
-            </Grid>
             {/* Fighter 1 Card */}
-            <Grid item xs={12} md={5}>
-              <Paper elevation={3}>
+            <Grid item xs={12}>
+              <FightCard
+                selectedItem1={{
+                  ...fighter1,
+                  fightingStyle: formatFightingStyle(fighter1.fightingStyle),
+                }}
+                selectedItem2={{
+                  ...fighter2,
+                  fightingStyle: formatFightingStyle(fighter2.fightingStyle),
+                }}
+                winnerIndex={fight.winnerIndex} // Assuming you have a winnerIndex in fight data
+              />
+              {/* <Paper elevation={3}>
                 <Card>
                   <CardMedia
                     component="img"
@@ -88,10 +88,10 @@ const Event = () => {
                     </Typography>
                   </CardContent>
                 </Card>
-              </Paper>
+              </Paper> */}
             </Grid>
             {/* Fighter 2 Card */}
-            <Grid item xs={12} md={5}>
+            {/* <Grid item xs={12} md={5}>
               <Paper elevation={3}>
                 <Card>
                   <CardMedia
@@ -122,7 +122,7 @@ const Event = () => {
                   </CardContent>
                 </Card>
               </Paper>
-            </Grid>
+            </Grid> */}
           </Grid>
         );
       })}
