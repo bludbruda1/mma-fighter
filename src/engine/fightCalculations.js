@@ -487,6 +487,9 @@ const determineGroundAction = (fighter) => {
       case 'guillotine':
         probability = submissionOffence * 0.25 * attackerStamina;
         break;
+      case 'armbar':
+        probability = submissionOffence * 0.15 * attackerStamina;
+        break;
       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
         break;

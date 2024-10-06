@@ -9,7 +9,8 @@ const {
   doSubmission,
   doRearNakedChoke,
   doTriangleChoke,
-  doGuillotine
+  doGuillotine,
+  doArmbar
 } = require("../engine/FightSim.js");
 const {FIGHTING_STYLES} = require('../engine/mmaStyles.js');
 
@@ -224,5 +225,23 @@ describe("FightSim Tests", () => {
       const guillotineResult = doGuillotine(fighter1, fighter2);
       console.log("Rear-Naked Choke Result:", guillotineResult);
       expect(guillotineResult).toContain("submissionSuccessful");
+    });
+
+    
+    // Test armbar scenario
+    test("Armbar Action", () => {
+      const fighter1 = createFighter("Fighter 1", {
+        Rating: { submissionOffence: 100 },
+      });
+      const fighter2 = createFighter("Fighter 2", {
+        Rating: { submissionDefence: 0 },
+      });
+  
+      console.log(fighter1.Rating.submissionOffence);
+      fighter1.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+      fighter2.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+      const armbarResult = doArmbar(fighter1, fighter2);
+      console.log("Armbar Result:", armbarResult);
+      expect(armbarResult).toContain("submissionSuccessful");
     });
 });

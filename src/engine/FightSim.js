@@ -1859,6 +1859,7 @@ export {
   doRearNakedChoke,
   doTriangleChoke,
   doGuillotine,
+  doArmbar,
   FIGHTER_POSITIONS,
   SUBMISSION_TYPES,
 };
