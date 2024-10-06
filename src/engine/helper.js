@@ -44,10 +44,10 @@ const actionProperties = {
   // Ground actions
   groundPunch: { timeRange: [1,2], staminaImpact: 2 },
   submission: { timeRange: [5,14], staminaImpact: 10 },
-  rearNakedChoke: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function (currently using submission)
-  triangleChoke: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function (currently using submission)
-  guillotine: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function (currently using submission)
-  armbar: { timeRange: [0,1], staminaImpact: 4 }, // time is calculated in each stage of the function (currently using submission)
+  rearNakedChoke: { timeRange: [3,10], staminaImpact: 7 }, 
+  triangleChoke: { timeRange: [3,10], staminaImpact: 7 }, 
+  guillotine: { timeRange: [3,10], staminaImpact: 7 }, 
+  armbar: { timeRange: [3,10], staminaImpact: 4 }, 
   positionAdvance: { timeRange: [6,10], staminaImpact: 5 },
   sweep: { timeRange: [6,10], staminaImpact: 7 },
   escape: { timeRange: [4,8], staminaImpact: 6 },
