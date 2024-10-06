@@ -42,25 +42,6 @@ const doEngageArm = (attacker, defender) => {
   };
 
 // Triangle Choke stages
-const doIsolateArm = (attacker, defender) => {
-    console.log(`${attacker.name} is trying to to isolate ${defender.name}'s arm.`);
-    
-    const successProbability = calculateProbability(
-      attacker.Rating.submissionOffence,
-      defender.Rating.submissionDefence
-    );
-  
-    const isSuccessful = Math.random() < successProbability;
-  
-    if (isSuccessful) {
-      console.log(`${attacker.name} successfully trapped the arm.`);
-      return true;
-    } else {
-      console.log(`${defender.name} slips his arm out.`);
-      return false;
-    }
-  };
-
 const doLockTriangle = (attacker, defender) => {
     console.log(`${attacker.name} is trying to lock in the choke.`);
     
@@ -77,25 +58,6 @@ const doLockTriangle = (attacker, defender) => {
     } else {
       console.log(`${defender.name} prevents the choke from being locked in.`);
       return false;
-    }
-  };
-
-  const doApplyPressure = (attacker, defender) => {
-    console.log(`The triangle choke is locked in!`);
-    
-    const successProbability = calculateProbability(
-      attacker.Rating.submissionOffence,
-      defender.Rating.submissionDefence
-    );
-  
-    const isSuccessful = Math.random() < successProbability;
-  
-    if (isSuccessful) {
-        console.log(`${defender.name} taps out.`);
-        return true;
-    } else {
-        console.log(`${defender.name} escapes.`);
-        return false;
     }
   };
 
@@ -159,7 +121,53 @@ const doCloseGuard = (attacker, defender) => {
     }
   };
 
+// Triangle choke and armbar - might seperate at some point
+  const doIsolateArm = (attacker, defender) => {
+    console.log(`${attacker.name} is trying to to isolate ${defender.name}'s arm.`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+      console.log(`${attacker.name} successfully trapped the arm.`);
+      return true;
+    } else {
+      console.log(`${defender.name} slips his arm out.`);
+      return false;
+    }
+  };
 
+  // Triangle choke and armbar - might seperate at some point
+  const doApplyPressure = (attacker, defender) => {
+    console.log(`The submission is locked in!`);
+    
+    const successProbability = calculateProbability(
+      attacker.Rating.submissionOffence,
+      defender.Rating.submissionDefence
+    );
+  
+    const isSuccessful = Math.random() < successProbability;
+  
+    if (isSuccessful) {
+        console.log(`${defender.name} taps out.`);
+        return true;
+    } else {
+        console.log(`${defender.name} escapes.`);
+        return false;
+    }
+  };
 
-
-export { doEngageArm, doApplyChoke, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure, doTrapHead, doCloseGuard };
+export { 
+doEngageArm,
+doApplyChoke,
+doLockChoke,
+doIsolateArm,
+doLockTriangle,
+doApplyPressure,
+doTrapHead,
+doCloseGuard 
+};
