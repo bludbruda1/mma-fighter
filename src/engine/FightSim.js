@@ -11,7 +11,6 @@ import {
   calculateProbabilities,
   calculateProbability,
   calculateTDProbability,
-  calculateSubmissionProbability,
   determineStandingAction,
   determineClinchAction,
   determineGroundAction,
@@ -57,52 +56,6 @@ const FIGHTER_POSITIONS = {
   GROUND_MOUNT_BOTTOM: "groundMountBottom",
   GROUND_BACK_CONTROL_OFFENCE: "groundBackControlOffence",
   GROUND_BACK_CONTROL_DEFENCE: "groundBackControlDefence",
-};
-
-const SUBMISSION_TYPES = {
-  ARMBAR: {
-    name: "Armbar",
-    difficultyModifier: 1.0,
-    applicablePositions: [
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
-      FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
-      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
-    ],
-  },
-  TRIANGLE_CHOKE: {
-    name: "Triangle Choke",
-    difficultyModifier: 1.2,
-    applicablePositions: [
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
-      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
-    ],
-  },
-  REAR_NAKED_CHOKE: {
-    name: "Rear-Naked Choke",
-    difficultyModifier: 0.8,
-    applicablePositions: [FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE],
-  },
-  LEG_LOCK: {
-    name: "Leg Lock",
-    difficultyModifier: 1.3,
-    applicablePositions: [
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
-      FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP,
-      FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM,
-    ],
-  },
-  GUILLOTINE: {
-    name: "Guillotine",
-    difficultyModifier: 1.1,
-    applicablePositions: [
-      FIGHTER_POSITIONS.STANDING,
-      FIGHTER_POSITIONS.CLINCH_OFFENCE,
-      FIGHTER_POSITIONS.CLINCH_DEFENCE,
-      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
-    ],
-  },
 };
 
 //Functions that set up an action
@@ -1056,75 +1009,6 @@ const doGetUp = (attacker, defender) => {
 };
 
 /**
- * Perform a submission action
- * @param {Object} attacker - Attacking fighter
- * @param {Object} defender - Defending fighter
- * @returns {string} Outcome of the action
- */
-const doSubmission = (attacker, defender) => {
-  // Choose a random submission type from the applicable ones
-  const applicableSubmissions = Object.values(SUBMISSION_TYPES).filter(
-    (submission) => submission.applicablePositions.includes(attacker.position)
-  );
-  const chosenSubmission =
-    applicableSubmissions[
-      Math.floor(Math.random() * applicableSubmissions.length)
-    ];
-
-  console.log(
-    `${attacker.name} attempts a ${chosenSubmission.name} on ${defender.name}`
-  );
-
-  // Calculate submission probabilities
-  const { successChance, defenceChance, escapeChance } =
-    calculateSubmissionProbability(attacker, defender, chosenSubmission);
-
-  // Determine the outcome
-  const outcome = Math.random();
-  const timePassed = simulateTimePassing("submission");
-
-  if (outcome < successChance) {
-    updateFightStats(
-      attacker,
-      defender,
-      "submission",
-      chosenSubmission,
-      "successful"
-    );
-
-    console.log(
-      `${attacker.name} successfully submits ${defender.name} with a ${chosenSubmission.name}!`
-    );
-    defender.isSubmitted = true;
-    return ["submissionSuccessful", timePassed, chosenSubmission.name];
-  } else if (outcome < successChance + defenceChance) {
-    updateFightStats(
-      attacker,
-      defender,
-      "submission",
-      chosenSubmission,
-      "defended"
-    );
-    console.log(
-      `${defender.name} defends against the ${chosenSubmission.name}`
-    );
-    return ["submissionDefended", timePassed, null];
-  } else if (outcome < successChance + defenceChance + escapeChance) {
-    updateFightStats(
-      attacker,
-      defender,
-      "submission",
-      chosenSubmission,
-      "defended"
-    );
-    console.log(
-      `${defender.name} escapes from the ${chosenSubmission.name} attempt`
-    );
-    return ["submissionEscaped", timePassed, null];
-  }
-};
-
-/**
  * Perform a rear-naked choke action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
@@ -1139,15 +1023,15 @@ const doRearNakedChoke = (attacker, defender) => {
 
   // Stage 1: Engage Arm
   if (doEngageArm(attacker, defender)) {
-    timePassed += simulateTimePassing("submission");
+    timePassed += simulateTimePassing("rearNakedChoke");
 
     // Stage 2: Lock Choke
     if (doLockChoke(attacker, defender)) {
-      timePassed += simulateTimePassing("submission");
+      timePassed += simulateTimePassing("rearNakedChoke");
 
       // Stage 3: Apply Choke
       if (doApplyChoke(attacker, defender)) {
-        timePassed += simulateTimePassing("submission");
+        timePassed += simulateTimePassing("rearNakedChoke");
         outcome = "submissionSuccessful";
         updateFightStats(attacker, defender, "submission", "rearNakedChoke", "successful");
         console.log(`${attacker.name} successfully submits ${defender.name} with a Rear-Naked Choke!`);
@@ -1183,15 +1067,15 @@ const doGuillotine = (attacker, defender) => {
 
   // Stage 1: Trap Head
   if (doTrapHead(attacker, defender)) {
-    timePassed += simulateTimePassing("submission");
+    timePassed += simulateTimePassing("guillotine");
 
     // Stage 2: Close Guard 
     if (doCloseGuard(attacker, defender)) {
-      timePassed += simulateTimePassing("submission");
+      timePassed += simulateTimePassing("guillotine");
 
       // Stage 3: Apply Choke
       if (doApplyChoke(attacker, defender)) {
-        timePassed += simulateTimePassing("submission");
+        timePassed += simulateTimePassing("guillotine");
         outcome = "submissionSuccessful";
         updateFightStats(attacker, defender, "submission", "guillotine", "successful");
         console.log(`${attacker.name} successfully submits ${defender.name} with a Guillotine!`);
@@ -1227,15 +1111,15 @@ const doTriangleChoke = (attacker, defender) => {
 
   // Stage 1: Isolate Arm
   if (doIsolateArm(attacker, defender)) {
-    timePassed += simulateTimePassing("submission");
+    timePassed += simulateTimePassing("triangleChoke");
 
     // Stage 2: Lock Choke
     if (doLockTriangle(attacker, defender)) {
-      timePassed += simulateTimePassing("submission");
+      timePassed += simulateTimePassing("triangleChoke");
 
       // Stage 3: Apply Choke
       if (doApplyPressure(attacker, defender)) {
-        timePassed += simulateTimePassing("submission");
+        timePassed += simulateTimePassing("triangleChoke");
         outcome = "submissionSuccessful";
         updateFightStats(attacker, defender, "submission", "triangleChoke", "successful");
         console.log(`${attacker.name} successfully submits ${defender.name} with a Triangle Choke!`);
@@ -1271,11 +1155,11 @@ const doArmbar = (attacker, defender) => {
 
   // Stage 1: Isolate Arm
   if (doIsolateArm(attacker, defender)) {
-    timePassed += simulateTimePassing("submission");
+    timePassed += simulateTimePassing("armbar");
 
     // Stage 2: Apply pressure
     if (doApplyPressure(attacker, defender)) {
-      timePassed += simulateTimePassing("submission");
+      timePassed += simulateTimePassing("armbar");
       outcome = "submissionSuccessful";
       updateFightStats(attacker, defender, "submission", "armbar", "successful");
       console.log(`${attacker.name} successfully submits ${defender.name} with a armbar!`);
@@ -1416,9 +1300,6 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
     case "groundPunch":
       [outcome, timePassed] = doGroundPunch(fighter, opponentFighter);
-      break;
-    case "submission":
-      [outcome, timePassed, submissionType] = doSubmission(fighter,opponentFighter);
       break;
     case "rearNakedChoke":
       [outcome, timePassed, submissionType] = doRearNakedChoke(fighter,opponentFighter);
@@ -1855,11 +1736,9 @@ export {
   doGroundPunch,
   doTakedown,
   doGetUp,
-  doSubmission,
   doRearNakedChoke,
   doTriangleChoke,
   doGuillotine,
   doArmbar,
-  FIGHTER_POSITIONS,
-  SUBMISSION_TYPES,
+  FIGHTER_POSITIONS
 };
