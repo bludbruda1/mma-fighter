@@ -421,9 +421,8 @@ const determineGroundAction = (fighter) => {
     // Add submission option for positions where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
-      FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
     ].includes(fighter.position)) {
-      availableActions.push('submission');
+      availableActions.push('armbar');
     }
     // Rear naked choke option for back control
     if (fighter.position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE) {
@@ -451,6 +450,12 @@ const determineGroundAction = (fighter) => {
     ].includes(fighter.position)) {
       availableActions.push('guillotine');
     }
+      // Add armbar option for positions where it's applicable
+      if ([
+        FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      ].includes(fighter.position)) {
+        availableActions.push('armbar');
+      }
     // Add traingle option for positions where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
