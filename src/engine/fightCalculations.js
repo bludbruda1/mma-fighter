@@ -42,7 +42,7 @@ const calculateProbability = (offenceRating, defenceRating) => {
 };
 
 /**
- * Calculate probability of a successful action
+ * Calculate probability of a successful takedown
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @returns {number} Probability of success
@@ -94,6 +94,73 @@ const calculateTDProbability = (attacker, defender) => {
   }
 
   return { landsChance, defendedChance, sprawlChance };
+};
+
+/**
+ * Calculate probability of a successful submssion
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {number} Probability of success
+ */
+const calculateSubmissionProbability = (attacker, defender) => {
+  const offensiveSkill = attacker.Rating.submissionOffence;
+  const defensiveSkill = defender.Rating.submissionDefence;
+  const difference = offensiveSkill - defensiveSkill;
+
+  // Base probabilities
+  let successChance, failChance;
+
+  if (difference >= 35) {
+    successChance = 0.99;
+    failChance = 0.01;
+  } else if (difference >= 30) {
+    successChance = 0.95;
+    failChance = 0.05;
+  } else if (difference >= 25) {
+    successChance = 0.85;
+    failChance = 0.15;
+  } else if (difference >= 20) {
+    successChance = 0.75;
+    failChance = 0.25;
+  } else if (difference >= 15) {
+    successChance = 0.60;
+    failChance = 0.40;
+  } else if (difference >= 10) {
+    successChance = 0.50;
+    failChance = 0.50;
+  } else if (difference >= 5) {
+    successChance = 0.40;
+    failChance = 0.60;
+  } else if (difference >= 1) {
+    successChance = 0.33;
+    failChance = 0.67;
+  } else if (difference === 0) {
+    successChance = 0.25;
+    failChance = 0.85;
+  } else if (difference >= -4) {
+    successChance = 0.20;
+    failChance = 0.8;
+  } else if (difference >= -9) {
+    successChance = 0.125;
+    failChance = 0.875;
+  } else if (difference >= -14) {
+    successChance = 0.075;
+    failChance = 0.925;
+  } else if (difference >= -20) {
+    successChance = 0.05;
+    failChance = 0.95;
+  } else if (difference >= -30) {
+    successChance = 0.01;
+    failChance = 0.99;
+  } else {
+    successChance = 0.02;
+    failChance = 0.98;
+  }
+
+  console.log(`successChance: ${successChance} failChance: ${failChance}`);
+
+
+  return { successChance, failChance };
 };
 
 /**
@@ -647,6 +714,7 @@ export {
   calculateProbabilities,
   calculateProbability,
   calculateTDProbability,
+  calculateSubmissionProbability,
   calculateStaminaImpact,
   determineStandingAction,
   determineGroundAction,
