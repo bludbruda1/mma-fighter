@@ -47,6 +47,7 @@ const actionProperties = {
   rearNakedChoke: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function (currently using submission)
   triangleChoke: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function (currently using submission)
   guillotine: { timeRange: [0,1], staminaImpact: 7 }, // time is calculated in each stage of the function (currently using submission)
+  armbar: { timeRange: [0,1], staminaImpact: 4 }, // time is calculated in each stage of the function (currently using submission)
   positionAdvance: { timeRange: [6,10], staminaImpact: 5 },
   sweep: { timeRange: [6,10], staminaImpact: 7 },
   escape: { timeRange: [4,8], staminaImpact: 6 },
