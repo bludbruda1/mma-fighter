@@ -1256,6 +1256,42 @@ const doTriangleChoke = (attacker, defender) => {
   return [outcome, timePassed, "Triangle Choke" ];
 };
 
+/**
+ * Perform a armbar action
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {[string, number]} Outcome of the action, time passed
+ */
+
+const doArmbar = (attacker, defender) => {
+  console.log(`${attacker.name} is looking for a armbar on ${defender.name}`);
+
+  let timePassed = 5 // min 5 - This will be updated with each stage in the submission
+  let outcome = "";
+
+  // Stage 1: Isolate Arm
+  if (doIsolateArm(attacker, defender)) {
+    timePassed += simulateTimePassing("submission");
+
+    // Stage 2: Apply pressure
+    if (doApplyPressure(attacker, defender)) {
+      timePassed += simulateTimePassing("submission");
+      outcome = "submissionSuccessful";
+      updateFightStats(attacker, defender, "submission", "armbar", "successful");
+      console.log(`${attacker.name} successfully submits ${defender.name} with a armbar!`);
+      defender.isSubmitted = true;
+    } else {
+      outcome = "submissionDefended";
+      updateFightStats(attacker, defender, "submission", "armbar", "defended");
+    }
+  } else {
+    outcome = "submissionDefended";
+    updateFightStats(attacker, defender, "submission", "armbar", "defended");
+  }
+
+  return [outcome, timePassed, "Armbar" ];
+};
+
 // Main Simulation Functions
 
 /**
@@ -1392,6 +1428,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
     case "guillotine":
       [outcome, timePassed, submissionType] = doGuillotine(fighter,opponentFighter);
+      break;
+    case "armbar":
+      [outcome, timePassed, submissionType] = doArmbar(fighter,opponentFighter);
       break;
     default:
       console.error(`Unknown action type: ${actionType}`);
