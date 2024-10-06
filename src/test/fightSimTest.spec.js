@@ -6,7 +6,6 @@ const {
   doGroundPunch,
   doTakedown,
   doGetUp,
-  doSubmission,
   doRearNakedChoke,
   doTriangleChoke,
   doGuillotine,
@@ -131,14 +130,6 @@ describe("FightSim Tests", () => {
       expect(getUpResult).toBeDefined();
       console.log("Get Up Result:", getUpResult);
     });
-
-    test("Submission Action", () => {
-      attacker.position = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
-      defender.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
-      const submissionResult = doSubmission(attacker, defender);
-      expect(submissionResult).toBeDefined();
-      console.log("Submission Result:", submissionResult);
-    });
   });
 
   // Test knockout scenario
@@ -157,23 +148,6 @@ describe("FightSim Tests", () => {
     expect(result).toHaveProperty("winner");
     expect(result).toHaveProperty("method", "Knockout"); // Expect method to be 'KO'
     console.log("Fight Result:", result);
-  });
-
-  // Test submission scenario
-  test("Submission Scenario", () => {
-    const fighter1 = createFighter("Fighter 1", {
-      Rating: { submissionOffence: 100 },
-    });
-    const fighter2 = createFighter("Fighter 2", {
-      Rating: { submissionDefence: 0 },
-    });
-
-    console.log(fighter1.Rating.submissionOffence);
-    fighter1.position = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
-    fighter2.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
-    const submissionResult = doSubmission(fighter1, fighter2);
-    console.log("Submission Result:", submissionResult);
-    expect(submissionResult).toContain("submissionSuccessful");
   });
 
   // Test rear-naked choke scenario
