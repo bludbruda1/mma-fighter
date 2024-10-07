@@ -109,6 +109,23 @@ export const addEventToDB = async (event) => {
   });
 };
 
+// Function to get all events from IndexedDB
+export const getAllEvents = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("events", "readonly");
+    const store = transaction.objectStore("events");
+    const request = store.getAll();
+
+    request.onsuccess = (event) => {
+      resolve(event.target.result || []); // Ensure an array is returned, even if empty
+    };
+    request.onerror = () => {
+      reject("Error fetching events");
+    };
+  });
+};
+
 // Function to get event data from IndexedDB by event ID
 export const getEventFromDB = async (eventId) => {
   try {

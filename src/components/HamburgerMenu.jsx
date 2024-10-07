@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   CssBaseline,
@@ -17,11 +17,9 @@ import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
-import { EventContext } from "../contexts/EventContext";
 
 // HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
-  const { eventIds } = useContext(EventContext);
   const [open, setOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -106,20 +104,17 @@ const HamburgerMenu = () => {
             </ListItemIcon>
             <ListItemText primary="Fight Screen" sx={{ color: "#fff" }} />
           </ListItem>
-          {eventIds.map((id) => (
-            <ListItem
-              button
-              key={id}
-              component={Link}
-              to={`/event/${id}`}
-              onClick={handleDrawerToggle}
-            >
-              <ListItemIcon sx={{ color: "#fff" }}>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary={`Event ${id}`} sx={{ color: "#fff" }} />
-            </ListItem>
-          ))}
+          <ListItem
+            button
+            component={Link}
+            to="/events"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Events" sx={{ color: "#fff" }} />
+          </ListItem>
         </List>
       </Drawer>
     </>
