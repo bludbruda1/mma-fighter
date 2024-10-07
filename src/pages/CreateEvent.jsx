@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
-import { Button, Container, Grid, Typography } from "@mui/material";
+import {
+  Button,
+  Container,
+  Grid,
+  Typography,
+  MenuItem,
+  Select as MuiSelect,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import Select from "../components/Select";
 import {
   getAllFighters,
@@ -13,9 +22,10 @@ import { EventContext } from "../contexts/EventContext";
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const [fighters, setFighters] = useState([]);
+  const [numFights, setNumFights] = useState(1); // Number of fights to create
   const [fights, setFights] = useState(
-    Array(5).fill({ fighter1: null, fighter2: null })
-  ); // Initialize an array of 5 fights
+    Array(1).fill({ fighter1: null, fighter2: null })
+  ); // Initialize with 1 fight
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,28 +36,29 @@ const CreateEvent = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
+  // Update fights array when the number of fights changes
+  useEffect(() => {
+    setFights(Array(numFights).fill({ fighter1: null, fighter2: null }));
+  }, [numFights]);
+
   const handleSaveEvent = async () => {
     try {
-      // Get the next event ID by incrementing the highest existing ID
       const nextEventId = await getNextEventId();
-      const eventId = String(nextEventId); // Convert the nextEventId to a string
+      const eventId = String(nextEventId);
 
-      // Structure the event data to be saved
       const eventData = {
-        id: eventId, // Use the incremented ID
+        id: eventId,
         fights,
         date: new Date(),
       };
 
       if (fights.every((fight) => fight.fighter1 && fight.fighter2)) {
-        // Save the event data to IndexedDB
-        await addEventToDB(eventData); // Wait for the event to be added
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Add delay
+        await addEventToDB(eventData);
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-        console.log("Event saved successfully:", eventData); // Debugging
+        console.log("Event saved successfully:", eventData);
 
         setEventIds((prevEventIds) => [...prevEventIds, eventId]);
-        // Redirect to the event's route, passing the event ID
         navigate(`/event/${eventId}`);
       } else {
         console.log("Please select fighters for all fights.");
@@ -57,7 +68,7 @@ const CreateEvent = () => {
     }
   };
 
-  // Handle fighter selection for a specific fight (fightIndex = 0 to 4)
+  // Handle fighter selection for a specific fight (fightIndex = 0 to numFights - 1)
   const handleSelectChange = (fightIndex, fighterKey, event) => {
     const selectedId = Number(event.target.value);
     const selectedFighter = fighters.find((x) => x.personid === selectedId);
@@ -87,6 +98,23 @@ const CreateEvent = () => {
             >
               Create Event
             </Typography>
+
+            <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+              <InputLabel id="num-fights-label">Number of Fights</InputLabel>
+              <MuiSelect
+                labelId="num-fights-label"
+                value={numFights}
+                label="Number of Fights"
+                onChange={(e) => setNumFights(Number(e.target.value))}
+              >
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <MenuItem key={num} value={num}>
+                    {num}
+                  </MenuItem>
+                ))}
+              </MuiSelect>
+            </FormControl>
+
             {fights.map((fight, index) => (
               <div key={index} style={{ marginBottom: "30px" }}>
                 <Typography variant="h5" align="center" gutterBottom>
@@ -114,11 +142,12 @@ const CreateEvent = () => {
                 </Grid>
               </div>
             ))}
+
             <Grid container spacing={2} sx={{ justifyContent: "center" }}>
               <Grid item>
                 <Button
                   variant="contained"
-                  onClick={handleSaveEvent} // Save all fights
+                  onClick={handleSaveEvent}
                   sx={{
                     backgroundColor: "rgba(33, 33, 33, 0.9)",
                     color: "#fff",
