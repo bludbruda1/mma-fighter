@@ -59,70 +59,7 @@ const Event = () => {
                 }}
                 winnerIndex={fight.winnerIndex} // Assuming you have a winnerIndex in fight data
               />
-              {/* <Paper elevation={3}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    sx={{
-                      height: 280,
-                      width: "100%",
-                      objectFit: "contain",
-                      bgcolor: "grey.200",
-                    }}
-                    image={fighter1.image || "defaultImage.jpg"} // Use a default image if none is provided
-                    alt={`${fighter1.firstname} ${fighter1.lastname}`}
-                  />
-                  <CardContent>
-                    <Typography variant="body2">
-                      Name: {fighter1.firstname} {fighter1.lastname}
-                    </Typography>
-                    <Typography variant="body2">
-                      Nationality: {fighter1.nationality}
-                    </Typography>
-                    <Typography variant="body2">
-                      Record: {fighter1.wins}W-{fighter1.losses}L
-                    </Typography>
-                    <Typography variant="body2">
-                      Fighting Style:{" "}
-                      {formatFightingStyle(fighter1.fightingStyle)}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Paper> */}
             </Grid>
-            {/* Fighter 2 Card */}
-            {/* <Grid item xs={12} md={5}>
-              <Paper elevation={3}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    sx={{
-                      height: 280,
-                      width: "100%",
-                      objectFit: "contain",
-                      bgcolor: "grey.200",
-                    }}
-                    image={fighter2.image || "defaultImage.jpg"} // Use a default image if none is provided
-                    alt={`${fighter2.firstname} ${fighter2.lastname}`}
-                  />
-                  <CardContent>
-                    <Typography variant="body2">
-                      Name: {fighter2.firstname} {fighter2.lastname}
-                    </Typography>
-                    <Typography variant="body2">
-                      Nationality: {fighter2.nationality}
-                    </Typography>
-                    <Typography variant="body2">
-                      Record: {fighter2.wins}W-{fighter2.losses}L
-                    </Typography>
-                    <Typography variant="body2">
-                      Fighting Style:{" "}
-                      {formatFightingStyle(fighter2.fightingStyle)}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Paper>
-            </Grid> */}
           </Grid>
         );
       })}
