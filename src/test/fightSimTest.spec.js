@@ -114,7 +114,7 @@ describe("FightSim Tests", () => {
     test("Takedown Action", () => {
       attacker.position = FIGHTER_POSITIONS.STANDING;
       defender.position = FIGHTER_POSITIONS.STANDING;
-      const takedownResult = doTakedown(attacker, defender);
+      const takedownResult = doTakedown(attacker, defender, "singleLegTakedown");
       expect(takedownResult).toBeDefined();
       console.log("Takedown Result:", takedownResult);
     });
