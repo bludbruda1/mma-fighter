@@ -1,11 +1,15 @@
-const { simulateFight, FIGHTER_POSITIONS } = require("../engine/FightSim.js");
 const {
+  simulateFight,
+  FIGHTER_POSITIONS,
   doKick,
   doPunch,
   doGroundPunch,
   doTakedown,
   doGetUp,
-  doSubmission,
+  doRearNakedChoke,
+  doTriangleChoke,
+  doGuillotine,
+  doArmbar
 } = require("../engine/FightSim.js");
 const {FIGHTING_STYLES} = require('../engine/mmaStyles.js');
 
@@ -126,14 +130,6 @@ describe("FightSim Tests", () => {
       expect(getUpResult).toBeDefined();
       console.log("Get Up Result:", getUpResult);
     });
-
-    test("Submission Action", () => {
-      attacker.position = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
-      defender.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
-      const submissionResult = doSubmission(attacker, defender);
-      expect(submissionResult).toBeDefined();
-      console.log("Submission Result:", submissionResult);
-    });
   });
 
   // Test knockout scenario
@@ -154,8 +150,8 @@ describe("FightSim Tests", () => {
     console.log("Fight Result:", result);
   });
 
-  // Test submission scenario
-  test("Submission Scenario", () => {
+  // Test rear-naked choke scenario
+  test("Rear-Naked Choke Action", () => {
     const fighter1 = createFighter("Fighter 1", {
       Rating: { submissionOffence: 100 },
     });
@@ -164,10 +160,62 @@ describe("FightSim Tests", () => {
     });
 
     console.log(fighter1.Rating.submissionOffence);
-    fighter1.position = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
-    fighter2.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
-    const submissionResult = doSubmission(fighter1, fighter2);
-    console.log("Submission Result:", submissionResult);
-    expect(submissionResult).toContain("submissionSuccessful");
+    fighter1.position = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE;
+    fighter2.position = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE;
+    const rearNakedChokeResult = doRearNakedChoke(fighter1, fighter2);
+    console.log("Rear-Naked Choke Result:", rearNakedChokeResult);
+    expect(rearNakedChokeResult).toContain("submissionSuccessful");
   });
+
+    // Test triangle choke scenario
+    test("Triangle Choke Action", () => {
+      const fighter1 = createFighter("Fighter 1", {
+        Rating: { submissionOffence: 100 },
+      });
+      const fighter2 = createFighter("Fighter 2", {
+        Rating: { submissionDefence: 0 },
+      });
+  
+      console.log(fighter1.Rating.submissionOffence);
+      fighter1.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+      fighter2.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+      const triangleChokeResult = doTriangleChoke(fighter1, fighter2);
+      console.log("Rear-Naked Choke Result:", triangleChokeResult);
+      expect(triangleChokeResult).toContain("submissionSuccessful");
+    });
+
+    // Test guillotine choke scenario
+    test("Guillotine Action", () => {
+      const fighter1 = createFighter("Fighter 1", {
+        Rating: { submissionOffence: 100 },
+      });
+      const fighter2 = createFighter("Fighter 2", {
+        Rating: { submissionDefence: 0 },
+      });
+  
+      console.log(fighter1.Rating.submissionOffence);
+      fighter1.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+      fighter2.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+      const guillotineResult = doGuillotine(fighter1, fighter2);
+      console.log("Rear-Naked Choke Result:", guillotineResult);
+      expect(guillotineResult).toContain("submissionSuccessful");
+    });
+
+    
+    // Test armbar scenario
+    test("Armbar Action", () => {
+      const fighter1 = createFighter("Fighter 1", {
+        Rating: { submissionOffence: 100 },
+      });
+      const fighter2 = createFighter("Fighter 2", {
+        Rating: { submissionDefence: 0 },
+      });
+  
+      console.log(fighter1.Rating.submissionOffence);
+      fighter1.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+      fighter2.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+      const armbarResult = doArmbar(fighter1, fighter2);
+      console.log("Armbar Result:", armbarResult);
+      expect(armbarResult).toContain("submissionSuccessful");
+    });
 });
