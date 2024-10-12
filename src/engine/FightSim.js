@@ -805,7 +805,13 @@ const doClinchTakedown = (attacker, defender) => {
  * @returns {[string, number]} Outcome of the action, time passed
  */
 const doTakedown = (attacker, defender, takedownType) => {
-  console.log(`${attacker.name} attempts a ${takedownType} takedown on ${defender.name}`);
+  // This just cleans up the text output
+  let displayTakedown = takedownType
+  .replace(/([A-Z])/g, " $1")
+  .trim()
+  .toLowerCase();
+
+  console.log(`${attacker.name} attempts a ${displayTakedown} on ${defender.name}`);
 
   let timePassed = simulateTimePassing(takedownType);
   let outcome = "";
@@ -820,11 +826,11 @@ const doTakedown = (attacker, defender, takedownType) => {
     defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
 
     updateFightStats(attacker, defender, "takedown", takedownType, "successful");
-    console.log(`${attacker.name} successfully takes down ${defender.name} with a ${takedownType}`);
+    console.log(`${attacker.name} successfully takes down ${defender.name} with a ${displayTakedown}`);
     outcome = `${takedownType}Landed`;
   } else if (random < landsChance + defendedChance) {
     updateFightStats(attacker, defender, "takedown", takedownType, "defended");
-    console.log(`${defender.name} defends the ${takedownType} takedown`);
+    console.log(`${defender.name} defends the ${displayTakedown}`);
 
     // Both fighters remain standing
     attacker.position = FIGHTER_POSITIONS.STANDING;
