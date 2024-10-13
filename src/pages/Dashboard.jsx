@@ -127,9 +127,9 @@ const Dashboard = () => {
 
   // Helper function to format the method naming
   const getMethodAbbreviation = (method) => {
-    if (method.toLowerCase().includes('Decision')) return 'DEC';
-    if (method.toLowerCase().includes('Submission')) return 'SUB';
-    if (method.toLowerCase().includes('Knockout')) return 'KO';
+    if (method.toLowerCase().includes('decision')) return 'DEC';
+    if (method.toLowerCase().includes('submission')) return 'SUB';
+    if (method.toLowerCase().includes('knockout')) return 'KO';
     return method.toUpperCase().slice(0, 3); // Fallback for other methods
   };
 
