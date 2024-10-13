@@ -11,7 +11,6 @@ import {
   Box,
   Chip,
   LinearProgress,
-  Divider,
   List,
   ListItem,
   ListItemText,
@@ -328,34 +327,6 @@ const Dashboard = () => {
                   </Grid>
                 ))}
               </Grid>
-            </CardContent>
-          </Card>
-
-          <Card elevation={3} sx={{ mt: 3 }}>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Fighting Style
-              </Typography>
-              {Object.entries(fighter.Tendency).map(
-                ([position, tendencies]) => (
-                  <Box key={position} sx={{ mb: 2 }}>
-                    <Typography variant="h6">
-                      {formatAttributeName(position)}
-                    </Typography>
-                    <Grid container spacing={1}>
-                      {Object.entries(tendencies).map(([action, value]) => (
-                        <Grid item xs={6} sm={4} key={action}>
-                          <Typography variant="body2">
-                            {formatAttributeName(action)}
-                          </Typography>
-                          {renderRatingBar(value)}
-                        </Grid>
-                      ))}
-                    </Grid>
-                    <Divider sx={{ my: 2 }} />
-                  </Box>
-                )
-              )}
             </CardContent>
           </Card>
         </Grid>

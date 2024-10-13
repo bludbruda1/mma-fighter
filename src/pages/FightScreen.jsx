@@ -256,29 +256,6 @@ const FightScreen = () => {
             guillotinesSuccessful: Number(fighter.stats.submissionsLanded) || 0,
             guillotinesDefended: Number(fighter.stats.submissionsDefended) || 0,
           },
-          Tendency: {
-            strikingVsGrappling:
-              Number(fighter.Tendency.strikingVsGrappling) || 0,
-            aggressiveness: Number(fighter.Tendency.aggressiveness) || 0,
-            counterVsInitiator:
-              Number(fighter.Tendency.counterVsInitiator) || 0,
-            standupPreference: {
-              boxing: Number(fighter.Tendency.standupPreference.boxing) || 0,
-              kickBoxing:
-                Number(fighter.Tendency.standupPreference.kickBoxing) || 0,
-              muayThai:
-                Number(fighter.Tendency.standupPreference.muayThai) || 0,
-              karate: Number(fighter.Tendency.standupPreference.karate) || 0,
-              taekwondo:
-                Number(fighter.Tendency.standupPreference.taekwondo) || 0, // Fixed typo: was 'karate'
-            },
-            grapplingPreference: {
-              wrestling:
-                Number(fighter.Tendency.grapplingPreference.wrestling) || 0,
-              judo: Number(fighter.Tendency.grapplingPreference.judo) || 0,
-              bjj: Number(fighter.Tendency.grapplingPreference.bjj) || 0,
-            },
-          },
         };
       };
 
