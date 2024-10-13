@@ -69,7 +69,7 @@ const FIGHTER_POSITIONS = {
 const pickFighter = (fighters, lastActionFighter) => {
   let ratios = [fighters[0].Rating.output, fighters[1].Rating.output];
   if (lastActionFighter !== undefined) {
-    ratios[lastActionFighter] *= 0.9; // Slightly decrease chance of same fighter acting twice in a row
+    ratios[lastActionFighter] *= 0.95; // Slightly decrease chance of same fighter acting twice in a row
   }
   const sum = ratios[0] + ratios[1];
   if (sum === 0) {
