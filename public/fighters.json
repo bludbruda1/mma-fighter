@@ -21,8 +21,6 @@
       "body": 100,
       "legs": 100
     },
-    "stamina": 1000,
-    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 80,
       "strength": 82,
@@ -397,8 +395,6 @@
       "body": 100,
       "legs": 100
     },
-    "stamina": 1000,
-    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 92,
       "strength": 86,
@@ -779,7 +775,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 1,
     "Rating": {
       "output": 90,
@@ -967,7 +963,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 4,
     "Rating": {
       "output": 91,
@@ -1155,7 +1151,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 2,
     "Rating": {
       "output": 93,
@@ -1343,7 +1339,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 5,
     "Rating": {
       "output": 94,
@@ -1531,7 +1527,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 7,
     "Rating": {
       "output": 91,
@@ -1719,7 +1715,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 9,
     "Rating": {
       "output": 90,
@@ -1907,7 +1903,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 6,
     "Rating": {
       "output": 89,
@@ -2095,7 +2091,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 8,
     "Rating": {
       "output": 91,
@@ -2283,7 +2279,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 1,
     "Rating": {
       "output": 97,
@@ -2471,7 +2467,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 10,
     "Rating": {
       "output": 87,
@@ -2659,7 +2655,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 11,
     "Rating": {
       "output": 89,
@@ -2847,7 +2843,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 12,
     "Rating": {
       "output": 90,
@@ -3035,7 +3031,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 13,
     "Rating": {
       "output": 88,
@@ -3224,7 +3220,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 14,
     "Rating": {
       "output": 87,

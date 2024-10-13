@@ -1655,6 +1655,11 @@ const simulateFight = (fighters) => {
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
 
+  // Initialize positions for both fighters
+  fighters.forEach(fighter => {
+    fighter.position = FIGHTER_POSITIONS.STANDING;
+  });
+
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
     console.log(`\n=== Round ${round} ===`);
     const roundResult = simulateRound(fighters, round);

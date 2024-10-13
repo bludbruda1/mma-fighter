@@ -21,7 +21,7 @@ import Select from "../components/Select";
 import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
 import ResultCard from "../components/ResultCard";
-import { simulateFight, FIGHTER_POSITIONS } from "../engine/FightSim";
+import { simulateFight } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
 import {
   calculateFightStats,
@@ -101,7 +101,6 @@ const FightScreen = () => {
             legs: Number(fighter.maxHealth.legs) || 100,
           },
           stamina: Number(fighter.stamina) || 100,
-          position: FIGHTER_POSITIONS.STANDING,
           roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
