@@ -11,7 +11,6 @@ import {
   Box,
   Chip,
   LinearProgress,
-  Divider,
   List,
   ListItem,
   ListItemText,
@@ -128,9 +127,9 @@ const Dashboard = () => {
 
   // Helper function to format the method naming
   const getMethodAbbreviation = (method) => {
-    if (method.toLowerCase().includes('Decision')) return 'DEC';
-    if (method.toLowerCase().includes('Submission')) return 'SUB';
-    if (method.toLowerCase().includes('Knockout')) return 'KO';
+    if (method.toLowerCase().includes('decision')) return 'DEC';
+    if (method.toLowerCase().includes('submission')) return 'SUB';
+    if (method.toLowerCase().includes('knockout')) return 'KO';
     return method.toUpperCase().slice(0, 3); // Fallback for other methods
   };
 
@@ -296,29 +295,39 @@ const Dashboard = () => {
               </Typography>
               <Grid container spacing={2}>
                 {[
-                  "output",
-                  "strength",
-                  "speed",
-                  "cardio",
-                  "toughness",
-                  "striking",
-                  "punchPower",
-                  "kicking",
-                  "kickPower",
-                  "strikingDefence",
-                  "kickDefence",
-                  "takedownOffence",
-                  "takedownDefence",
-                  "clinchOffence",
-                  "clinchDefence",
-                  "clinchControl",
-                  "groundOffence",
-                  "groundDefence",
-                  "groundControl",
-                  "submissionOffence",
-                  "submissionDefence",
-                  "getUpAbility",
-                  "fightIQ",
+                   "output",
+                   "strength",
+                   "speed",
+                   "cardio",
+                   "toughness",
+                   "chin",
+                   "striking",
+                   "punchPower",
+                   "handSpeed",
+                   "punchAccuracy",
+                   "kicking",
+                   "kickPower",
+                   "kickSpeed",
+                   "kickAccuracy",
+                   "strikingDefence",
+                   "kickDefence",
+                   "headMovement",
+                   "footwork",
+                   "takedownOffence",
+                   "takedownDefence",
+                   "clinchStriking",
+                   "clinchTakedown",
+                   "clinchControl",
+                   "clinchDefence",
+                   "groundOffence",
+                   "groundDefence",
+                   "groundControl",
+                   "groundStriking",
+                   "submissionOffence",
+                   "submissionDefence",
+                   "getUpAbility",
+                   "composure",
+                   "fightIQ"
                 ].map((attr) => (
                   <Grid item xs={12} sm={6} key={attr}>
                     <Typography variant="body2">
@@ -328,34 +337,6 @@ const Dashboard = () => {
                   </Grid>
                 ))}
               </Grid>
-            </CardContent>
-          </Card>
-
-          <Card elevation={3} sx={{ mt: 3 }}>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Fighting Style
-              </Typography>
-              {Object.entries(fighter.Tendency).map(
-                ([position, tendencies]) => (
-                  <Box key={position} sx={{ mb: 2 }}>
-                    <Typography variant="h6">
-                      {formatAttributeName(position)}
-                    </Typography>
-                    <Grid container spacing={1}>
-                      {Object.entries(tendencies).map(([action, value]) => (
-                        <Grid item xs={6} sm={4} key={action}>
-                          <Typography variant="body2">
-                            {formatAttributeName(action)}
-                          </Typography>
-                          {renderRatingBar(value)}
-                        </Grid>
-                      ))}
-                    </Grid>
-                    <Divider sx={{ my: 2 }} />
-                  </Box>
-                )
-              )}
             </CardContent>
           </Card>
         </Grid>

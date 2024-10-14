@@ -21,7 +21,6 @@ const createFighter = (name, attributes) => ({
   maxHealth: attributes.maxHealth ||
     attributes.health || { head: 100, body: 100, legs: 100 },
   stamina: 1000,
-  position: FIGHTER_POSITIONS.STANDING,
   fightingStyle: attributes.fightingStyle || "POWER_PUNCHER", // Add this line
   roundsWon: 0,
   Rating: {

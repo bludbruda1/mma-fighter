@@ -21,7 +21,7 @@ import Select from "../components/Select";
 import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
 import ResultCard from "../components/ResultCard";
-import { simulateFight, FIGHTER_POSITIONS } from "../engine/FightSim";
+import { simulateFight } from "../engine/FightSim";
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
 import {
   calculateFightStats,
@@ -101,7 +101,6 @@ const FightScreen = () => {
             legs: Number(fighter.maxHealth.legs) || 100,
           },
           stamina: Number(fighter.stamina) || 100,
-          position: FIGHTER_POSITIONS.STANDING,
           roundsWon: 0,
           Rating: {
             output: Number(fighter.Rating.output) || 0,
@@ -256,29 +255,6 @@ const FightScreen = () => {
               Number(fighter.stats.submissionsAttempted) || 0,
             guillotinesSuccessful: Number(fighter.stats.submissionsLanded) || 0,
             guillotinesDefended: Number(fighter.stats.submissionsDefended) || 0,
-          },
-          Tendency: {
-            strikingVsGrappling:
-              Number(fighter.Tendency.strikingVsGrappling) || 0,
-            aggressiveness: Number(fighter.Tendency.aggressiveness) || 0,
-            counterVsInitiator:
-              Number(fighter.Tendency.counterVsInitiator) || 0,
-            standupPreference: {
-              boxing: Number(fighter.Tendency.standupPreference.boxing) || 0,
-              kickBoxing:
-                Number(fighter.Tendency.standupPreference.kickBoxing) || 0,
-              muayThai:
-                Number(fighter.Tendency.standupPreference.muayThai) || 0,
-              karate: Number(fighter.Tendency.standupPreference.karate) || 0,
-              taekwondo:
-                Number(fighter.Tendency.standupPreference.taekwondo) || 0, // Fixed typo: was 'karate'
-            },
-            grapplingPreference: {
-              wrestling:
-                Number(fighter.Tendency.grapplingPreference.wrestling) || 0,
-              judo: Number(fighter.Tendency.grapplingPreference.judo) || 0,
-              bjj: Number(fighter.Tendency.grapplingPreference.bjj) || 0,
-            },
           },
         };
       };

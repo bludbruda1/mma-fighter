@@ -21,8 +21,6 @@
       "body": 100,
       "legs": 100
     },
-    "stamina": 1000,
-    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 80,
       "strength": 82,
@@ -167,23 +165,6 @@
       "guillotinesAttempted": 0,
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
-    },
-    "Tendency": {
-      "strikingVsGrappling": 92,
-      "aggressiveness": 80,
-      "counterVsInitiator": 65,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 25,
-        "muayThai": 10,
-        "karate": 12,
-        "taekwondo": 3
-      },
-      "grapplingPreference": {
-        "wrestling": 30,
-        "judo": 20,
-        "bjj": 50
-      }
     },
     "fightHistory": [
     {
@@ -397,8 +378,6 @@
       "body": 100,
       "legs": 100
     },
-    "stamina": 1000,
-    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 92,
       "strength": 86,
@@ -543,23 +522,6 @@
       "guillotinesAttempted": 0,
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
-    },
-    "Tendency": {
-      "strikingVsGrappling": 70,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 55,
-        "kickBoxing": 25,
-        "muayThai": 15,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 10,
-        "bjj": 55
-      }
     },
     "fightHistory": [
       {
@@ -779,7 +741,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 1,
     "Rating": {
       "output": 90,
@@ -926,23 +888,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 30,
-      "aggressiveness": 75,
-      "counterVsInitiator": 60,
-      "standupPreference": {
-        "boxing": 40,
-        "kickBoxing": 30,
-        "muayThai": 25,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 65,
-        "judo": 5,
-        "bjj": 30
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -967,7 +912,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 4,
     "Rating": {
       "output": 91,
@@ -1114,23 +1059,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 45,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 35,
-        "muayThai": 15,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 65,
-        "judo": 5,
-        "bjj": 30
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1155,7 +1083,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 2,
     "Rating": {
       "output": 93,
@@ -1302,23 +1230,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 55,
-      "aggressiveness": 85,
-      "counterVsInitiator": 45,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 25,
-        "muayThai": 20,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 25,
-        "judo": 5,
-        "bjj": 70
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1343,7 +1254,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 5,
     "Rating": {
       "output": 94,
@@ -1490,23 +1401,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 90,
-      "aggressiveness": 90,
-      "counterVsInitiator": 40,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 40,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 75,
-        "judo": 5,
-        "bjj": 20
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1531,7 +1425,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 7,
     "Rating": {
       "output": 91,
@@ -1678,23 +1572,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 40,
-      "aggressiveness": 75,
-      "counterVsInitiator": 50,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 35,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 60,
-        "judo": 10,
-        "bjj": 30
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1719,7 +1596,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 9,
     "Rating": {
       "output": 90,
@@ -1866,23 +1743,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 60,
-      "aggressiveness": 85,
-      "counterVsInitiator": 40,
-      "standupPreference": {
-        "boxing": 60,
-        "kickBoxing": 30,
-        "muayThai": 5,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 75,
-        "judo": 5,
-        "bjj": 20
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1907,7 +1767,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 6,
     "Rating": {
       "output": 89,
@@ -2054,23 +1914,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 50,
-      "aggressiveness": 70,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 35,
-        "muayThai": 15,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 40,
-        "judo": 10,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2095,7 +1938,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 8,
     "Rating": {
       "output": 91,
@@ -2242,23 +2085,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 90,
-      "aggressiveness": 80,
-      "counterVsInitiator": 60,
-      "standupPreference": {
-        "boxing": 30,
-        "kickBoxing": 40,
-        "muayThai": 25,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 40,
-        "judo": 10,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2283,7 +2109,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 1,
     "Rating": {
       "output": 97,
@@ -2430,23 +2256,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 95,
-      "aggressiveness": 85,
-      "counterVsInitiator": 50,
-      "standupPreference": {
-        "boxing": 70,
-        "kickBoxing": 20,
-        "muayThai": 7,
-        "karate": 2,
-        "taekwondo": 1
-      },
-      "grapplingPreference": {
-        "wrestling": 40,
-        "judo": 10,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2471,7 +2280,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 10,
     "Rating": {
       "output": 87,
@@ -2618,23 +2427,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 60,
-      "aggressiveness": 65,
-      "counterVsInitiator": 60,
-      "standupPreference": {
-        "boxing": 55,
-        "kickBoxing": 30,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 30,
-        "judo": 10,
-        "bjj": 60
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2659,7 +2451,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 11,
     "Rating": {
       "output": 89,
@@ -2806,23 +2598,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 80,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 30,
-        "muayThai": 20,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 15,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2847,7 +2622,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 12,
     "Rating": {
       "output": 90,
@@ -2994,23 +2769,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 55,
-      "aggressiveness": 85,
-      "counterVsInitiator": 40,
-      "standupPreference": {
-        "boxing": 40,
-        "kickBoxing": 30,
-        "muayThai": 25,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 15,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -3035,7 +2793,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 13,
     "Rating": {
       "output": 88,
@@ -3182,24 +2940,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 70,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 35,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 30,
-        "judo": 10,
-        "bjj": 60
-      }
-    }
-,
     "roundsWon": 0
   },
   {
@@ -3224,7 +2964,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 14,
     "Rating": {
       "output": 87,
@@ -3370,23 +3110,6 @@
       "guillotinesAttempted": 0,
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
-    },
-    "Tendency": {
-      "strikingVsGrappling": 45,
-      "aggressiveness": 80,
-      "counterVsInitiator": 45,
-      "standupPreference": {
-        "boxing": 55,
-        "kickBoxing": 30,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 15,
-        "bjj": 50
-      }
     },
     "roundsWon": 0
   }

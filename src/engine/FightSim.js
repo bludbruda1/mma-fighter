@@ -69,7 +69,7 @@ const FIGHTER_POSITIONS = {
 const pickFighter = (fighters, lastActionFighter) => {
   let ratios = [fighters[0].Rating.output, fighters[1].Rating.output];
   if (lastActionFighter !== undefined) {
-    ratios[lastActionFighter] *= 0.9; // Slightly decrease chance of same fighter acting twice in a row
+    ratios[lastActionFighter] *= 0.95; // Slightly decrease chance of same fighter acting twice in a row
   }
   const sum = ratios[0] + ratios[1];
   if (sum === 0) {
@@ -1654,6 +1654,11 @@ const simulateFight = (fighters) => {
 
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
+
+  // Initialize positions for both fighters
+  fighters.forEach(fighter => {
+    fighter.position = FIGHTER_POSITIONS.STANDING;
+  });
 
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
     console.log(`\n=== Round ${round} ===`);
