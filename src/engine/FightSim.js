@@ -540,48 +540,48 @@ const doWait = (fighter, opponent) => {
 };
 
 /**
- * Perform a ground punch action
+ * Perform a ground strike action
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
+ * @param {string} strikeType - Type of ground strike (punch, elbow)
  * @returns {[string, number]} Outcome of the action and time passed
  */
-const doGroundPunch = (attacker, defender) => {
-  console.log(`${attacker.name} throws a ground punch at ${defender.name}`);
+const doGroundStrike = (attacker, defender, strikeType) => {
+  // This just cleans up the text output
+  let displayStrikeType = strikeType
+  .replace(/([A-Z])/g, " $1")
+  .trim()
+  .toLowerCase();
+  
+  console.log(`${attacker.name} throws a ${displayStrikeType} at ${defender.name}`);
 
   const hitChance = calculateProbability(
-    attacker.Rating.groundOffence,
+    attacker.Rating.groundStriking,
     defender.Rating.groundDefence
   );
 
-  const timePassed = simulateTimePassing("groundPunch");
+  const timePassed = simulateTimePassing(strikeType);
 
   if (Math.random() < hitChance) {
     // Hit logic
-    const damageResult = calculateStrikeDamage(
-      attacker,
-      defender,
-      "groundPunch"
-    );
+    const damageResult = calculateStrikeDamage(attacker, defender, strikeType);
     defender.health[damageResult.target] = Math.max(
       0,
       defender.health[damageResult.target] - damageResult.damage
     );
 
-    updateFightStats(attacker, defender, "punch", "groundPunch", "landed");
+    updateFightStats(attacker, defender, "groundStrike", strikeType, "landed");
 
     console.log(
-      `${defender.name} is hit by the ground punch for ${damageResult.damage} damage to the ${damageResult.target}`
+      `${defender.name} is hit by the ${displayStrikeType} for ${damageResult.damage} damage to the ${damageResult.target}`
     );
 
-    console.log(
-      `${defender.name}'s current health - Head: ${defender.health.head}, Body: ${defender.health.body}, Legs: ${defender.health.legs}`
-    );
-    return ["groundPunchLanded", timePassed];
+    return [`${strikeType}Landed`, timePassed];
   } else {
     // Block logic
-    updateFightStats(attacker, defender, "punch", "groundPunch", "blocked");
-    console.log(`${defender.name} blocks the ground punch`);
-    return ["groundPunchBlocked", timePassed];
+    updateFightStats(attacker, defender, "groundStrike", strikeType, "blocked");
+    console.log(`${defender.name} blocks the ${displayStrikeType}`);
+    return [`${strikeType}Blocked`, timePassed];
   }
 };
 
@@ -1305,7 +1305,8 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       timePassed = simulateTimePassing("escape");
       break;
     case "groundPunch":
-      [outcome, timePassed] = doGroundPunch(fighter, opponentFighter);
+    case "groundElbow":  
+      [outcome, timePassed] = doGroundStrike(fighter, opponentFighter, actionType);
       break;
     case "rearNakedChoke":
       [outcome, timePassed, submissionType] = doRearNakedChoke(fighter,opponentFighter);
@@ -1744,7 +1745,7 @@ export {
   simulateFight,
   doKick,
   doPunch,
-  doGroundPunch,
+  doGroundStrike,
   doTakedown,
   doGetUp,
   doRearNakedChoke,

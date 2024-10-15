@@ -20,6 +20,7 @@ const STRIKE_DAMAGE = {
   takedown: { damage: 1, target: "body" },
   clinchStrike: { damage: 1, target: "head" },
   groundPunch: { damage: 1, target: "head" },
+  groundElbow: { damage: 1, target: "head" },
 };
 
 const POWER_FACTOR = 0.5;
@@ -315,7 +316,7 @@ const determineGroundAction = (fighter) => {
   ].includes(fighter.position);
 
   // Define available actions based on position
-  let availableActions = ['groundPunch', 'getUpAttempt'];
+  let availableActions = ['groundPunch', 'groundElbow','getUpAttempt'];
 
   if (isOffensive) {
     availableActions.push('positionAdvance');
@@ -374,6 +375,9 @@ const determineGroundAction = (fighter) => {
     let probability;
     switch (action) {
       case 'groundPunch':
+        probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
+        break;
+      case 'groundElbow':
         probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
         break;
       case 'rearNakedChoke':
@@ -611,7 +615,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   }
 
    // Determine if it's a punch or a kick
-  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch", "clinchStrike"].includes(strikeType);
+  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch", "groundElbow", "clinchStrike"].includes(strikeType);
 
   // Apply power factor based on the attacker's rating
   const powerFactor = 1 + (isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower) / 100 * POWER_FACTOR;
@@ -645,7 +649,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   let isKnockout = false;
   let isStun = false;
 
-  if (strikeType !== "groundPunch" || strikeType !== "clinchStrike" ) {
+  if (strikeType !== "groundPunch" || strikeType !== "groundElbow" || strikeType !== "clinchStrike" ) {
     knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
     isKnockout = Math.random() < knockoutProbability;
 
