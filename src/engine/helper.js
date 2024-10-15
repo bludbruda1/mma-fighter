@@ -43,6 +43,7 @@ const actionProperties = {
 
   // Ground actions
   groundPunch: { timeRange: [1,2], staminaImpact: 2 },
+  groundElbow: { timeRange: [1,2], staminaImpact: 2 },
   submission: { timeRange: [5,14], staminaImpact: 10 },
   rearNakedChoke: { timeRange: [3,10], staminaImpact: 7 }, 
   triangleChoke: { timeRange: [3,10], staminaImpact: 7 }, 
@@ -164,7 +165,7 @@ const updateFightStats = (attacker, defender, actionType, specificAction, outcom
   }
 
   // If it's a strike, update the total strikes stats
-  if (['punch', 'kick', 'groundPunch', 'clinchStrike'].includes(actionType)) {
+  if (['punch', 'kick', 'groundStrike', 'clinchStrike'].includes(actionType)) {
     attacker.stats.totalStrikesAttempted = (attacker.stats.totalStrikesAttempted || 0) + 1;
     if (outcome === 'landed') {
       attacker.stats.totalStrikesLanded = (attacker.stats.totalStrikesLanded || 0) + 1;
