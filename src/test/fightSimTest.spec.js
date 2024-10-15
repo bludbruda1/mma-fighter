@@ -3,7 +3,7 @@ const {
   FIGHTER_POSITIONS,
   doKick,
   doPunch,
-  doGroundPunch,
+  doGroundStrike,
   doTakedown,
   doGetUp,
   doRearNakedChoke,
@@ -109,9 +109,9 @@ describe("FightSim Tests", () => {
     test("Ground Punch Action", () => {
       attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
       defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-      const groundPunchResult = doGroundPunch(attacker, defender);
-      expect(groundPunchResult).toBeDefined();
-      console.log("Ground Punch Result:", groundPunchResult);
+      const groundStrikeResult = doGroundStrike(attacker, defender, "groundPunch");
+      expect(groundStrikeResult).toBeDefined();
+      console.log("Ground Strike Result:", groundStrikeResult);
     });
 
     test("Takedown Action", () => {
