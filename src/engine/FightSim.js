@@ -556,7 +556,7 @@ const doGroundStrike = (attacker, defender, strikeType) => {
   console.log(`${attacker.name} throws a ${displayStrikeType} at ${defender.name}`);
 
   const hitChance = calculateProbability(
-    attacker.Rating.groundOffence,
+    attacker.Rating.groundStriking,
     defender.Rating.groundDefence
   );
 
