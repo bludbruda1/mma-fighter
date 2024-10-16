@@ -47,12 +47,14 @@ const FIGHTER_POSITIONS = {
   CLINCH_OFFENCE: "clinchOffence",
   CLINCH_DEFENCE: "clinchDefence",
   GROUND_FULL_GUARD_TOP: "groundFullGuardTop",
+  GROUND_FULL_GUARD_POSTURE_UP: "groundFullGuardPostureUp",
   GROUND_FULL_GUARD_BOTTOM: "groundFullGuardBottom",
   GROUND_HALF_GUARD_TOP: "groundHalfGuardTop",
   GROUND_HALF_GUARD_BOTTOM: "groundHalfGuardBottom",
   GROUND_SIDE_CONTROL_TOP: "groundSideControlTop",
   GROUND_SIDE_CONTROL_BOTTOM: "groundSideControlBottom",
   GROUND_MOUNT_TOP: "groundMountTop",
+  GROUND_MOUNT_POSTURE_UP: "groundMountPostureUp",
   GROUND_MOUNT_BOTTOM: "groundMountBottom",
   GROUND_BACK_CONTROL_OFFENCE: "groundBackControlOffence",
   GROUND_BACK_CONTROL_DEFENCE: "groundBackControlDefence",
@@ -843,6 +845,52 @@ const doSprawl = (defender, attacker) => {
 };
 
 /**
+ * Attempt to posture up when either in full mount or full guard
+ * @param {Object} attacker - Attacking fighter attempting to posture up
+ * @param {Object} defender - Defending fighter
+ * @returns {string} Outcome of the action
+ */
+const doPostureUp = (attacker, defender) => {
+  console.log(`${attacker.name} attempts to posture up`);
+
+  const successProbability = calculateProbability(
+    attacker.Rating.groundOffence,
+    defender.Rating.groundDefence
+  );
+
+  const timePassed = simulateTimePassing("postureUp");
+
+  if (Math.random() < successProbability) {
+    let newAttackerPosition, newDefenderPosition;
+
+    switch (attacker.position) {
+      case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP;
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        break;
+      case FIGHTER_POSITIONS.GROUND_MOUNT_TOP:
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP;
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
+        break;
+      default:
+        return ["postureUpInvalid", timePassed] ;
+    }
+
+    attacker.position = newAttackerPosition;
+    defender.position = newDefenderPosition;
+
+    console.log(
+      `${attacker.name} successfully postures up`
+    );
+    return ["postureUpSuccessful", timePassed] ;
+
+  } else {
+    console.log(`${defender.name} keeps ${attacker.name} in guard`);
+    return ["postureUpUnsuccessful", timePassed] ;
+  }
+};
+
+/**
  * Attempt to advance position in ground fighting
  * @param {Object} attacker - Attacking fighter attempting to advance position
  * @param {Object} defender - Defending fighter
@@ -1292,6 +1340,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       outcome = doGetUp(fighter, opponentFighter);
       timePassed = simulateTimePassing("getUpAttempt");
       break;
+    case "postureUp":     
+    [outcome, timePassed] = doPostureUp(fighter, opponentFighter);
+    break;
     case "positionAdvance":
       outcome = doPositionAdvance(fighter, opponentFighter);
       timePassed = simulateTimePassing("positionAdvance");

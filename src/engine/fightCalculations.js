@@ -309,9 +309,11 @@ const determineGroundAction = (fighter) => {
   // Determine if the fighter is in an offensive or defensive position
   const isOffensive = [
     FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+    FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP,
     FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP,
     FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP,
     FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+    FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP,
     FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
   ].includes(fighter.position);
 
@@ -320,13 +322,20 @@ const determineGroundAction = (fighter) => {
 
   if (isOffensive) {
     availableActions.push('positionAdvance');
-    // Add submission option for positions where it's applicable
+    // Add option for posturing up where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+      FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+    ].includes(fighter.position)) {
+      availableActions.push('postureUp');
+    }
+    // Add armbar option for positions where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
     ].includes(fighter.position)) {
       availableActions.push('armbar');
     }
-    // Rear naked choke option for back control
+    // Add rear-naked choke option for positions where it's applicable
     if (fighter.position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE) {
       availableActions.push('rearNakedChoke');
     }
@@ -391,6 +400,9 @@ const determineGroundAction = (fighter) => {
         break;
       case 'armbar':
         probability = submissionOffence * 0.15 * attackerStamina;
+        break;
+      case 'postureUp':
+        probability = groundOffence * 0.2 * attackerStamina;
         break;
       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
