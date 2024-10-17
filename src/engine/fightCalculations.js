@@ -638,6 +638,17 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   // Calculate total damage
   let totalDamage = Math.round(baseDamage * powerFactor * variability);
 
+  // Calculate damage multiplier for postured-up positions
+  let postureDamageMultiplier = 1;
+  if (attacker.position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP ||
+      attacker.position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP) {
+    // Increase damage by 30-50% when postured up
+    postureDamageMultiplier = 1 + (0.3 + Math.random() * 0.2);
+  }
+
+  // Apply the multiplier to the total damage
+  totalDamage = Math.round(totalDamage * postureDamageMultiplier);
+
   // Check for critical hit
   const isCritical = Math.random() < CRITICAL_HIT_CHANCE;
   if (isCritical) {
