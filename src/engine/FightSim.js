@@ -891,6 +891,50 @@ const doPostureUp = (attacker, defender) => {
 };
 
 /**
+ * Attempt to pull a postured-up fighter back into guard
+ * @param {Object} defender - Fighter in bottom position attempting to pull into guard
+ * @param {Object} attacker - Postured-up fighter
+ * @returns {[string, number]} Outcome of the action and time passed
+ */
+const doPullIntoGuard = (defender, attacker) => {
+  console.log(`${defender.name} attempts to pull ${attacker.name} back into guard`);
+
+  // Calculate success probability based on defender's ground skills and attacker's posture control
+  const successProbability = calculateProbability(
+    defender.Rating.groundDefence,
+    attacker.Rating.groundControl
+  );
+
+  const timePassed = simulateTimePassing("pullIntoGuard");
+
+  if (Math.random() < successProbability) {
+    let newDefenderPosition, newAttackerPosition;
+
+    switch (attacker.position) {
+      case FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP:
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        break;
+      case FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP:
+        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        break;
+      default:
+        return ["pullIntoGuardInvalid", timePassed];
+    }
+
+    defender.position = newDefenderPosition;
+    attacker.position = newAttackerPosition;
+
+    console.log(`${defender.name} successfully pulls ${attacker.name} back into guard`);
+    return ["pullIntoGuardSuccessful", timePassed];
+  } else {
+    console.log(`${defender.name} fails to pull ${attacker.name} back into guard`);
+    return ["pullIntoGuardUnsuccessful", timePassed];
+  }
+};
+
+/**
  * Attempt to advance position in ground fighting
  * @param {Object} attacker - Attacking fighter attempting to advance position
  * @param {Object} defender - Defending fighter
@@ -1253,17 +1297,19 @@ const determineAction = (fighter, opponent) => {
     return determineStandingAction(fighter, opponent);
   } else if (
     position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP ||
+    position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP ||
     position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM ||
     position === FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP ||
     position === FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM ||
     position === FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP ||
     position === FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM ||
     position === FIGHTER_POSITIONS.GROUND_MOUNT_TOP ||
+    position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP ||
     position === FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM ||
     position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE ||
     position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
   ) {
-    return determineGroundAction(fighter);
+    return determineGroundAction(fighter, opponent);
   } else if (
     position === FIGHTER_POSITIONS.CLINCH_OFFENCE ||
     position === FIGHTER_POSITIONS.CLINCH_DEFENCE
@@ -1342,6 +1388,9 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
     case "postureUp":     
     [outcome, timePassed] = doPostureUp(fighter, opponentFighter);
+    break;
+    case "pullIntoGuard":     
+    [outcome, timePassed] = doPullIntoGuard(fighter, opponentFighter);
     break;
     case "positionAdvance":
       outcome = doPositionAdvance(fighter, opponentFighter);
