@@ -50,6 +50,7 @@ const actionProperties = {
   guillotine: { timeRange: [3,10], staminaImpact: 7 }, 
   armbar: { timeRange: [3,10], staminaImpact: 4 }, 
   postureUp: { timeRange: [3,6], staminaImpact: 3 },
+  pullIntoGuard: { timeRange: [3,6], staminaImpact: 3 },
   positionAdvance: { timeRange: [6,10], staminaImpact: 5 },
   sweep: { timeRange: [6,10], staminaImpact: 7 },
   escape: { timeRange: [4,8], staminaImpact: 6 },
