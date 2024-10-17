@@ -300,7 +300,7 @@ const determineStandingAction = (attacker, defender) => {
  * @param {Object} fighter - The fighter object
  * @returns {string} The determined action
  */
-const determineGroundAction = (fighter) => {
+const determineGroundAction = (fighter, opponent) => {
   const groundOffence = fighter.Rating.groundOffence;
   const groundDefence = fighter.Rating.groundDefence;
   const submissionOffence = fighter.Rating.submissionOffence;
@@ -346,6 +346,14 @@ const determineGroundAction = (fighter) => {
       FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
     ].includes(fighter.position)) {
       availableActions.push('sweep');
+    }
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position) && 
+    (opponent.position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP || 
+     opponent.position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP)) {
+      availableActions.push('pullIntoGuard');
     }
     if ([
       FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
@@ -404,7 +412,10 @@ const determineGroundAction = (fighter) => {
       case 'postureUp':
         probability = groundOffence * 0.2 * attackerStamina;
         break;
-      case 'positionAdvance':
+      case 'pullIntoGuard':
+        probability = groundDefence * 0.2 * attackerStamina;
+        break;
+       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
         break;
       case 'sweep':
