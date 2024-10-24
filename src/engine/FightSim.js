@@ -2,7 +2,6 @@ import {
   formatTime,
   simulateTimePassing,
   isKnockedOut,
-  recoverStaminaEndRound,
   updateFightStats,
 } from "./helper.js";
 import {
@@ -14,6 +13,7 @@ import {
   determineClinchAction,
   determineGroundAction,
   calculateStaminaImpact,
+  recoverStaminaEndRound,
 } from "./fightCalculations.js";
 import { calculateRoundStats } from "./FightStatistics.js";
 import { doApplyChoke, doEngageArm, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure, doTrapHead, doCloseGuard } from "./subStages.js"

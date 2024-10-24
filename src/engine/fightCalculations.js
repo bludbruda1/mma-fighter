@@ -653,6 +653,39 @@ const calculateStaminaImpact = (action, cardio, currentStamina, bodyDamage, tota
 };
 
 /**
+ * Calculate stamina recovery at the end of a round
+ * @param {number} currentStamina - Current stamina level
+ * @param {number} cardio - Fighter's cardio rating (0-100)
+ * @param {number} bodyDamage - Current body damage
+ * @returns {number} New stamina value after recovery
+ */
+const recoverStaminaEndRound = (currentStamina, cardio, bodyDamage) => {
+  // Ensure currentStamina is not negative
+  const validCurrentStamina = Math.max(0, currentStamina);
+
+  // Calculate missing stamina
+  const missingStamina = 100 - validCurrentStamina;
+  
+  // Base recovery amount
+  let recovery = missingStamina * STAMINA_FACTORS.ROUND_BREAK_RECOVERY;
+  
+  // Apply cardio modifier
+  const cardioModifier = STAMINA_FACTORS.CARDIO_MODIFIER_MIN + 
+    ((cardio / 100) * (STAMINA_FACTORS.CARDIO_MODIFIER_MAX - STAMINA_FACTORS.CARDIO_MODIFIER_MIN));
+  recovery *= cardioModifier;
+  
+  // Reduce recovery based on body damage
+  const bodyDamageMultiplier = 1 - (bodyDamage * STAMINA_FACTORS.BODY_DAMAGE_FACTOR);
+  recovery *= bodyDamageMultiplier;
+
+  // Calculate new stamina value
+  const newStamina = validCurrentStamina + recovery;
+  
+  // Ensure result is between 0 and 100
+  return Math.min(100, Math.max(0, newStamina));
+};
+
+/**
  * Calculate the damage and effects of a strike
  * @param {Object} attacker - The attacking fighter
  * @param {Object} defender - The defending fighter
@@ -794,6 +827,7 @@ export {
   calculateTDProbability,
   calculateSubmissionProbability,
   calculateStaminaImpact,
+  recoverStaminaEndRound,
   determineStandingAction,
   determineGroundAction,
   determineClinchAction,
