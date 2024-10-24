@@ -300,7 +300,7 @@ const determineStandingAction = (attacker, defender) => {
  * @param {Object} fighter - The fighter object
  * @returns {string} The determined action
  */
-const determineGroundAction = (fighter) => {
+const determineGroundAction = (fighter, opponent) => {
   const groundOffence = fighter.Rating.groundOffence;
   const groundDefence = fighter.Rating.groundDefence;
   const submissionOffence = fighter.Rating.submissionOffence;
@@ -309,9 +309,11 @@ const determineGroundAction = (fighter) => {
   // Determine if the fighter is in an offensive or defensive position
   const isOffensive = [
     FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+    FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP,
     FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP,
     FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP,
     FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+    FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP,
     FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
   ].includes(fighter.position);
 
@@ -320,13 +322,20 @@ const determineGroundAction = (fighter) => {
 
   if (isOffensive) {
     availableActions.push('positionAdvance');
-    // Add submission option for positions where it's applicable
+    // Add option for posturing up where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+      FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+    ].includes(fighter.position)) {
+      availableActions.push('postureUp');
+    }
+    // Add armbar option for positions where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
     ].includes(fighter.position)) {
       availableActions.push('armbar');
     }
-    // Rear naked choke option for back control
+    // Add rear-naked choke option for positions where it's applicable
     if (fighter.position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE) {
       availableActions.push('rearNakedChoke');
     }
@@ -337,6 +346,14 @@ const determineGroundAction = (fighter) => {
       FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
     ].includes(fighter.position)) {
       availableActions.push('sweep');
+    }
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position) && 
+    (opponent.position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP || 
+     opponent.position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP)) {
+      availableActions.push('pullIntoGuard');
     }
     if ([
       FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
@@ -392,7 +409,13 @@ const determineGroundAction = (fighter) => {
       case 'armbar':
         probability = submissionOffence * 0.15 * attackerStamina;
         break;
-      case 'positionAdvance':
+      case 'postureUp':
+        probability = groundOffence * 0.2 * attackerStamina;
+        break;
+      case 'pullIntoGuard':
+        probability = groundDefence * 0.2 * attackerStamina;
+        break;
+       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
         break;
       case 'sweep':
@@ -625,6 +648,17 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
 
   // Calculate total damage
   let totalDamage = Math.round(baseDamage * powerFactor * variability);
+
+  // Calculate damage multiplier for postured-up positions
+  let postureDamageMultiplier = 1;
+  if (attacker.position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP ||
+      attacker.position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP) {
+    // Increase damage by 30-50% when postured up
+    postureDamageMultiplier = 1 + (0.3 + Math.random() * 0.2);
+  }
+
+  // Apply the multiplier to the total damage
+  totalDamage = Math.round(totalDamage * postureDamageMultiplier);
 
   // Check for critical hit
   const isCritical = Math.random() < CRITICAL_HIT_CHANCE;
