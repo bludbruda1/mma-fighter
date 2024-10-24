@@ -2,7 +2,6 @@ import {
   formatTime,
   simulateTimePassing,
   isKnockedOut,
-  calculateStaminaChange,
   recoverStaminaEndRound,
   updateFightStats,
 } from "./helper.js";
@@ -14,12 +13,15 @@ import {
   determineStandingAction,
   determineClinchAction,
   determineGroundAction,
+  calculateStaminaImpact,
 } from "./fightCalculations.js";
 import { calculateRoundStats } from "./FightStatistics.js";
 import { doApplyChoke, doEngageArm, doLockChoke, doIsolateArm, doLockTriangle, doApplyPressure, doTrapHead, doCloseGuard } from "./subStages.js"
 
 // Constants for fight simulation
 const ROUNDS_PER_FIGHT = 3; // Number of rounds in a fight
+
+// Fight state tracking variables
 let totalActionsPerformed = 0;
 
 // Constants for combinations
@@ -1332,12 +1334,16 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   const opponent = actionFighter === 0 ? 1 : 0;
   const fighter = fighters[actionFighter];
   const opponentFighter = fighters[opponent];
+ 
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
 
   let outcome;
   let timePassed = 0;
   let submissionType = null;
+
+  // Update action counters
+  totalActionsPerformed++;
 
   switch (actionType) {
     case "fightStart":
@@ -1427,24 +1433,18 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
       break;
   }
 
-  // Apply stamina impact after the action
-  const staminaChange = calculateStaminaChange(
+  // Calculate stamina impact for the action
+  const staminaImpact = calculateStaminaImpact(
     actionType,
-    fighter.Rating.cardio
+    fighter.Rating.cardio,
+    fighter.stamina,
+    fighter.maxHealth.body - fighter.health.body,
+    totalActionsPerformed
   );
-  fighter.stamina = Math.max(0, fighter.stamina - staminaChange);
 
-  // Handle special cases for stamina impact on the defender
-  if (
-    outcome.includes("Landed") &&
-    (actionType === "bodyKick" || actionType === "bodyPunch")
-  ) {
-    const defenderStaminaChange = staminaChange / 2; // Reduce defender's stamina by half the attacker's stamina change
-    opponentFighter.stamina = Math.max(
-      0,
-      opponentFighter.stamina - defenderStaminaChange
-    );
-  }
+  // Apply stamina impact
+  fighter.stamina = Math.max(0, fighter.stamina - staminaImpact);
+
   console.log(`Action: ${actionType}, Outcome: ${outcome}`);
   console.log(
     `Stamina - ${fighter.name}: ${fighter.stamina.toFixed(2)}, ${
@@ -1475,21 +1475,35 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
  */
 const simulateRound = (fighters, roundNumber) => {
   console.log(`\nRound ${roundNumber} begins!`);
-
-  // Reset fighters to standing position and recover some stamina at the start of the round
-  fighters.forEach((fighter) => {
-    fighter.position = FIGHTER_POSITIONS.STANDING;
-    fighter.stamina = recoverStaminaEndRound(
-      fighter.stamina,
-      fighter.Rating.cardio
-    );
-  });
-
-  // Track initial stats for this round
+  
+  // Track initial stats before stamina recovery
   const initialStats = fighters.map((fighter) => ({
     ...fighter.stats,
     health: { ...fighter.health },
+    stamina: fighter.stamina
   }));
+
+  // Now handle round start recovery and position reset
+  fighters.forEach((fighter) => {
+    // First ensure stamina is not negative
+    fighter.stamina = Math.max(0, fighter.stamina);
+    
+    // Calculate body damage
+    const bodyDamage = fighter.maxHealth.body - fighter.health.body;
+    
+    // Apply stamina recovery
+    fighter.stamina = recoverStaminaEndRound(
+      fighter.stamina,
+      fighter.Rating.cardio,
+      bodyDamage
+    );
+
+    // Reset position
+    fighter.position = FIGHTER_POSITIONS.STANDING;
+    
+    // Log recovery for debugging
+    console.log(`${fighter.name} stamina recovered to: ${fighter.stamina.toFixed(2)}`);
+  });
 
   let lastActionFighter;
   let currentTime = 300; // 5 minutes in seconds
@@ -1544,6 +1558,7 @@ const simulateRound = (fighters, roundNumber) => {
     initialStats[0],
     initialStats[1]
   );
+
 
   // Calculate health lost for each fighter during this round
   const healthLost = fighters.map((fighter, index) => {

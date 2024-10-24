@@ -1,5 +1,6 @@
 import { FIGHTER_POSITIONS } from "./FightSim.js";
 import { FIGHTING_STYLES } from "./mmaStyles.js";
+import { actionProperties, STAMINA_FACTORS } from "./helper.js"
 
 // Constants for strike damages
 const STRIKE_DAMAGE = {
@@ -601,15 +602,54 @@ const weightedRandomChoice = (items, weights) => {
 };
 
 /**
- * Calculate stamina impact on action effectiveness
- * @param {number} stamina - Current stamina of the fighter
- * @param {number} cardio - Cardio rating of the fighter
- * @returns {number} Stamina impact factor
+ * Calculate stamina impact for an action considering multiple factors
+ * @param {string} action - The type of action being performed
+ * @param {number} cardio - Fighter's cardio rating (0-100)
+ * @param {number} currentStamina - Current stamina level
+ * @param {number} bodyDamage - Current body damage
+ * @param {number} totalActionsPerformed - Total actions performed in fight
+ * @param {number} comboCount - Current position in combo (0 for non-combo actions)
+ * @returns {number} The amount of stamina to be reduced
  */
-const calculateStaminaImpact = (stamina, cardio) => {
-  const baseImpact = 0.7 + 0.3 * (stamina / 100); // Effectiveness ranges from 70% to 100%
-  const cardioFactor = 1 + (cardio - 50) / 100; // Cardio rating effect (50 is considered average)
-  return baseImpact * cardioFactor;
+const calculateStaminaImpact = (action, cardio, currentStamina, bodyDamage, totalActionsPerformed, comboCount = 0) => {
+  // Early return for fight start action
+  if (action === 'fightStart') return 0;
+
+  // Ensure all inputs are valid numbers
+  currentStamina = Math.max(0, currentStamina);
+  bodyDamage = Math.max(0, bodyDamage);
+  cardio = Math.min(100, Math.max(0, cardio));
+
+  // Base impact from the action
+  let impact = actionProperties[action].staminaImpact|| 1.0;
+
+  // Apply cardio modifier
+  const cardioModifier = STAMINA_FACTORS.CARDIO_MODIFIER_MIN + 
+    ((cardio / 100) * (STAMINA_FACTORS.CARDIO_MODIFIER_MAX - STAMINA_FACTORS.CARDIO_MODIFIER_MIN));
+  impact /= cardioModifier;
+
+  // Apply body damage penalty
+  const bodyDamageMultiplier = 1 + (bodyDamage * STAMINA_FACTORS.BODY_DAMAGE_FACTOR);
+  impact *= bodyDamageMultiplier;
+
+  // Apply progressive fatigue - with a cap
+  const fatigueMultiplier = Math.min(1.5, 1 + (totalActionsPerformed * STAMINA_FACTORS.FATIGUE_ACCUMULATION));
+  impact *= fatigueMultiplier;
+
+  // Apply combo multiplier if applicable, with diminishing returns
+  if (comboCount > 0) {
+    // Calculate combo multiplier with diminishing returns
+    const comboMultiplier = 1 + (Math.log(comboCount + 1) * 0.05);
+    impact *= comboMultiplier;
+  }
+
+  // Reduce impact if stamina is very low (fighter conserving energy)
+  if (currentStamina < 20) {
+    impact *= 0.8;
+  }
+
+  // Ensure we don't return a negative value
+  return Math.max(0, impact);
 };
 
 /**
