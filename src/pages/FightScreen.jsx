@@ -93,11 +93,33 @@ const FightScreen = () => {
     if (selectedItem1 && selectedItem2) {
       // Reset logger for new fight
       playByPlayLogger.reset();
+
+      // Log initial fight details with proper fighter data
+      playByPlayLogger.logFightStart([
+        {
+          personid: selectedItem1.personid,
+          firstname: selectedItem1.firstname,
+          lastname: selectedItem1.lastname,
+          wins: selectedItem1.wins,
+          losses: selectedItem1.losses,
+          weightClass: selectedItem1.weightClass
+        },
+        {
+          personid: selectedItem2.personid,
+          firstname: selectedItem2.firstname,
+          lastname: selectedItem2.lastname,
+          wins: selectedItem2.wins,
+          losses: selectedItem2.losses,
+          weightClass: selectedItem2.weightClass
+        }
+      ]);
   
       // Function to validate and format fighter data
       const validateFighter = (fighter) => {
         return {
           id: fighter.personid,
+          firstname: fighter.firstname,
+          lastname: fighter.lastname,
           name: `${fighter.firstname} ${fighter.lastname}`,
           fightingStyle: fighter.fightingStyle,
           health: {
@@ -233,32 +255,29 @@ const FightScreen = () => {
           }
         });
   
-        // Update the fighters in the database
-        Promise.all(updatedFighters.map(updateFighter))
-          .then(() => {
-            setFighters(updatedFighters);
-            setFightEvents(fightEvents);
-            setWinnerMessage(
-              `${result.winnerName} defeats ${result.loserName} by ${
-                result.method === "Submission"
-                  ? `${result.method} (${result.submissionType})`
-                  : result.method
-              } in round ${result.roundEnded}!`
-            );
-  
-            // Get and store play-by-play events for the viewer
-            const playByPlayEvents = playByPlayLogger.getFightPlayByPlay(
-              [selectedItem1, selectedItem2],
-              result
-            );
-            setFightEvents(playByPlayEvents);
-          })
-          .catch((error) => console.error("Error updating fighters:", error));
-      } else {
-        setWinnerMessage("Error: Invalid fight result.");
-      }
+      // Update the fighters in the database
+      Promise.all(updatedFighters.map(updateFighter))
+        .then(() => {
+          setFighters(updatedFighters);
+          
+          // Get the events directly from the logger
+          const playByPlayEvents = playByPlayLogger.getFightPlayByPlay();
+          setFightEvents(playByPlayEvents); // Update state with play-by-play events
+
+          setWinnerMessage(
+            `${result.winnerName} defeats ${result.loserName} by ${
+              result.method === "Submission"
+                ? `${result.method} (${result.submissionType})`
+                : result.method
+            } in round ${result.roundEnded}!`
+          );
+        })
+        .catch((error) => console.error("Error updating fighters:", error));
+    } else {
+      setWinnerMessage("Error: Invalid fight result.");
     }
-  };
+  }
+};
 
   // Logic for the View Fight Summary button open state
   const handleDialogOpen = () => {
@@ -594,7 +613,7 @@ const FightScreen = () => {
                 <Button
                   variant="contained"
                   onClick={() => setShowFightViewer(true)}
-                  disabled={!fightEvents.length}
+                  disabled={!selectedItem1 || !selectedItem2 || fightEvents.length === 0}
                   sx={{
                     backgroundColor: "rgba(33, 33, 33, 0.9)",
                     color: "#fff",

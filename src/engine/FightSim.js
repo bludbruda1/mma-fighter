@@ -164,7 +164,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0, currentTime, logge
       defender.health[damageResult.target] - damageResult.damage
     );
 
-    logger.logKick(attacker, defender, kickType, "landed", damageResult, currentTime);
+    logger.logStrike(attacker, defender, kickType, "landed", damageResult, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "landed");
 
     console.log(
@@ -203,7 +203,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0, currentTime, logge
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.kicksBlocked = (defender.stats.kicksBlocked || 0) + 1;
-    logger.logKick(attacker, defender, kickType, "blocked", 0, currentTime);
+    logger.logStrike(attacker, defender, kickType, "blocked", 0, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "blocked");
 
     console.log(`${defender.name} blocks the ${displayKickType}`);
@@ -224,7 +224,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0, currentTime, logge
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.kicksEvaded = (defender.stats.kicksEvaded || 0) + 1;
-    logger.logKick(attacker, defender, kickType, "evaded", 0, currentTime);
+    logger.logStrike(attacker, defender, kickType, "evaded", 0, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "evaded");
 
     console.log(`${defender.name} evades the ${displayKickType}`);
@@ -232,7 +232,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0, currentTime, logge
   } else {
     // Miss logic
     attacker.stats.kicksMissed = (attacker.stats.kicksMissed || 0) + 1;
-    logger.logKick(attacker, defender, kickType, "missed", 0, currentTime);
+    logger.logStrike(attacker, defender, kickType, "missed", 0, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "missed");
 
     console.log(
@@ -312,7 +312,7 @@ const doPunch = (attacker, defender, punchType, comboCount = 0, currentTime, log
       defender.health[damageResult.target] - damageResult.damage
     );
 
-    logger.logPunch(attacker, defender, punchType, "landed", damageResult, currentTime);
+    logger.logStrike(attacker, defender, punchType, "landed", damageResult, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "landed");
 
     outcomeDescription = `${punchType}Landed`;
@@ -346,21 +346,21 @@ const doPunch = (attacker, defender, punchType, comboCount = 0, currentTime, log
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
-    logger.logPunch(attacker, defender, punchType, "blocked", 0, currentTime);
+    logger.logStrike(attacker, defender, punchType, "blocked", 0, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "blocked");
     outcomeDescription = `${punchType}Blocked`;
     console.log(`${defender.name} blocks the ${displayPunchType}`);
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.punchesEvaded = (defender.stats.punchesEvaded || 0) + 1;
-    logger.logPunch(attacker, defender, punchType, "evaded", 0, currentTime);
+    logger.logStrike(attacker, defender, punchType, "evaded", 0, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "evaded");
     outcomeDescription = `${punchType}Evaded`;
     console.log(`${defender.name} evades the ${displayPunchType}`);
   } else {
     // Miss logic
     attacker.stats.punchesMissed = (attacker.stats.punchesMissed || 0) + 1;
-    logger.logPunch(attacker, defender, punchType, "missed", 0, currentTime);
+    logger.logStrike(attacker, defender, punchType, "missed", 0, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "missed");
     outcomeDescription = `${punchType}Missed`;
     console.log(
@@ -476,7 +476,7 @@ const doSeekFinish = (attacker, defender, currentTime, logger) => {
       );
       totalDamage += damageResult.damage;
 
-      logger.logPunch(attacker, defender, strikeType, "landed", damageResult, currentTime);
+      logger.logStrike(attacker, defender, strikeType, "landed", damageResult, currentTime);
       updateFightStats(attacker, defender, "punch", strikeType, "landed");
 
       console.log(
@@ -509,7 +509,7 @@ const doSeekFinish = (attacker, defender, currentTime, logger) => {
       }
     } else {
       console.log(`${attacker.name}'s ${strikeType} misses!`);
-      logger.logPunch(attacker, defender, strikeType, "missed", 0, currentTime);
+      logger.logStrike(attacker, defender, strikeType, "missed", 0, currentTime);
       updateFightStats(attacker, defender, "punch", strikeType, "missed");
       // Higher chance for defender to recover when attacker misses
       if (Math.random() < 0.2) {
@@ -581,7 +581,7 @@ const doGroundStrike = (attacker, defender, strikeType, currentTime, logger) => 
       defender.health[damageResult.target] - damageResult.damage
     );
 
-    logger.logPunch(attacker, defender, strikeType, "landed", damageResult, currentTime);
+    logger.logStrike(attacker, defender, strikeType, "landed", damageResult, currentTime);
     updateFightStats(attacker, defender, "groundStrike", strikeType, "landed");
 
     console.log(
@@ -591,7 +591,7 @@ const doGroundStrike = (attacker, defender, strikeType, currentTime, logger) => 
     return [`${strikeType}Landed`, timePassed];
   } else {
     // Block logic
-    logger.logPunch(attacker, defender, strikeType, "blocker", 0, currentTime);
+    logger.logStrike(attacker, defender, strikeType, "blocked", 0, currentTime);
     updateFightStats(attacker, defender, "groundStrike", strikeType, "blocked");
     console.log(`${defender.name} blocks the ${displayStrikeType}`);
     return [`${strikeType}Blocked`, timePassed];
@@ -694,7 +694,7 @@ const doClinchStrike = (attacker, defender, currentTime, logger) => {
       defender.health[damageResult.target] - damageResult.damage
     );
 
-    logger.logPunch(attacker, defender, "clinchStrike", "landed", damageResult, currentTime);
+    logger.logStrike(attacker, defender, "clinchStrike", "landed", damageResult, currentTime);
     updateFightStats(attacker, defender, "punch", "clinchStrike", "landed");
 
     console.log(
@@ -703,21 +703,21 @@ const doClinchStrike = (attacker, defender, currentTime, logger) => {
     return [`clinchStrikeLanded`, timePassed];
   } else if (outcome < hitChance + blockChance) {
     // Block logic
-    logger.logPunch(attacker, defender, "clinchStrike", "blocked", 0, currentTime);
+    logger.logStrike(attacker, defender, "clinchStrike", "blocked", 0, currentTime);
     updateFightStats(attacker, defender, "punch", "clinchStrike", "blocked");
 
     console.log(`${defender.name} blocks the clinch strike`);
     return [`clinchStrikeBlocked`, timePassed];
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
-    logger.logPunch(attacker, defender, "clinchStrike", "evaded", 0, currentTime);
+    logger.logStrike(attacker, defender, "clinchStrike", "evaded", 0, currentTime);
     updateFightStats(attacker, defender, "punch", "clinchStrike", "evaded");
 
     console.log(`${defender.name} evades the clinch strike`);
     return [`clinchStrikeEvaded`, timePassed];
   } else {
     // Miss logic
-    logger.logPunch(attacker, defender, "clinchStrike", "missed", 0, currentTime);
+    logger.logStrike(attacker, defender, "clinchStrike", "missed", 0, currentTime);
     updateFightStats(attacker, defender, "punch", "clinchStrike", "missed");
 
     console.log(`${attacker.name}'s clinch strike misses ${defender.name}`);
@@ -1540,13 +1540,15 @@ const simulateRound = (fighters, roundNumber, logger) => {
   console.log(`\n=== Round ${roundNumber} ===`);
     
   // Log round start
-  logger.logRoundStart(roundNumber, 300);
+  logger.logRoundStart(roundNumber);
 
   // Track initial stats before stamina recovery
   const initialStats = fighters.map((fighter) => ({
     ...fighter.stats,
     health: { ...fighter.health },
-    stamina: fighter.stamina
+    stamina: fighter.stamina,
+    firstname: fighter.firstname,
+    lastname: fighter.lastname
   }));
 
   // Round start recovery and position reset
@@ -1565,9 +1567,18 @@ const simulateRound = (fighters, roundNumber, logger) => {
     // Reset position
     fighter.position = FIGHTER_POSITIONS.STANDING;
     
-    // Log recovery and new state
-    logger.logRecovery(fighter, previousHealth, fighter.health, 300);
-    logger.logFighterState(fighter, 300);
+    // Log recovery and new state with complete fighter data
+    logger.logRecovery({
+      ...fighter,
+      firstname: fighter.firstname,
+      lastname: fighter.lastname
+    }, previousHealth, fighter.health, 300);
+    
+    logger.logFighterState({
+      ...fighter,
+      firstname: fighter.firstname,
+      lastname: fighter.lastname
+    }, 300);
   });
 
   let lastActionFighter;
