@@ -1,3 +1,5 @@
+import { formatTime } from './helper';
+
 /**
  * Class to log and replay fight events in sequence
  * @class fightPlayByPlayLogger
@@ -9,6 +11,15 @@ class fightPlayByPlayLogger {
       this.currentRound = 1;
       this.roundTime = 300; // 5 minutes in seconds
       this.elapsedTime = 0;
+    }
+
+    /**
+    * Format the current time for display
+    * @param {number} clock - Time in seconds
+    * @returns {string} Formatted time string
+    */
+    formatEventTime(clock) {
+      return formatTime(clock);
     }
   
     /**
@@ -30,6 +41,7 @@ class fightPlayByPlayLogger {
         ...event,
         round: this.currentRound,
         timeElapsed: this.elapsedTime,
+        formattedTime: this.formatEventTime(event.clock)
       };
   
       this.playByPlay.push(fullEvent);
