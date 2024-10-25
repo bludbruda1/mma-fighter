@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { PlayCircleOutline, PauseCircleOutline, FastForward, FastRewind } from '@mui/icons-material';
 import StatBar from "./StatBar";
+import { formatFightEvent, formatFightTime } from '../engine/fightEventFormatter';
 
 const FightViewer = ({ fightEvents, fighters }) => {
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
@@ -25,75 +26,63 @@ const FightViewer = ({ fightEvents, fighters }) => {
     submissionAttempts: [0, 0],
   });
 
-  // Convert event to display text with fight stats tracking
-  const formatEvent = useCallback((event) => {
-    const timeStr = `R${event.round} ${event.formattedTime}`;
-    
-    switch (event.type) {
-      case 'strike':
-        if (event.outcome === 'landed') {
-          setCurrentStats(prev => ({
-            ...prev,
-            strikesLanded: [
-              prev.strikesLanded[0] + (event.attackerId === 0 ? 1 : 0),
-              prev.strikesLanded[1] + (event.attackerId === 1 ? 1 : 0),
-            ],
-            significantStrikes: [
-              prev.significantStrikes[0] + (event.attackerId === 0 && event.damage > 5 ? 1 : 0),
-              prev.significantStrikes[1] + (event.attackerId === 1 && event.damage > 5 ? 1 : 0),
-            ],
-          }));
-        }
-        return `[${timeStr}] ${fighters[event.attackerId].firstname} throws a ${event.strikeType} - ${event.outcome.toUpperCase()}${event.damage ? ` (${event.damage} damage)` : ''}`;
-        
-      case 'takedown':
-        if (event.outcome === 'successful') {
-          setCurrentStats(prev => ({
-            ...prev,
-            takedownsLanded: [
-              prev.takedownsLanded[0] + (event.attackerId === 0 ? 1 : 0),
-              prev.takedownsLanded[1] + (event.attackerId === 1 ? 1 : 0),
-            ],
-          }));
-        }
-        return `[${timeStr}] ${fighters[event.attackerId].firstname} attempts a ${event.takedownType} - ${event.outcome.toUpperCase()}`;
-        
-      case 'submission':
-        if (event.stage === 'attempt') {
-          setCurrentStats(prev => ({
-            ...prev,
-            submissionAttempts: [
-              prev.submissionAttempts[0] + (event.attackerId === 0 ? 1 : 0),
-              prev.submissionAttempts[1] + (event.attackerId === 1 ? 1 : 0),
-            ],
-          }));
-        }
-        return `[${timeStr}] ${fighters[event.attackerId].firstname} attempts a ${event.submissionType} - ${event.stage.toUpperCase()}`;
-        
-      case 'roundStart':
-        return `[${timeStr}] Round ${event.round} begins!`;
-        
-      case 'roundEnd':
-        return `[${timeStr}] End of Round ${event.round}`;
-        
-      case 'fightEnd':
-        return `[${timeStr}] Fight Over - ${fighters[event.winnerId].firstname} wins by ${event.method}`;
-        
-      default:
-        return `[${timeStr}] ${JSON.stringify(event)}`;
+  // Update stats based on event type
+  const updateStats = useCallback((event) => {
+    if (!event) return;
+
+    setCurrentStats(prev => {
+      const newStats = { ...prev };
+
+      switch (event.type) {
+        case 'strike':
+          if (event.outcome === 'landed') {
+            const attackerIndex = event.attackerId;
+            newStats.strikesLanded[attackerIndex]++;
+            if (event.damage > 5) {
+              newStats.significantStrikes[attackerIndex]++;
+            }
+          }
+          break;
+        case 'takedown':
+          if (event.outcome === 'successful') {
+            newStats.takedownsLanded[event.attackerId]++;
+          }
+          break;
+        case 'submission':
+          if (event.stage === 'attempt') {
+            newStats.submissionAttempts[event.attackerId]++;
+          }
+          break;
+        default:
+          break;
+      }
+
+      return newStats;
+    });
+  }, []);
+
+  // Format and display event
+  const processEvent = useCallback((event) => {
+    if (!event) return;
+
+    const formattedEvent = formatFightEvent(event);
+    if (formattedEvent) {
+      const timeStr = formatFightTime(event.round, event.formattedTime);
+      setDisplayedEvents(prev => [...prev, `[${timeStr}] ${formattedEvent}`]);
     }
-  }, [fighters]);
+    updateStats(event);
+  }, [updateStats]);
 
   // Advance to next event
   const advanceEvent = useCallback(() => {
     if (currentEventIndex < fightEvents.length) {
       const event = fightEvents[currentEventIndex];
-      setDisplayedEvents(prev => [...prev, formatEvent(event)]);
+      processEvent(event);
       setCurrentEventIndex(prev => prev + 1);
     } else {
       setIsPlaying(false);
     }
-  }, [currentEventIndex, fightEvents, formatEvent]);
+  }, [currentEventIndex, fightEvents, processEvent]);
 
   // Handle playback
   useEffect(() => {
