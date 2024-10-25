@@ -616,7 +616,7 @@ const doClinch = (attacker, defender, currentTime, logger) => {
     attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENCE;
     defender.position = FIGHTER_POSITIONS.CLINCH_DEFENCE;
 
-    logger.logPositionChange(attacker, defender, attacker.position, currentTime);
+    logger.logClinch(attacker, defender, "successful", currentTime);
     updateFightStats(attacker, defender, "clinch", "clinch", "successful");
 
     console.log(
@@ -625,6 +625,7 @@ const doClinch = (attacker, defender, currentTime, logger) => {
     return "clinchSuccessful";
   } else {
     console.log(`${defender.name} defends the clinch attempt`);
+    logger.logClinch(attacker, defender, "defended", currentTime);
     updateFightStats(attacker, defender, "clinch", "clinch", "defended");
     return "clinchFailed";
   }

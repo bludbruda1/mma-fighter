@@ -84,6 +84,19 @@ class fightPlayByPlayLogger {
         clock: currentTime
       });
     }
+
+    /**
+     * Log a clinch event
+     */
+    logClinch(attacker, defender, outcome, currentTime) {
+      this.logEvent({
+        type: "clinch",
+        attackerId: attacker.id,
+        defenderId: defender.id,
+        outcome: outcome,
+        clock: currentTime
+      });
+    }
   
     /**
      * Log a takedown event
