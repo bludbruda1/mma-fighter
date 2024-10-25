@@ -2,7 +2,6 @@ import {
   formatTime,
   simulateTimePassing,
   isKnockedOut,
-  calculateStaminaChange,
   recoverStaminaEndRound,
   updateFightStats,
 } from "./helper.js";
@@ -116,7 +115,7 @@ const doFightStart = (fighter, opponent) => {
  * @param {number} comboCount - Number of strikes already in this combo
  * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
  */
-const doKick = (attacker, defender, kickType, comboCount = 0) => {
+const doKick = (attacker, defender, kickType, comboCount = 0, currentTime, logger) => {
   // This just cleans up the text output
   let displayKickType = kickType
     .replace(/([A-Z])/g, " $1")
@@ -165,6 +164,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
       defender.health[damageResult.target] - damageResult.damage
     );
 
+    logger.logKick(attacker, defender, kickType, "landed", damageResult, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "landed");
 
     console.log(
@@ -203,6 +203,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.kicksBlocked = (defender.stats.kicksBlocked || 0) + 1;
+    logger.logKick(attacker, defender, kickType, "blocked", 0, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "blocked");
 
     console.log(`${defender.name} blocks the ${displayKickType}`);
@@ -223,6 +224,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.kicksEvaded = (defender.stats.kicksEvaded || 0) + 1;
+    logger.logKick(attacker, defender, kickType, "evaded", 0, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "evaded");
 
     console.log(`${defender.name} evades the ${displayKickType}`);
@@ -230,6 +232,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
   } else {
     // Miss logic
     attacker.stats.kicksMissed = (attacker.stats.kicksMissed || 0) + 1;
+    logger.logKick(attacker, defender, kickType, "missed", 0, currentTime);
     updateFightStats(attacker, defender, "kick", kickType, "missed");
 
     console.log(
@@ -260,7 +263,7 @@ const doKick = (attacker, defender, kickType, comboCount = 0) => {
  * @param {number} comboCount - Number of strikes already in this combo
  * @returns {[string, number, boolean]} Outcome of the action, time passed, and whether a combo follows
  */
-const doPunch = (attacker, defender, punchType, comboCount = 0) => {
+const doPunch = (attacker, defender, punchType, comboCount = 0, currentTime, logger) => {
   // This just cleans up the text output
   let displayPunchType = punchType
     .replace(/([A-Z])/g, " $1")
@@ -309,6 +312,7 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
       defender.health[damageResult.target] - damageResult.damage
     );
 
+    logger.logPunch(attacker, defender, punchType, "landed", damageResult, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "landed");
 
     outcomeDescription = `${punchType}Landed`;
@@ -342,18 +346,21 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
   } else if (outcome < hitChance + blockChance) {
     // Block logic
     defender.stats.punchesBlocked = (defender.stats.punchesBlocked || 0) + 1;
+    logger.logPunch(attacker, defender, punchType, "blocked", 0, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "blocked");
     outcomeDescription = `${punchType}Blocked`;
     console.log(`${defender.name} blocks the ${displayPunchType}`);
   } else if (outcome < hitChance + blockChance + evadeChance) {
     // Evade logic
     defender.stats.punchesEvaded = (defender.stats.punchesEvaded || 0) + 1;
+    logger.logPunch(attacker, defender, punchType, "evaded", 0, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "evaded");
     outcomeDescription = `${punchType}Evaded`;
     console.log(`${defender.name} evades the ${displayPunchType}`);
   } else {
     // Miss logic
     attacker.stats.punchesMissed = (attacker.stats.punchesMissed || 0) + 1;
+    logger.logPunch(attacker, defender, punchType, "missed", 0, currentTime);
     updateFightStats(attacker, defender, "punch", punchType, "missed");
     outcomeDescription = `${punchType}Missed`;
     console.log(
@@ -390,7 +397,7 @@ const doPunch = (attacker, defender, punchType, comboCount = 0) => {
  * @param {string} initialStrike - Type of the initial strike
  * @returns {[string, number]} Full combo outcome and total time passed
  */
-const doCombo = (attacker, defender, initialStrike) => {
+const doCombo = (attacker, defender, initialStrike, currentTime, logger) => {
   let comboCount = 0;
   let totalOutcome = "";
   let totalTime = 0;
@@ -398,8 +405,8 @@ const doCombo = (attacker, defender, initialStrike) => {
 
   while (comboCount < MAX_COMBO_LENGTH) {
     const [outcome, time, comboFollows] = currentStrike.includes("Kick")
-      ? doKick(attacker, defender, currentStrike, comboCount)
-      : doPunch(attacker, defender, currentStrike, comboCount);
+      ? doKick(attacker, defender, currentStrike, comboCount, currentTime, logger)
+      : doPunch(attacker, defender, currentStrike, comboCount, currentTime, logger);
 
     totalOutcome += (comboCount > 0 ? " + " : "") + outcome;
     totalTime += time;
@@ -1322,16 +1329,18 @@ const determineAction = (fighter, opponent) => {
 };
 
 /**
- * Simulate one single action
+ * Simulate a single action in the fight
  * @param {Object[]} fighters - Array of fighter objects
- * @param {number} actionFighter - Index of the current action fighter
- * @param {number} currentTime - Current time in the round
+ * @param {number} actionFighter - Index of the fighter performing the action
+ * @param {number} currentTime - Current time remaining in the round
+ * @param {Object} logger - PlayByPlayLogger instance
  * @returns {[number|null, number, string|null]} Winner (if any), time passed, and submission type (if any)
  */
-const simulateAction = (fighters, actionFighter, currentTime) => {
+const simulateAction = (fighters, actionFighter, currentTime, logger) => {
   const opponent = actionFighter === 0 ? 1 : 0;
   const fighter = fighters[actionFighter];
   const opponentFighter = fighters[opponent];
+ 
   const actionType = determineAction(fighter, opponentFighter);
   console.log(`\n[${formatTime(currentTime)}]`);
 
@@ -1339,10 +1348,15 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   let timePassed = 0;
   let submissionType = null;
 
+  // Update action counters
+  totalActionsPerformed++;
+
   switch (actionType) {
     case "fightStart":
       [outcome, timePassed] = doFightStart(fighter, opponentFighter);
       break;
+
+    // Standing strikes and kicks
     case "jab":
     case "cross":
     case "hook":
@@ -1354,97 +1368,118 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
     case "headKick":
     case "bodyKick":
     case "legKick":
-      [outcome, timePassed] = doCombo(fighter, opponentFighter, actionType);
+      [outcome, timePassed] = doCombo(fighter, opponentFighter, actionType, currentTime, logger);
       break;
+
+    // Clinch actions
     case "clinchAttempt":
-      outcome = doClinch(fighter, opponentFighter);
+      outcome = doClinch(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("clinchAttempt");
       break;
+
     case "clinchExit":
-      outcome = exitClinch(fighter, opponentFighter);
+      outcome = exitClinch(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("clinchExit");
       break;
+
     case "clinchStrike":
-      outcome = doClinchStrike(fighter, opponentFighter);
-      timePassed = simulateTimePassing("clinchStrike");
+      [outcome, timePassed] = doClinchStrike(fighter, opponentFighter, currentTime, logger);
       break;
+
     case "clinchTakedown":
-      outcome = doClinchTakedown(fighter, opponentFighter);
+      outcome = doClinchTakedown(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("clinchTakedown");
       break;
-    case "wait":
-      outcome = doWait(fighter, opponentFighter);
-      timePassed = simulateTimePassing("wait");
-      break;
+
+    // Takedowns
     case "singleLegTakedown":
     case "doubleLegTakedown":
     case "tripTakedown":
-    case "throwTakedown":     
-      [outcome, timePassed] = doTakedown(fighter, opponentFighter, actionType);
+    case "throwTakedown":
+      [outcome, timePassed] = doTakedown(fighter, opponentFighter, actionType, currentTime, logger);
       break;
+
+    // Ground actions
     case "getUpAttempt":
-      outcome = doGetUp(fighter, opponentFighter);
+      outcome = doGetUp(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("getUpAttempt");
       break;
-    case "postureUp":     
-    [outcome, timePassed] = doPostureUp(fighter, opponentFighter);
-    break;
-    case "pullIntoGuard":     
-    [outcome, timePassed] = doPullIntoGuard(fighter, opponentFighter);
-    break;
+
+    case "postureUp":
+      [outcome, timePassed] = doPostureUp(fighter, opponentFighter, currentTime, logger);
+      break;
+
+    case "pullIntoGuard":
+      [outcome, timePassed] = doPullIntoGuard(fighter, opponentFighter, currentTime, logger);
+      break;
+
     case "positionAdvance":
-      outcome = doPositionAdvance(fighter, opponentFighter);
+      outcome = doPositionAdvance(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("positionAdvance");
       break;
+
     case "sweep":
-      outcome = doSweep(fighter, opponentFighter);
+      outcome = doSweep(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("sweep");
       break;
+
     case "escape":
-      outcome = doEscape(fighter, opponentFighter);
+      outcome = doEscape(fighter, opponentFighter, currentTime, logger);
       timePassed = simulateTimePassing("escape");
       break;
+
+    // Ground strikes
     case "groundPunch":
-    case "groundElbow":  
-      [outcome, timePassed] = doGroundStrike(fighter, opponentFighter, actionType);
+    case "groundElbow":
+      [outcome, timePassed] = doGroundStrike(fighter, opponentFighter, actionType, currentTime, logger);
       break;
+
+    // Submissions
     case "rearNakedChoke":
-      [outcome, timePassed, submissionType] = doRearNakedChoke(fighter,opponentFighter);
+      [outcome, timePassed, submissionType] = doRearNakedChoke(fighter, opponentFighter, currentTime, logger);
       break;
+
     case "triangleChoke":
-      [outcome, timePassed, submissionType] = doTriangleChoke(fighter,opponentFighter);
+      [outcome, timePassed, submissionType] = doTriangleChoke(fighter, opponentFighter, currentTime, logger);
       break;
+
     case "guillotine":
-      [outcome, timePassed, submissionType] = doGuillotine(fighter,opponentFighter);
+      [outcome, timePassed, submissionType] = doGuillotine(fighter, opponentFighter, currentTime, logger);
       break;
+
     case "armbar":
-      [outcome, timePassed, submissionType] = doArmbar(fighter,opponentFighter);
+      [outcome, timePassed, submissionType] = doArmbar(fighter, opponentFighter, currentTime, logger);
       break;
+
+    case "wait":
+      outcome = doWait(fighter, opponentFighter, currentTime, logger);
+      timePassed = simulateTimePassing("wait");
+      break;
+
     default:
       console.error(`Unknown action type: ${actionType}`);
       outcome = "unknownAction";
-      timePassed = 1; // Default to 1 second for unknown actions
+      timePassed = 1;
       break;
   }
-
-  // Apply stamina impact after the action
-  const staminaChange = calculateStaminaChange(
-    actionType,
-    fighter.Rating.cardio
-  );
-  fighter.stamina = Math.max(0, fighter.stamina - staminaChange);
-
-  // Handle special cases for stamina impact on the defender
-  if (
-    outcome.includes("Landed") &&
-    (actionType === "bodyKick" || actionType === "bodyPunch")
-  ) {
-    const defenderStaminaChange = staminaChange / 2; // Reduce defender's stamina by half the attacker's stamina change
-    opponentFighter.stamina = Math.max(
-      0,
-      opponentFighter.stamina - defenderStaminaChange
-    );
+  // Log fighter state after action if significant changes occurred
+  if (outcome?.includes('Landed') || outcome?.includes('Successful')) {
+    logger.logFighterState(fighter, currentTime - timePassed);
+    logger.logFighterState(opponentFighter, currentTime - timePassed);
   }
+
+  // Check for knockout or submission
+  let roundWinner = null;
+
+  if (typeof outcome === 'string') {
+    if (outcome.includes('Knockout')) {
+      roundWinner = actionFighter;
+    } else if (outcome.includes('submissionSuccessful')) {
+      roundWinner = actionFighter;
+    }
+  }
+
+  // Debug logging
   console.log(`Action: ${actionType}, Outcome: ${outcome}`);
   console.log(
     `Stamina - ${fighter.name}: ${fighter.stamina.toFixed(2)}, ${
@@ -1453,88 +1488,87 @@ const simulateAction = (fighters, actionFighter, currentTime) => {
   );
   console.log(`Position - ${fighter.name}: ${fighter.position}`);
 
-  // Check for knockout
-  if (opponentFighter.isKnockedOut || isKnockedOut(opponentFighter)) {
-    console.log(`${opponentFighter.name} has been knocked out!`);
-    return [actionFighter, timePassed]; // Return the index of the winning fighter
-  }
-
-  // Check for successful submission
-  if (outcome === "submissionSuccessful") {
-    return [actionFighter, timePassed, submissionType];
-  }
-
-  return [null, timePassed, null];
+  return [roundWinner, timePassed, submissionType];
 };
 
+export { simulateAction };
+
 /**
- * Simulate a single round of the fight
+ * Simulate one single round of the fight
  * @param {Object[]} fighters - Array of fighter objects
  * @param {number} roundNumber - Current round number
- * @returns {Object} Round result including winner (if any) and submission type (if applicable)
+ * @param {Object} logger - PlayByPlayLogger instance
+ * @returns {Object} Round result
  */
-const simulateRound = (fighters, roundNumber) => {
-  console.log(`\nRound ${roundNumber} begins!`);
+const simulateRound = (fighters, roundNumber, logger) => {
+  console.log(`\n=== Round ${roundNumber} ===`);
+    
+  // Log round start
+  logger.logRoundStart(roundNumber, 300);
 
-  // Reset fighters to standing position and recover some stamina at the start of the round
-  fighters.forEach((fighter) => {
-    fighter.position = FIGHTER_POSITIONS.STANDING;
-    fighter.stamina = recoverStaminaEndRound(
-      fighter.stamina,
-      fighter.Rating.cardio
-    );
-  });
-
-  // Track initial stats for this round
+  // Track initial stats before stamina recovery
   const initialStats = fighters.map((fighter) => ({
     ...fighter.stats,
     health: { ...fighter.health },
+    stamina: fighter.stamina
   }));
 
+  // Round start recovery and position reset
+  fighters.forEach((fighter) => {
+    fighter.stamina = Math.max(0, fighter.stamina);
+    const bodyDamage = fighter.maxHealth.body - fighter.health.body;
+    const previousHealth = { ...fighter.health };
+
+    // Apply stamina recovery
+    fighter.stamina = recoverStaminaEndRound(
+      fighter.stamina,
+      fighter.Rating.cardio,
+      bodyDamage
+    );
+
+    // Reset position
+    fighter.position = FIGHTER_POSITIONS.STANDING;
+    
+    // Log recovery and new state
+    logger.logRecovery(fighter, previousHealth, fighter.health, 300);
+    logger.logFighterState(fighter, 300);
+  });
+
   let lastActionFighter;
-  let currentTime = 300; // 5 minutes in seconds
+  let currentTime = 300;
 
   while (currentTime > 0) {
     const actionFighter = pickFighter(fighters, lastActionFighter);
     const [roundWinner, timePassed, submissionType] = simulateAction(
       fighters,
       actionFighter,
-      currentTime
+      currentTime,
+      logger
     );
 
-    // Simulate time passing
     currentTime -= timePassed;
 
-    // Check for KO or submission
     if (roundWinner !== null) {
-      if (submissionType) {
-        console.log(
-          `${
-            fighters[roundWinner].name
-          } wins by ${submissionType} in round ${roundNumber} at ${formatTime(
-            currentTime
-          )}!`
-        );
-      } else {
-        console.log(
-          `${
-            fighters[roundWinner].name
-          } wins by KO in round ${roundNumber} at ${formatTime(currentTime)}!`
-        );
-      }
-      // Calculate round statistics before returning
+      // Calculate round statistics
       const roundStats = calculateRoundStats(
         fighters[0],
         fighters[1],
         initialStats[0],
         initialStats[1]
       );
-      return { winner: roundWinner, submissionType, roundStats, timeRemaining: currentTime };
+
+      return {
+        winner: roundWinner,
+        submissionType,
+        roundStats,
+        timeRemaining: currentTime
+      };
     }
 
     lastActionFighter = actionFighter;
   }
 
+  // End of round processing
   console.log("\n===End of Round===");
 
   // Calculate round statistics
@@ -1545,39 +1579,39 @@ const simulateRound = (fighters, roundNumber) => {
     initialStats[1]
   );
 
-  // Calculate health lost for each fighter during this round
+  // Calculate health lost
   const healthLost = fighters.map((fighter, index) => {
     const initialHealth = initialStats[index].health;
     return (
-      initialHealth.head -
-      fighter.health.head +
+      initialHealth.head - fighter.health.head +
       (initialHealth.body - fighter.health.body) +
       (initialHealth.legs - fighter.health.legs)
     );
   });
 
-  // Determine round winner (fighter who lost less health)
+  // Determine round winner
   let roundWinner;
   if (healthLost[0] < healthLost[1]) {
     roundWinner = 0;
   } else if (healthLost[1] < healthLost[0]) {
     roundWinner = 1;
   } else {
-    // If health lost is equal, 50% chance for each fighter which is to be improved in the future
     roundWinner = Math.random() < 0.5 ? 0 : 1;
   }
 
   fighters[roundWinner].roundsWon++;
 
-  console.log(`\nRound ${roundNumber} Result:`);
-  console.log(`${fighters[0].name}: Lost ${healthLost[0]} health`);
-  console.log(`${fighters[1].name}: Lost ${healthLost[1]} health`);
-  console.log(`${fighters[roundWinner].name} wins the round`);
+  // Log round end
+  logger.logRoundEnd(roundNumber, roundStats, 0);
 
-  // Display round stats
-  displayRoundStats(fighters, roundNumber, initialStats);
-
-  return { winner: null, submissionType: null, roundStats, timeRemaining: 0 }; // no KO or sub
+  return {
+    winner: null,
+    submissionType: null,
+    roundStats,
+    timeRemaining: 0,
+    roundWinner,
+    healthLost
+  };
 };
 
 /**
@@ -1741,103 +1775,83 @@ const displayRoundStats = (fighters, roundNumber, initialStats) => {
 /**
  * Simulate the entire fight
  * @param {Object[]} fighters - Array of fighter objects
- * @returns {Object} Fight result including winner, method, and round ended
+ * @param {Object} logger - PlayByPlayLogger instance
+ * @returns {Object} Fight result
  */
-const simulateFight = (fighters) => {
+const simulateFight = (fighters, logger) => {
   let method = "Decision";
   let roundEnded = ROUNDS_PER_FIGHT;
   let submissionType = null;
   let roundStats = [];
-  let endTime = 0; // Initialize end time
+  let endTime = 0;
 
-  // Reset the total actions performed counter
   totalActionsPerformed = 0;
 
   console.log("\n--- Fight Simulation Begins ---\n");
   console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
 
-  // Initialize positions for both fighters
-  fighters.forEach(fighter => {
-    fighter.position = FIGHTER_POSITIONS.STANDING;
-  });
+  logger.logFightStart(fighters, 300);
 
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
-    console.log(`\n=== Round ${round} ===`);
-    const roundResult = simulateRound(fighters, round);
-
-    // Store round statistics
+    const roundResult = simulateRound(fighters, round, logger);
     roundStats.push(roundResult.roundStats);
 
-    // Calculate end time based on the round and remaining time
-    endTime = (round - 1) * 300 + (300 - roundResult.timeRemaining);
-
-    // Check if the round ended early (KO or submission)
+    // Early stoppage
     if (roundResult.winner !== null) {
-      if (roundResult.submissionType) {
-        method = "Submission";
-        submissionType = roundResult.submissionType;
-      } else {
-        method = "Knockout";
-      }
+      submissionType = roundResult.submissionType;
+      method = submissionType ? "Submission" : "Knockout";
       roundEnded = round;
-      break;
+      endTime = (round - 1) * 300 + (300 - roundResult.timeRemaining);
+
+      // Log fight end
+      logger.logFightEnd({
+        winner: roundResult.winner,
+        winnerName: fighters[roundResult.winner].name,
+        loserName: fighters[1 - roundResult.winner].name,
+        method,
+        submissionType,
+        round: roundEnded,
+        finalHealth: {
+          fighter1: { ...fighters[0].health },
+          fighter2: { ...fighters[1].health }
+        }
+      }, roundResult.timeRemaining);
+
+      return {
+        winner: roundResult.winner,
+        winnerName: fighters[roundResult.winner].name,
+        loserName: fighters[1 - roundResult.winner].name,
+        method,
+        submissionType,
+        roundEnded,
+        endTime,
+        fighterStats: [fighters[0].stats, fighters[1].stats],
+        fighterHealth: [fighters[0].health, fighters[1].health],
+        fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],
+        roundStats,
+      };
     }
-
-    // Reset fighters' health for the next round (with some recovery)
-    fighters.forEach((fighter) => {
-      Object.keys(fighter.health).forEach((part) => {
-        fighter.health[part] = Math.min(
-          fighter.health[part] + 10,
-          fighter.maxHealth[part]
-        );
-      });
-    });
   }
 
-  // Determine the overall winner
-  let winner;
-  if (method === "Decision") {
-    winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
-    if (fighters[0].roundsWon === fighters[1].roundsWon) {
-      method = "draw";
-      winner = "draw";
-    }
-  } else {
-    winner =
-      fighters[0].health.head <= 0 ||
-      fighters[0].health.body <= 0 ||
-      fighters[0].health.legs <= 0 ||
-      fighters[0].isSubmitted
-        ? 1
-        : 0;
+  // Decision handling
+  const winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
+  if (fighters[0].roundsWon === fighters[1].roundsWon) {
+    method = "Draw";
   }
 
-  // Display fight result
-  console.log("\n--- Fight Simulation Ends ---\n");
-  if (method === "draw") {
-    console.log("The fight ends in a draw!");
-  } else {
-    const winMethod =
-      method === "Submission" ? `${method} (${submissionType})` : method;
-    console.log(
-      `${fighters[winner].name} defeats ${
-        fighters[1 - winner].name
-      } by ${winMethod} in round ${roundEnded}!`
-    );
-  }
-
+  // Return fight result
   return {
-    winner: winner === "draw" ? null : winner,
-    winnerName: winner === "draw" ? null : fighters[winner].name,
-    loserName: winner === "draw" ? null : fighters[1 - winner].name,
-    method: method,
-    submissionType: submissionType,
-    roundEnded: roundEnded,
-    endTime: endTime,
+    winner: method === "Draw" ? null : winner,
+    winnerName: method === "Draw" ? null : fighters[winner].name,
+    loserName: method === "Draw" ? null : fighters[1 - winner].name,
+    method,
+    submissionType,
+    roundEnded,
+    endTime: ROUNDS_PER_FIGHT * 300,
     fighterStats: [fighters[0].stats, fighters[1].stats],
     fighterHealth: [fighters[0].health, fighters[1].health],
     fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],
-    roundStats: roundStats, // Add round-by-round statistics to the return object
+    roundStats,
   };
 };
 
