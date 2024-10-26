@@ -106,7 +106,7 @@ const FightViewer = ({ fightEvents, fighters }) => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={fighter.image}
+                  image={fighter.profile}
                   alt={`${fighter.firstname} ${fighter.lastname}`}
                   sx={{ objectFit: "contain" }}
                 />
