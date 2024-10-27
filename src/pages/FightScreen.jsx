@@ -91,61 +91,6 @@ const FightScreen = () => {
   const handleFight = () => {
     // When both fighters have been selected and the generate fight button is clicked
     if (selectedItem1 && selectedItem2) {
-      // Reset logger for new fight
-      playByPlayLogger.reset();
-
-      // Log initial fight details with proper fighter data
-      playByPlayLogger.logFightStart([
-        {
-          personid: selectedItem1.personid,
-          firstname: selectedItem1.firstname,
-          lastname: selectedItem1.lastname,
-          wins: selectedItem1.wins,
-          losses: selectedItem1.losses,
-          weightClass: selectedItem1.weightClass
-        },
-        {
-          personid: selectedItem2.personid,
-          firstname: selectedItem2.firstname,
-          lastname: selectedItem2.lastname,
-          wins: selectedItem2.wins,
-          losses: selectedItem2.losses,
-          weightClass: selectedItem2.weightClass
-        }
-      ]);
-  
-      // Function to validate and format fighter data
-      const validateFighter = (fighter) => {
-        return {
-          id: fighter.personid,
-          firstname: fighter.firstname,
-          lastname: fighter.lastname,
-          name: `${fighter.firstname} ${fighter.lastname}`,
-          fightingStyle: fighter.fightingStyle,
-          health: {
-            head: Number(fighter.maxHealth.head) || 100,
-            body: Number(fighter.maxHealth.body) || 100,
-            legs: Number(fighter.maxHealth.legs) || 100,
-          },
-          maxHealth: {
-            head: Number(fighter.maxHealth.head) || 100,
-            body: Number(fighter.maxHealth.body) || 100,
-            legs: Number(fighter.maxHealth.legs) || 100,
-          },
-          stamina: Number(fighter.stamina) || 100,
-          roundsWon: 0,
-          Rating: fighter.Rating,
-          stats: {},
-          Tendency: fighter.Tendency
-        };
-      };
-  
-      // Validate and store both fighters' info and stats in an array ready for use when simulating the fight
-      const opponents = [
-        validateFighter(selectedItem1),
-        validateFighter(selectedItem2),
-      ];
-  
       // Clear previous fight events
       setFightEvents([]);
   
@@ -163,121 +108,74 @@ const FightScreen = () => {
         };
       })(console.log);
   
-      // Simulate the fight with the logger
-      const result = simulateFight(opponents, playByPlayLogger);
+      // Simulate the fight with complete fighter data
+      const result = simulateFight([selectedItem1, selectedItem2], playByPlayLogger);
   
       if (result) {
         // Store the winner's index (0 or 1) in the state
         setWinnerIndex(result.winner);
-  
+        
         // Store the result in state
         setFightResult(result);
   
-        // Store the winner and loser of the fight
-        const winnerFighter = opponents[result.winner];
-        const loserFighter = opponents[result.winner === 0 ? 1 : 0];
+        // Get the events directly from the logger
+        const playByPlayEvents = playByPlayLogger.getFightPlayByPlay();
+        setFightEvents(playByPlayEvents);
   
-        // Format the end time
-        const formattedEndTime = formatTime(result.endTime);
-  
-        // Update the fightResult state with the formatted end time
-        setFightResult({
-          ...result,
-          formattedEndTime
-        });
-  
-        // Calculate fight statistics
-        const stats = calculateFightStats(
-          {
-            stats: result.fighterStats[0],
-            health: result.fighterHealth[0],
-            maxHealth: result.fighterMaxHealth[0],
-          },
-          {
-            stats: result.fighterStats[1],
-            health: result.fighterHealth[1],
-            maxHealth: result.fighterMaxHealth[1],
-          }
+        // Update winner message
+        setWinnerMessage(
+          `${result.winnerName} defeats ${result.loserName} by ${
+            result.method === "Submission"
+              ? `${result.method} (${result.submissionType})`
+              : result.method
+          } in round ${result.roundEnded}!`
         );
-        setFightStats(stats);
-  
-        // Store round statistics
-        setRoundStats(result.roundStats);
-  
-        // Display detailed fight stats
-        displayFightStats([
-          {
-            name: selectedItem1.firstname + " " + selectedItem1.lastname,
-            stats: result.fighterStats[0],
-            health: result.fighterHealth[0],
-            maxHealth: result.fighterMaxHealth[0],
-          },
-          {
-            name: selectedItem2.firstname + " " + selectedItem2.lastname,
-            stats: result.fighterStats[1],
-            health: result.fighterHealth[1],
-            maxHealth: result.fighterMaxHealth[1],
-          },
-        ]);
   
         // Update fighters' records and fight history
         const updatedFighters = fighters.map((fighter) => {
-          if (fighter.personid === winnerFighter.id) {
+          if (fighter.personid === selectedItem1.personid) {
             return {
               ...fighter,
-              wins: (fighter.wins || 0) + 1,
+              wins: result.winner === 0 ? (fighter.wins || 0) + 1 : fighter.wins,
+              losses: result.winner === 1 ? (fighter.losses || 0) + 1 : fighter.losses,
               fightHistory: [
                 {
-                  opponentId: loserFighter.id,
-                  opponent: loserFighter.name,
-                  result: `Win`,
+                  opponentId: selectedItem2.personid,
+                  opponent: `${selectedItem2.firstname} ${selectedItem2.lastname}`,
+                  result: result.winner === 0 ? 'Win' : 'Loss',
                   method: result.method,
                 },
                 ...(fighter.fightHistory || []),
               ],
             };
-          } else if (fighter.personid === loserFighter.id) {
+          } else if (fighter.personid === selectedItem2.personid) {
             return {
               ...fighter,
-              losses: (fighter.losses || 0) + 1,
+              wins: result.winner === 1 ? (fighter.wins || 0) + 1 : fighter.wins,
+              losses: result.winner === 0 ? (fighter.losses || 0) + 1 : fighter.losses,
               fightHistory: [
                 {
-                  opponentId: winnerFighter.id,
-                  opponent: winnerFighter.name,
-                  result: `Loss`,
+                  opponentId: selectedItem1.personid,
+                  opponent: `${selectedItem1.firstname} ${selectedItem1.lastname}`,
+                  result: result.winner === 1 ? 'Win' : 'Loss',
                   method: result.method,
                 },
                 ...(fighter.fightHistory || []),
               ],
             };
-          } else {
-            return fighter;
           }
+          return fighter;
         });
   
-      // Update the fighters in the database
-      Promise.all(updatedFighters.map(updateFighter))
-        .then(() => {
-          setFighters(updatedFighters);
-          
-          // Get the events directly from the logger
-          const playByPlayEvents = playByPlayLogger.getFightPlayByPlay();
-          setFightEvents(playByPlayEvents); // Update state with play-by-play events
-
-          setWinnerMessage(
-            `${result.winnerName} defeats ${result.loserName} by ${
-              result.method === "Submission"
-                ? `${result.method} (${result.submissionType})`
-                : result.method
-            } in round ${result.roundEnded}!`
-          );
-        })
-        .catch((error) => console.error("Error updating fighters:", error));
-    } else {
-      setWinnerMessage("Error: Invalid fight result.");
+        // Update the fighters in the database
+        Promise.all(updatedFighters.map(updateFighter))
+          .then(() => {
+            setFighters(updatedFighters);
+          })
+          .catch((error) => console.error("Error updating fighters:", error));
+      }
     }
-  }
-};
+  };
 
   // Logic for the View Fight Summary button open state
   const handleDialogOpen = () => {

@@ -1834,13 +1834,58 @@ const simulateFight = (fighters, logger) => {
 
   totalActionsPerformed = 0;
 
+  // Validate and format fighter data
+  const validateFighter = (fighter) => {
+    return {
+      id: fighter.personid,
+      firstname: fighter.firstname,
+      lastname: fighter.lastname,
+      name: `${fighter.firstname} ${fighter.lastname}`,
+      fightingStyle: fighter.fightingStyle,
+      weightClass: fighter.weightClass,
+      wins: fighter.wins,
+      losses: fighter.losses,
+      hometown: fighter.hometown,
+      nationality: fighter.nationality,
+      health: {
+        head: Number(fighter.maxHealth.head) || 100,
+        body: Number(fighter.maxHealth.body) || 100,
+        legs: Number(fighter.maxHealth.legs) || 100,
+      },
+      maxHealth: {
+        head: Number(fighter.maxHealth.head) || 100,
+        body: Number(fighter.maxHealth.body) || 100,
+        legs: Number(fighter.maxHealth.legs) || 100,
+      },
+      stamina: Number(fighter.stamina) || 100,
+      roundsWon: 0,
+      Rating: fighter.Rating,
+      stats: {},
+      Tendency: fighter.Tendency
+    };
+  };
+
+  // Validate both fighters
+  const validatedFighters = fighters.map(validateFighter);
+
+  // Initialize the fight with complete fighter data
+  logger.reset();
+  logger.logFightStart([
+    {
+      ...validatedFighters[0],
+      record: `${validatedFighters[0].wins}-${validatedFighters[0].losses}`
+    },
+    {
+      ...validatedFighters[1],
+      record: `${validatedFighters[1].wins}-${validatedFighters[1].losses}`
+    }
+  ]);
+
   console.log("\n--- Fight Simulation Begins ---\n");
-  console.log(`${fighters[0].name} vs ${fighters[1].name}\n`);
 
-  logger.logFightStart(fighters, 300);
-
+  // Simulate each round
   for (let round = 1; round <= ROUNDS_PER_FIGHT; round++) {
-    const roundResult = simulateRound(fighters, round, logger);
+    const roundResult = simulateRound(validatedFighters, round, logger);
     roundStats.push(roundResult.roundStats);
 
     // Early stoppage
@@ -1853,51 +1898,50 @@ const simulateFight = (fighters, logger) => {
       // Log fight end
       logger.logFightEnd({
         winner: roundResult.winner,
-        winnerName: fighters[roundResult.winner].name,
-        loserName: fighters[1 - roundResult.winner].name,
+        winnerName: validatedFighters[roundResult.winner].name,
+        loserName: validatedFighters[1 - roundResult.winner].name,
         method,
         submissionType,
         round: roundEnded,
         finalHealth: {
-          fighter1: { ...fighters[0].health },
-          fighter2: { ...fighters[1].health }
+          fighter1: { ...validatedFighters[0].health },
+          fighter2: { ...validatedFighters[1].health }
         }
       }, roundResult.timeRemaining);
 
       return {
         winner: roundResult.winner,
-        winnerName: fighters[roundResult.winner].name,
-        loserName: fighters[1 - roundResult.winner].name,
+        winnerName: validatedFighters[roundResult.winner].name,
+        loserName: validatedFighters[1 - roundResult.winner].name,
         method,
         submissionType,
         roundEnded,
         endTime,
-        fighterStats: [fighters[0].stats, fighters[1].stats],
-        fighterHealth: [fighters[0].health, fighters[1].health],
-        fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],
+        fighterStats: [validatedFighters[0].stats, validatedFighters[1].stats],
+        fighterHealth: [validatedFighters[0].health, validatedFighters[1].health],
+        fighterMaxHealth: [validatedFighters[0].maxHealth, validatedFighters[1].maxHealth],
         roundStats,
       };
     }
   }
 
   // Decision handling
-  const winner = fighters[0].roundsWon > fighters[1].roundsWon ? 0 : 1;
-  if (fighters[0].roundsWon === fighters[1].roundsWon) {
+  const winner = validatedFighters[0].roundsWon > validatedFighters[1].roundsWon ? 0 : 1;
+  if (validatedFighters[0].roundsWon === validatedFighters[1].roundsWon) {
     method = "Draw";
   }
 
-  // Return fight result
   return {
     winner: method === "Draw" ? null : winner,
-    winnerName: method === "Draw" ? null : fighters[winner].name,
-    loserName: method === "Draw" ? null : fighters[1 - winner].name,
+    winnerName: method === "Draw" ? null : validatedFighters[winner].name,
+    loserName: method === "Draw" ? null : validatedFighters[1 - winner].name,
     method,
     submissionType,
     roundEnded,
     endTime: ROUNDS_PER_FIGHT * 300,
-    fighterStats: [fighters[0].stats, fighters[1].stats],
-    fighterHealth: [fighters[0].health, fighters[1].health],
-    fighterMaxHealth: [fighters[0].maxHealth, fighters[1].maxHealth],
+    fighterStats: [validatedFighters[0].stats, validatedFighters[1].stats],
+    fighterHealth: [validatedFighters[0].health, validatedFighters[1].health],
+    fighterMaxHealth: [validatedFighters[0].maxHealth, validatedFighters[1].maxHealth],
     roundStats,
   };
 };

@@ -9,14 +9,17 @@
  */
 const formatFightEvent = (event) => {
     switch (event.type) {
+      case "introduction":
+        return `${event.text}`; // Format introduction events with PRE-FIGHT tag
+
       case "fightStart":
-        return `${event.fighter1.name} (${event.fighter1.record}) vs ${event.fighter2.name} (${event.fighter2.record})`;
+        return null; // Return null to skip displaying the initial fight start message
       
       case "roundStart":
-        return `Round ${event.round} begins!`;
+        return `[R${event.round} 5:00] Round ${event.round} begins!`;
         
       case "roundEnd":
-        return `End of Round ${event.round}`;
+        return `[R${event.round} 0:00] End of Round ${event.round}`;
   
       case "strike": {
         let strikeDesc = '';
@@ -85,6 +88,90 @@ const formatFightEvent = (event) => {
         return null; // Return null for events we don't want to display
     }
   };
+
+/**
+ * Format fight introduction in authentic Bruce Buffer style
+ * @param {Object} fighter1 - First fighter data (red corner)
+ * @param {Object} fighter2 - Second fighter data (blue corner)
+ * @returns {Object[]} Array of formatted introduction lines
+ */
+const formatFightIntroduction = (fighter1, fighter2) => {
+    const ROUNDS = 3; // Can make this dynamic if needed
+    const ANNOUNCER = "Bruce Buffer"; // set announcer for now
+    const REFEREE = "Herb Dean"; // set referee for now
+    
+    // Helper to format fighting style from enum to display text
+    const formatStyle = (style) => {
+      if (!style) return 'mixed martial artist';
+      return style.replace('FIGHTING_STYLES.', '').toLowerCase()
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    };
+  
+    return [
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Ladies and gentlemen, we... are... LIVE!`
+      },
+      {
+        type: "introduction", 
+        text: `${ANNOUNCER}: And now... IIIIIIIIT'S TIME!`
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: For ${ROUNDS} rounds in the UFC ${fighter1.weightClass} division!`
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Introducing first, FIGHTING out of the BLUE corner...`
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: This man is a ${formatStyle(fighter2.fightingStyle)}...`
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: With a professional record of ${fighter2.wins} wins, ${fighter2.losses} losses...`,
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Fighting out of ${fighter2.hometown}...`,
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Presenting... ${fighter2.firstname.toUpperCase()}... ${fighter2.lastname.toUpperCase()}!`,
+      },
+      {
+        type: "introduction", 
+        text: `${ANNOUNCER}: AND NOW introducing the fighter FIGHTING out of the RED corner...`
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: This man is a ${formatStyle(fighter1.fightingStyle)}...`
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: With a professional record of ${fighter1.wins} wins, ${fighter1.losses} losses...`,
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Fighting out of ${fighter1.hometown}...`,
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Presenting... ${fighter1.firstname.toUpperCase()}... ${fighter1.lastname.toUpperCase()}!`,
+      },
+      {
+        type: "introduction",
+        text: `${ANNOUNCER}: Our referee in charge, ${REFEREE}.`
+      },
+      {
+        type: "introduction",
+        text: `${REFEREE}: We've gone over the rules in the dressing room, I want you to protect yourself at all times, follow my instructions - we'll have a clean fight. Touch gloves now if you want, good luck.`
+      }
+    ];
+  };  
   
   /**
    * Format a submission event into readable text
@@ -122,18 +209,24 @@ const formatFightEvent = (event) => {
       .replace('Position', '');
   };
   
-  /**
-   * Format fight time
-   * @param {string} time - Time in MM:SS format
-   * @returns {string} Formatted time with "Round X - MM:SS"
-   */
-  const formatFightTime = (round, time) => {
+/**
+ * Format fight time
+ * @param {number} round - Round number
+ * @param {string} time - Time in MM:SS format
+ * @returns {string} Formatted time with "Round X - MM:SS"
+ */
+const formatFightTime = (round, time) => {
+    // Skip time formatting for introduction events
+    if (round === 'introduction') {
+        return 'PRE-FIGHT';
+    }
     return `R${round} ${time}`;
-  };
+};
   
   export {
     formatFightEvent,
     formatFightTime,
     formatPosition,
-    formatSubmissionEvent
+    formatSubmissionEvent,
+    formatFightIntroduction
   };

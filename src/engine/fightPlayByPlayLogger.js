@@ -1,3 +1,6 @@
+import { formatFightEvent, formatFightIntroduction } from './fightEventFormatter.js';
+import { formatTime } from './helper.js';
+
 /**
  * Logger class for recording and displaying fight events with improved data handling
  */
@@ -8,26 +11,35 @@ class fightPlayByPlayLogger {
     this.currentRound = 1;
     this.roundTime = 300; // 5 minutes in seconds
     this.elapsedTime = 0;
+    this.introductionLogged = false;
   }
 
   /**
-   * Format time for display (M:SS format)
-   * @param {number} clock - Time in seconds
-   * @returns {string} Formatted time
+   * Format and add event to play-by-play log
+   * @param {Object} event - Event data to log
    */
-  formatEventTime(clock) {
-    const minutes = Math.floor(clock / 60);
-    const seconds = clock % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  }
+  logEvent(event) {
+    if (!this.active) return;
 
-  /**
-   * Format round display
-   * @param {number} round - Round number
-   * @returns {string} Formatted round
-   */
-  formatRound(round) {
-    return `R${round}`;
+    // For introduction events, set special timing values
+    if (event.type === "introduction") {
+      const formattedEvent = {
+        ...event,
+        round: 'introduction',
+        timeElapsed: 0,
+        formattedTime: 'PRE-FIGHT'
+      };
+      this.playByPlay.push(formattedEvent);
+    } else {
+      // Handle regular fight events
+      const formattedEvent = {
+        ...event,
+        round: this.currentRound,
+        timeElapsed: this.elapsedTime,
+        formattedTime: event.clock ? formatTime(event.clock) : formatTime(0)
+      };
+      this.playByPlay.push(formattedEvent);
+    }
   }
 
   /**
@@ -54,25 +66,7 @@ class fightPlayByPlayLogger {
   }
 
   /**
-   * Log a generic fight event
-   * @param {Object} event - Event data to log
-   */
-  logEvent(event) {
-    if (!this.active) return;
-
-    const formattedEvent = {
-      ...event,
-      round: this.currentRound,
-      timeElapsed: this.elapsedTime,
-      formattedTime: this.formatEventTime(event.clock)
-    };
-
-    console.log(`[${this.formatRound(this.currentRound)} ${this.formatEventTime(event.clock)}] ${JSON.stringify(formattedEvent)}`);
-    this.playByPlay.push(formattedEvent);
-  }
-
-  /**
-   * Log fight initialization
+   * Log fight initialization with introduction sequence
    * @param {Object[]} fighters - Array of fighter objects
    */
   logFightStart(fighters) {
@@ -81,26 +75,17 @@ class fightPlayByPlayLogger {
       return;
     }
 
-    const fighter1Name = this.getFighterName(fighters[0]);
-    const fighter2Name = this.getFighterName(fighters[1]);
+    if (this.introductionLogged) {
+      return;
+    }
 
-    this.logEvent({
-      type: "fightStart",
-      fighter1: {
-        name: fighter1Name,
-        record: `${fighters[0].wins}-${fighters[0].losses}`,
-        weightClass: fighters[0].weightClass
-      },
-      fighter2: {
-        name: fighter2Name,
-        record: `${fighters[1].wins}-${fighters[1].losses}`,
-        weightClass: fighters[1].weightClass
-      },
-      clock: this.roundTime
+    // Generate and log introduction sequence
+    const introLines = formatFightIntroduction(fighters[0], fighters[1]);
+    introLines.forEach(line => {
+      this.logEvent(line);
     });
 
-    // Log initial matchup
-    console.log(`\nFight Starting: ${fighter1Name} vs ${fighter2Name}`);
+    this.introductionLogged = true;
   }
 
   /**
@@ -335,6 +320,7 @@ class fightPlayByPlayLogger {
     this.playByPlay = [];
     this.currentRound = 1;
     this.elapsedTime = 0;
+    this.introductionLogged = false;
   }
 }
 
