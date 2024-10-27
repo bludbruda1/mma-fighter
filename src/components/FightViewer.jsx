@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -25,6 +25,9 @@ const FightViewer = ({ fightEvents, fighters }) => {
     significantStrikes: [0, 0],
     submissionAttempts: [0, 0],
   });
+
+  // Add ref for the event display box
+  const eventDisplayRef = useRef(null);
 
   // Update stats based on event type
   const updateStats = useCallback((event) => {
@@ -72,6 +75,13 @@ const FightViewer = ({ fightEvents, fighters }) => {
     }
     updateStats(event);
   }, [updateStats]);
+
+  // Auto-scroll to bottom when new events are added
+  useEffect(() => {
+    if (eventDisplayRef.current) {
+      eventDisplayRef.current.scrollTop = eventDisplayRef.current.scrollHeight;
+    }
+  }, [displayedEvents]);
 
   // Advance to next event
   const advanceEvent = useCallback(() => {
@@ -181,12 +191,15 @@ const FightViewer = ({ fightEvents, fighters }) => {
         <Grid item xs={12}>
           <Card>
             <CardContent>
-              <Box sx={{ 
+              <Box 
+                ref={eventDisplayRef}
+                sx={{ 
                 height: '40vh', 
                 overflowY: 'auto',
                 backgroundColor: 'background.paper',
                 p: 2,
                 borderRadius: 1,
+                scrollBehavior: 'smooth', // Add smooth scrolling
               }}>
                 {displayedEvents.map((event, index) => (
                   <Typography 
