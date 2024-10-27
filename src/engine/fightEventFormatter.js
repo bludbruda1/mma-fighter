@@ -16,10 +16,10 @@ const formatFightEvent = (event) => {
         return null; // Return null to skip displaying the initial fight start message
       
       case "roundStart":
-        return `[R${event.round} 5:00] Round ${event.round} begins!`;
+        return `Round ${event.round} begins!`;
         
       case "roundEnd":
-        return `[R${event.round} 0:00] End of Round ${event.round}`;
+        return `End of Round ${event.round}`;
   
       case "strike": {
         let strikeDesc = '';

@@ -22,14 +22,9 @@ import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
 import ResultCard from "../components/ResultCard";
 import FightViewer from "../components/FightViewer";
-import { formatTime } from "../engine/helper";
 import { simulateFight } from "../engine/FightSim";
 import fightPlayByPlayLogger from '../engine/fightPlayByPlayLogger';
 import { getAllFighters, updateFighter } from "../utils/indexedDB";
-import {
-  calculateFightStats,
-  displayFightStats,
-} from "../engine/FightStatistics";
 
 const FightScreen = () => {
   // stores the state of the fighters from fighters.json in an array ready for consumption
