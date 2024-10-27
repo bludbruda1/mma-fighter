@@ -1551,35 +1551,47 @@ const simulateRound = (fighters, roundNumber, logger) => {
     lastname: fighter.lastname
   }));
 
-  // Round start recovery and position reset
-  fighters.forEach((fighter) => {
-    fighter.stamina = Math.max(0, fighter.stamina);
-    const bodyDamage = fighter.maxHealth.body - fighter.health.body;
-    const previousHealth = { ...fighter.health };
-
-    // Apply stamina recovery
-    fighter.stamina = recoverStaminaEndRound(
-      fighter.stamina,
-      fighter.Rating.cardio,
-      bodyDamage
-    );
-
-    // Reset position
-    fighter.position = FIGHTER_POSITIONS.STANDING;
-    
-    // Log recovery and new state with complete fighter data
-    logger.logRecovery({
-      ...fighter,
-      firstname: fighter.firstname,
-      lastname: fighter.lastname
-    }, previousHealth, fighter.health, 300);
-    
-    logger.logFighterState({
-      ...fighter,
-      firstname: fighter.firstname,
-      lastname: fighter.lastname
-    }, 300);
-  });
+    // Only apply round start recovery and position reset after round 1
+    if (roundNumber > 1) {
+      fighters.forEach((fighter) => {
+        fighter.stamina = Math.max(0, fighter.stamina);
+        const bodyDamage = fighter.maxHealth.body - fighter.health.body;
+        const previousHealth = { ...fighter.health };
+  
+        // Apply stamina recovery
+        fighter.stamina = recoverStaminaEndRound(
+          fighter.stamina,
+          fighter.Rating.cardio,
+          bodyDamage
+        );
+  
+        // Reset position
+        fighter.position = FIGHTER_POSITIONS.STANDING;
+        
+        // Log recovery and new state with complete fighter data
+        logger.logRecovery({
+          ...fighter,
+          firstname: fighter.firstname,
+          lastname: fighter.lastname
+        }, previousHealth, fighter.health, 300);
+        
+        logger.logFighterState({
+          ...fighter,
+          firstname: fighter.firstname,
+          lastname: fighter.lastname
+        }, 300);
+      });
+    } else {
+      // For round 1, just set starting positions without recovery
+      fighters.forEach((fighter) => {
+        fighter.position = FIGHTER_POSITIONS.STANDING;
+        logger.logFighterState({
+          ...fighter,
+          firstname: fighter.firstname,
+          lastname: fighter.lastname
+        }, 300);
+      });
+    }
 
   let lastActionFighter;
   let currentTime = 300;
