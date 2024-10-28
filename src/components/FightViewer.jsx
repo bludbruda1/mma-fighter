@@ -26,7 +26,6 @@ const FightViewer = ({ fightEvents, fighters }) => {
     submissionAttempts: [0, 0],
   });
 
-  // Add ref for the event display box
   const eventDisplayRef = useRef(null);
 
   // Update stats based on event type
@@ -78,10 +77,14 @@ const FightViewer = ({ fightEvents, fighters }) => {
     updateStats(event);
   }, [updateStats]);
 
-  // Auto-scroll to bottom when new events are added
+  // Simple auto-scroll effect that triggers when displayedEvents changes
   useEffect(() => {
     if (eventDisplayRef.current) {
-      eventDisplayRef.current.scrollTop = eventDisplayRef.current.scrollHeight;
+      const scrollHeight = eventDisplayRef.current.scrollHeight;
+      eventDisplayRef.current.scrollTo({
+        top: scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [displayedEvents]);
 
@@ -107,141 +110,141 @@ const FightViewer = ({ fightEvents, fighters }) => {
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed, advanceEvent]);
 
-  // Update the event display section with new styling
-  const renderEventDisplay = () => (
-    <Box 
-      ref={eventDisplayRef}
-      sx={{ 
-        height: '40vh', 
-        overflowY: 'auto',
-        backgroundColor: 'background.paper',
-        p: 2,
-        borderRadius: 1,
-        scrollBehavior: 'smooth',
-      }}
-    >
-      {displayedEvents.map((event, index) => (
+  // Fighter card component
+  const FighterCard = ({ fighter, index }) => (
+    <Card className="h-full">
+      <CardMedia
+        component="img"
+        height="200"
+        image={fighter.profile}
+        alt={`${fighter.firstname} ${fighter.lastname}`}
+        sx={{ objectFit: "contain" }}
+      />
+      <CardContent>
+        <Typography variant="h6" align="center">
+          {fighter.firstname} {fighter.lastname}
+        </Typography>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="subtitle2">Fight Stats:</Typography>
+          <StatBar
+            redValue={currentStats.strikesLanded[index]}
+            blueValue={currentStats.strikesLanded[1 - index]}
+            title="Strikes Landed"
+          />
+          <StatBar
+            redValue={currentStats.significantStrikes[index]}
+            blueValue={currentStats.significantStrikes[1 - index]}
+            title="Significant Strikes"
+          />
+          <StatBar
+            redValue={currentStats.takedownsLanded[index]}
+            blueValue={currentStats.takedownsLanded[1 - index]}
+            title="Takedowns"
+          />
+          <StatBar
+            redValue={currentStats.submissionAttempts[index]}
+            blueValue={currentStats.submissionAttempts[1 - index]}
+            title="Submission Attempts"
+          />
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
+  // Event display component
+  const EventDisplay = () => (
+    <Card className="h-full">
+      <CardContent>
+        {/* Playback Controls */}
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 2, 
+          justifyContent: 'center',
+          p: 2,
+          backgroundColor: 'background.paper',
+          borderRadius: 1,
+          mb: 2
+        }}>
+          <FastRewind 
+            sx={{ cursor: 'pointer' }}
+            onClick={() => setPlaybackSpeed(prev => Math.max(0.5, prev - 0.5))}
+          />
+          <Button
+            onClick={() => setIsPlaying(!isPlaying)}
+            startIcon={isPlaying ? <PauseCircleOutline /> : <PlayCircleOutline />}
+            variant="contained"
+          >
+            {isPlaying ? 'Pause' : 'Play'}
+          </Button>
+          <FastForward 
+            sx={{ cursor: 'pointer' }}
+            onClick={() => setPlaybackSpeed(prev => Math.min(4, prev + 0.5))}
+          />
+          <Chip 
+            label={`${playbackSpeed}x`}
+            color="primary"
+            variant="outlined"
+          />
+        </Box>
+
+        {/* Event Log */}
         <Box 
-          key={index} 
+          ref={eventDisplayRef}
           sx={{ 
-            mb: 2,
-            borderBottom: '1px solid',
-            borderColor: 'divider',
+            height: '50vh', 
+            overflowY: 'auto',
+            backgroundColor: 'background.paper',
+            p: 2,
+            borderRadius: 1
           }}
         >
-          <Typography 
-            sx={{ 
-              color: 'text.secondary',
-              fontSize: '0.875rem',
-              fontWeight: 'medium',
-              mb: 0.5
-            }}
-          >
-            {event.timeStr}
-          </Typography>
-          <Typography 
-            sx={{ 
-              color: 'text.primary',
-              fontSize: '1rem',
-              mb: 1
-            }}
-          >
-            {event.action}
-          </Typography>
+          {displayedEvents.map((event, index) => (
+            <Box 
+              key={index} 
+              sx={{ 
+                mb: 2,
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Typography 
+                sx={{ 
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                  fontWeight: 'medium',
+                  mb: 0.5
+                }}
+              >
+                {event.timeStr}
+              </Typography>
+              <Typography 
+                sx={{ 
+                  color: 'text.primary',
+                  fontSize: '1rem',
+                  mb: 1
+                }}
+              >
+                {event.action}
+              </Typography>
+            </Box>
+          ))}
         </Box>
-      ))}
-    </Box>
+      </CardContent>
+    </Card>
   );
 
   return (
     <Container maxWidth="lg">
       <Grid container spacing={3}>
-        {/* Fighter Cards */}
-        <Grid item xs={12} container spacing={2} justifyContent="space-between">
-          {fighters.map((fighter, index) => (
-            <Grid item xs={12} md={5} key={fighter.personid}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={fighter.profile}
-                  alt={`${fighter.firstname} ${fighter.lastname}`}
-                  sx={{ objectFit: "contain" }}
-                />
-                <CardContent>
-                  <Typography variant="h6" align="center">
-                    {fighter.firstname} {fighter.lastname}
-                  </Typography>
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2">Fight Stats:</Typography>
-                    <StatBar
-                      redValue={currentStats.strikesLanded[index]}
-                      blueValue={currentStats.strikesLanded[1 - index]}
-                      title="Strikes Landed"
-                    />
-                    <StatBar
-                      redValue={currentStats.significantStrikes[index]}
-                      blueValue={currentStats.significantStrikes[1 - index]}
-                      title="Significant Strikes"
-                    />
-                    <StatBar
-                      redValue={currentStats.takedownsLanded[index]}
-                      blueValue={currentStats.takedownsLanded[1 - index]}
-                      title="Takedowns"
-                    />
-                    <StatBar
-                      redValue={currentStats.submissionAttempts[index]}
-                      blueValue={currentStats.submissionAttempts[1 - index]}
-                      title="Submission Attempts"
-                    />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+        <Grid item xs={12} md={3}>
+          <FighterCard fighter={fighters[0]} index={0} />
         </Grid>
-
-        {/* Playback Controls */}
-        <Grid item xs={12}>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 2, 
-            justifyContent: 'center',
-            p: 2,
-            backgroundColor: 'background.paper',
-            borderRadius: 1,
-          }}>
-            <FastRewind 
-              sx={{ cursor: 'pointer' }}
-              onClick={() => setPlaybackSpeed(prev => Math.max(0.5, prev - 0.5))}
-            />
-            <Button
-              onClick={() => setIsPlaying(!isPlaying)}
-              startIcon={isPlaying ? <PauseCircleOutline /> : <PlayCircleOutline />}
-              variant="contained"
-            >
-              {isPlaying ? 'Pause' : 'Play'}
-            </Button>
-            <FastForward 
-              sx={{ cursor: 'pointer' }}
-              onClick={() => setPlaybackSpeed(prev => Math.min(4, prev + 0.5))}
-            />
-            <Chip 
-              label={`${playbackSpeed}x`}
-              color="primary"
-              variant="outlined"
-            />
-          </Box>
+        <Grid item xs={12} md={6}>
+          <EventDisplay />
         </Grid>
-
-        {/* Event Display */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              {renderEventDisplay()}
-            </CardContent>
-          </Card>
+        <Grid item xs={12} md={3}>
+          <FighterCard fighter={fighters[1]} index={1} />
         </Grid>
       </Grid>
     </Container>
