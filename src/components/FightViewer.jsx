@@ -70,8 +70,10 @@ const FightViewer = ({ fightEvents, fighters }) => {
 
     const formattedEvent = formatFightEvent(event);
     if (formattedEvent) {
-      const timeStr = formatFightTime(event.round, event.formattedTime);
-      setDisplayedEvents(prev => [...prev, `[${timeStr}] ${formattedEvent}`]);
+      setDisplayedEvents(prev => [...prev, {
+        timeStr: formatFightTime(event.round, event.formattedTime),
+        action: formattedEvent
+      }]);
     }
     updateStats(event);
   }, [updateStats]);
@@ -104,6 +106,52 @@ const FightViewer = ({ fightEvents, fighters }) => {
     }
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed, advanceEvent]);
+
+  // Update the event display section with new styling
+  const renderEventDisplay = () => (
+    <Box 
+      ref={eventDisplayRef}
+      sx={{ 
+        height: '40vh', 
+        overflowY: 'auto',
+        backgroundColor: 'background.paper',
+        p: 2,
+        borderRadius: 1,
+        scrollBehavior: 'smooth',
+      }}
+    >
+      {displayedEvents.map((event, index) => (
+        <Box 
+          key={index} 
+          sx={{ 
+            mb: 2,
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Typography 
+            sx={{ 
+              color: 'text.secondary',
+              fontSize: '0.875rem',
+              fontWeight: 'medium',
+              mb: 0.5
+            }}
+          >
+            {event.timeStr}
+          </Typography>
+          <Typography 
+            sx={{ 
+              color: 'text.primary',
+              fontSize: '1rem',
+              mb: 1
+            }}
+          >
+            {event.action}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
 
   return (
     <Container maxWidth="lg">
@@ -191,29 +239,7 @@ const FightViewer = ({ fightEvents, fighters }) => {
         <Grid item xs={12}>
           <Card>
             <CardContent>
-              <Box 
-                ref={eventDisplayRef}
-                sx={{ 
-                height: '40vh', 
-                overflowY: 'auto',
-                backgroundColor: 'background.paper',
-                p: 2,
-                borderRadius: 1,
-                scrollBehavior: 'smooth', // Add smooth scrolling
-              }}>
-                {displayedEvents.map((event, index) => (
-                  <Typography 
-                    key={index} 
-                    sx={{ 
-                      py: 0.5,
-                      borderBottom: '1px solid',
-                      borderColor: 'divider',
-                    }}
-                  >
-                    {event}
-                  </Typography>
-                ))}
-              </Box>
+              {renderEventDisplay()}
             </CardContent>
           </Card>
         </Grid>
