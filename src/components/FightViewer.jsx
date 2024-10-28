@@ -1,17 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  Container,
-  Typography,
-  Grid,
-  Button,
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
-} from '@mui/material';
-import { PlayCircleOutline, PauseCircleOutline, FastForward, FastRewind } from '@mui/icons-material';
-import StatBar from "./StatBar";
+import { Container, Grid } from '@mui/material';
+import ActiveFighterCard from './ActiveFighterCard';
+import EventLoggerCard from './EventLoggerCard';
 import { formatFightEvent, formatFightTime } from '../engine/fightEventFormatter';
 
 const FightViewer = ({ fightEvents, fighters }) => {
@@ -77,7 +67,7 @@ const FightViewer = ({ fightEvents, fighters }) => {
     updateStats(event);
   }, [updateStats]);
 
-  // Simple auto-scroll effect that triggers when displayedEvents changes
+  // Auto-scroll effect
   useEffect(() => {
     if (eventDisplayRef.current) {
       const scrollHeight = eventDisplayRef.current.scrollHeight;
@@ -110,141 +100,38 @@ const FightViewer = ({ fightEvents, fighters }) => {
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed, advanceEvent]);
 
-  // Fighter card component
-  const FighterCard = ({ fighter, index }) => (
-    <Card className="h-full">
-      <CardMedia
-        component="img"
-        height="200"
-        image={fighter.profile}
-        alt={`${fighter.firstname} ${fighter.lastname}`}
-        sx={{ objectFit: "contain" }}
-      />
-      <CardContent>
-        <Typography variant="h6" align="center">
-          {fighter.firstname} {fighter.lastname}
-        </Typography>
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle2">Fight Stats:</Typography>
-          <StatBar
-            redValue={currentStats.strikesLanded[index]}
-            blueValue={currentStats.strikesLanded[1 - index]}
-            title="Strikes Landed"
-          />
-          <StatBar
-            redValue={currentStats.significantStrikes[index]}
-            blueValue={currentStats.significantStrikes[1 - index]}
-            title="Significant Strikes"
-          />
-          <StatBar
-            redValue={currentStats.takedownsLanded[index]}
-            blueValue={currentStats.takedownsLanded[1 - index]}
-            title="Takedowns"
-          />
-          <StatBar
-            redValue={currentStats.submissionAttempts[index]}
-            blueValue={currentStats.submissionAttempts[1 - index]}
-            title="Submission Attempts"
-          />
-        </Box>
-      </CardContent>
-    </Card>
-  );
-
-  // Event display component
-  const EventDisplay = () => (
-    <Card className="h-full">
-      <CardContent>
-        {/* Playback Controls */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 2, 
-          justifyContent: 'center',
-          p: 2,
-          backgroundColor: 'background.paper',
-          borderRadius: 1,
-          mb: 2
-        }}>
-          <FastRewind 
-            sx={{ cursor: 'pointer' }}
-            onClick={() => setPlaybackSpeed(prev => Math.max(0.5, prev - 0.5))}
-          />
-          <Button
-            onClick={() => setIsPlaying(!isPlaying)}
-            startIcon={isPlaying ? <PauseCircleOutline /> : <PlayCircleOutline />}
-            variant="contained"
-          >
-            {isPlaying ? 'Pause' : 'Play'}
-          </Button>
-          <FastForward 
-            sx={{ cursor: 'pointer' }}
-            onClick={() => setPlaybackSpeed(prev => Math.min(4, prev + 0.5))}
-          />
-          <Chip 
-            label={`${playbackSpeed}x`}
-            color="primary"
-            variant="outlined"
-          />
-        </Box>
-
-        {/* Event Log */}
-        <Box 
-          ref={eventDisplayRef}
-          sx={{ 
-            height: '50vh', 
-            overflowY: 'auto',
-            backgroundColor: 'background.paper',
-            p: 2,
-            borderRadius: 1
-          }}
-        >
-          {displayedEvents.map((event, index) => (
-            <Box 
-              key={index} 
-              sx={{ 
-                mb: 2,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              <Typography 
-                sx={{ 
-                  color: 'text.secondary',
-                  fontSize: '0.875rem',
-                  fontWeight: 'medium',
-                  mb: 0.5
-                }}
-              >
-                {event.timeStr}
-              </Typography>
-              <Typography 
-                sx={{ 
-                  color: 'text.primary',
-                  fontSize: '1rem',
-                  mb: 1
-                }}
-              >
-                {event.action}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      </CardContent>
-    </Card>
-  );
+  // Playback control handlers
+  const handlePlayPause = () => setIsPlaying(!isPlaying);
+  const handleSpeedDecrease = () => setPlaybackSpeed(prev => Math.max(0.5, prev - 0.5));
+  const handleSpeedIncrease = () => setPlaybackSpeed(prev => Math.min(4, prev + 0.5));
 
   return (
     <Container maxWidth="lg">
       <Grid container spacing={3}>
         <Grid item xs={12} md={3}>
-          <FighterCard fighter={fighters[0]} index={0} />
+          <ActiveFighterCard 
+            fighter={fighters[0]} 
+            index={0} 
+            currentStats={currentStats}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
-          <EventDisplay />
+          <EventLoggerCard
+            isPlaying={isPlaying}
+            playbackSpeed={playbackSpeed}
+            displayedEvents={displayedEvents}
+            eventDisplayRef={eventDisplayRef}
+            onPlayPauseClick={handlePlayPause}
+            onSpeedDecrease={handleSpeedDecrease}
+            onSpeedIncrease={handleSpeedIncrease}
+          />
         </Grid>
         <Grid item xs={12} md={3}>
-          <FighterCard fighter={fighters[1]} index={1} />
+          <ActiveFighterCard 
+            fighter={fighters[1]} 
+            index={1} 
+            currentStats={currentStats}
+          />
         </Grid>
       </Grid>
     </Container>

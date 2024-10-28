@@ -1,4 +1,4 @@
-import { formatFightEvent, formatFightIntroduction } from './fightEventFormatter.js';
+import { formatFightIntroduction } from './fightEventFormatter.js';
 import { formatTime } from './helper.js';
 
 /**
