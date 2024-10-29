@@ -133,24 +133,14 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
       significantStrikes: [0, 0],
       submissionAttempts: [0, 0],
     });
-
+  
     // Helper function to find the first event of a specific round
     const findRoundStart = (roundNumber) => {
       return fightEvents.findIndex(event => 
         event?.type === 'roundStart' && event?.round === roundNumber
       );
     };
-
-    // Helper function to find fight ending event within a specific range
-    const findFightEnd = (startIndex, endIndex) => {
-      for (let i = startIndex; i <= endIndex && i < fightEvents.length; i++) {
-        if (isFightEndingEvent(fightEvents[i])) {
-          return i + 1 < fightEvents.length ? i + 1 : i;
-        }
-      }
-      return -1;
-    };
-
+  
     // Helper function to process events up to an index
     const processEventsUpTo = (targetIndex) => {
       if (targetIndex !== -1) {
@@ -158,41 +148,44 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
           processEvent(fightEvents[i]);
         }
         setCurrentEventIndex(targetIndex + 1);
+      }
+    };
+  
+    // Helper to process until a time target or fight end
+    const processUntilTimeOrEnd = (startIndex, targetRound, targetTime) => {
+      let endIndex = startIndex;
+      let foundEnd = false;
+  
+      // Process events until we hit our target time or find fight end
+      while (endIndex < fightEvents.length) {
+        const event = fightEvents[endIndex];
         
-        // Check if this was the end of the fight
-        if (isFightEndingEvent(fightEvents[targetIndex])) {
-          setIsFightComplete(true);
+        // Check if this event is in a later round or past our target time
+        if (event.round > targetRound || 
+            (event.round === targetRound && event.clock && event.clock <= targetTime)) {
+          break;
         }
+  
+        // Check for fight ending
+        if (isFightEndingEvent(event)) {
+          foundEnd = true;
+          // Include this event and any immediate follow-up events
+          while (endIndex + 1 < fightEvents.length && 
+                (fightEvents[endIndex + 1].type === 'fightEnd' || 
+                 fightEvents[endIndex + 1].type === 'announcement')) {
+            endIndex++;
+          }
+          break;
+        }
+  
+        endIndex++;
       }
+  
+      // Process all events up to our end point
+      processEventsUpTo(endIndex);
+      if (foundEnd) setIsFightComplete(true);
     };
-
-    // Helper function to find target index for time skip
-    const findTimeSkipTarget = (currentRoundNum, currentTime, skipSeconds) => {
-      const targetTime = currentTime - skipSeconds;
-      
-      // If target time would go into next round
-      if (targetTime <= 0) {
-        const nextRound = currentRoundNum + 1;
-        return findRoundStart(nextRound);
-      }
-
-      // Find event closest to target time in current round
-      return fightEvents.findIndex(event => 
-        event?.round === currentRoundNum && 
-        event?.clock && 
-        event.clock <= targetTime
-      );
-    };
-
-    // Find current time in the round (if in a round)
-    const getCurrentTime = () => {
-      if (!isPreFight && currentEventIndex > 0) {
-        const currentEvent = fightEvents[currentEventIndex - 1];
-        return currentEvent?.clock || 300;
-      }
-      return 300;
-    };
-
+  
     if (skipValue === 'startfight') {
       const roundStartIndex = findRoundStart(1);
       if (roundStartIndex !== -1) {
@@ -200,63 +193,55 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
       }
       return;
     }
-
+  
     if (skipValue === 'entirefight') {
       processEventsUpTo(fightEvents.length - 1);
+      setIsFightComplete(true);
       return;
     }
-
+  
     if (!isPreFight) {
+      const currentTime = fightEvents[currentEventIndex - 1]?.clock || 300;
+      
       switch (skipValue) {
         case '1min':
         case '2min': {
           const skipSeconds = skipValue === '1min' ? 60 : 120;
-          const currentTime = getCurrentTime();
-          
-          // Find where we would skip to based on time
-          const targetIndex = findTimeSkipTarget(currentRound, currentTime, skipSeconds);
-          
-          if (targetIndex !== -1) {
-            // Look for fight end only between current position and target
-            const fightEndIndex = findFightEnd(currentEventIndex, targetIndex);
-            
-            if (fightEndIndex !== -1) {
-              // Fight ends within our skip period
-              processEventsUpTo(fightEndIndex);
-            } else {
-              // No fight end, process to target
-              processEventsUpTo(targetIndex);
+          const targetTime = currentTime - skipSeconds;
+  
+          if (targetTime <= 0) {
+            // Need to check for fight end before going to next round
+            processUntilTimeOrEnd(currentEventIndex, currentRound, 0);
+            if (!isFightComplete) {
+              const nextRound = currentRound + 1;
+              const nextRoundStart = findRoundStart(nextRound);
+              if (nextRoundStart !== -1) {
+                processEventsUpTo(nextRoundStart);
+              }
             }
+          } else {
+            processUntilTimeOrEnd(currentEventIndex, currentRound, targetTime);
           }
           break;
         }
-
+  
         case 'endround': {
-          // Find start of next round
-          const nextRound = currentRound + 1;
-          const nextRoundStart = findRoundStart(nextRound);
-          
-          if (nextRoundStart !== -1) {
-            // Look for fight end only between current position and next round
-            const fightEndIndex = findFightEnd(currentEventIndex, nextRoundStart);
-            
-            if (fightEndIndex !== -1) {
-              // Fight ends before next round
-              processEventsUpTo(fightEndIndex);
-            } else {
-              // No fight end, go to next round
+          processUntilTimeOrEnd(currentEventIndex, currentRound, 0);
+          if (!isFightComplete) {
+            const nextRound = currentRound + 1;
+            const nextRoundStart = findRoundStart(nextRound);
+            if (nextRoundStart !== -1) {
               processEventsUpTo(nextRoundStart);
             }
           }
           break;
         }
-
+  
         default:
           return;
       }
     }
-  }, [fightEvents, currentRound, currentEventIndex, isPreFight, processEvent, isFightEndingEvent]);
-
+  }, [fightEvents, currentRound, currentEventIndex, isPreFight, processEvent, isFightComplete, isFightEndingEvent]);
   // Effect to check if we've reached the end of the fight
   useEffect(() => {
     if (currentEventIndex > 0 && currentEventIndex <= fightEvents.length) {
