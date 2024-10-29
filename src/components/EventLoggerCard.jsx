@@ -19,6 +19,24 @@ import {
   KeyboardArrowDown
 } from '@mui/icons-material';
 
+/**
+ * EventLoggerCard Component
+ * Displays fight events and provides playback controls for fight simulation
+ * 
+ * @param {Object} props
+ * @param {boolean} props.isPlaying - Current playback state
+ * @param {number} props.playbackSpeed - Current playback speed multiplier
+ * @param {Array} props.displayedEvents - Array of events to display
+ * @param {React.RefObject} props.eventDisplayRef - Ref for event display scroll container
+ * @param {number} props.currentRound - Current round number (0 for pre-fight)
+ * @param {number} props.totalRounds - Total number of rounds in the fight
+ * @param {Function} props.onPlayPauseClick - Handler for play/pause button
+ * @param {Function} props.onSpeedDecrease - Handler for decreasing playback speed
+ * @param {Function} props.onSpeedIncrease - Handler for increasing playback speed
+ * @param {Function} props.onSkipTime - Handler for time skip actions
+ * @param {boolean} props.isPreFight - Whether currently in pre-fight state
+ * @param {boolean} props.isFightComplete - Whether the fight has ended
+ */
 const EventLoggerCard = ({ 
   isPlaying,
   playbackSpeed,
@@ -30,25 +48,29 @@ const EventLoggerCard = ({
   onSpeedDecrease,
   onSpeedIncrease,
   onSkipTime,
-  isPreFight
+  isPreFight,
+  isFightComplete
 }) => {
-  // Menu state
+  // Menu state management
   const [skipMenuAnchor, setSkipMenuAnchor] = useState(null);
   const isSkipMenuOpen = Boolean(skipMenuAnchor);
 
-// Skip options based on fight state
-const skipOptions = isPreFight 
-  ? [
-      { label: 'Skip to fight', value: 'startfight' },
-      { label: 'Skip entire fight', value: 'entirefight' }
-    ]
-  : [
-      { label: '1 minute', value: '1min' },
-      { label: '2 minutes', value: '2min' },
-      { label: 'End of round', value: 'endround' },
-      { label: 'Skip entire fight', value: 'entirefight' }
-    ];
+  // Define skip options based on fight state
+  const skipOptions = isPreFight 
+    ? [
+        { label: 'Skip to fight', value: 'startfight' },
+        { label: 'Skip entire fight', value: 'entirefight' }
+      ]
+    : [
+        { label: '1 minute', value: '1min' },
+        { label: '2 minutes', value: '2min' },
+        { label: 'End of round', value: 'endround' },
+        { label: 'Skip entire fight', value: 'entirefight' }
+      ];
 
+  /**
+   * Handlers for skip menu interactions
+   */
   const handleSkipMenuClick = (event) => {
     setSkipMenuAnchor(event.currentTarget);
   };
@@ -86,7 +108,7 @@ const skipOptions = isPreFight
           />
         </Box>
 
-        {/* Playback Controls */}
+        {/* Playback Control Panel */}
         <Box sx={{ 
           display: 'flex', 
           flexDirection: 'column',
@@ -98,28 +120,41 @@ const skipOptions = isPreFight
           mb: 2
         }}>
           <ButtonGroup variant="contained" size="small">
+            {/* Play/Pause Button */}
             <Button
               onClick={onPlayPauseClick}
               startIcon={isPlaying ? <PauseCircleOutline /> : <PlayCircleOutline />}
+              disabled={isFightComplete}
             >
               {isPlaying ? 'Pause' : 'Play'}
             </Button>
-            <IconButton onClick={onSpeedDecrease}>
+
+            {/* Speed Control Buttons */}
+            <IconButton 
+              onClick={onSpeedDecrease}
+              disabled={isFightComplete}
+            >
               <FastRewind />
             </IconButton>
-            <IconButton onClick={onSpeedIncrease}>
+            <IconButton 
+              onClick={onSpeedIncrease}
+              disabled={isFightComplete}
+            >
               <FastForward />
             </IconButton>
+
+            {/* Skip Menu Button */}
             <Button
               endIcon={<KeyboardArrowDown />}
               onClick={handleSkipMenuClick}
+              disabled={isFightComplete && !isPreFight}
               sx={{ minWidth: '100px' }}
             >
               Skip
             </Button>
           </ButtonGroup>
 
-          {/* Skip Menu */}
+          {/* Skip Options Menu */}
           <Menu
             anchorEl={skipMenuAnchor}
             open={isSkipMenuOpen}
@@ -137,6 +172,7 @@ const skipOptions = isPreFight
               <MenuItem
                 key={option.label}
                 onClick={() => handleSkipOptionSelect(option.value)}
+                disabled={isFightComplete && option.value !== 'entirefight'}
               >
                 {option.label}
               </MenuItem>
@@ -144,7 +180,7 @@ const skipOptions = isPreFight
           </Menu>
         </Box>
 
-        {/* Event Log */}
+        {/* Event Display */}
         <Box 
           ref={eventDisplayRef}
           sx={{ 

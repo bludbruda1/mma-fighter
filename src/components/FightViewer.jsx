@@ -4,19 +4,13 @@ import ActiveFighterCard from './ActiveFighterCard';
 import EventLoggerCard from './EventLoggerCard';
 import { formatFightEvent, formatFightTime } from '../engine/fightEventFormatter';
 
-/**
- * FightViewer Component
- * Provides an interactive viewer for simulated MMA fights with playback controls
- * 
- * @param {Object[]} fightEvents - Array of fight events to display
- * @param {Object[]} fighters - Array of fighter objects (typically 2 fighters)
- */
 const FightViewer = ({ fightEvents = [], fighters = [] }) => {
   // Core playback state
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [displayedEvents, setDisplayedEvents] = useState([]);
+  const [isFightComplete, setIsFightComplete] = useState(false);
 
   // Fight progress state
   const [currentRound, setCurrentRound] = useState(0); // 0 represents pre-fight
@@ -35,9 +29,13 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
   const eventDisplayRef = useRef(null);
   const playbackInterval = useRef(null);
 
-  /**
-   * Initialize fight data and determine total rounds
-   */
+  // Helper to check if an event is a fight ending event
+  const isFightEndingEvent = useCallback((event) => {
+    return event?.type === 'fightEnd' || 
+           (event?.method === 'Knockout' || event?.method === 'Submission');
+  }, []);
+
+  // Initialize fight data and determine total rounds
   useEffect(() => {
     if (Array.isArray(fightEvents) && fightEvents.length > 0) {
       const maxRound = fightEvents.reduce((max, event) => 
@@ -46,9 +44,7 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     }
   }, [fightEvents]);
 
-  /**
-   * Update fight statistics based on event type
-   */
+  // Update fight statistics based on event type
   const updateStats = useCallback((event) => {
     if (!event || !Array.isArray(fighters)) return;
 
@@ -101,9 +97,7 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     });
   }, [fighters]);
 
-  /**
-   * Process a single fight event and update the display
-   */
+  // Process and display event
   const processEvent = useCallback((event) => {
     if (!event) return;
 
@@ -128,9 +122,6 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     updateStats(event);
   }, [updateStats]);
 
-  /**
-   * Handle time-based skipping through the fight
-   */
   const handleTimeSkip = useCallback((skipValue) => {
     if (!Array.isArray(fightEvents)) return;
     
@@ -142,14 +133,25 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
       significantStrikes: [0, 0],
       submissionAttempts: [0, 0],
     });
-
+  
     // Helper function to find the first event of a specific round
     const findRoundStart = (roundNumber) => {
-      return fightEvents.findIndex(event =>
+      return fightEvents.findIndex(event => 
         event?.type === 'roundStart' && event?.round === roundNumber
       );
     };
-
+  
+    // Helper function to find fight ending event
+    const findFightEnd = (startIndex) => {
+      for (let i = startIndex; i < fightEvents.length; i++) {
+        if (isFightEndingEvent(fightEvents[i])) {
+          // Return index of fight end event and the next event (if it exists)
+          return i + 1 < fightEvents.length ? i + 1 : i;
+        }
+      }
+      return -1;
+    };
+  
     // Helper function to process events up to an index
     const processEventsUpTo = (targetIndex) => {
       if (targetIndex !== -1) {
@@ -157,33 +159,36 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
           processEvent(fightEvents[i]);
         }
         setCurrentEventIndex(targetIndex + 1);
+        
+        // Check if this was the end of the fight
+        if (isFightEndingEvent(fightEvents[targetIndex])) {
+          setIsFightComplete(true);
+        }
       }
     };
-
-    // Find current time in the round (when in fight)
+  
+    // Find current time in the round (if in a round)
     const getCurrentTime = () => {
       if (!isPreFight && currentEventIndex > 0) {
         const currentEvent = fightEvents[currentEventIndex - 1];
-        return currentEvent?.clock || 300; // Default to start of round
+        return currentEvent?.clock || 300;
       }
-      return 300; // Default to start of round
+      return 300;
     };
-
+  
     if (skipValue === 'startfight') {
-      // Skip to first action of round 1
       const roundStartIndex = findRoundStart(1);
       if (roundStartIndex !== -1) {
         processEventsUpTo(roundStartIndex);
       }
       return;
     }
-
+  
     if (skipValue === 'entirefight') {
-      // Process all events
       processEventsUpTo(fightEvents.length - 1);
       return;
     }
-
+  
     if (!isPreFight) {
       switch (skipValue) {
         case '1min':
@@ -192,8 +197,17 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
           const currentTime = getCurrentTime();
           const targetTime = currentTime - skipSeconds;
   
+          let targetIndex;
+  
           if (targetTime <= 0) {
-            // Need to go to next round
+            // Check if fight ends before next round
+            const fightEndIndex = findFightEnd(currentEventIndex);
+            if (fightEndIndex !== -1) {
+              processEventsUpTo(fightEndIndex);
+              return;
+            }
+  
+            // If no fight end, go to next round
             const nextRound = currentRound + 1;
             const nextRoundStart = findRoundStart(nextRound);
             if (nextRoundStart !== -1) {
@@ -201,11 +215,19 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
             }
           } else {
             // Find event closest to target time in current round
-            const targetIndex = fightEvents.findIndex(event => 
+            targetIndex = fightEvents.findIndex(event => 
               event?.round === currentRound && 
               event?.clock && 
               event.clock <= targetTime
             );
+  
+            // Check if fight ends before target time
+            const fightEndIndex = findFightEnd(currentEventIndex);
+            if (fightEndIndex !== -1 && (targetIndex === -1 || fightEndIndex < targetIndex)) {
+              processEventsUpTo(fightEndIndex);
+              return;
+            }
+  
             if (targetIndex !== -1) {
               processEventsUpTo(targetIndex);
             }
@@ -214,7 +236,14 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
         }
   
         case 'endround': {
-          // Skip to the first action of next round
+          // Check if fight ends before next round
+          const fightEndIndex = findFightEnd(currentEventIndex);
+          if (fightEndIndex !== -1) {
+            processEventsUpTo(fightEndIndex);
+            return;
+          }
+  
+          // If no fight end, go to next round
           const nextRound = currentRound + 1;
           const nextRoundStart = findRoundStart(nextRound);
           if (nextRoundStart !== -1) {
@@ -227,18 +256,19 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
           return;
       }
     }
-  }, [fightEvents, currentRound, currentEventIndex, isPreFight, processEvent]);
+  }, [fightEvents, currentRound, currentEventIndex, isPreFight, processEvent, isFightEndingEvent]);
 
-  /**
-   * Playback control handlers
-   */
-  const handlePlayPause = () => setIsPlaying(!isPlaying);
-  const handleSpeedDecrease = () => setPlaybackSpeed(prev => Math.max(0.5, prev - 0.5));
-  const handleSpeedIncrease = () => setPlaybackSpeed(prev => Math.min(4, prev + 0.5));
+  // Effect to check if we've reached the end of the fight
+  useEffect(() => {
+    if (currentEventIndex > 0 && currentEventIndex <= fightEvents.length) {
+      const currentEvent = fightEvents[currentEventIndex - 1];
+      if (isFightEndingEvent(currentEvent)) {
+        setIsFightComplete(true);
+      }
+    }
+  }, [currentEventIndex, fightEvents, isFightEndingEvent]);
 
-  /**
-   * Auto-scroll effect for event log
-   */
+  // Auto-scroll effect for event log
   useEffect(() => {
     if (eventDisplayRef.current) {
       const scrollHeight = eventDisplayRef.current.scrollHeight;
@@ -249,9 +279,7 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     }
   }, [displayedEvents]);
 
-  /**
-   * Playback interval effect
-   */
+  // Playback interval effect
   useEffect(() => {
     if (isPlaying && Array.isArray(fightEvents)) {
       playbackInterval.current = setInterval(() => {
@@ -277,6 +305,10 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     return null;
   }
 
+  const handlePlayPause = () => setIsPlaying(!isPlaying);
+  const handleSpeedDecrease = () => setPlaybackSpeed(prev => Math.max(0.5, prev - 0.5));
+  const handleSpeedIncrease = () => setPlaybackSpeed(prev => Math.min(4, prev + 0.5));
+
   return (
     <Container maxWidth="lg">
       <Grid container spacing={3}>
@@ -300,6 +332,7 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
             onSpeedIncrease={handleSpeedIncrease}
             onSkipTime={handleTimeSkip}
             isPreFight={isPreFight}
+            isFightComplete={isFightComplete}
           />
         </Grid>
         <Grid item xs={12} md={3}>
