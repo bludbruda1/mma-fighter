@@ -25,6 +25,13 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     submissionAttempts: [0, 0],
   });
 
+  // New state for tracking fighter health
+  const [fighterHealth, setFighterHealth] = useState([
+    // Initialize health for both fighters
+    { head: 100, body: 100, legs: 100 },
+    { head: 100, body: 100, legs: 100 }
+  ]);
+
   // Refs for DOM elements and intervals
   const eventDisplayRef = useRef(null);
   const playbackInterval = useRef(null);
@@ -43,6 +50,32 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
       setTotalRounds(maxRound);
     }
   }, [fightEvents]);
+
+  // Update health tracking based on strike events
+  const updateFighterHealth = useCallback((event) => {
+    if (event?.type === 'strike' && event.outcome === 'landed' && event.damage && event.target) {
+      setFighterHealth(prevHealth => {
+        // Find the defender's index (0 or 1)
+        const defenderIndex = fighters.findIndex(f => 
+          f && (f.personid === event.defenderId || f.id === event.defenderId)
+        );
+        
+        if (defenderIndex === -1) return prevHealth;
+
+        // Create new health state
+        const newHealth = [...prevHealth];
+        const currentHealth = { ...newHealth[defenderIndex] };
+        
+        // Reduce health based on damage and target
+        currentHealth[event.target] = Math.max(0, 
+          currentHealth[event.target] - event.damage
+        );
+        
+        newHealth[defenderIndex] = currentHealth;
+        return newHealth;
+      });
+    }
+  }, [fighters]);
 
   // Update fight statistics based on event type
   const updateStats = useCallback((event) => {
@@ -101,6 +134,9 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
   const processEvent = useCallback((event) => {
     if (!event) return;
 
+    // Update health for strike events
+    updateFighterHealth(event);
+
     // Update round tracking
     if (event.type === 'roundStart' && typeof event.round === 'number') {
       setCurrentRound(event.round);
@@ -120,8 +156,8 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
       }]);
     }
     updateStats(event);
-  }, [updateStats]);
-
+  }, [updateStats, updateFighterHealth]);
+  
   const handleTimeSkip = useCallback((skipValue) => {
     if (!Array.isArray(fightEvents)) return;
     
@@ -301,6 +337,7 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
             fighter={fighters[0] || {}}
             index={0}
             currentStats={currentStats}
+            health={fighterHealth[0]} 
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -324,6 +361,7 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
             fighter={fighters[1] || {}}
             index={1}
             currentStats={currentStats}
+            health={fighterHealth[1]}
           />
         </Grid>
       </Grid>
