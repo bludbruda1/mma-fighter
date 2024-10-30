@@ -1,7 +1,30 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, Chip } from '@mui/material';
 import FighterStatBar from "./FighterStatBar";
 import HealthBar from "./HealthBar";
+
+// Helper function to format position text
+const formatPosition = (position) => {
+  if (!position) return 'Standing';
+  
+  // Convert GROUND_FULL_GUARD_TOP to "Full Guard (Top)"
+  return position
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+    .replace('Ground ', '')
+    .replace('Position', '');
+};
+
+// Helper function to determine chip color based on position
+const getPositionColor = (position) => {
+  if (!position) return 'default';
+  
+  if (position.includes('CLINCH')) return 'warning';
+  if (position.includes('GROUND')) return 'error';
+  return 'success'; // Standing position
+};
 
 /**
  * ActiveFighterCard Component
@@ -26,6 +49,23 @@ const ActiveFighterCard = ({ fighter, index, currentStats, health = { head: 100,
       <Typography variant="h6" align="center">
         {fighter.firstname} {fighter.lastname}
       </Typography>
+
+       {/* Position Display */}
+       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Chip
+          label={formatPosition(fighter.position)}
+          color={getPositionColor(fighter.position)}
+          variant="outlined"
+          sx={{
+            fontWeight: 'medium',
+            fontSize: '0.875rem',
+            minWidth: '120px',
+            '& .MuiChip-label': {
+              px: 2
+            }
+          }}
+        />
+      </Box>
             
       {/* Fighter Health Section */}
       <Box sx={{ mt: 2, mb: 3 }}>

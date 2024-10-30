@@ -4,6 +4,14 @@ import ActiveFighterCard from './ActiveFighterCard';
 import EventLoggerCard from './EventLoggerCard';
 import { formatFightEvent, formatFightTime } from '../engine/fightEventFormatter';
 
+/**
+ * FightViewer Component
+ * Manages and displays the progress of a fight simulation including fighter stats,
+ * health, positions, and play-by-play events
+ * 
+ * @param {Object[]} fightEvents - Array of events from the fight simulation
+ * @param {Object[]} fighters - Array of fighter data objects
+ */
 const FightViewer = ({ fightEvents = [], fighters = [] }) => {
   // Core playback state
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
@@ -16,6 +24,12 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
   const [currentRound, setCurrentRound] = useState(0); // 0 represents pre-fight
   const [isPreFight, setIsPreFight] = useState(true);
   const [totalRounds, setTotalRounds] = useState(1);
+
+  // Fighter position state - tracks the current position of each fighter
+  const [fighterPositions, setFighterPositions] = useState([
+    'STANDING',
+    'STANDING'
+  ]);
 
   // Fighter statistics state
   const [currentStats, setCurrentStats] = useState({
@@ -35,13 +49,17 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
   const eventDisplayRef = useRef(null);
   const playbackInterval = useRef(null);
 
-  // Utility function to check if an event ends the fight
+  /**
+   * Checks if an event ends the fight
+   */
   const isFightEndingEvent = useCallback((event) => {
     return event?.type === 'fightEnd' || 
            (event?.method === 'Knockout' || event?.method === 'Submission');
   }, []);
 
-  // Update stats based on event
+  /**
+   * Updates fight statistics based on event type
+   */
   const updateStats = useCallback((event) => {
     if (!event || !Array.isArray(fighters)) return;
 
@@ -92,11 +110,81 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     });
   }, [fighters]);
 
-  // Process a single event with health update
+  /**
+   * Processes a single event and updates fight state accordingly
+   */
   const processEvent = useCallback((event, healthState) => {
     if (!event) return healthState;
 
     let newHealth = JSON.parse(JSON.stringify(healthState));
+
+    // Handle position changes
+    if (event.type === 'position') {
+      setFighterPositions(prevPositions => {
+        const newPositions = [...prevPositions];
+        const attackerIndex = fighters.findIndex(f => 
+          f && (f.personid === event.attackerId || f.id === event.attackerId)
+        );
+        const defenderIndex = fighters.findIndex(f => 
+          f && (f.personid === event.defenderId || f.id === event.defenderId)
+        );
+        
+        if (attackerIndex !== -1) {
+          newPositions[attackerIndex] = event.newPosition;
+        }
+        if (defenderIndex !== -1 && event.defenderPosition) {
+          newPositions[defenderIndex] = event.defenderPosition;
+        }
+        return newPositions;
+      });
+    }
+
+    // Handle clinch events
+    if (event.type === 'clinch' && event.outcome === 'successful') {
+      setFighterPositions(prevPositions => {
+        const newPositions = [...prevPositions];
+        const attackerIndex = fighters.findIndex(f => 
+          f && (f.personid === event.attackerId || f.id === event.attackerId)
+        );
+        const defenderIndex = fighters.findIndex(f => 
+          f && (f.personid === event.defenderId || f.id === event.defenderId)
+        );
+        
+        if (attackerIndex !== -1) {
+          newPositions[attackerIndex] = 'CLINCH_OFFENCE';
+        }
+        if (defenderIndex !== -1) {
+          newPositions[defenderIndex] = 'CLINCH_DEFENCE';
+        }
+        return newPositions;
+      });
+    }
+
+    // Handle takedown events
+    if (event.type === 'takedown' && event.outcome === 'successful') {
+      setFighterPositions(prevPositions => {
+        const newPositions = [...prevPositions];
+        const attackerIndex = fighters.findIndex(f => 
+          f && (f.personid === event.attackerId || f.id === event.attackerId)
+        );
+        const defenderIndex = fighters.findIndex(f => 
+          f && (f.personid === event.defenderId || f.id === event.defenderId)
+        );
+        
+        if (attackerIndex !== -1) {
+          newPositions[attackerIndex] = 'GROUND_FULL_GUARD_TOP';
+        }
+        if (defenderIndex !== -1) {
+          newPositions[defenderIndex] = 'GROUND_FULL_GUARD_BOTTOM';
+        }
+        return newPositions;
+      });
+    }
+
+    // Reset positions on round start
+    if (event.type === 'roundStart') {
+      setFighterPositions(['STANDING', 'STANDING']);
+    }
 
     // Handle strike damage
     if (event?.type === 'strike' && event.outcome === 'landed' && event.damage && event.target) {
@@ -111,6 +199,11 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
           [event.target]: Math.max(0, newHealth[defenderIndex][event.target] - damageAmount)
         };
       }
+    }
+
+    // Handle submission attempts and success
+    if (event.type === 'submission' && event.stage === 'success') {
+      setIsFightComplete(true);
     }
 
     // Update round tracking
@@ -136,139 +229,135 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     return newHealth;
   }, [fighters, updateStats]);
 
-  // Handle time skip functionality
-  const handleTimeSkip = useCallback((skipValue) => {
-    if (!Array.isArray(fightEvents)) return;
+ /**
+   * Handles various time skip options during playback
+   */
+ const handleTimeSkip = useCallback((skipValue) => {
+  if (!Array.isArray(fightEvents)) return;
 
-    // Reset display state
-    setIsPlaying(false);
-    setDisplayedEvents([]);
-    setCurrentStats({
-      strikesLanded: [0, 0],
-      takedownsLanded: [0, 0],
-      significantStrikes: [0, 0],
-      submissionAttempts: [0, 0],
-    });
+  // Reset display state
+  setIsPlaying(false);
+  setDisplayedEvents([]);
+  setCurrentStats({
+    strikesLanded: [0, 0],
+    takedownsLanded: [0, 0],
+    significantStrikes: [0, 0],
+    submissionAttempts: [0, 0],
+  });
 
-    const findRoundStart = (roundNumber) => {
-      return fightEvents.findIndex(event => 
-        event?.type === 'roundStart' && event?.round === roundNumber
-      );
-    };
+  const findRoundStart = (roundNumber) => {
+    return fightEvents.findIndex(event => 
+      event?.type === 'roundStart' && event?.round === roundNumber
+    );
+  };
 
-    // Process events up to a target index
-    const processEventsUpTo = (targetIndex) => {
-      if (targetIndex !== -1) {
-        // Initialize fresh health state
-        let currentHealth = [
-          { head: 100, body: 100, legs: 100 },
-          { head: 100, body: 100, legs: 100 }
-        ];
-        
-        // Reset display state
-        setDisplayedEvents([]);
-        setCurrentStats({
-          strikesLanded: [0, 0],
-          takedownsLanded: [0, 0],
-          significantStrikes: [0, 0],
-          submissionAttempts: [0, 0],
-        });
+  // Process events up to a target index
+  const processEventsUpTo = (targetIndex) => {
+    if (targetIndex !== -1) {
+      let currentHealth = [
+        { head: 100, body: 100, legs: 100 },
+        { head: 100, body: 100, legs: 100 }
+      ];
+      
+      setDisplayedEvents([]);
+      setCurrentStats({
+        strikesLanded: [0, 0],
+        takedownsLanded: [0, 0],
+        significantStrikes: [0, 0],
+        submissionAttempts: [0, 0],
+      });
 
-        // Process all events sequentially
-        for (let i = 0; i <= targetIndex; i++) {
-          currentHealth = processEvent(fightEvents[i], currentHealth);
-        }
-
-        // Update React state once with final values
-        setFighterHealth(currentHealth);
-        setCurrentEventIndex(targetIndex + 1);
-      }
-    };
-
-    const processUntilTimeOrEnd = (startIndex, targetRound, targetTime) => {
-      let endIndex = startIndex;
-      let foundEnd = false;
-
-      while (endIndex < fightEvents.length) {
-        const event = fightEvents[endIndex];
-        
-        if (event.round > targetRound || 
-            (event.round === targetRound && event.clock && event.clock <= targetTime)) {
-          break;
-        }
-
-        if (isFightEndingEvent(event)) {
-          foundEnd = true;
-          while (endIndex + 1 < fightEvents.length && 
-                (fightEvents[endIndex + 1].type === 'fightEnd' || 
-                 fightEvents[endIndex + 1].type === 'announcement')) {
-            endIndex++;
-          }
-          break;
-        }
-        endIndex++;
+      for (let i = 0; i <= targetIndex; i++) {
+        currentHealth = processEvent(fightEvents[i], currentHealth);
       }
 
-      processEventsUpTo(endIndex);
-      if (foundEnd) setIsFightComplete(true);
-    };
+      setFighterHealth(currentHealth);
+      setCurrentEventIndex(targetIndex + 1);
+    }
+  };
 
-    // Handle different skip options
-    if (skipValue === 'startfight') {
+  const processUntilTimeOrEnd = (startIndex, targetRound, targetTime) => {
+    let endIndex = startIndex;
+    
+    while (endIndex < fightEvents.length) {
+      const event = fightEvents[endIndex];
+      
+      // Break if we've gone past our target round or reached our target time
+      if (event.round > targetRound || 
+          (event.round === targetRound && event.clock && event.clock <= targetTime)) {
+        break;
+      }
+
+      // Break if we hit a fight ending event
+      if (event.type === 'fightEnd' || event.method === 'Knockout' || event.method === 'Submission') {
+        setIsFightComplete(true);
+        break;
+      }
+
+      endIndex++;
+    }
+
+    processEventsUpTo(endIndex);
+  };
+
+  // Handle different skip options
+  switch (skipValue) {
+    case 'startfight': {
       const roundStartIndex = findRoundStart(1);
       if (roundStartIndex !== -1) {
         processEventsUpTo(roundStartIndex);
       }
-      return;
+      break;
     }
 
-    if (skipValue === 'entirefight') {
+    case 'entirefight': {
       processEventsUpTo(fightEvents.length - 1);
       setIsFightComplete(true);
-      return;
+      break;
     }
 
-    if (!isPreFight) {
-      const currentTime = fightEvents[currentEventIndex - 1]?.clock || 300;
-      
-      switch (skipValue) {
-        case '1min':
-        case '2min': {
-          const skipSeconds = skipValue === '1min' ? 60 : 120;
-          const targetTime = currentTime - skipSeconds;
+    case '1min':
+    case '2min': {
+      const skipSeconds = skipValue === '1min' ? 60 : 120;
+      const currentTime = currentEventIndex > 0 ? 
+        fightEvents[currentEventIndex - 1]?.clock || 300 : 
+        300;
+      const targetTime = Math.max(0, currentTime - skipSeconds);
 
-          if (targetTime <= 0) {
-            processUntilTimeOrEnd(currentEventIndex, currentRound, 0);
-            if (!isFightComplete) {
-              const nextRound = currentRound + 1;
-              const nextRoundStart = findRoundStart(nextRound);
-              if (nextRoundStart !== -1) {
-                processEventsUpTo(nextRoundStart);
-              }
-            }
-          } else {
-            processUntilTimeOrEnd(currentEventIndex, currentRound, targetTime);
+      if (targetTime <= 0) {
+        // Process to end of current round
+        processUntilTimeOrEnd(currentEventIndex, currentRound, 0);
+        
+        // Then process to start of next round if fight hasn't ended
+        if (!isFightComplete) {
+          const nextRound = currentRound + 1;
+          const nextRoundStart = findRoundStart(nextRound);
+          if (nextRoundStart !== -1) {
+            processEventsUpTo(nextRoundStart);
           }
-          break;
         }
-
-        case 'endround': {
-          processUntilTimeOrEnd(currentEventIndex, currentRound, 0);
-          if (!isFightComplete) {
-            const nextRound = currentRound + 1;
-            const nextRoundStart = findRoundStart(nextRound);
-            if (nextRoundStart !== -1) {
-              processEventsUpTo(nextRoundStart);
-            }
-          }
-          break;
-        }
-
-        default:
-          return;
+      } else {
+        processUntilTimeOrEnd(currentEventIndex, currentRound, targetTime);
       }
+      break;
     }
-  }, [fightEvents, currentRound, currentEventIndex, isPreFight, processEvent, isFightComplete, isFightEndingEvent]);
+
+    case 'endround': {
+      processUntilTimeOrEnd(currentEventIndex, currentRound, 0);
+      if (!isFightComplete) {
+        const nextRound = currentRound + 1;
+        const nextRoundStart = findRoundStart(nextRound);
+        if (nextRoundStart !== -1) {
+          processEventsUpTo(nextRoundStart);
+        }
+      }
+      break;
+    }
+
+    default:
+      break;
+  }
+}, [fightEvents, currentEventIndex, currentRound, processEvent, isFightComplete]);
 
   // Initialize total rounds
   useEffect(() => {
@@ -300,39 +389,33 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     }
   }, [displayedEvents]);
 
-// Handle playback interval
-useEffect(() => {
-  if (isPlaying && Array.isArray(fightEvents)) {
-    playbackInterval.current = setInterval(() => {
-      if (currentEventIndex < fightEvents.length) {
-        const newHealth = processEvent(fightEvents[currentEventIndex], fighterHealth);
-        setFighterHealth(newHealth);
-        setCurrentEventIndex(prev => prev + 1);
-        
-        // Add check for fight completion during playback
-        if (currentEventIndex + 1 >= fightEvents.length || 
-            isFightEndingEvent(fightEvents[currentEventIndex])) {
+  // Handle playback interval
+  useEffect(() => {
+    if (isPlaying && Array.isArray(fightEvents)) {
+      playbackInterval.current = setInterval(() => {
+        if (currentEventIndex < fightEvents.length) {
+          const newHealth = processEvent(fightEvents[currentEventIndex], fighterHealth);
+          setFighterHealth(newHealth);
+          setCurrentEventIndex(prev => prev + 1);
+          
+          if (currentEventIndex + 1 >= fightEvents.length || 
+              isFightEndingEvent(fightEvents[currentEventIndex])) {
+            setIsPlaying(false);
+            setIsFightComplete(true);
+          }
+        } else {
           setIsPlaying(false);
-          setIsFightComplete(true); 
+          setIsFightComplete(true);
         }
-      } else {
-        setIsPlaying(false);
-        setIsFightComplete(true);
-      }
-    }, 1000 / playbackSpeed);
-  }
-
-  return () => {
-    if (playbackInterval.current) {
-      clearInterval(playbackInterval.current);
+      }, 1000 / playbackSpeed);
     }
-  };
-}, [isPlaying, playbackSpeed, currentEventIndex, fightEvents, processEvent, fighterHealth, isFightEndingEvent]);
 
-  // Early return if required data is missing
-  if (!Array.isArray(fighters) || fighters.length < 2) {
-    return null;
-  }
+    return () => {
+      if (playbackInterval.current) {
+        clearInterval(playbackInterval.current);
+      }
+    };
+  }, [isPlaying, playbackSpeed, currentEventIndex, fightEvents, processEvent, fighterHealth, isFightEndingEvent]);
 
   // Playback control handlers
   const handlePlayPause = () => setIsPlaying(!isPlaying);
@@ -344,7 +427,7 @@ useEffect(() => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={3}>
           <ActiveFighterCard 
-            fighter={fighters[0] || {}}
+            fighter={{...fighters[0], position: fighterPositions[0]}}
             index={0}
             currentStats={currentStats}
             health={fighterHealth[0]} 
@@ -368,7 +451,7 @@ useEffect(() => {
         </Grid>
         <Grid item xs={12} md={3}>
           <ActiveFighterCard 
-            fighter={fighters[1] || {}}
+            fighter={{...fighters[1], position: fighterPositions[1]}}
             index={1}
             currentStats={currentStats}
             health={fighterHealth[1]}
