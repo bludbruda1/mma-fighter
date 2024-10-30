@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
 import StatBar from "./StatBar";
+import HealthBar from "./HealthBar";
 
 const ActiveFighterCard = ({ fighter, index, currentStats }) => (
   <Card className="h-full">
@@ -15,6 +16,15 @@ const ActiveFighterCard = ({ fighter, index, currentStats }) => (
       <Typography variant="h6" align="center">
         {fighter.firstname} {fighter.lastname}
       </Typography>
+            
+      {/*Fighter Health Section */}
+      <Box sx={{ mt: 2, mb: 3 }}>
+        <Typography variant="subtitle2" gutterBottom>Fighter Health:</Typography>
+        <HealthBar label="Head" value={100} maxValue={100} />
+        <HealthBar label="Body" value={100} maxValue={100} />
+        <HealthBar label="Legs" value={100} maxValue={100} />
+      </Box>
+
       <Box sx={{ mt: 2 }}>
         <Typography variant="subtitle2">Fight Stats:</Typography>
         <StatBar
