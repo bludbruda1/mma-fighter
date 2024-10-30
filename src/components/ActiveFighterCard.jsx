@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
-import StatBar from "./StatBar";
+import FighterStatBar from "./FighterStatBar";
 import HealthBar from "./HealthBar";
 
 /**
@@ -36,30 +36,34 @@ const ActiveFighterCard = ({ fighter, index, currentStats, health = { head: 100,
       </Box>
 
       {/* Fight Stats Section */}
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="subtitle2">Fight Stats:</Typography>
-        <StatBar
-          redValue={currentStats.strikesLanded[index]}
-          blueValue={currentStats.strikesLanded[1 - index]}
-          title="Strikes Landed"
-        />
-        <StatBar
-          redValue={currentStats.significantStrikes[index]}
-          blueValue={currentStats.significantStrikes[1 - index]}
-          title="Significant Strikes"
-        />
-        <StatBar
-          redValue={currentStats.takedownsLanded[index]}
-          blueValue={currentStats.takedownsLanded[1 - index]}
-          title="Takedowns"
-        />
-        <StatBar
-          redValue={currentStats.submissionAttempts[index]}
-          blueValue={currentStats.submissionAttempts[1 - index]}
-          title="Submission Attempts"
-        />
-      </Box>
-    </CardContent>
+        <Box sx={{ mt: 2 }}>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              fontWeight: 'bold',
+              mb: 2 
+            }}
+          >
+            Fight Stats:
+          </Typography>
+          <FighterStatBar
+            label="Strikes Landed"
+            value={currentStats?.strikesLanded?.[index] || 0}
+          />
+          <FighterStatBar
+            label="Significant Strikes"
+            value={currentStats?.significantStrikes?.[index] || 0}
+          />
+          <FighterStatBar
+            label="Takedowns"
+            value={currentStats?.takedownsLanded?.[index] || 0}
+          />
+          <FighterStatBar
+            label="Submission Attempts"
+            value={currentStats?.submissionAttempts?.[index] || 0}
+          />
+        </Box>
+      </CardContent>
   </Card>
 );
 
