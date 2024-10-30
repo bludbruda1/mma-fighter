@@ -150,12 +150,6 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
       submissionAttempts: [0, 0],
     });
 
-    // Initialize fresh health state
-    let currentHealth = [
-      { head: 100, body: 100, legs: 100 },
-      { head: 100, body: 100, legs: 100 }
-    ];
-
     const findRoundStart = (roundNumber) => {
       return fightEvents.findIndex(event => 
         event?.type === 'roundStart' && event?.round === roundNumber
@@ -306,26 +300,34 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     }
   }, [displayedEvents]);
 
-  // Handle playback interval
-  useEffect(() => {
-    if (isPlaying && Array.isArray(fightEvents)) {
-      playbackInterval.current = setInterval(() => {
-        if (currentEventIndex < fightEvents.length) {
-          const newHealth = processEvent(fightEvents[currentEventIndex], fighterHealth);
-          setFighterHealth(newHealth);
-          setCurrentEventIndex(prev => prev + 1);
-        } else {
+// Handle playback interval
+useEffect(() => {
+  if (isPlaying && Array.isArray(fightEvents)) {
+    playbackInterval.current = setInterval(() => {
+      if (currentEventIndex < fightEvents.length) {
+        const newHealth = processEvent(fightEvents[currentEventIndex], fighterHealth);
+        setFighterHealth(newHealth);
+        setCurrentEventIndex(prev => prev + 1);
+        
+        // Add check for fight completion during playback
+        if (currentEventIndex + 1 >= fightEvents.length || 
+            isFightEndingEvent(fightEvents[currentEventIndex])) {
           setIsPlaying(false);
+          setIsFightComplete(true); 
         }
-      }, 1000 / playbackSpeed);
-    }
-
-    return () => {
-      if (playbackInterval.current) {
-        clearInterval(playbackInterval.current);
+      } else {
+        setIsPlaying(false);
+        setIsFightComplete(true);
       }
-    };
-  }, [isPlaying, playbackSpeed, currentEventIndex, fightEvents, processEvent, fighterHealth]);
+    }, 1000 / playbackSpeed);
+  }
+
+  return () => {
+    if (playbackInterval.current) {
+      clearInterval(playbackInterval.current);
+    }
+  };
+}, [isPlaying, playbackSpeed, currentEventIndex, fightEvents, processEvent, fighterHealth, isFightEndingEvent]);
 
   // Early return if required data is missing
   if (!Array.isArray(fighters) || fighters.length < 2) {
