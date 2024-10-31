@@ -85,6 +85,17 @@ const HamburgerMenu = () => {
           <ListItem
             button
             component={Link}
+            to="/createevent"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Create Event" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
             to="/fight"
             onClick={handleDrawerToggle}
           >
@@ -92,6 +103,17 @@ const HamburgerMenu = () => {
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Fight Screen" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/events"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Events" sx={{ color: "#fff" }} />
           </ListItem>
         </List>
       </Drawer>
