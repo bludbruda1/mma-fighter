@@ -28,6 +28,27 @@ const Dashboard = () => {
   const [allFighterIds, setAllFighterIds] = useState([]);
   const [fights, setFights] = useState([]);
 
+  // Helper function to sort fights
+  const sortFights = (fights) => {
+    const upcoming = [];
+    const completed = [];
+    
+    fights.forEach(fight => {
+      if (!fight.result) {
+        upcoming.push(fight);
+      } else {
+        completed.push(fight);
+      }
+    });
+
+    // Sort upcoming fights by date if available
+    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Sort completed fights by date in descending order
+    completed.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return [...upcoming, ...completed];
+  };
+
   // Effect to fetch all fighter IDs when the component mounts
   useEffect(() => {
     const fetchAllFighterIds = async () => {
@@ -44,7 +65,7 @@ const Dashboard = () => {
     fetchAllFighterIds();
   }, []);
 
-  // Effect to fetch the fighter data and their fights
+  // Effect to fetch fighter data and fights
   useEffect(() => {
     const fetchFighterData = async () => {
       try {
@@ -65,45 +86,32 @@ const Dashboard = () => {
             fight.fighter1.personid === selectedFighter.personid || 
             fight.fighter2.personid === selectedFighter.personid
           );
-
-          // Sort fights by date if available
-          const sortedFights = fighterFights.sort((a, b) => {
-            if (a.date && b.date) {
-              return new Date(b.date) - new Date(a.date); // Most recent first
-            }
-            return 0;
-          });
           
-          setFights(sortedFights);
+          setFights(fighterFights);
         } else {
           setError("Fighter not found");
         }
       } catch (error) {
         setError("Error fetching fighter: " + error.message);
-        console.error("Error fetching data:", error);
       }
     };
 
     fetchFighterData();
   }, [id]);
 
-  // Function to navigate to the next or previous fighter
+  // Function to navigate between fighters
   const navigateToFighter = (direction) => {
     const currentIndex = allFighterIds.indexOf(parseInt(id));
     let newIndex;
     if (direction === "next") {
-      // If at the end, loop back to the start
-      newIndex =
-        currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
+      newIndex = currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
     } else {
-      // If at the start, loop to the end
-      newIndex =
-        currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
+      newIndex = currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
     }
     navigate(`/dashboard/${allFighterIds[newIndex]}`);
   };
 
-  // Helper function to determine if the fighter won the fight
+  // Helper function to determine fight result
   const getFightResult = (fight) => {
     if (!fight.result) return null;
     
@@ -130,7 +138,7 @@ const Dashboard = () => {
     }
   };
 
-  // Helper function to format the time
+  // Helper function to format time
   const formatTime = (time) => {
     return time || "0:00";
   };
@@ -156,6 +164,119 @@ const Dashboard = () => {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
+
+  // Fight history section render
+  const renderFightHistory = () => (
+    <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: 'auto' }}>
+      <CardContent>
+        <Typography variant="h5" gutterBottom>Fight History</Typography>
+        <List>
+          {fights.length > 0 ? (
+            sortFights(fights).map((fight) => {
+              // Handle upcoming fights
+              if (!fight.result) {
+                const isFirstFighter = fighter.personid === fight.fighter1.personid;
+                const opponent = isFirstFighter ? fight.fighter2 : fight.fighter1;
+                
+                return (
+                  <ListItem key={fight.id} divider>
+                    <ListItemText
+                      primary={
+                        opponent.personid ? (
+                          <Link
+                            to={`/Dashboard/${opponent.personid}`}
+                            style={{
+                              textDecoration: "none",
+                              color: "#1976d2",
+                            }}
+                          >
+                            {`${opponent.firstname} ${opponent.lastname}`}
+                          </Link>
+                        ) : (
+                          <Typography component="span">
+                            {`${opponent.firstname} ${opponent.lastname}`}
+                          </Typography>
+                        )
+                      }
+                      secondary={
+                        <Box sx={{ mt: 1, display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <Chip 
+                            label="UPCOMING"
+                            color="primary"
+                            size="small"
+                            sx={{
+                              bgcolor: 'warning.main',
+                              color: 'warning.contrastText',
+                              fontWeight: 'bold'
+                            }}
+                          />
+                          {fight.date && (
+                            <Typography variant="caption" color="text.secondary">
+                              {new Date(fight.date).toLocaleDateString()}
+                            </Typography>
+                          )}
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                );
+              }
+
+              // Handle completed fights
+              const fightResult = getFightResult(fight);
+              if (!fightResult) return null;
+
+              return (
+                <ListItem key={fight.id} divider>
+                  <ListItemText
+                    primary={
+                      fightResult.opponent.personid ? (
+                        <Link
+                          to={`/Dashboard/${fightResult.opponent.personid}`}
+                          style={{
+                            textDecoration: "none",
+                            color: "#1976d2",
+                          }}
+                        >
+                          {`${fightResult.opponent.firstname} ${fightResult.opponent.lastname}`}
+                        </Link>
+                      ) : (
+                        <Typography component="span">
+                          {`${fightResult.opponent.firstname} ${fightResult.opponent.lastname}`}
+                        </Typography>
+                      )
+                    }
+                    secondary={
+                      <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                        <Chip 
+                          label={fightResult.result}
+                          color={fightResult.result === 'Win' ? 'success' : 'error'}
+                          size="small"
+                        />
+                        <Chip 
+                          label={getMethodAbbreviation(fightResult.method)}
+                          color={fightResult.result === 'Win' ? 'success' : 'error'}
+                          size="small"
+                          variant="outlined"
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          {`R${fightResult.roundEnded} ${formatTime(fightResult.timeEnded)}`}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItem>
+              );
+            })
+          ) : (
+            <ListItem>
+              <ListItemText primary="No fight history available." />
+            </ListItem>
+          )}
+        </List>
+      </CardContent>
+    </Card>
+  );
 
   // Error handling
   if (error) {
@@ -226,31 +347,21 @@ const Dashboard = () => {
               <Typography variant="h5" gutterBottom>
                 Basic Information
               </Typography>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Nationality:</Typography>
-                <Typography variant="body1">
-                  {fighter.nationality}
-                </Typography>
+                <Typography variant="body1">{fighter.nationality}</Typography>
               </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Hometown:</Typography>
                 <Typography variant="body1">{fighter.hometown}</Typography>
               </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Record:</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {fighter.wins}W-{fighter.losses}L
                 </Typography>
               </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Weight Class:</Typography>
                 <Chip label={fighter.weightClass} color="secondary" />
               </Box>
@@ -261,71 +372,8 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Fight History section */}
-          <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: 'auto' }}>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>Fight History</Typography>
-              <List>
-                {fights.length > 0 ? (
-                  fights.map((fight) => {
-                    const fightResult = getFightResult(fight);
-                    if (!fightResult) return null;
-
-                    return (
-                      <ListItem key={fight.id} divider>
-                        <ListItemText
-                        primary={
-                          fightResult.opponent.personid ? (
-                            <Link
-                              to={`/Dashboard/${fightResult.opponent.personid}`}
-                              style={{
-                                textDecoration: "none",
-                                color: "#1976d2",
-                              }}
-                            >
-                              {`${fightResult.opponent.firstname} ${fightResult.opponent.lastname}`}
-                            </Link>
-                          ) : (
-                            <Typography
-                              component="span"
-                              sx={{
-                                color: "text.primary",
-                              }}
-                            >
-                              {`${fightResult.opponent.firstname} ${fightResult.opponent.lastname}`}
-                            </Typography>
-                          )
-                        }
-                          secondary={
-                            <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                              <Chip 
-                                label={fightResult.result}
-                                color={fightResult.result === 'Win' ? 'success' : 'error'}
-                                size="small"
-                              />
-                              <Chip 
-                                label={getMethodAbbreviation(fightResult.method)}
-                                color={fightResult.result === 'Win' ? 'success' : 'error'}
-                                size="small"
-                                variant="outlined"
-                              />
-                              <Typography variant="caption" color="text.secondary">
-                                {`R${fightResult.roundEnded} ${formatTime(fightResult.timeEnded)}`}
-                              </Typography>
-                            </Box>
-                          }
-                        />
-                      </ListItem>
-                    );
-                  })
-                ) : (
-                  <ListItem>
-                    <ListItemText primary="No fight history available." />
-                  </ListItem>
-                )}
-              </List>
-            </CardContent>
-          </Card>
+          {/* Fight History */}
+          {renderFightHistory()}
         </Grid>
 
         {/* Fighter's ratings and tendencies */}
