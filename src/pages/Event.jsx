@@ -25,7 +25,6 @@ import ResultCard from "../components/ResultCard";
 import { simulateFight } from "../engine/FightSim";
 import {
   calculateFightStats,
-  displayFightStats,
 } from "../engine/FightStatistics";
 
 const Event = () => {
@@ -34,7 +33,6 @@ const Event = () => {
   const [fightResults, setFightResults] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFightIndex, setCurrentFightIndex] = useState(null);
-  const [completeFighterData, setCompleteFighterData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {

@@ -351,8 +351,9 @@ export const updateFightResults = async (fightId, results) => {
         stats: results.stats
       };
 
-      const updateRequest = store.put(updatedFight);
-
+    // Store the request result
+    store.put(updatedFight);
+    
       transaction.oncomplete = () => {
         console.log('Fight results updated:', updatedFight);
         resolve(updatedFight);
