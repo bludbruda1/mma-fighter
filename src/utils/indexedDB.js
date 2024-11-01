@@ -4,6 +4,7 @@
 const dbName = "FightersDB";
 const fighterStoreName = "fighters";
 const eventStoreName = "events";
+const fightsStoreName = "fights";
 
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = () => {
@@ -34,6 +35,12 @@ export const openDB = () => {
       if (!db.objectStoreNames.contains(eventStoreName)) {
         console.log(`Creating object store: ${eventStoreName}`);
         db.createObjectStore(eventStoreName, { keyPath: "id" });
+      }
+
+      // Create the "fights" store if it doesn't exist
+      if (!db.objectStoreNames.contains(fightsStoreName)) {
+        console.log(`Creating object store: ${fightsStoreName}`);
+        db.createObjectStore(fightsStoreName, { keyPath: "id" });
       }
     };
   });
@@ -177,4 +184,187 @@ export const getNextEventId = async () => {
 
     getRequest.onerror = () => reject("Error fetching events");
   });
+};
+
+// Function to add a fight to IndexedDB
+export const addFightToDB = async (fight) => {
+  // Validate fight data
+  if (!fight || !fight.fighter1Id || !fight.fighter2Id) {
+    console.error('Invalid fight data:', fight);
+    return Promise.reject('Invalid fight structure');
+  }
+
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(fightsStoreName, "readwrite");
+      const store = transaction.objectStore(fightsStoreName);
+
+      // Ensure fight has an ID
+      if (!fight.id) {
+        console.warn('Fight missing ID, generating one');
+        fight.id = Date.now().toString();
+      }
+
+      const addRequest = store.put(fight); // Using put instead of add to handle updates
+
+      transaction.oncomplete = () => {
+        console.log('Fight successfully added to database:', fight);
+        resolve(fight);
+      };
+
+      transaction.onerror = (error) => {
+        console.error('Transaction error while adding fight:', error);
+        reject(error);
+      };
+
+      addRequest.onerror = (error) => {
+        console.error('Error adding fight:', error);
+        reject(error);
+      };
+    });
+  } catch (error) {
+    console.error('Database error while adding fight:', error);
+    return Promise.reject(error);
+  }
+};
+
+// Function to get all fights from IndexedDB
+export const getAllFights = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(fightsStoreName, "readonly");
+    const store = transaction.objectStore(fightsStoreName);
+    const request = store.getAll();
+
+    request.onsuccess = (event) => {
+      const fights = event.target.result || [];
+      console.log(`Retrieved ${fights.length} fights from database`);
+      resolve(fights);
+    };
+
+    request.onerror = (error) => {
+      console.error('Error fetching fights:', error);
+      reject("Error fetching fights");
+    };
+  });
+};
+
+// Function to get multiple fights by their IDs
+export const getFightsByIds = async (fightIds) => {
+  if (!Array.isArray(fightIds)) {
+    return Promise.reject('fightIds must be an array');
+  }
+
+  const db = await openDB();
+  return Promise.all(
+    fightIds.map(id => 
+      new Promise((resolve, reject) => {
+        const transaction = db.transaction(fightsStoreName, "readonly");
+        const store = transaction.objectStore(fightsStoreName);
+        const request = store.get(id);
+
+        request.onsuccess = () => {
+          resolve(request.result || null);
+        };
+        request.onerror = (error) => {
+          console.error(`Error fetching fight ${id}:`, error);
+          reject(error);
+        };
+      })
+    )
+  ).then(fights => fights.filter(fight => fight !== null));
+};
+
+// Function to get a single fight by ID
+export const getFightFromDB = async (fightId) => {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(fightsStoreName, "readonly");
+    const store = transaction.objectStore(fightsStoreName);
+    const request = store.get(fightId);
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => {
+        if (request.result) {
+          console.log("Fight found:", request.result);
+          resolve(request.result);
+        } else {
+          console.log(`Fight with ID ${fightId} not found.`);
+          resolve(null);
+        }
+      };
+      request.onerror = (error) => {
+        console.error("Error fetching fight:", error);
+        reject(error);
+      };
+    });
+  } catch (error) {
+    console.error("Failed to open database:", error);
+    return Promise.reject(error);
+  }
+};
+
+// Function to get the next fight ID
+export const getNextFightId = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(fightsStoreName, "readonly");
+    const store = transaction.objectStore(fightsStoreName);
+    const request = store.getAll();
+
+    request.onsuccess = (event) => {
+      const fights = event.target.result || [];
+      // Determine the highest ID from existing fights
+      const maxId = fights.reduce((max, current) => {
+        const idNumber = parseInt(current.id, 10);
+        return Math.max(max, idNumber);
+      }, 0);
+
+      resolve(maxId + 1);
+    };
+
+    request.onerror = (error) => {
+      console.error('Error getting next fight ID:', error);
+      reject("Error fetching fights");
+    };
+  });
+};
+
+// Function to update fight results
+export const updateFightResults = async (fightId, results) => {
+  try {
+    const db = await openDB();
+    const fight = await getFightFromDB(fightId);
+    
+    if (!fight) {
+      return Promise.reject('Fight not found');
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(fightsStoreName, "readwrite");
+      const store = transaction.objectStore(fightsStoreName);
+
+      const updatedFight = {
+        ...fight,
+        result: results.result,
+        stats: results.stats
+      };
+
+      const updateRequest = store.put(updatedFight);
+
+      transaction.oncomplete = () => {
+        console.log('Fight results updated:', updatedFight);
+        resolve(updatedFight);
+      };
+
+      transaction.onerror = (error) => {
+        console.error('Error updating fight results:', error);
+        reject(error);
+      };
+    });
+  } catch (error) {
+    console.error('Database error while updating fight results:', error);
+    return Promise.reject(error);
+  }
 };

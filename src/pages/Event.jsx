@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getEventFromDB, updateFighter, getAllFighters } from "../utils/indexedDB";
+import { getEventFromDB, updateFighter, getAllFighters, getFightsByIds } from "../utils/indexedDB";
 import {
   Container,
   Grid,
@@ -41,6 +41,9 @@ const Event = () => {
       try {
         // Fetch event data
         const event = await getEventFromDB(String(eventId));
+
+        // Fetch fights data
+        const fights = await getFightsByIds(event.fights);
         
         // Fetch all fighters
         const allFighters = await getAllFighters();
@@ -51,21 +54,18 @@ const Event = () => {
           return map;
         }, {});
         
-        // Update each fight with complete fighter data
-        if (event && event.fights) {
-          const updatedFights = event.fights.map(fight => ({
-            ...fight,
-            fighter1: fighterMap[fight.fighter1.personid],
-            fighter2: fighterMap[fight.fighter2.personid]
-          }));
-          
-          setEventData({
-            ...event,
-            fights: updatedFights
-          });
-        }
+        // Combine fight data with fighter data
+        const completeFights = fights.map(fight => ({
+          ...fight,
+          fighter1: fighterMap[fight.fighter1Id],
+          fighter2: fighterMap[fight.fighter2Id]
+        }));
+
+        setEventData({
+          ...event,
+          fights: completeFights
+        });
         
-        setCompleteFighterData(fighterMap);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

@@ -11,7 +11,8 @@ function initDB() {
         // Check and store both fighters and events
         Promise.all([
           checkAndStoreFighters(db),
-          checkAndStoreEvents(db)
+          checkAndStoreEvents(db),
+          checkAndStoreFights(db)
         ]).then(() => resolve(db));
       })
       .catch((error) => {
@@ -70,6 +71,29 @@ function checkAndStoreEvents(db) {
   });
 }
 
+// Function to check if there is already existing fight data for the save game, do not overwrite it using the fights.json file
+function checkAndStoreFights(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["fights"], "readonly");
+    const store = transaction.objectStore("fights");
+    const countRequest = store.count();
+
+    countRequest.onsuccess = () => {
+      if (countRequest.result === 0) {
+        storeFightsInDB(db).then(() => resolve());
+      } else {
+        console.log("Fight data already exists in IndexedDB, skipping initialization.");
+        resolve();
+      }
+    };
+
+    countRequest.onerror = (error) => {
+      console.error("Error checking events count", error);
+      reject(error);
+    };
+  });
+}
+
 // Grabs the fighter info from the fighters.json file and stores it in our DB
 function storeFightersInDB(db) {
   return fetch("/fighters.json")
@@ -116,5 +140,27 @@ function storeEventsInDB(db) {
     .catch((error) => console.error("Failed to fetch events", error));
 }
 
+// Grabs the fights info from the fights.json file and stores it in our DB
+function storeFightsInDB(db) {
+  return fetch("/fights.json")
+    .then((response) => response.json())
+    .then((fights) => {
+      const transaction = db.transaction(["fights"], "readwrite");
+      const store = transaction.objectStore("fights");
+
+      fights.forEach((fight) => {
+        store.put(fight);
+      });
+
+      return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => {
+          console.log("All fights stored in IndexedDB");
+          resolve();
+        };
+        transaction.onerror = () => reject("Error storing fights");
+      });
+    })
+    .catch((error) => console.error("Failed to fetch fights", error));
+}
 
 export default initDB;

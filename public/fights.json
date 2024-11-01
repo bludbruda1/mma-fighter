@@ -1,0 +1,30 @@
+[
+    {
+      "id": "1",
+      "fighter1Id": 3,
+      "fighter2Id": 5,
+      "result": null,
+      "stats": null  
+    },
+    {
+      "id": "2",
+      "fighter1Id": 2,
+      "fighter2Id": 6,
+      "result": null,
+      "stats": null
+    },
+    {
+      "id": "3",
+      "fighter1Id": 1,
+      "fighter2Id": 8,
+      "result": null,
+      "stats": null  
+    },
+    {
+      "id": "4",
+      "fighter1Id": 9,
+      "fighter2Id": 10,
+      "result": null,
+      "stats": null
+    }
+  ]
