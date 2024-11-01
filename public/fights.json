@@ -58,5 +58,27 @@
       },
       "result": null,
       "stats": null
+    },
+    {
+      "id": "5",
+      "fighter1": {
+        "personid": 1,
+        "firstname": "Conor",
+        "lastname": "McGregor"
+      },
+      "fighter2": {
+        "personid": 2,
+        "firstname": "Dustin",
+        "lastname": "Poirier"
+      },
+      "weightClass": "Lightweight",
+      "date": "2021-07-10",
+      "result": {
+        "winner": 1,
+        "method": "Knockout",
+        "roundEnded": 1,
+        "timeEnded": "2:32"
+      },
+      "stats": null
     }
   ]
