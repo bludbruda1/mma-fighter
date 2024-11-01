@@ -7,6 +7,7 @@ import {
   ListItemText,
   Typography,
   Paper,
+  Box,
 } from "@mui/material";
 import { getAllEvents } from "../utils/indexedDB"; // Function to get all events
 
@@ -35,6 +36,15 @@ const EventsList = () => {
     navigate(`/event/${eventId}`);
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <Container maxWidth="md" sx={{ marginTop: "40px" }}>
       <Paper elevation={3} sx={{ padding: "20px" }}>
@@ -61,8 +71,21 @@ const EventsList = () => {
                 }}
               >
                 <ListItemText
-                  primary={`Event ${event.id}`}
-                  secondary={`Number of Fights: ${event.fights.length}`}
+                  primary={
+                    <Typography variant="h6" component="div">
+                      {event.name || `Event ${event.id}`}
+                    </Typography>
+                  }
+                  secondary={
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {event.date && formatDate(event.date)}
+                      </Typography>
+                      <Typography variant="body2">
+                        {`${event.fights.length} Fight${event.fights.length !== 1 ? 's' : ''} Scheduled`}
+                      </Typography>
+                    </Box>
+                  }
                 />
               </ListItem>
             ))}

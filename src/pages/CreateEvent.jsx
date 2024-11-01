@@ -10,6 +10,7 @@ import {
   Select as MuiSelect,
   FormControl,
   InputLabel,
+  TextField,
 } from "@mui/material";
 import Select from "../components/Select";
 import {
@@ -26,6 +27,7 @@ const CreateEvent = () => {
   const [fights, setFights] = useState(
     Array(1).fill({ fighter1: null, fighter2: null })
   ); // Initialize with 1 fight
+  const [eventName, setEventName] =useState(""); //Add the event name
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,22 +45,42 @@ const CreateEvent = () => {
 
   const handleSaveEvent = async () => {
     try {
+      // Validate event name
+      if (!eventName.trim()) {
+        console.log("Please enter an event name.");
+        return;
+      }
+
       const nextEventId = await getNextEventId();
       const eventId = String(nextEventId);
 
+      // Format fights data to match events.json structure
+      const formattedFights = fights.map(fight => ({
+        fighter1: fight.fighter1 ? {
+          personid: fight.fighter1.personid,
+          firstname: fight.fighter1.firstname,
+          lastname: fight.fighter1.lastname
+        } : null,
+        fighter2: fight.fighter2 ? {
+          personid: fight.fighter2.personid,
+          firstname: fight.fighter2.firstname,
+          lastname: fight.fighter2.lastname
+        } : null
+      }));
+
       const eventData = {
         id: eventId,
-        fights,
-        date: new Date(),
+        name: eventName,
+        date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+        fights: formattedFights
       };
-
-      if (fights.every((fight) => fight.fighter1 && fight.fighter2)) {
+      
+      // Validate that all fights have both fighters selected
+      if (formattedFights.every(fight => fight.fighter1 && fight.fighter2)) {
         await addEventToDB(eventData);
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
         console.log("Event saved successfully:", eventData);
-
-        setEventIds((prevEventIds) => [...prevEventIds, eventId]);
+        
+        setEventIds(prevEventIds => [...prevEventIds, eventId]);
         navigate(`/event/${eventId}`);
       } else {
         console.log("Please select fighters for all fights.");
@@ -98,6 +120,15 @@ const CreateEvent = () => {
             >
               Create Event
             </Typography>
+            <FormControl fullWidth sx={{ marginBottom: "20px"}}>
+              <TextField
+              label="Event Name"
+              value={eventName}
+              onChange={(e) => setEventName(e.target.value)}
+              required
+              placeholder="e.g., UFC 285"
+              />
+            </FormControl>
 
             <FormControl fullWidth sx={{ marginBottom: "20px" }}>
               <InputLabel id="num-fights-label">Number of Fights</InputLabel>
