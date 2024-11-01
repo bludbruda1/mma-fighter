@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getEventFromDB, updateFighter } from "../utils/indexedDB";
+import { getEventFromDB, updateFighter, getAllFighters } from "../utils/indexedDB";
 import {
   Container,
   Grid,
@@ -34,13 +34,44 @@ const Event = () => {
   const [fightResults, setFightResults] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFightIndex, setCurrentFightIndex] = useState(null);
+  const [completeFighterData, setCompleteFighterData] = useState({});
 
   useEffect(() => {
-    const fetchEventData = async () => {
-      const data = await getEventFromDB(String(eventId));
-      setEventData(data);
+    const fetchData = async () => {
+      try {
+        // Fetch event data
+        const event = await getEventFromDB(String(eventId));
+        
+        // Fetch all fighters
+        const allFighters = await getAllFighters();
+        
+        // Create a map of fighter data by personid
+        const fighterMap = allFighters.reduce((map, fighter) => {
+          map[fighter.personid] = fighter;
+          return map;
+        }, {});
+        
+        // Update each fight with complete fighter data
+        if (event && event.fights) {
+          const updatedFights = event.fights.map(fight => ({
+            ...fight,
+            fighter1: fighterMap[fight.fighter1.personid],
+            fighter2: fighterMap[fight.fighter2.personid]
+          }));
+          
+          setEventData({
+            ...event,
+            fights: updatedFights
+          });
+        }
+        
+        setCompleteFighterData(fighterMap);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    fetchEventData();
+
+    fetchData();
   }, [eventId]);
 
   const handleGenerateFight = async (index, fighter1, fighter2) => {
@@ -275,7 +306,7 @@ const Event = () => {
       style={{ marginTop: "50px", marginBottom: "20px" }}
     >
       <Typography variant="h4" align="center" gutterBottom>
-        Main Card
+      {eventData?.name || 'Main Card'} {/* Show event name if available */}
       </Typography>
       {eventData.fights.map((fight, index) => {
         const fightResult = fightResults[index];
