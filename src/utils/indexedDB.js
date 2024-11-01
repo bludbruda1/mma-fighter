@@ -243,8 +243,8 @@ export const addFightToDB = async (fight) => {
 export const getAllFights = async () => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(fightsStoreName, "readonly");
-    const store = transaction.objectStore(fightsStoreName);
+    const transaction = db.transaction("fights", "readonly");
+    const store = transaction.objectStore("fights");
     const request = store.getAll();
 
     request.onsuccess = (event) => {

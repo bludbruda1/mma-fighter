@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import { getAllFighters, getFightsByIds } from "../utils/indexedDB";
+import { getAllFighters, getAllFights } from "../utils/indexedDB";
 import { formatFightingStyle } from "../utils/uiHelpers";
 
 const Dashboard = () => {
@@ -48,6 +48,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchFighterData = async () => {
       try {
+        // Get the fighter data
         const fighters = await getAllFighters();
         const selectedFighter = fighters.find(
           (f) => f.personid === parseInt(id)
@@ -56,16 +57,30 @@ const Dashboard = () => {
         if (selectedFighter) {
           setFighter(selectedFighter);
           
-          // Fetch fight data if fighter has fights
-          if (selectedFighter.fightIds && selectedFighter.fightIds.length > 0) {
-            const fightsData = await getFightsByIds(selectedFighter.fightIds);
-            setFights(fightsData);
-          }
+          // Get all fights
+          const allFights = await getAllFights();
+          
+          // Filter fights to only include those with this fighter
+          const fighterFights = allFights.filter(fight => 
+            fight.fighter1.personid === selectedFighter.personid || 
+            fight.fighter2.personid === selectedFighter.personid
+          );
+
+          // Sort fights by date if available
+          const sortedFights = fighterFights.sort((a, b) => {
+            if (a.date && b.date) {
+              return new Date(b.date) - new Date(a.date); // Most recent first
+            }
+            return 0;
+          });
+          
+          setFights(sortedFights);
         } else {
           setError("Fighter not found");
         }
       } catch (error) {
         setError("Error fetching fighter: " + error.message);
+        console.error("Error fetching data:", error);
       }
     };
 
