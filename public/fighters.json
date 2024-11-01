@@ -173,7 +173,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": ["5", "6"],
     "roundsWon": 0
   },
   {
@@ -350,7 +349,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": ["5"],
     "roundsWon": 0
   },
   {
@@ -529,7 +527,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -708,7 +705,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -887,7 +883,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -1066,7 +1061,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -1245,7 +1239,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -1424,7 +1417,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -1603,7 +1595,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -1782,7 +1773,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -1961,7 +1951,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -2140,7 +2129,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -2319,7 +2307,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -2498,7 +2485,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -2677,7 +2663,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   },
   {
@@ -2856,7 +2841,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "fightIds": null,
     "roundsWon": 0
   }
 ]
