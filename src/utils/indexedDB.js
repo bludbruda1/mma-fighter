@@ -352,24 +352,25 @@ export const updateFightResults = async (fightId, results) => {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(fightsStoreName, "readwrite");
-      const store = transaction.objectStore(fightsStoreName);
+      const transaction = db.transaction(["fights"], "readwrite");
+      const store = transaction.objectStore("fights");
 
       const updatedFight = {
         ...fight,
         result: results.result,
-        stats: results.stats
+        stats: results.stats,
+        roundStats: results.roundStats,
+        fightEvents: results.fightEvents
       };
 
-    // Store the request result
-    store.put(updatedFight);
+      const request = store.put(updatedFight);
 
-      transaction.oncomplete = () => {
+      request.onsuccess = () => {
         console.log('Fight results updated:', updatedFight);
         resolve(updatedFight);
       };
 
-      transaction.onerror = (error) => {
+      request.onerror = (error) => {
         console.error('Error updating fight results:', error);
         reject(error);
       };

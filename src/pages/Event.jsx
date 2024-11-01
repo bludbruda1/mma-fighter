@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getEventFromDB, updateFighter, getAllFighters, getFightsByIds } from "../utils/indexedDB";
+import { 
+  getEventFromDB, 
+  updateFighter, 
+  getAllFighters, 
+  getFightsByIds,
+  updateFightResults,
+} from "../utils/indexedDB";
 import {
   Container,
   Grid,
@@ -23,9 +29,7 @@ import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
 import ResultCard from "../components/ResultCard";
 import { simulateFight } from "../engine/FightSim";
-import {
-  calculateFightStats,
-} from "../engine/FightStatistics";
+import { calculateFightStats } from "../engine/FightStatistics";
 
 const Event = () => {
   const { eventId } = useParams();
@@ -33,6 +37,7 @@ const Event = () => {
   const [fightResults, setFightResults] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFightIndex, setCurrentFightIndex] = useState(null);
+  const [completedFights, setCompletedFights] = useState(new Set()); // Track completed fights
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +56,12 @@ const Event = () => {
           map[fighter.personid] = fighter;
           return map;
         }, {});
+
+        // Load completed fight data
+        const completedFightsIds = new Set(
+          fights.filter(fight => fight.result).map(fight => fight.id)
+        );
+        setCompletedFights(completedFightsIds);
         
         // Combine fight data with complete fighter data where available
         const completeFights = fights.map(fight => ({
@@ -64,6 +75,23 @@ const Event = () => {
             ...fight.fighter2
           } : fight.fighter2
         }));
+
+        // Set initial fight results for completed fights
+        const initialResults = {};
+        completeFights.forEach((fight, index) => {
+          if (fight.result) {
+            initialResults[index] = {
+              winnerIndex: fight.result.winner,
+              fightResult: fight.result,
+              fightStats: fight.stats,
+              formattedEndTime: fight.result.timeEnded,
+              roundStats: fight.roundStats || [],
+              fightEvents: fight.fightEvents || [],
+              fighters: [fight.fighter1, fight.fighter2],
+            };
+          }
+        });
+        setFightResults(initialResults);
 
         setEventData({
           ...event,
@@ -121,11 +149,31 @@ const Event = () => {
       }
     );
 
-    setFightResults((prevResults) => ({
+    // Update fight results in state
+    const fightResult = {
+      winner: winnerIndex,
+      method: result.method,
+      roundEnded: result.roundEnded,
+      timeEnded: formatEndTime(result.endTime),
+      submissionType: result.submissionType
+    };
+
+    // Update fight results in database
+    const fightId = eventData.fights[index].id;
+    await updateFightResults(fightId, {
+      result: fightResult,
+      stats: fightStats
+    });
+
+    // Mark fight as completed
+    setCompletedFights(prev => new Set([...prev, fightId]));
+
+    // Update state with fight results
+    setFightResults(prevResults => ({
       ...prevResults,
       [index]: {
         winnerIndex,
-        fightResult: result,
+        fightResult,
         fightStats,
         formattedEndTime: formatEndTime(result.endTime),
         roundStats: result.roundStats || [],
@@ -315,6 +363,7 @@ const Event = () => {
       {eventData.fights.map((fight, index) => {
         const fightResult = fightResults[index];
         const winnerIndex = fightResult?.winnerIndex;
+        const isFightCompleted = completedFights.has(fight.id);
 
         return (
           <Grid
@@ -339,15 +388,18 @@ const Event = () => {
                   <Button
                     variant="contained"
                     onClick={() =>
-                      handleGenerateFight(index, fight.fighter1, fight.fighter2)
-                    }
+                      handleGenerateFight(index, fight.fighter1, fight.fighter2)}
+                      disabled={isFightCompleted}
                     sx={{
                       backgroundColor: "rgba(33, 33, 33, 0.9)",
                       color: "#fff",
+                      "&:disabled": {
+                        backgroundColor: "rgba(33, 33, 33, 0.4)",
+                      }
                     }}
                   >
-                    Generate Fight
-                  </Button>
+                    {isFightCompleted ? "Fight Complete" : "Generate Fight"}
+                    </Button>
                 </Grid>
                 <Grid item>
                   <Button
