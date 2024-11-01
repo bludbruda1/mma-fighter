@@ -80,5 +80,27 @@
         "timeEnded": "2:32"
       },
       "stats": null
+    },
+    {
+      "id": "6",
+      "fighter1": {
+        "personid": 1,
+        "firstname": "Conor",
+        "lastname": "McGregor"
+      },
+      "fighter2": {
+        "personid": null,
+        "firstname": "Donald",
+        "lastname": "Cerrone"
+      },
+      "weightClass": "Lightweight",
+      "date": "2020-01-18",
+      "result": {
+        "winner": 0,
+        "method": "Knockout",
+        "roundEnded": 1,
+        "timeEnded": "0:40"
+      },
+      "stats": null
     }
   ]
