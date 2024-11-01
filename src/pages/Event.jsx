@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getEventFromDB, updateFighter, getAllFighters } from "../utils/indexedDB";
+import { getEventFromDB, updateFighter, getAllFighters, getFightsByIds } from "../utils/indexedDB";
 import {
   Container,
   Grid,
@@ -25,7 +25,6 @@ import ResultCard from "../components/ResultCard";
 import { simulateFight } from "../engine/FightSim";
 import {
   calculateFightStats,
-  displayFightStats,
 } from "../engine/FightStatistics";
 
 const Event = () => {
@@ -34,13 +33,15 @@ const Event = () => {
   const [fightResults, setFightResults] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFightIndex, setCurrentFightIndex] = useState(null);
-  const [completeFighterData, setCompleteFighterData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch event data
         const event = await getEventFromDB(String(eventId));
+
+        // Fetch fights data
+        const fights = await getFightsByIds(event.fights);
         
         // Fetch all fighters
         const allFighters = await getAllFighters();
@@ -51,21 +52,24 @@ const Event = () => {
           return map;
         }, {});
         
-        // Update each fight with complete fighter data
-        if (event && event.fights) {
-          const updatedFights = event.fights.map(fight => ({
-            ...fight,
-            fighter1: fighterMap[fight.fighter1.personid],
-            fighter2: fighterMap[fight.fighter2.personid]
-          }));
-          
-          setEventData({
-            ...event,
-            fights: updatedFights
-          });
-        }
+        // Combine fight data with complete fighter data where available
+        const completeFights = fights.map(fight => ({
+          ...fight,
+          fighter1: fight.fighter1.personid ? {
+            ...fighterMap[fight.fighter1.personid],
+            ...fight.fighter1
+          } : fight.fighter1,
+          fighter2: fight.fighter2.personid ? {
+            ...fighterMap[fight.fighter2.personid],
+            ...fight.fighter2
+          } : fight.fighter2
+        }));
+
+        setEventData({
+          ...event,
+          fights: completeFights
+        });
         
-        setCompleteFighterData(fighterMap);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

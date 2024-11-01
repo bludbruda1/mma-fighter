@@ -3,62 +3,12 @@
       "id": "1",
       "name": "UFC 307",
       "date": "2024-10-05",
-      "fights": [
-        {
-          "fighter1": {
-            "personid": 3,
-            "firstname": "Islam",
-            "lastname": "Makhachev"
-          },
-          "fighter2": {
-            "personid": 5,
-            "firstname": "Charles",
-            "lastname": "Oliveira"
-          }
-        },
-        {
-          "fighter1": {
-            "personid": 2,
-            "firstname": "Dustin",
-            "lastname": "Poirier"
-          },
-          "fighter2": {
-            "personid": 6,
-            "firstname": "Justin",
-            "lastname": "Gaethje"
-          }
-        }
-      ]
+      "fights": ["1", "2"]
     },
     {
       "id": "2",
       "name": "UFC 286",
       "date": "2024-04-20",
-      "fights": [
-        {
-          "fighter1": {
-            "personid": 1,
-            "firstname": "Conor",
-            "lastname": "McGregor"
-          },
-          "fighter2": {
-            "personid": 8,
-            "firstname": "Michael",
-            "lastname": "Chandler"
-          }
-        },
-        {
-          "fighter1": {
-            "personid": 9,
-            "firstname": "Beneil",
-            "lastname": "Dariush"
-          },
-          "fighter2": {
-            "personid": 10,
-            "firstname": "Rafael",
-            "lastname": "Fiziev"
-          }
-        }
-      ]
+      "fights": ["3", "4"]
     }
   ]
