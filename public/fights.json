@@ -1,29 +1,61 @@
 [
     {
       "id": "1",
-      "fighter1Id": 3,
-      "fighter2Id": 5,
+      "fighter1": {
+        "personid": 3,
+        "firstname": "Islam",
+        "lastname": "Makhachev"
+      },
+      "fighter2": {
+        "personid": 5,
+        "firstname": "Charles",
+        "lastname": "Oliveira"
+      },
       "result": null,
       "stats": null  
     },
     {
       "id": "2",
-      "fighter1Id": 2,
-      "fighter2Id": 6,
+      "fighter1": {
+        "personid": 2,
+        "firstname": "Dustin",
+        "lastname": "Poirier"
+      },
+      "fighter2": {
+        "personid": 6,
+        "firstname": "Justin",
+        "lastname": "Gaethje"
+      },
       "result": null,
       "stats": null
     },
     {
       "id": "3",
-      "fighter1Id": 1,
-      "fighter2Id": 8,
+      "fighter1": {
+        "personid": 1,
+        "firstname": "Conor",
+        "lastname": "McGregor"
+      },
+      "fighter2": {
+        "personid": 8,
+        "firstname": "Michael",
+        "lastname": "Chandler"
+      },
       "result": null,
       "stats": null  
     },
     {
       "id": "4",
-      "fighter1Id": 9,
-      "fighter2Id": 10,
+      "fighter1": {
+        "personid": 9,
+        "firstname": "Beneil",
+        "lastname": "Dariush"
+      },
+      "fighter2": {
+        "personid": 10,
+        "firstname": "Rafael",
+        "lastname": "Fiziev"
+      },
       "result": null,
       "stats": null
     }

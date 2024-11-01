@@ -189,7 +189,7 @@ export const getNextEventId = async () => {
 // Function to add a fight to IndexedDB
 export const addFightToDB = async (fight) => {
   // Validate fight data
-  if (!fight || !fight.fighter1Id || !fight.fighter2Id) {
+  if (!fight || !fight.fighter1 || !fight.fighter2) {
     console.error('Invalid fight data:', fight);
     return Promise.reject('Invalid fight structure');
   }
@@ -206,20 +206,30 @@ export const addFightToDB = async (fight) => {
         fight.id = Date.now().toString();
       }
 
-      const addRequest = store.put(fight); // Using put instead of add to handle updates
+      // Normalize fighter data
+      const normalizedFight = {
+        ...fight,
+        fighter1: {
+          personid: fight.fighter1.personid || null,
+          firstname: fight.fighter1.firstname,
+          lastname: fight.fighter1.lastname
+        },
+        fighter2: {
+          personid: fight.fighter2.personid || null,
+          firstname: fight.fighter2.firstname,
+          lastname: fight.fighter2.lastname
+        }
+      };
+
+      store.put(normalizedFight);
 
       transaction.oncomplete = () => {
-        console.log('Fight successfully added to database:', fight);
+        console.log('Fight successfully added to database:', normalizedFight);
         resolve(fight);
       };
 
       transaction.onerror = (error) => {
         console.error('Transaction error while adding fight:', error);
-        reject(error);
-      };
-
-      addRequest.onerror = (error) => {
-        console.error('Error adding fight:', error);
         reject(error);
       };
     });
@@ -353,7 +363,7 @@ export const updateFightResults = async (fightId, results) => {
 
     // Store the request result
     store.put(updatedFight);
-    
+
       transaction.oncomplete = () => {
         console.log('Fight results updated:', updatedFight);
         resolve(updatedFight);

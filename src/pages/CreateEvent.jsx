@@ -62,8 +62,16 @@ const CreateEvent = () => {
         const nextFightId = await getNextFightId();
         const fightData = {
           id: String(nextFightId),
-          fighter1Id: fight.fighter1.personid,
-          fighter2Id: fight.fighter2.personid,
+          fighter1: {
+            personid: fight.fighter1.personid,
+            firstname: fight.fighter1.firstname,
+            lastname: fight.fighter1.lastname
+          },
+          fighter2: {
+            personid: fight.fighter2.personid,
+            firstname: fight.fighter2.firstname,
+            lastname: fight.fighter2.lastname
+          },
           result: null,
           stats: null
         };

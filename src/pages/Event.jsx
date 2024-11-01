@@ -52,11 +52,17 @@ const Event = () => {
           return map;
         }, {});
         
-        // Combine fight data with fighter data
+        // Combine fight data with complete fighter data where available
         const completeFights = fights.map(fight => ({
           ...fight,
-          fighter1: fighterMap[fight.fighter1Id],
-          fighter2: fighterMap[fight.fighter2Id]
+          fighter1: fight.fighter1.personid ? {
+            ...fighterMap[fight.fighter1.personid],
+            ...fight.fighter1
+          } : fight.fighter1,
+          fighter2: fight.fighter2.personid ? {
+            ...fighterMap[fight.fighter2.personid],
+            ...fight.fighter2
+          } : fight.fighter2
         }));
 
         setEventData({
