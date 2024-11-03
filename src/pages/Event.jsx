@@ -52,6 +52,7 @@ const Event = () => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [currentFightEvents, setCurrentFightEvents] = useState([]);
   const [selectedFighters, setSelectedFighters] = useState([]);
+  const [viewedFights, setViewedFights] = useState(new Set());
 
   // Fetch initial event and fight data
   useEffect(() => {
@@ -263,9 +264,19 @@ const Event = () => {
   };
 
   /**
-   * Closes the fight viewer dialog and ensures fight state is updated
+   * Closes the fight viewer dialog and marks fight as viewed
    */
   const handleCloseViewer = () => {
+    // If there's a fight result, find its ID and mark as viewed
+    if (currentFightEvents && currentFightEvents.length > 0) {
+      const fightIndex = eventData.fights.findIndex(
+        fight => fight.fighter1.personid === selectedFighters[0].personid &&
+                fight.fighter2.personid === selectedFighters[1].personid
+      );
+      if (fightIndex !== -1) {
+        setViewedFights(prev => new Set([...prev, eventData.fights[fightIndex].id]));
+      }
+    }
     setViewerOpen(false);
     setCurrentFightEvents([]);
   };
@@ -447,68 +458,79 @@ const Event = () => {
       </Typography>
 
       {/* Fight Cards */}
-      {eventData.fights.map((fight, index) => (
-        <Grid container spacing={3} key={index} style={{ marginBottom: "40px" }}>
-          <Grid item xs={12}>
-            <FightCard
-              selectedItem1={fight.fighter1}
-              selectedItem2={fight.fighter2}
-              winnerIndex={fightResults[index]?.winnerIndex}
-            />
-            <Grid
-              container
-              spacing={2}
-              justifyContent="center"
-              style={{ marginTop: "10px" }}
-            >
-              {/* Watch Fight button moved first to encourage immediate viewing */}
-              <Grid item>
-                <Button
-                  variant="contained"
-                  onClick={() => handleWatchFight(index)}
-                  sx={{
-                    backgroundColor: "rgba(33, 33, 33, 0.9)",
-                    color: "#fff",
-                  }}
-                  disabled={false} // Never disabled - can always watch/simulate
-                >
-                  Watch Fight
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  onClick={() =>
-                    handleGenerateFight(index, fight.fighter1, fight.fighter2)}
-                  disabled={completedFights.has(fight.id)}
-                  sx={{
-                    backgroundColor: "rgba(33, 33, 33, 0.9)",
-                    color: "#fff",
-                    "&:disabled": {
-                      backgroundColor: "rgba(33, 33, 33, 0.4)",
-                    }
-                  }}
-                >
-                  {completedFights.has(fight.id) ? "Fight Complete" : "Simulate Fight"}
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  onClick={() => handleViewSummary(index)}
-                  sx={{
-                    backgroundColor: "rgba(33, 33, 33, 0.9)",
-                    color: "#fff",
-                  }}
-                  disabled={!fightResults[index]}
-                >
-                  View Fight Summary
-                </Button>
+      {eventData.fights.map((fight, index) => {
+        const fightResult = fightResults[index];
+        const winnerIndex = fightResult?.winnerIndex;
+        const isFightCompleted = completedFights.has(fight.id);
+        const hasBeenViewed = viewedFights.has(fight.id);
+
+        return (
+          <Grid container spacing={3} key={index} style={{ marginBottom: "40px" }}>
+            <Grid item xs={12}>
+              <FightCard
+                selectedItem1={fight.fighter1}
+                selectedItem2={fight.fighter2}
+                winnerIndex={hasBeenViewed ? winnerIndex : undefined}
+              />
+              <Grid
+                container
+                spacing={2}
+                justifyContent="center"
+                style={{ marginTop: "10px" }}
+              >
+                {/* Watch Fight button */}
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleWatchFight(index)}
+                    sx={{
+                      backgroundColor: "rgba(33, 33, 33, 0.9)",
+                      color: "#fff",
+                    }}
+                    disabled={false}
+                  >
+                    Watch Fight
+                  </Button>
+                </Grid>
+
+                {/* Simulate Fight button */}
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      handleGenerateFight(index, fight.fighter1, fight.fighter2)}
+                    disabled={isFightCompleted}  // Changed here
+                    sx={{
+                      backgroundColor: "rgba(33, 33, 33, 0.9)",
+                      color: "#fff",
+                      "&:disabled": {
+                        backgroundColor: "rgba(33, 33, 33, 0.4)",
+                      }
+                    }}
+                  >
+                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}  {/* Changed here */}
+                  </Button>
+                </Grid>
+
+                {/* View Summary button */}
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleViewSummary(index)}
+                    sx={{
+                      backgroundColor: "rgba(33, 33, 33, 0.9)",
+                      color: "#fff",
+                    }}
+                    disabled={!fightResult}
+                  >
+                    View Fight Summary
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      ))}
+        );
+      })}
 
       {/* Fight Summary Dialog */}
       <Dialog
@@ -670,17 +692,42 @@ const Event = () => {
         onClose={handleCloseViewer}
         fullScreen
       >
-        <DialogContent sx={{ padding: 0 }}>
-          <FightViewer 
-            fightEvents={currentFightEvents}
-            fighters={selectedFighters}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseViewer} color="primary">
-            Close
-          </Button>
-        </DialogActions>
+        <Box sx={{ 
+          position: 'relative', 
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          {/* Close button positioned at top right */}
+          <Box sx={{ 
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            zIndex: 1200
+          }}>
+            <Button
+              variant="contained"
+              onClick={handleCloseViewer}
+              sx={{
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                },
+                color: '#fff',
+              }}
+            >
+              Close
+            </Button>
+          </Box>
+
+          {/* Fight Viewer Content */}
+          <Box sx={{ flexGrow: 1 }}>
+            <FightViewer 
+              fightEvents={currentFightEvents}
+              fighters={selectedFighters}
+            />
+          </Box>
+        </Box>
       </Dialog>
     </Container>
   );
