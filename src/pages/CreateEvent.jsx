@@ -43,82 +43,97 @@ const CreateEvent = () => {
   }, []);
 
   useEffect(() => {
-    setFights(Array(numFights).fill({ fighter1: null, fighter2: null }));
+    // Create an array of unique fight objects
+    setFights(Array(numFights).fill(null).map(() => ({ 
+      fighter1: null, 
+      fighter2: null 
+    })));
   }, [numFights]);
 
-  const handleSaveEvent = async () => {
-    try {
-      if (!eventName.trim()) {
-        console.log("Please enter an event name.");
-        return;
-      }
+const handleSaveEvent = async () => {
+  try {
+    if (!eventName.trim()) {
+      console.log("Please enter an event name.");
+      return;
+    }
 
-      setIsSaving(true);
+    setIsSaving(true);
 
-      // First, create all fights and get their IDs
-      const fightPromises = fights.map(async (fight) => {
-        if (!fight.fighter1 || !fight.fighter2) return null;
+    // Validate that all fights have both fighters selected
+    const invalidFights = fights.some(
+      fight => !fight.fighter1 || !fight.fighter2
+    );
 
-        const nextFightId = await getNextFightId();
-        const fightData = {
-          id: String(nextFightId),
-          fighter1: {
-            personid: fight.fighter1.personid,
-            firstname: fight.fighter1.firstname,
-            lastname: fight.fighter1.lastname
-          },
-          fighter2: {
-            personid: fight.fighter2.personid,
-            firstname: fight.fighter2.firstname,
-            lastname: fight.fighter2.lastname
-          },
-          result: null,
-          stats: null
-        };
+    if (invalidFights) {
+      console.log("Please select fighters for all fights");
+      setIsSaving(false);
+      return;
+    }
 
-        await addFightToDB(fightData);
-        return fightData.id;
-      });
-
-      const fightIds = await Promise.all(fightPromises);
-      const validFightIds = fightIds.filter(id => id !== null);
-
-      // Then create the event referencing the fight IDs
-      const nextEventId = await getNextEventId();
-      const eventData = {
-        id: String(nextEventId),
-        name: eventName,
-        date: new Date().toISOString().split('T')[0],
-        fights: validFightIds
+    // Create all fights sequentially and collect their IDs
+    const fightIds = [];
+    for (const fight of fights) {
+      const nextFightId = await getNextFightId();
+      const fightData = {
+        id: String(nextFightId),
+        fighter1: {
+          personid: fight.fighter1.personid,
+          firstname: fight.fighter1.firstname,
+          lastname: fight.fighter1.lastname
+        },
+        fighter2: {
+          personid: fight.fighter2.personid,
+          firstname: fight.fighter2.firstname,
+          lastname: fight.fighter2.lastname
+        },
+        result: null,
+        stats: null
       };
 
-      if (validFightIds.length > 0) {
-        await addEventToDB(eventData);
-        console.log("Event saved successfully:", eventData);
-        
-        setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
-        navigate(`/event/${eventData.id}`);
-      } else {
-        console.log("Please select fighters for all fights.");
-      }
-    } catch (error) {
-      console.error("Error saving event:", error);
-    } finally {
-      setIsSaving(false);
+      // Store each fight individually
+      await addFightToDB(fightData);
+      fightIds.push(String(nextFightId));
     }
-  };
+
+    // Create the event only after all fights are successfully stored
+    const nextEventId = await getNextEventId();
+    const eventData = {
+      id: String(nextEventId),
+      name: eventName,
+      date: new Date().toISOString().split('T')[0],
+      fights: fightIds
+    };
+
+    if (fightIds.length > 0) {
+      await addEventToDB(eventData);
+      console.log("Event saved successfully:", eventData);
+      
+      setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
+      navigate(`/event/${eventData.id}`);
+    } else {
+      console.log("No valid fights to save");
+    }
+  } catch (error) {
+    console.error("Error saving event:", error);
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const handleSelectChange = (fightIndex, fighterKey, event) => {
     const selectedId = Number(event.target.value);
-    const selectedFighter = fighters.find((x) => x.personid === selectedId);
-    setFights((prevFights) => {
-      const updatedFights = [...prevFights];
-      updatedFights[fightIndex] = {
-        ...updatedFights[fightIndex],
-        [fighterKey]: selectedFighter,
-      };
-      return updatedFights;
-    });
+    const selectedFighter = fighters.find((f) => f.personid === selectedId);
+    
+    if (!selectedFighter) {
+      console.error('Fighter not found:', selectedId);
+      return;
+    }
+  
+    setFights(prevFights => prevFights.map((fight, index) => 
+      index === fightIndex 
+        ? { ...fight, [fighterKey]: selectedFighter }
+        : fight
+    ));
   };
 
   return (
