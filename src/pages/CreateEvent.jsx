@@ -19,7 +19,7 @@ import {
   addEventToDB,
   getNextEventId,
   getNextFightId,
-  addFightToDB
+  addFightToDB,
 } from "../utils/indexedDB";
 import { EventContext } from "../contexts/EventContext";
 
@@ -32,6 +32,9 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,15 +68,15 @@ const CreateEvent = () => {
           fighter1: {
             personid: fight.fighter1.personid,
             firstname: fight.fighter1.firstname,
-            lastname: fight.fighter1.lastname
+            lastname: fight.fighter1.lastname,
           },
           fighter2: {
             personid: fight.fighter2.personid,
             firstname: fight.fighter2.firstname,
-            lastname: fight.fighter2.lastname
+            lastname: fight.fighter2.lastname,
           },
           result: null,
-          stats: null
+          stats: null,
         };
 
         await addFightToDB(fightData);
@@ -81,22 +84,22 @@ const CreateEvent = () => {
       });
 
       const fightIds = await Promise.all(fightPromises);
-      const validFightIds = fightIds.filter(id => id !== null);
+      const validFightIds = fightIds.filter((id) => id !== null);
 
       // Then create the event referencing the fight IDs
       const nextEventId = await getNextEventId();
       const eventData = {
         id: String(nextEventId),
         name: eventName,
-        date: new Date().toISOString().split('T')[0],
-        fights: validFightIds
+        date: selectedDate,
+        fights: validFightIds,
       };
 
       if (validFightIds.length > 0) {
         await addEventToDB(eventData);
         console.log("Event saved successfully:", eventData);
-        
-        setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
+
+        setEventIds((prevEventIds) => [...prevEventIds, eventData.id]);
         navigate(`/event/${eventData.id}`);
       } else {
         console.log("Please select fighters for all fights.");
@@ -106,6 +109,7 @@ const CreateEvent = () => {
     } finally {
       setIsSaving(false);
     }
+    navigate("/calendar");
   };
 
   const handleSelectChange = (fightIndex, fighterKey, event) => {
@@ -123,8 +127,16 @@ const CreateEvent = () => {
 
   return (
     <main>
-      <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
-        <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
+      <Container
+        maxWidth="md"
+        style={{ marginTop: "50px", marginBottom: "20px" }}
+      >
+        <Typography
+          variant="h2"
+          align="center"
+          color="textPrimary"
+          gutterBottom
+        >
           Create Event
         </Typography>
 
@@ -139,6 +151,12 @@ const CreateEvent = () => {
         </FormControl>
 
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+          <InputLabel id="event-date">Event Date</InputLabel>{" "}
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
           <InputLabel id="num-fights-label">Number of Fights</InputLabel>
           <MuiSelect
             labelId="num-fights-label"
