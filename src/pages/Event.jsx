@@ -79,7 +79,11 @@ const Event = () => {
           fights.filter(fight => fight.result).map(fight => fight.id)
         );
         setCompletedFights(completedFightsIds);
-        
+
+        // Set simulatedFights and viewedFights with completed fights
+        setSimulatedFights(completedFightsIds);
+        setViewedFights(completedFightsIds);
+          
         // Combine fight data with complete fighter data where available
         const completeFights = fights.map(fight => ({
           ...fight,
@@ -103,7 +107,7 @@ const Event = () => {
               fightStats: fight.stats,
               formattedEndTime: fight.result.timeEnded,
               roundStats: fight.roundStats || [],
-              fightEvents: fight.fightEvents || [], // Include stored fight events
+              fightEvents: fight.fightEvents || [],
               fighters: [fight.fighter1, fight.fighter2],
             };
           }
