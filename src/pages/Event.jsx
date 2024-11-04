@@ -47,6 +47,7 @@ const Event = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFightIndex, setCurrentFightIndex] = useState(null);
   const [completedFights, setCompletedFights] = useState(new Set());
+  const [simulatedFights, setSimulatedFights] = useState(new Set());
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -78,7 +79,11 @@ const Event = () => {
           fights.filter(fight => fight.result).map(fight => fight.id)
         );
         setCompletedFights(completedFightsIds);
-        
+
+      // viewedFights starts empty and is populated only after watching
+        setSimulatedFights(completedFightsIds);
+        setViewedFights(new Set()); // Initially empty
+          
         // Combine fight data with complete fighter data where available
         const completeFights = fights.map(fight => ({
           ...fight,
@@ -102,7 +107,7 @@ const Event = () => {
               fightStats: fight.stats,
               formattedEndTime: fight.result.timeEnded,
               roundStats: fight.roundStats || [],
-              fightEvents: fight.fightEvents || [], // Include stored fight events
+              fightEvents: fight.fightEvents || [],
               fighters: [fight.fighter1, fight.fighter2],
             };
           }
@@ -161,7 +166,7 @@ const Event = () => {
         ...fighter,
       }));
 
-      // Initialize fight logger and run simulation
+      // Set intial fight logger and run simulation
       const logger = new fightPlayByPlayLogger(true);
       const result = simulateFight(opponents, logger);
 
@@ -207,7 +212,7 @@ const Event = () => {
 
       // Mark fight as completed
       setCompletedFights(prev => new Set([...prev, fightId]));
-
+      
       // Update state with fight results
       setFightResults(prevResults => ({
         ...prevResults,
@@ -235,6 +240,16 @@ const Event = () => {
     }
   };
 
+  // Function specifically for direct simulation
+  const handleSimulateFight = async (index, fighter1, fighter2) => {
+    const result = await handleGenerateFight(index, fighter1, fighter2);
+    if (result) {
+      // Only set simulatedFights when directly simulating
+      const fightId = eventData.fights[index].id;
+      setSimulatedFights(prev => new Set([...prev, fightId]));
+    }
+  };
+
   /**
      * Opens the fight viewer dialog and simulates fight if not already completed
      * Can be triggered before simulation to watch fight in real-time
@@ -243,16 +258,25 @@ const Event = () => {
   const handleWatchFight = async (index) => {
     const fight = eventData.fights[index];
     
-    // If fight is already completed, just show the replay
-    if (fightResults[index] && fightResults[index].fightEvents) {
+    // If fight is already completed and has been viewed before, show the replay
+    if (fightResults[index] && fightResults[index].fightEvents && viewedFights.has(fight.id)) {
       setCurrentFightEvents(fightResults[index].fightEvents);
       setSelectedFighters(fightResults[index].fighters);
       setViewerOpen(true);
       return;
     }
 
-    // If fight needs to be simulated, do that first
-    try {
+  // If fight needs to be simulated, do that first
+  try {
+    // Only remove from simulatedFights if this fight hasn't been simulated yet
+    if (!completedFights.has(fight.id)) {
+      setSimulatedFights(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(fight.id);
+        return newSet;
+      });
+    }
+
       await handleGenerateFight(index, fight.fighter1, fight.fighter2);
       // Need to wait briefly for fight events to be processed
       setTimeout(() => {
@@ -274,7 +298,9 @@ const Event = () => {
                 fight.fighter2.personid === selectedFighters[1].personid
       );
       if (fightIndex !== -1) {
-        setViewedFights(prev => new Set([...prev, eventData.fights[fightIndex].id]));
+        const fightId = eventData.fights[fightIndex].id;
+        setViewedFights(prev => new Set([...prev, fightId]));
+        setSimulatedFights(prev => new Set([...prev, fightId]));
       }
     }
     setViewerOpen(false);
@@ -462,7 +488,7 @@ const Event = () => {
         const fightResult = fightResults[index];
         const winnerIndex = fightResult?.winnerIndex;
         const isFightCompleted = completedFights.has(fight.id);
-        const hasBeenViewed = viewedFights.has(fight.id);
+        const shouldShowWinner = viewedFights.has(fight.id) || (simulatedFights.has(fight.id) && !viewerOpen);
 
         return (
           <Grid container spacing={3} key={index} style={{ marginBottom: "40px" }}>
@@ -470,7 +496,7 @@ const Event = () => {
               <FightCard
                 selectedItem1={fight.fighter1}
                 selectedItem2={fight.fighter2}
-                winnerIndex={hasBeenViewed ? winnerIndex : undefined}
+                winnerIndex={shouldShowWinner ? winnerIndex : undefined}
               />
               <Grid
                 container
@@ -497,9 +523,8 @@ const Event = () => {
                 <Grid item>
                   <Button
                     variant="contained"
-                    onClick={() =>
-                      handleGenerateFight(index, fight.fighter1, fight.fighter2)}
-                    disabled={isFightCompleted}  // Changed here
+                    onClick={() => handleSimulateFight(index, fight.fighter1, fight.fighter2)}
+                    disabled={isFightCompleted}  
                     sx={{
                       backgroundColor: "rgba(33, 33, 33, 0.9)",
                       color: "#fff",
@@ -508,7 +533,7 @@ const Event = () => {
                       }
                     }}
                   >
-                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}  {/* Changed here */}
+                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}
                   </Button>
                 </Grid>
 
