@@ -80,9 +80,9 @@ const Event = () => {
         );
         setCompletedFights(completedFightsIds);
 
-        // Set simulatedFights and viewedFights with completed fights
+      // viewedFights starts empty and is populated only after watching
         setSimulatedFights(completedFightsIds);
-        setViewedFights(completedFightsIds);
+        setViewedFights(new Set()); // Initially empty
           
         // Combine fight data with complete fighter data where available
         const completeFights = fights.map(fight => ({
@@ -212,7 +212,6 @@ const Event = () => {
 
       // Mark fight as completed
       setCompletedFights(prev => new Set([...prev, fightId]));
-      setSimulatedFights(prev => new Set([...prev, fightId]));
       
       // Update state with fight results
       setFightResults(prevResults => ({
@@ -241,6 +240,16 @@ const Event = () => {
     }
   };
 
+  // Function specifically for direct simulation
+  const handleSimulateFight = async (index, fighter1, fighter2) => {
+    const result = await handleGenerateFight(index, fighter1, fighter2);
+    if (result) {
+      // Only set simulatedFights when directly simulating
+      const fightId = eventData.fights[index].id;
+      setSimulatedFights(prev => new Set([...prev, fightId]));
+    }
+  };
+
   /**
      * Opens the fight viewer dialog and simulates fight if not already completed
      * Can be triggered before simulation to watch fight in real-time
@@ -257,13 +266,16 @@ const Event = () => {
       return;
     }
 
-    // If fight needs to be simulated, do that first
-    try {
+  // If fight needs to be simulated, do that first
+  try {
+    // Only remove from simulatedFights if this fight hasn't been simulated yet
+    if (!completedFights.has(fight.id)) {
       setSimulatedFights(prev => {
         const newSet = new Set(prev);
         newSet.delete(fight.id);
         return newSet;
       });
+    }
 
       await handleGenerateFight(index, fight.fighter1, fight.fighter2);
       // Need to wait briefly for fight events to be processed
@@ -511,9 +523,8 @@ const Event = () => {
                 <Grid item>
                   <Button
                     variant="contained"
-                    onClick={() =>
-                      handleGenerateFight(index, fight.fighter1, fight.fighter2)}
-                    disabled={isFightCompleted}  // Changed here
+                    onClick={() => handleSimulateFight(index, fight.fighter1, fight.fighter2)}
+                    disabled={isFightCompleted}  
                     sx={{
                       backgroundColor: "rgba(33, 33, 33, 0.9)",
                       color: "#fff",
@@ -522,7 +533,7 @@ const Event = () => {
                       }
                     }}
                   >
-                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}  {/* Changed here */}
+                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}
                   </Button>
                 </Grid>
 
