@@ -257,9 +257,15 @@ const Event = () => {
      */
   const handleWatchFight = async (index) => {
     const fight = eventData.fights[index];
+
+    // Prevent watching if already viewed or simulated without viewing
+    if (viewedFights.has(fight.id) || 
+        (simulatedFights.has(fight.id) && !viewedFights.has(fight.id))) {
+      return;
+    }
     
-    // If fight is already completed and has been viewed before, show the replay
-    if (fightResults[index] && fightResults[index].fightEvents && viewedFights.has(fight.id)) {
+  // If fight is already completed and hasn't been viewed, show it
+    if (fightResults[index] && fightResults[index].fightEvents) {
       setCurrentFightEvents(fightResults[index].fightEvents);
       setSelectedFighters(fightResults[index].fighters);
       setViewerOpen(true);
@@ -512,10 +518,14 @@ const Event = () => {
                     sx={{
                       backgroundColor: "rgba(33, 33, 33, 0.9)",
                       color: "#fff",
+                      "&:disabled": {
+                        backgroundColor: "rgba(33, 33, 33, 0.4)",
+                      }
                     }}
-                    disabled={false}
+                    // Disable if fight has been viewed or simulated without vieweing
+                    disabled={viewedFights.has(fight.id) || (simulatedFights.has(fight.id) && !viewedFights.has(fight.id))}
                   >
-                    Watch Fight
+                    {viewedFights.has(fight.id) ? "Already Viewed" : "Watch Fight"}
                   </Button>
                 </Grid>
 
