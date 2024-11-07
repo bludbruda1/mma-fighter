@@ -215,10 +215,10 @@ class fightPlayByPlayLogger {
    * Log a position change
    * @param {Object} attacker - Attacking fighter
    * @param {Object} defender - Defending fighter
-   * @param {string} newPosition - New position
+ * @param {string} outcome - Outcome of the position change attempt
    * @param {number} currentTime - Current fight time
    */
-  logPositionChange(attacker, defender, newPosition, currentTime) {
+  logPositionChange(attacker, defender, outcome, currentTime) {
     if (!attacker || !defender) return;
 
     this.logEvent({
@@ -227,7 +227,9 @@ class fightPlayByPlayLogger {
       attackerName: this.getFighterName(attacker),
       defenderId: this.getFighterId(defender),
       defenderName: this.getFighterName(defender),
-      newPosition,
+      attackerPosition: attacker.position,
+      defenderPosition: defender.position,
+      outcome,
       clock: currentTime
     });
   }

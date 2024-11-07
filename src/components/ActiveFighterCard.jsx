@@ -24,6 +24,7 @@ const formatPosition = (position) => {
     // Ground positions - Full Guard
     'GROUND_FULL_GUARD_TOP': { text: 'Full Guard (Top)', color: 'error' },
     'GROUND_FULL_GUARD_POSTURE_UP': { text: 'Full Guard (Postured)', color: 'error' },
+    'groundFullGuardPostureUp': { text: 'Full Guard (Postured)', color: 'error' },
     'GROUND_FULL_GUARD_BOTTOM': { text: 'Full Guard (Bottom)', color: 'error' },
     
     // Ground positions - Half Guard

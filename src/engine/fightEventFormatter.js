@@ -60,8 +60,13 @@ const formatFightEvent = (event) => {
         }
       }
   
-      case "position":
-        return `${event.attackerName} moves to ${formatPosition(event.newPosition)}`;
+      case "position": {
+        if (event.outcome === "successful") {
+          return `${event.attackerName} moves to ${event.attackerPosition}`;
+        } else {
+          return `${event.attackerName} fails to change position`;
+        }
+      }            
   
       case "submission": {
         const submissionDesc = formatSubmissionEvent(event);
@@ -74,7 +79,7 @@ const formatFightEvent = (event) => {
       case "fighterState": {
         // Only show significant state changes
         if (event.position !== "standing") {
-          return `${event.name} is in ${formatPosition(event.position)}`;
+          return `${event.name} is in ${event.position}`;
         }
         return null; // Return null for events we don't want to display
       }
@@ -193,21 +198,6 @@ const formatFightIntroduction = (fighter1, fighter2) => {
     }
   };
   
-  /**
-   * Format a position into readable text
-   * @param {string} position - The position to format
-   * @returns {string} Formatted position description
-   */
-  const formatPosition = (position) => {
-    // Convert positions like GROUND_FULL_GUARD_TOP to "Full Guard (Top)"
-    return position
-      .toLowerCase()
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
-      .replace('Ground ', '')
-      .replace('Position', '');
-  };
   
 /**
  * Format fight time
@@ -226,7 +216,6 @@ const formatFightTime = (round, time) => {
   export {
     formatFightEvent,
     formatFightTime,
-    formatPosition,
     formatSubmissionEvent,
     formatFightIntroduction
   };
