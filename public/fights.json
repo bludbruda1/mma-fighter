@@ -1,6 +1,6 @@
 [
     {
-      "id": "1",
+      "id": 1,
       "fighter1": {
         "personid": 3,
         "firstname": "Islam",
@@ -15,7 +15,7 @@
       "stats": null  
     },
     {
-      "id": "2",
+      "id": 2,
       "fighter1": {
         "personid": 2,
         "firstname": "Dustin",
@@ -30,7 +30,7 @@
       "stats": null
     },
     {
-      "id": "3",
+      "id": 3,
       "fighter1": {
         "personid": 1,
         "firstname": "Conor",
@@ -45,7 +45,7 @@
       "stats": null  
     },
     {
-      "id": "4",
+      "id": 4,
       "fighter1": {
         "personid": 9,
         "firstname": "Beneil",
@@ -60,7 +60,7 @@
       "stats": null
     },
     {
-      "id": "5",
+      "id": 5,
       "fighter1": {
         "personid": 1,
         "firstname": "Conor",
@@ -82,7 +82,7 @@
       "stats": null
     },
     {
-      "id": "6",
+      "id": 6,
       "fighter1": {
         "personid": 1,
         "firstname": "Conor",

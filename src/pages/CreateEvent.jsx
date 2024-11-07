@@ -75,7 +75,7 @@ const handleSaveEvent = async () => {
     for (const fight of fights) {
       const nextFightId = await getNextFightId();
       const fightData = {
-        id: String(nextFightId),
+        id: nextFightId,
         fighter1: {
           personid: fight.fighter1.personid,
           firstname: fight.fighter1.firstname,
@@ -92,13 +92,13 @@ const handleSaveEvent = async () => {
 
       // Store each fight individually
       await addFightToDB(fightData);
-      fightIds.push(String(nextFightId));
+      fightIds.push(nextFightId);
     }
 
     // Create the event only after all fights are successfully stored
     const nextEventId = await getNextEventId();
     const eventData = {
-      id: String(nextEventId),
+      id: nextEventId,
       name: eventName,
       date: new Date().toISOString().split('T')[0],
       fights: fightIds

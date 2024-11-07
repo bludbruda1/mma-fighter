@@ -103,14 +103,27 @@ export const addEventToDB = async (event) => {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(eventStoreName, "readwrite");
     const store = transaction.objectStore(eventStoreName);
+    
+    // Validate that ID is numeric
+    if (!Number.isInteger(event.id)) {
+      reject(new Error('Event ID must be an integer'));
+      return;
+    }
+
+    // Validate that fight IDs are numeric
+    if (!event.fights.every(id => Number.isInteger(id))) {
+      reject(new Error('All fight IDs must be integers'));
+      return;
+    }
+
     const addRequest = store.add(event);
 
     addRequest.onsuccess = () => {
-      console.log("Event added successfully:", event); // Debugging
+      console.log("Event added successfully:", event);
       resolve(true);
     };
     addRequest.onerror = (error) => {
-      console.error("Error adding event:", error); // Debugging
+      console.error("Error adding event:", error);
       reject(error);
     };
   });
@@ -135,11 +148,16 @@ export const getAllEvents = async () => {
 
 // Function to get event data from IndexedDB by event ID
 export const getEventFromDB = async (eventId) => {
+  const numericId = Number(eventId);
+  if (!Number.isInteger(numericId)) {
+    return Promise.reject('Event ID must be an integer');
+  }
+
   try {
-    const db = await openDB(dbName, 1);
-    const transaction = db.transaction("events", "readonly");
-    const store = transaction.objectStore("events");
-    const request = store.get(eventId);
+    const db = await openDB();
+    const transaction = db.transaction(eventStoreName, "readonly");
+    const store = transaction.objectStore(eventStoreName);
+    const request = store.get(numericId);
 
     return new Promise((resolve, reject) => {
       request.onsuccess = () => {
@@ -147,18 +165,18 @@ export const getEventFromDB = async (eventId) => {
           console.log("Event found:", request.result);
           resolve(request.result);
         } else {
-          console.log(`Event with ID ${eventId} not found.`);
+          console.log(`Event with ID ${numericId} not found.`);
           resolve(null);
         }
       };
-      request.onerror = () => {
-        console.error("Error fetching event:", request.error);
-        reject(request.error);
+      request.onerror = (error) => {
+        console.error("Error fetching event:", error);
+        reject(error);
       };
     });
   } catch (error) {
     console.error("Failed to open database:", error);
-    return null;
+    return Promise.reject(error);
   }
 };
 
@@ -166,20 +184,15 @@ export const getEventFromDB = async (eventId) => {
 export const getNextEventId = async () => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction("events", "readonly");
-    const store = transaction.objectStore("events");
+    const transaction = db.transaction(eventStoreName, "readonly");
+    const store = transaction.objectStore(eventStoreName);
     const getRequest = store.getAll();
 
     getRequest.onsuccess = (event) => {
       const events = event.target.result;
-
-      // Determine the highest ID from existing events
-      const maxId = events.reduce((max, current) => {
-        const idNumber = parseInt(current.id, 10); // Ensure to parse correctly
-        return Math.max(max, idNumber);
-      }, 0);
-
-      resolve(maxId + 1); // Increment the maxId by 1 for the new event ID
+      // Find highest numeric ID
+      const maxId = events.reduce((max, current) => Math.max(max, current.id), 0);
+      resolve(maxId + 1);
     };
 
     getRequest.onerror = () => reject("Error fetching events");
@@ -188,10 +201,14 @@ export const getNextEventId = async () => {
 
 // Function to add a fight to IndexedDB
 export const addFightToDB = async (fight) => {
-  // Validate fight data
   if (!fight || !fight.fighter1 || !fight.fighter2) {
     console.error('Invalid fight data:', fight);
     return Promise.reject('Invalid fight structure');
+  }
+
+  // Validate that ID is numeric
+  if (!Number.isInteger(fight.id)) {
+    return Promise.reject('Fight ID must be an integer');
   }
 
   try {
@@ -199,12 +216,6 @@ export const addFightToDB = async (fight) => {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(fightsStoreName, "readwrite");
       const store = transaction.objectStore(fightsStoreName);
-
-      // Ensure fight has an ID
-      if (!fight.id) {
-        console.warn('Fight missing ID, generating one');
-        fight.id = Date.now().toString();
-      }
 
       // Normalize fighter data
       const normalizedFight = {
@@ -263,7 +274,7 @@ export const getAllFights = async () => {
 // Function to get multiple fights by their IDs
 export const getFightsByIds = async (fightIds) => {
   if (!Array.isArray(fightIds)) {
-    return Promise.reject('fightIds must be an array');
+    return Promise.reject('fightIds must be an array of numbers');
   }
 
   const db = await openDB();
@@ -288,11 +299,16 @@ export const getFightsByIds = async (fightIds) => {
 
 // Function to get a single fight by ID
 export const getFightFromDB = async (fightId) => {
+  const numericId = Number(fightId);
+  if (!Number.isInteger(numericId)) {
+    return Promise.reject('Fight ID must be an integer');
+  }
+
   try {
     const db = await openDB();
     const transaction = db.transaction(fightsStoreName, "readonly");
     const store = transaction.objectStore(fightsStoreName);
-    const request = store.get(fightId);
+    const request = store.get(numericId);
 
     return new Promise((resolve, reject) => {
       request.onsuccess = () => {
@@ -300,7 +316,7 @@ export const getFightFromDB = async (fightId) => {
           console.log("Fight found:", request.result);
           resolve(request.result);
         } else {
-          console.log(`Fight with ID ${fightId} not found.`);
+          console.log(`Fight with ID ${numericId} not found.`);
           resolve(null);
         }
       };
@@ -325,12 +341,8 @@ export const getNextFightId = async () => {
 
     request.onsuccess = (event) => {
       const fights = event.target.result || [];
-      // Determine the highest ID from existing fights
-      const maxId = fights.reduce((max, current) => {
-        const idNumber = parseInt(current.id, 10);
-        return Math.max(max, idNumber);
-      }, 0);
-
+      // Find highest numeric ID
+      const maxId = fights.reduce((max, current) => Math.max(max, current.id), 0);
       resolve(maxId + 1);
     };
 
@@ -343,6 +355,10 @@ export const getNextFightId = async () => {
 
 // Function to update fight results
 export const updateFightResults = async (fightId, results) => {
+  if (!Number.isInteger(fightId)) {
+    return Promise.reject('Fight ID must be an integer');
+  }
+
   try {
     const db = await openDB();
     const fight = await getFightFromDB(fightId);
@@ -352,25 +368,23 @@ export const updateFightResults = async (fightId, results) => {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(["fights"], "readwrite");
-      const store = transaction.objectStore("fights");
+      const transaction = db.transaction(fightsStoreName, "readwrite");
+      const store = transaction.objectStore(fightsStoreName);
 
       const updatedFight = {
         ...fight,
         result: results.result,
-        stats: results.stats,
-        roundStats: results.roundStats,
-        fightEvents: results.fightEvents
+        stats: results.stats
       };
 
-      const request = store.put(updatedFight);
+      store.put(updatedFight);
 
-      request.onsuccess = () => {
+      transaction.oncomplete = () => {
         console.log('Fight results updated:', updatedFight);
         resolve(updatedFight);
       };
 
-      request.onerror = (error) => {
+      transaction.onerror = (error) => {
         console.error('Error updating fight results:', error);
         reject(error);
       };

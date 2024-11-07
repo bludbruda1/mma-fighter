@@ -60,7 +60,7 @@ const Event = () => {
     const fetchData = async () => {
       try {
         // Fetch event data
-        const event = await getEventFromDB(String(eventId));
+        const event = await getEventFromDB(Number(eventId));
 
         // Fetch fights data
         const fights = await getFightsByIds(event.fights);
