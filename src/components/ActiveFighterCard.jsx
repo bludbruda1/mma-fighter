@@ -15,34 +15,33 @@ const formatPosition = (position) => {
   // Define position formatting rules
   const formatRules = {
     // Standing position
-    'STANDING': { text: 'Standing', color: 'success' },
+    'standing': { text: 'Standing', color: 'success' },
     
     // Clinch positions
-    'CLINCH_OFFENCE': { text: 'Clinch Control', color: 'warning' },
-    'CLINCH_DEFENCE': { text: 'In Clinch', color: 'warning' },
+    'clinchOffence': { text: 'Clinch Control', color: 'warning' },
+    'clinchDefence': { text: 'In Clinch', color: 'warning' },
     
     // Ground positions - Full Guard
-    'GROUND_FULL_GUARD_TOP': { text: 'Full Guard (Top)', color: 'error' },
-    'GROUND_FULL_GUARD_POSTURE_UP': { text: 'Full Guard (Postured)', color: 'error' },
+    'groundFullGuardTop': { text: 'Full Guard (Top)', color: 'error' },
     'groundFullGuardPostureUp': { text: 'Full Guard (Postured)', color: 'error' },
-    'GROUND_FULL_GUARD_BOTTOM': { text: 'Full Guard (Bottom)', color: 'error' },
+    'groundFullGuardBottom': { text: 'Full Guard (Bottom)', color: 'error' },
     
     // Ground positions - Half Guard
-    'GROUND_HALF_GUARD_TOP': { text: 'Half Guard (Top)', color: 'error' },
-    'GROUND_HALF_GUARD_BOTTOM': { text: 'Half Guard (Bottom)', color: 'error' },
+    'groundHalfGuardTop': { text: 'Half Guard (Top)', color: 'error' },
+    'groundHalfGuardBottom': { text: 'Half Guard (Bottom)', color: 'error' },
     
     // Ground positions - Side Control
-    'GROUND_SIDE_CONTROL_TOP': { text: 'Side Control (Top)', color: 'error' },
-    'GROUND_SIDE_CONTROL_BOTTOM': { text: 'Side Control (Bottom)', color: 'error' },
+    'groundSideControlTop': { text: 'Side Control (Top)', color: 'error' },
+    'groundSideControlBottom': { text: 'Side Control (Bottom)', color: 'error' },
     
     // Ground positions - Mount
-    'GROUND_MOUNT_TOP': { text: 'Mount (Top)', color: 'error' },
-    'GROUND_MOUNT_POSTURE_UP': { text: 'Mount (Postured)', color: 'error' },
-    'GROUND_MOUNT_BOTTOM': { text: 'Mounted', color: 'error' },
+    'groundMountTop': { text: 'Mount (Top)', color: 'error' },
+    'groundMountPostureUp': { text: 'Mount (Postured)', color: 'error' },
+    'groundMountBottom': { text: 'Mounted', color: 'error' },
     
     // Ground positions - Back Control
-    'GROUND_BACK_CONTROL_OFFENCE': { text: 'Back Control', color: 'error' },
-    'GROUND_BACK_CONTROL_DEFENCE': { text: 'Back Taken', color: 'error' }
+    'groundBackControlOffence': { text: 'Back Control', color: 'error' },
+    'groundBackControlDefence': { text: 'Back Taken', color: 'error' }
   };
 
   // Return formatting for known position or default for unknown
@@ -64,8 +63,9 @@ const formatPosition = (position) => {
  * @param {Object} props.currentStats - Current fight statistics
  * @param {Object} props.health - Current health values for head, body, and legs
  */
-const ActiveFighterCard = ({ fighter, index, currentStats, health = { head: 100, body: 100, legs: 100 } }) => {
-  const positionData = formatPosition(fighter.position);
+const ActiveFighterCard = ({ fighter, index, currentStats, health }) => {
+  // Get formatted position and color
+  const { text: positionText, color: positionColor } = formatPosition(fighter.position);
   
   return (
     <Card className="h-full">
@@ -84,8 +84,8 @@ const ActiveFighterCard = ({ fighter, index, currentStats, health = { head: 100,
         {/* Position Display */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Chip
-            label={positionData.text}
-            color={positionData.color}
+            label={positionText}
+            color={positionColor}
             variant="outlined"
             sx={{
               fontWeight: 'medium',
