@@ -8,6 +8,7 @@
     "wins": 22,
     "losses": 6,
     "image": "/assets/images/connormc.png",
+    "profile": "/assets/images/conor_mcgregor_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "POWER_PUNCHER",
     "maxHealth": {
@@ -20,8 +21,6 @@
       "body": 100,
       "legs": 100
     },
-    "stamina": 1000,
-    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 80,
       "strength": 82,
@@ -51,8 +50,8 @@
       "groundDefence": 70,
       "groundControl": 71,
       "groundStriking": 75,
-      "submissionOffence": 68,
-      "submissionDefence": 75,
+      "submissionOffence": 55,
+      "submissionDefence": 65,
       "getUpAbility": 80,
       "composure": 82,
       "fightIQ": 84
@@ -134,11 +133,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -158,211 +173,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 92,
-      "aggressiveness": 80,
-      "counterVsInitiator": 65,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 25,
-        "muayThai": 10,
-        "karate": 12,
-        "taekwondo": 3
-      },
-      "grapplingPreference": {
-        "wrestling": 30,
-        "judo": 20,
-        "bjj": 50
-      }
-    },
-    "fightHistory": [
-    {
-      "opponentId": 2,
-      "opponent": "Dustin Poirier",
-      "result": "Loss",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": 2,
-      "opponent": "Dustin Poirier",
-      "result": "Loss",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Donald Cerrone",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Khabib Nurmagomedov",
-      "result": "Loss",
-      "method": "Submission"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Eddie Alvarez",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Nate Diaz",
-      "result": "Win",
-      "method": "Decision"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Nate Diaz",
-      "result": "Loss",
-      "method": "Submission"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Jose Aldo",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Chad Mendes",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Dennis Siver",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": 2,
-      "opponent": "Dustin Poirier",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Diego Brandao",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": 11,
-      "opponent": "Max Holloway",
-      "result": "Win",
-      "method": "Decision"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Marcus Brimage",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Ivan Buchinger",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Dave Hill",
-      "result": "Win",
-      "method": "Submission"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Steve O'Keefe",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Aaron Jahnsen",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Paddy Doherty",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Artur Sowinski",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Mike Wood",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Hugh Brady",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Connor Dillon",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Joseph Duffy",
-      "result": "Loss",
-      "method": "Submission"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Stephen Bailey",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Gary Morris",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Mo Taylor",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Artemij Sitenkov",
-      "result": "Loss",
-      "method": "Submission"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Mo Taylor",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Gary Morris",
-      "result": "Win",
-      "method": "Knockout"
-    },
-    {
-      "opponentId": null,
-      "opponent": "Gary Morris",
-      "result": "Win",
-      "method": "Knockout"
-    }
-  ],
     "roundsWon": 0
   },
   {
@@ -374,6 +184,7 @@
     "wins": 29,
     "losses": 7,
     "image": "/assets/images/dustinpo.png",
+    "profile": "/assets/images/dustin_poirier_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "PRESSURE_FIGHTER",
     "maxHealth": {
@@ -386,8 +197,6 @@
       "body": 100,
       "legs": 100
     },
-    "stamina": 1000,
-    "position": "FIGHTER_POSITIONS.STANDING",
     "Rating": {
       "output": 92,
       "strength": 86,
@@ -417,8 +226,8 @@
       "groundDefence": 86,
       "groundControl": 85,
       "groundStriking": 88,
-      "submissionOffence": 85,
-      "submissionDefence": 87,
+      "submissionOffence": 75,
+      "submissionDefence": 81,
       "getUpAbility": 88,
       "composure": 90,
       "fightIQ": 92
@@ -500,11 +309,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -524,217 +349,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 70,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 55,
-        "kickBoxing": 25,
-        "muayThai": 15,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 10,
-        "bjj": 55
-      }
-    },
-    "fightHistory": [
-      {
-        "opponentId": 3,
-        "opponent": "Islam Makhachev",
-        "result": "Loss",
-        "method": "Submission"
-      },
-      {
-        "opponentId": 14,
-        "opponent": "Benoît Saint Denis",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 6,
-        "opponent": "Justin Gaethje",
-        "result": "Loss",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 8,
-        "opponent": "Michael Chandler",
-        "result": "Loss",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 5,
-        "opponent": "Charles Oliveira",
-        "result": "Loss",
-        "method": "Submission"
-      },
-      {
-        "opponentId": 1,
-        "opponent": "Conor McGregor",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 1,
-        "opponent": "Conor McGregor",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 13,
-        "opponent": "Dan Hooker",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Khabib Nurmagomedov",
-        "result": "Loss",
-        "method": "Submission"
-      },
-      {
-        "opponentId": 11,
-        "opponent": "Max Holloway",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Eddie Alvarez",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 6,
-        "opponent": "Justin Gaethje",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Anthony Pettis",
-        "result": "Win",
-        "method": "Submission"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Jim Miller",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Michael Johnson",
-        "result": "Loss",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Bobby Green",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Joe Duffy",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Yancy Medeiros",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Carlos Diego Ferreira",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": 1,
-        "opponent": "Conor McGregor",
-        "result": "Loss",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Akira Corassani",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Diego Brandão",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Erik Koch",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Cub Swanson",
-        "result": "Loss",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Jonathan Brookins",
-        "result": "Win",
-        "method": "Submission"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Chan Sung Jung",
-        "result": "Loss",
-        "method": "Submission"
-      },
-      {
-        "opponentId": 11,
-        "opponent": "Max Holloway",
-        "result": "Win",
-        "method": "Submission"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Pablo Garza",
-        "result": "Win",
-        "method": "Submission"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Jason Young",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Josh Grispi",
-        "result": "Win",
-        "method": "Decision"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Zach Micklewright",
-        "result": "Win",
-        "method": "Knockout"
-      },
-      {
-        "opponentId": null,
-        "opponent": "Danny Castillo",
-        "result": "Loss",
-        "method": "Decision"
-      }
-    ],
     "roundsWon": 0
   },
   {
@@ -746,6 +360,7 @@
     "wins": 24,
     "losses": 1,
     "image": "/assets/images/islammakhachev.png",
+    "profile": "/assets/images/islam_makhachev_mini_belt.png",
     "weightClass": "Lightweight",
     "fightingStyle": "SAMBO",
     "maxHealth": {
@@ -758,7 +373,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 1,
     "Rating": {
       "output": 90,
@@ -789,8 +404,8 @@
       "groundDefence": 95,
       "groundControl": 97,
       "groundStriking": 92,
-      "submissionOffence": 95,
-      "submissionDefence": 94,
+      "submissionOffence": 93,
+      "submissionDefence": 95,
       "getUpAbility": 93,
       "composure": 93,
       "fightIQ": 96
@@ -872,11 +487,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -896,23 +527,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 30,
-      "aggressiveness": 75,
-      "counterVsInitiator": 60,
-      "standupPreference": {
-        "boxing": 40,
-        "kickBoxing": 30,
-        "muayThai": 25,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 65,
-        "judo": 5,
-        "bjj": 30
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -924,6 +538,7 @@
     "wins": 20,
     "losses": 3,
     "image": "/assets/images/armantsarukyan.png",
+    "profile": "/assets/images/arman_tsarukyan_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "FREESTYLE_WRESTLER",
     "maxHealth": {
@@ -936,7 +551,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 4,
     "Rating": {
       "output": 91,
@@ -967,8 +582,8 @@
       "groundDefence": 91,
       "groundControl": 93,
       "groundStriking": 90,
-      "submissionOffence": 89,
-      "submissionDefence": 90,
+      "submissionOffence": 82,
+      "submissionDefence": 88,
       "getUpAbility": 91,
       "composure": 89,
       "fightIQ": 91
@@ -1050,11 +665,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -1074,23 +705,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 45,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 35,
-        "muayThai": 15,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 65,
-        "judo": 5,
-        "bjj": 30
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1102,6 +716,7 @@
     "wins": 34,
     "losses": 9,
     "image": "/assets/images/charlesoliveira.png",
+    "profile": "/assets/images/charles_oliviera_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
@@ -1114,7 +729,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 2,
     "Rating": {
       "output": 93,
@@ -1145,8 +760,8 @@
       "groundDefence": 92,
       "groundControl": 95,
       "groundStriking": 91,
-      "submissionOffence": 98,
-      "submissionDefence": 94,
+      "submissionOffence": 96,
+      "submissionDefence": 86,
       "getUpAbility": 91,
       "composure": 90,
       "fightIQ": 94
@@ -1228,11 +843,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -1252,23 +883,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 55,
-      "aggressiveness": 85,
-      "counterVsInitiator": 45,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 25,
-        "muayThai": 20,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 25,
-        "judo": 5,
-        "bjj": 70
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1280,6 +894,7 @@
     "wins": 25,
     "losses": 4,
     "image": "/assets/images/justingaethje.png",
+    "profile": "/assets/images/justin_gaethje_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "PRESSURE_FIGHTER",
     "maxHealth": {
@@ -1292,7 +907,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 5,
     "Rating": {
       "output": 94,
@@ -1323,8 +938,8 @@
       "groundDefence": 86,
       "groundControl": 83,
       "groundStriking": 87,
-      "submissionOffence": 80,
-      "submissionDefence": 86,
+      "submissionOffence": 61,
+      "submissionDefence": 75,
       "getUpAbility": 89,
       "composure": 92,
       "fightIQ": 90
@@ -1406,11 +1021,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -1430,23 +1061,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 90,
-      "aggressiveness": 90,
-      "counterVsInitiator": 40,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 40,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 75,
-        "judo": 5,
-        "bjj": 20
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1458,6 +1072,7 @@
     "wins": 22,
     "losses": 2,
     "image": "/assets/images/mateuszgamrot.png",
+    "profile": "/assets/images/mateusz_gamrot_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "WRESTLER",
     "maxHealth": {
@@ -1470,7 +1085,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 7,
     "Rating": {
       "output": 91,
@@ -1501,7 +1116,7 @@
       "groundDefence": 91,
       "groundControl": 94,
       "groundStriking": 89,
-      "submissionOffence": 91,
+      "submissionOffence": 86,
       "submissionDefence": 90,
       "getUpAbility": 91,
       "composure": 90,
@@ -1584,11 +1199,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -1608,23 +1239,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 40,
-      "aggressiveness": 75,
-      "counterVsInitiator": 50,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 35,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 60,
-        "judo": 10,
-        "bjj": 30
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1636,6 +1250,7 @@
     "wins": 23,
     "losses": 8,
     "image": "/assets/images/michaelchandler.png",
+    "profile": "/assets/images/michael_chandler_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "WRESTLER",
     "maxHealth": {
@@ -1648,7 +1263,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 9,
     "Rating": {
       "output": 90,
@@ -1679,8 +1294,8 @@
       "groundDefence": 89,
       "groundControl": 92,
       "groundStriking": 92,
-      "submissionOffence": 86,
-      "submissionDefence": 88,
+      "submissionOffence": 79,
+      "submissionDefence": 84,
       "getUpAbility": 91,
       "composure": 89,
       "fightIQ": 90
@@ -1762,11 +1377,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -1786,23 +1417,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 60,
-      "aggressiveness": 85,
-      "counterVsInitiator": 40,
-      "standupPreference": {
-        "boxing": 60,
-        "kickBoxing": 30,
-        "muayThai": 5,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 75,
-        "judo": 5,
-        "bjj": 20
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1814,6 +1428,7 @@
     "wins": 22,
     "losses": 5,
     "image": "/assets/images/beneildariush.png",
+    "profile": "/assets/images/beneil_dariush_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
@@ -1826,7 +1441,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 6,
     "Rating": {
       "output": 89,
@@ -1857,8 +1472,8 @@
       "groundDefence": 90,
       "groundControl": 91,
       "groundStriking": 89,
-      "submissionOffence": 92,
-      "submissionDefence": 90,
+      "submissionOffence": 90,
+      "submissionDefence": 89,
       "getUpAbility": 88,
       "composure": 91,
       "fightIQ": 93
@@ -1940,11 +1555,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -1964,23 +1595,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 50,
-      "aggressiveness": 70,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 35,
-        "muayThai": 15,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 40,
-        "judo": 10,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -1992,6 +1606,7 @@
     "wins": 12,
     "losses": 2,
     "image": "/assets/images/rafaelfiziev.png",
+    "profile": "/assets/images/rafael_fiziev_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "MUAY_THAI",
     "maxHealth": {
@@ -2004,7 +1619,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 8,
     "Rating": {
       "output": 91,
@@ -2035,8 +1650,8 @@
       "groundDefence": 86,
       "groundControl": 83,
       "groundStriking": 86,
-      "submissionOffence": 82,
-      "submissionDefence": 85,
+      "submissionOffence": 61,
+      "submissionDefence": 76,
       "getUpAbility": 87,
       "composure": 89,
       "fightIQ": 90
@@ -2118,11 +1733,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -2142,23 +1773,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 90,
-      "aggressiveness": 80,
-      "counterVsInitiator": 60,
-      "standupPreference": {
-        "boxing": 30,
-        "kickBoxing": 40,
-        "muayThai": 25,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 40,
-        "judo": 10,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2170,6 +1784,7 @@
     "wins": 24,
     "losses": 7,
     "image": "/assets/images/maxholloway.png",
+    "profile": "/assets/images/max_holloway_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "VOLUME_STRIKER",
     "maxHealth": {
@@ -2182,7 +1797,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 1,
     "Rating": {
       "output": 97,
@@ -2213,8 +1828,8 @@
       "groundDefence": 88,
       "groundControl": 84,
       "groundStriking": 89,
-      "submissionOffence": 83,
-      "submissionDefence": 89,
+      "submissionOffence": 71,
+      "submissionDefence": 85,
       "getUpAbility": 91,
       "composure": 96,
       "fightIQ": 95
@@ -2296,11 +1911,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -2320,23 +1951,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 95,
-      "aggressiveness": 85,
-      "counterVsInitiator": 50,
-      "standupPreference": {
-        "boxing": 70,
-        "kickBoxing": 20,
-        "muayThai": 7,
-        "karate": 2,
-        "taekwondo": 1
-      },
-      "grapplingPreference": {
-        "wrestling": 40,
-        "judo": 10,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2348,6 +1962,7 @@
     "wins": 17,
     "losses": 5,
     "image": "/assets/images/renatomoicano.png",
+    "profile": "/assets/images/renato_moicano_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
@@ -2360,7 +1975,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 10,
     "Rating": {
       "output": 87,
@@ -2391,8 +2006,8 @@
       "groundDefence": 89,
       "groundControl": 90,
       "groundStriking": 88,
-      "submissionOffence": 92,
-      "submissionDefence": 89,
+      "submissionOffence": 86,
+      "submissionDefence": 82,
       "getUpAbility": 88,
       "composure": 88,
       "fightIQ": 90
@@ -2474,11 +2089,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -2498,23 +2129,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 60,
-      "aggressiveness": 65,
-      "counterVsInitiator": 60,
-      "standupPreference": {
-        "boxing": 55,
-        "kickBoxing": 30,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 30,
-        "judo": 10,
-        "bjj": 60
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2526,6 +2140,7 @@
     "wins": 22,
     "losses": 12,
     "image": "/assets/images/danhooker.png",
+    "profile": "/assets/images/dan_hooker_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "KICKBOXER",
     "maxHealth": {
@@ -2538,7 +2153,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 11,
     "Rating": {
       "output": 89,
@@ -2569,8 +2184,8 @@
       "groundDefence": 86,
       "groundControl": 84,
       "groundStriking": 87,
-      "submissionOffence": 84,
-      "submissionDefence": 86,
+      "submissionOffence": 72,
+      "submissionDefence": 80,
       "getUpAbility": 87,
       "composure": 91,
       "fightIQ": 89
@@ -2652,11 +2267,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -2676,23 +2307,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 80,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 45,
-        "kickBoxing": 30,
-        "muayThai": 20,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 15,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2704,6 +2318,7 @@
     "wins": 11,
     "losses": 1,
     "image": "/assets/images/benoitsaintdenis.png",
+    "profile": "/assets/images/saint_denis_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
@@ -2716,7 +2331,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 12,
     "Rating": {
       "output": 90,
@@ -2747,8 +2362,8 @@
       "groundDefence": 88,
       "groundControl": 90,
       "groundStriking": 88,
-      "submissionOffence": 92,
-      "submissionDefence": 89,
+      "submissionOffence": 84,
+      "submissionDefence": 81,
       "getUpAbility": 87,
       "composure": 92,
       "fightIQ": 89
@@ -2830,11 +2445,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -2854,23 +2485,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 55,
-      "aggressiveness": 85,
-      "counterVsInitiator": 40,
-      "standupPreference": {
-        "boxing": 40,
-        "kickBoxing": 30,
-        "muayThai": 25,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 15,
-        "bjj": 50
-      }
-    },
     "roundsWon": 0
   },
   {
@@ -2882,6 +2496,7 @@
     "wins": 13,
     "losses": 7,
     "image": "/assets/images/jalinturner.png",
+    "profile": "/assets/images/jalin_turner_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "KICKBOXER",
     "maxHealth": {
@@ -2894,7 +2509,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 13,
     "Rating": {
       "output": 88,
@@ -2925,8 +2540,8 @@
       "groundDefence": 85,
       "groundControl": 84,
       "groundStriking": 88,
-      "submissionOffence": 89,
-      "submissionDefence": 86,
+      "submissionOffence": 79,
+      "submissionDefence": 75,
       "getUpAbility": 86,
       "composure": 87,
       "fightIQ": 86
@@ -3008,11 +2623,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -3032,24 +2663,6 @@
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
     },
-    "Tendency": {
-      "strikingVsGrappling": 70,
-      "aggressiveness": 75,
-      "counterVsInitiator": 55,
-      "standupPreference": {
-        "boxing": 50,
-        "kickBoxing": 35,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 30,
-        "judo": 10,
-        "bjj": 60
-      }
-    }
-,
     "roundsWon": 0
   },
   {
@@ -3061,6 +2674,7 @@
     "wins": 20,
     "losses": 3,
     "image": "/assets/images/paddypimblett.png",
+    "profile": "/assets/images/paddy_pimblett_mini.png",
     "weightClass": "Lightweight",
     "fightingStyle": "BRAZILIAN_JIU_JITSU",
     "maxHealth": {
@@ -3073,7 +2687,7 @@
       "body": 100,
       "legs": 100
     },
-    "position": "FIGHTER_POSITIONS.STANDING",
+
     "ranking": 14,
     "Rating": {
       "output": 87,
@@ -3104,8 +2718,8 @@
       "groundDefence": 87,
       "groundControl": 89,
       "groundStriking": 86,
-      "submissionOffence": 91,
-      "submissionDefence": 88,
+      "submissionOffence": 84,
+      "submissionDefence": 78,
       "getUpAbility": 86,
       "composure": 88,
       "fightIQ": 87
@@ -3187,11 +2801,27 @@
       "takedownsAttempted": 0,
       "takedownsSuccessful": 0,
       "takedownsDefended": 0,
-      "singleLegAttempted": 0,
-      "singleLegSuccessful": 0,
-      "singleLegDefended": 0,
+      "singleLegTakedownsAttempted": 0,
+      "singleLegTakedownsSuccessful": 0,
+      "singleLegTakedownsDefended": 0,
+      "doubleLegTakedownsAttempted": 0,
+      "doubleLegTakedownsSuccessful": 0,
+      "doubleLegTakedownsDefended": 0,
+      "tripTakedownsTakedownsAttempted": 0,
+      "tripTakedownsTakedownsSuccessful": 0,
+      "tripTakedownsTakedownsDefended": 0,
+      "throwTakedownsTakedownsAttempted": 0,
+      "throwTakedownsTakedownsSuccessful": 0,
+      "throwTakedownsTakedownsDefended": 0,
+      "groundStrikesThrown": 0,
+      "groundStrikesLanded": 0,
+      "groundStrikesBlocked": 0,
+      "groundPunchsThrown": 0,
       "groundPunchsLanded": 0,
       "groundPunchsBlocked": 0,
+      "groundElbowsThrown": 0,
+      "groundElbowsLanded": 0,
+      "groundElbowsBlocked": 0,
       "submissionsAttempted": 0,
       "submissionsSuccessful": 0,
       "submissionsDefended": 0,
@@ -3210,23 +2840,6 @@
       "guillotinesAttempted": 0,
       "guillotinesSuccessful": 0,
       "guillotinesDefended": 0
-    },
-    "Tendency": {
-      "strikingVsGrappling": 45,
-      "aggressiveness": 80,
-      "counterVsInitiator": 45,
-      "standupPreference": {
-        "boxing": 55,
-        "kickBoxing": 30,
-        "muayThai": 10,
-        "karate": 3,
-        "taekwondo": 2
-      },
-      "grapplingPreference": {
-        "wrestling": 35,
-        "judo": 15,
-        "bjj": 50
-      }
     },
     "roundsWon": 0
   }

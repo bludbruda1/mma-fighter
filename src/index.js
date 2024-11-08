@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 import initDB from "./utils/initDB";
+import { EventProvider } from "./contexts/EventContext";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -12,7 +13,9 @@ initDB()
   .then(() => {
     root.render(
       <Router>
-        <App />
+        <EventProvider>
+          <App />
+        </EventProvider>
       </Router>
     );
   })

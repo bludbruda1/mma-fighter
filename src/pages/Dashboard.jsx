@@ -11,15 +11,14 @@ import {
   Box,
   Chip,
   LinearProgress,
-  Divider,
   List,
   ListItem,
   ListItemText,
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import { getAllFighters } from "../utils/indexedDB";
-import { formatFightingStyle } from "../utils/uiHelpers"
+import { getAllFighters, getAllFights } from "../utils/indexedDB";
+import { formatFightingStyle } from "../utils/uiHelpers";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -27,6 +26,28 @@ const Dashboard = () => {
   const [fighter, setFighter] = useState(null);
   const [error, setError] = useState(null);
   const [allFighterIds, setAllFighterIds] = useState([]);
+  const [fights, setFights] = useState([]);
+
+  // Helper function to sort fights
+  const sortFights = (fights) => {
+    const upcoming = [];
+    const completed = [];
+    
+    fights.forEach(fight => {
+      if (!fight.result) {
+        upcoming.push(fight);
+      } else {
+        completed.push(fight);
+      }
+    });
+
+    // Sort upcoming fights by date if available
+    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Sort completed fights by date in descending order
+    completed.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return [...upcoming, ...completed];
+  };
 
   // Effect to fetch all fighter IDs when the component mounts
   useEffect(() => {
@@ -44,16 +65,29 @@ const Dashboard = () => {
     fetchAllFighterIds();
   }, []);
 
-  // Effect to fetch the current fighter's data when the ID changes
+  // Effect to fetch fighter data and fights
   useEffect(() => {
     const fetchFighterData = async () => {
       try {
+        // Get the fighter data
         const fighters = await getAllFighters();
         const selectedFighter = fighters.find(
           (f) => f.personid === parseInt(id)
         );
+        
         if (selectedFighter) {
           setFighter(selectedFighter);
+          
+          // Get all fights
+          const allFights = await getAllFights();
+          
+          // Filter fights to only include those with this fighter
+          const fighterFights = allFights.filter(fight => 
+            fight.fighter1.personid === selectedFighter.personid || 
+            fight.fighter2.personid === selectedFighter.personid
+          );
+          
+          setFights(fighterFights);
         } else {
           setError("Fighter not found");
         }
@@ -65,21 +99,184 @@ const Dashboard = () => {
     fetchFighterData();
   }, [id]);
 
-  // Function to navigate to the next or previous fighter
+  // Function to navigate between fighters
   const navigateToFighter = (direction) => {
     const currentIndex = allFighterIds.indexOf(parseInt(id));
     let newIndex;
     if (direction === "next") {
-      // If at the end, loop back to the start
-      newIndex =
-        currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
+      newIndex = currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
     } else {
-      // If at the start, loop to the end
-      newIndex =
-        currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
+      newIndex = currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
     }
     navigate(`/dashboard/${allFighterIds[newIndex]}`);
   };
+
+  // Helper function to determine fight result
+  const getFightResult = (fight) => {
+    if (!fight.result) return null;
+    
+    const isFighter1 = fighter.personid === fight.fighter1.personid;
+    const isWinner = fight.result.winner === (isFighter1 ? 0 : 1);
+    
+    return {
+      result: isWinner ? 'Win' : 'Loss',
+      opponent: isFighter1 ? fight.fighter2 : fight.fighter1,
+      method: fight.result.method,
+      roundEnded: fight.result.roundEnded,
+      timeEnded: fight.result.timeEnded
+    };
+  };
+
+  // Helper function to format the method
+  const getMethodAbbreviation = (method) => {
+    switch (method?.toLowerCase()) {
+      case 'knockout': return 'KO';
+      case 'technical knockout': return 'TKO';
+      case 'submission': return 'SUB';
+      case 'decision': return 'DEC';
+      default: return method?.toUpperCase().slice(0, 3) || 'N/A';
+    }
+  };
+
+  // Helper function to format time
+  const formatTime = (time) => {
+    return time || "0:00";
+  };
+
+  // Helper function to render rating bars
+  const renderRatingBar = (rating) => (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
+        <LinearProgress variant="determinate" value={rating} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">
+          {`${rating}`}
+        </Typography>
+      </Box>
+    </Box>
+  );
+
+  // Helper function to format attribute names
+  const formatAttributeName = (attr) => {
+    return attr
+      .split(/(?=[A-Z])/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  // Fight history section render
+  const renderFightHistory = () => (
+    <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: 'auto' }}>
+      <CardContent>
+        <Typography variant="h5" gutterBottom>Fight History</Typography>
+        <List>
+          {fights.length > 0 ? (
+            sortFights(fights).map((fight) => {
+              // Handle upcoming fights
+              if (!fight.result) {
+                const isFirstFighter = fighter.personid === fight.fighter1.personid;
+                const opponent = isFirstFighter ? fight.fighter2 : fight.fighter1;
+                
+                return (
+                  <ListItem key={fight.id} divider>
+                    <ListItemText
+                      primary={
+                        opponent.personid ? (
+                          <Link
+                            to={`/Dashboard/${opponent.personid}`}
+                            style={{
+                              textDecoration: "none",
+                              color: "#1976d2",
+                            }}
+                          >
+                            {`${opponent.firstname} ${opponent.lastname}`}
+                          </Link>
+                        ) : (
+                          <Typography component="span">
+                            {`${opponent.firstname} ${opponent.lastname}`}
+                          </Typography>
+                        )
+                      }
+                      secondary={
+                        <Box sx={{ mt: 1, display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <Chip 
+                            label="UPCOMING"
+                            color="primary"
+                            size="small"
+                            sx={{
+                              bgcolor: 'warning.main',
+                              color: 'warning.contrastText',
+                              fontWeight: 'bold'
+                            }}
+                          />
+                          {fight.date && (
+                            <Typography variant="caption" color="text.secondary">
+                              {new Date(fight.date).toLocaleDateString()}
+                            </Typography>
+                          )}
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                );
+              }
+
+              // Handle completed fights
+              const fightResult = getFightResult(fight);
+              if (!fightResult) return null;
+
+              return (
+                <ListItem key={fight.id} divider>
+                  <ListItemText
+                    primary={
+                      fightResult.opponent.personid ? (
+                        <Link
+                          to={`/Dashboard/${fightResult.opponent.personid}`}
+                          style={{
+                            textDecoration: "none",
+                            color: "#1976d2",
+                          }}
+                        >
+                          {`${fightResult.opponent.firstname} ${fightResult.opponent.lastname}`}
+                        </Link>
+                      ) : (
+                        <Typography component="span">
+                          {`${fightResult.opponent.firstname} ${fightResult.opponent.lastname}`}
+                        </Typography>
+                      )
+                    }
+                    secondary={
+                      <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                        <Chip 
+                          label={fightResult.result}
+                          color={fightResult.result === 'Win' ? 'success' : 'error'}
+                          size="small"
+                        />
+                        <Chip 
+                          label={getMethodAbbreviation(fightResult.method)}
+                          color={fightResult.result === 'Win' ? 'success' : 'error'}
+                          size="small"
+                          variant="outlined"
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          {`R${fightResult.roundEnded} ${formatTime(fightResult.timeEnded)}`}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItem>
+              );
+            })
+          ) : (
+            <ListItem>
+              <ListItemText primary="No fight history available." />
+            </ListItem>
+          )}
+        </List>
+      </CardContent>
+    </Card>
+  );
 
   // Error handling
   if (error) {
@@ -102,53 +299,6 @@ const Dashboard = () => {
       </Container>
     );
   }
-
-  // Helper function to render rating bars
-  const renderRatingBar = (rating) => (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: "100%", mr: 1 }}>
-        <LinearProgress variant="determinate" value={rating} />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-        >{`${rating}`}</Typography>
-      </Box>
-    </Box>
-  );
-
-  // Helper function to format attribute names
-  const formatAttributeName = (attr) => {
-    return attr
-      .split(/(?=[A-Z])/)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
-
-  // Helper function to format the method naming
-  const getMethodAbbreviation = (method) => {
-    if (method.toLowerCase().includes('Decision')) return 'DEC';
-    if (method.toLowerCase().includes('Submission')) return 'SUB';
-    if (method.toLowerCase().includes('Knockout')) return 'KO';
-    return method.toUpperCase().slice(0, 3); // Fallback for other methods
-  };
-
-  // Helper function to format the result naming
-  const getResultAbbreviation = (result) => {
-    if (result.toLowerCase().includes('win')) return 'W';
-    if (result.toLowerCase().includes('loss')) return 'L';
-    if (result.toLowerCase().includes('draw')) return 'D';
-    return result[0].toUpperCase(); // Fallback to first letter
-  };
-
-  // Helper function to get the colour for wins and losses
-  const getChipColor = (result) => {
-    if (result.toLowerCase().includes('win')) return 'success';
-    if (result.toLowerCase().includes('loss')) return 'error';
-    return 'default'; // For draws or any other result
-  };
-
 
   return (
     <Container maxWidth="lg" sx={{ mt: 5, mb: 5 }}>
@@ -186,9 +336,9 @@ const Dashboard = () => {
             <CardMedia
               component="img"
               sx={{
-                height: 300, // Reduced height
-                objectFit: "contain", // Changed to "contain" to fit the whole image
-                bgcolor: "grey.200", // Added a background color to make the image more visible if it doesn't fill the space
+                height: 300,
+                objectFit: "contain",
+                bgcolor: "grey.200",
               }}
               image={fighter.image}
               alt={`${fighter.firstname} ${fighter.lastname}`}
@@ -197,94 +347,33 @@ const Dashboard = () => {
               <Typography variant="h5" gutterBottom>
                 Basic Information
               </Typography>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Nationality:</Typography>
-                <Typography variant="body1">
-                  {fighter.nationality}
-                </Typography>{" "}
-                {/* Changed from Chip to Typography */}
+                <Typography variant="body1">{fighter.nationality}</Typography>
               </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Hometown:</Typography>
                 <Typography variant="body1">{fighter.hometown}</Typography>
               </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Record:</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {fighter.wins}W-{fighter.losses}L
                 </Typography>
               </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Weight Class:</Typography>
                 <Chip label={fighter.weightClass} color="secondary" />
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Fighting Style:</Typography>
                 <Chip label={formatFightingStyle(fighter.fightingStyle)} color="primary" />
               </Box>
             </CardContent>
           </Card>
 
-          {/* Fight History section */}
-          <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: 'auto' }}>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>Fight History</Typography>
-              <List>
-                {fighter.fightHistory && fighter.fightHistory.length > 0 ? (
-                  fighter.fightHistory.map((fight, index) => (
-                    <ListItem key={index} divider>
-                      <ListItemText
-                        primary={
-                          fight.opponentId ? (
-                            <Link
-                              to={`/Dashboard/${fight.opponentId}`}
-                              style={{
-                                textDecoration: "none",
-                                color: "#1976d2",
-                              }}
-                            >
-                              {fight.opponent}
-                            </Link>
-                          ) : (
-                            <Typography component="span" color="textPrimary">
-                              {fight.opponent}
-                            </Typography>
-                          )
-                        }
-                        secondary={
-                          <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                            <Chip 
-                              label={getResultAbbreviation(fight.result)}
-                              color={getChipColor(fight.result)}
-                              size="small"
-                            />
-                            <Chip 
-                              label={getMethodAbbreviation(fight.method)}
-                              color={getChipColor(fight.result)}
-                              size="small"
-                              variant="outlined"
-                            />
-                          </Box>
-                        }
-                      />
-                    </ListItem>
-                  ))
-                ) : (
-                  <ListItem>
-                    <ListItemText primary="No fight history available." />
-                  </ListItem>
-                )}
-              </List>
-            </CardContent>
-          </Card>
+          {/* Fight History */}
+          {renderFightHistory()}
         </Grid>
 
         {/* Fighter's ratings and tendencies */}
@@ -301,24 +390,34 @@ const Dashboard = () => {
                   "speed",
                   "cardio",
                   "toughness",
+                  "chin",
                   "striking",
                   "punchPower",
+                  "handSpeed",
+                  "punchAccuracy",
                   "kicking",
                   "kickPower",
+                  "kickSpeed",
+                  "kickAccuracy",
                   "strikingDefence",
                   "kickDefence",
+                  "headMovement",
+                  "footwork",
                   "takedownOffence",
                   "takedownDefence",
-                  "clinchOffence",
-                  "clinchDefence",
+                  "clinchStriking",
+                  "clinchTakedown",
                   "clinchControl",
+                  "clinchDefence",
                   "groundOffence",
                   "groundDefence",
                   "groundControl",
+                  "groundStriking",
                   "submissionOffence",
                   "submissionDefence",
                   "getUpAbility",
-                  "fightIQ",
+                  "composure",
+                  "fightIQ"
                 ].map((attr) => (
                   <Grid item xs={12} sm={6} key={attr}>
                     <Typography variant="body2">
@@ -328,34 +427,6 @@ const Dashboard = () => {
                   </Grid>
                 ))}
               </Grid>
-            </CardContent>
-          </Card>
-
-          <Card elevation={3} sx={{ mt: 3 }}>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Fighting Style
-              </Typography>
-              {Object.entries(fighter.Tendency).map(
-                ([position, tendencies]) => (
-                  <Box key={position} sx={{ mb: 2 }}>
-                    <Typography variant="h6">
-                      {formatAttributeName(position)}
-                    </Typography>
-                    <Grid container spacing={1}>
-                      {Object.entries(tendencies).map(([action, value]) => (
-                        <Grid item xs={6} sm={4} key={action}>
-                          <Typography variant="body2">
-                            {formatAttributeName(action)}
-                          </Typography>
-                          {renderRatingBar(value)}
-                        </Grid>
-                      ))}
-                    </Grid>
-                    <Divider sx={{ my: 2 }} />
-                  </Box>
-                )
-              )}
             </CardContent>
           </Card>
         </Grid>

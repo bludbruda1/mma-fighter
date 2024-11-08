@@ -30,7 +30,11 @@ const actionProperties = {
   legKick: { timeRange: [2,4], staminaImpact: 3 },
 
   // Grappling and clinch
-  takedownAttempt: { timeRange: [7,10], staminaImpact: 7 },
+  singleLegTakedown: { timeRange: [5,8], staminaImpact: 6 },
+  doubleLegTakedown: { timeRange: [6,9], staminaImpact: 7 },
+  tripTakedown: { timeRange: [4,7], staminaImpact: 5 },
+  throwTakedown: { timeRange: [5,8], staminaImpact: 8 },
+  sprawl: { timeRange: [3, 6], staminaImpact: 4 },
   getUpAttempt: { timeRange: [5,10], staminaImpact: 5 },
   clinchAttempt: { timeRange: [2,4], staminaImpact: 4 },
   clinchStrike: { timeRange: [2,3], staminaImpact: 3 },
@@ -39,7 +43,14 @@ const actionProperties = {
 
   // Ground actions
   groundPunch: { timeRange: [1,2], staminaImpact: 2 },
-  submission: { timeRange: [7,14], staminaImpact: 10 },
+  groundElbow: { timeRange: [1,2], staminaImpact: 2 },
+  submission: { timeRange: [5,14], staminaImpact: 10 },
+  rearNakedChoke: { timeRange: [3,10], staminaImpact: 7 }, 
+  triangleChoke: { timeRange: [3,10], staminaImpact: 7 }, 
+  guillotine: { timeRange: [3,10], staminaImpact: 7 }, 
+  armbar: { timeRange: [3,10], staminaImpact: 4 }, 
+  postureUp: { timeRange: [3,6], staminaImpact: 3 },
+  pullIntoGuard: { timeRange: [3,6], staminaImpact: 3 },
   positionAdvance: { timeRange: [6,10], staminaImpact: 5 },
   sweep: { timeRange: [6,10], staminaImpact: 7 },
   escape: { timeRange: [4,8], staminaImpact: 6 },
@@ -156,7 +167,7 @@ const updateFightStats = (attacker, defender, actionType, specificAction, outcom
   }
 
   // If it's a strike, update the total strikes stats
-  if (['punch', 'kick', 'groundPunch', 'clinchStrike'].includes(actionType)) {
+  if (['punch', 'kick', 'groundStrike', 'clinchStrike'].includes(actionType)) {
     attacker.stats.totalStrikesAttempted = (attacker.stats.totalStrikesAttempted || 0) + 1;
     if (outcome === 'landed') {
       attacker.stats.totalStrikesLanded = (attacker.stats.totalStrikesLanded || 0) + 1;

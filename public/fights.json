@@ -1,0 +1,106 @@
+[
+    {
+      "id": 1,
+      "fighter1": {
+        "personid": 3,
+        "firstname": "Islam",
+        "lastname": "Makhachev"
+      },
+      "fighter2": {
+        "personid": 5,
+        "firstname": "Charles",
+        "lastname": "Oliveira"
+      },
+      "result": null,
+      "stats": null  
+    },
+    {
+      "id": 2,
+      "fighter1": {
+        "personid": 2,
+        "firstname": "Dustin",
+        "lastname": "Poirier"
+      },
+      "fighter2": {
+        "personid": 6,
+        "firstname": "Justin",
+        "lastname": "Gaethje"
+      },
+      "result": null,
+      "stats": null
+    },
+    {
+      "id": 3,
+      "fighter1": {
+        "personid": 1,
+        "firstname": "Conor",
+        "lastname": "McGregor"
+      },
+      "fighter2": {
+        "personid": 8,
+        "firstname": "Michael",
+        "lastname": "Chandler"
+      },
+      "result": null,
+      "stats": null  
+    },
+    {
+      "id": 4,
+      "fighter1": {
+        "personid": 9,
+        "firstname": "Beneil",
+        "lastname": "Dariush"
+      },
+      "fighter2": {
+        "personid": 10,
+        "firstname": "Rafael",
+        "lastname": "Fiziev"
+      },
+      "result": null,
+      "stats": null
+    },
+    {
+      "id": 5,
+      "fighter1": {
+        "personid": 1,
+        "firstname": "Conor",
+        "lastname": "McGregor"
+      },
+      "fighter2": {
+        "personid": 2,
+        "firstname": "Dustin",
+        "lastname": "Poirier"
+      },
+      "weightClass": "Lightweight",
+      "date": "2021-07-10",
+      "result": {
+        "winner": 1,
+        "method": "Knockout",
+        "roundEnded": 1,
+        "timeEnded": "2:32"
+      },
+      "stats": null
+    },
+    {
+      "id": 6,
+      "fighter1": {
+        "personid": 1,
+        "firstname": "Conor",
+        "lastname": "McGregor"
+      },
+      "fighter2": {
+        "personid": null,
+        "firstname": "Donald",
+        "lastname": "Cerrone"
+      },
+      "weightClass": "Lightweight",
+      "date": "2020-01-18",
+      "result": {
+        "winner": 0,
+        "method": "Knockout",
+        "roundEnded": 1,
+        "timeEnded": "0:40"
+      },
+      "stats": null
+    }
+  ]

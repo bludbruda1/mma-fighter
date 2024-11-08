@@ -27,8 +27,12 @@ const Home = () => {
     navigate("/roster");
   };
 
-  const handleGetStarted = () => {
-    navigate("/fight");
+  const handleCreateEvent = () => {
+    navigate("/createevent");
+  };
+
+  const handleViewEvents = () => {
+    navigate("/events");
   };
 
   const [loading, setLoading] = useState(false);
@@ -124,7 +128,7 @@ const Home = () => {
           <Grid item>
             <Button
               variant="contained"
-              onClick={handleGetStarted}
+              onClick={handleCreateEvent}
               sx={{
                 ...fadeIn,
                 backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
@@ -134,7 +138,23 @@ const Home = () => {
                 },
               }}
             >
-              Get Started
+              Create Event
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleViewEvents}
+              sx={{
+                ...fadeIn,
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
+                color: "#000", // Text color
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.6)", // Darker on hover
+                },
+              }}
+            >
+              View Events
             </Button>
           </Grid>
           {/* Reset Game Button */}

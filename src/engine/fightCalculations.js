@@ -20,6 +20,7 @@ const STRIKE_DAMAGE = {
   takedown: { damage: 1, target: "body" },
   clinchStrike: { damage: 1, target: "head" },
   groundPunch: { damage: 1, target: "head" },
+  groundElbow: { damage: 1, target: "head" },
 };
 
 const POWER_FACTOR = 0.5;
@@ -42,7 +43,7 @@ const calculateProbability = (offenceRating, defenceRating) => {
 };
 
 /**
- * Calculate probability of a successful action
+ * Calculate probability of a successful takedown
  * @param {Object} attacker - Attacking fighter
  * @param {Object} defender - Defending fighter
  * @returns {number} Probability of success
@@ -52,25 +53,115 @@ const calculateTDProbability = (attacker, defender) => {
   const defensiveSkill = defender.Rating.takedownDefence;
   const difference = offensiveSkill - defensiveSkill;
 
+  // Base probabilities
+  let landsChance, defendedChance, sprawlChance;
+
   if (difference >= 15) {
-    return 0.60;
+    landsChance = 0.60;
+    defendedChance = 0.30;
+    sprawlChance = 0.10;
   } else if (difference >= 10) {
-    return 0.50;
+    landsChance = 0.50;
+    defendedChance = 0.35;
+    sprawlChance = 0.15;
   } else if (difference >= 5) {
-    return 0.40;
+    landsChance = 0.40;
+    defendedChance = 0.40;
+    sprawlChance = 0.20;
   } else if (difference >= 1) {
-    return 0.33;
+    landsChance = 0.33;
+    defendedChance = 0.42;
+    sprawlChance = 0.25;
   } else if (difference === 0) {
-    return 0.25;
+    landsChance = 0.25;
+    defendedChance = 0.45;
+    sprawlChance = 0.30;
   } else if (difference >= -4) {
-    return 0.20;
+    landsChance = 0.20;
+    defendedChance = 0.45;
+    sprawlChance = 0.35;
   } else if (difference >= -9) {
-    return 0.125;
+    landsChance = 0.125;
+    defendedChance = 0.475;
+    sprawlChance = 0.40;
   } else if (difference >= -14) {
-    return 0.075;
+    landsChance = 0.075;
+    defendedChance = 0.475;
+    sprawlChance = 0.45;
   } else {
-    return 0.02;
+    landsChance = 0.02;
+    defendedChance = 0.48;
+    sprawlChance = 0.50;
   }
+
+  return { landsChance, defendedChance, sprawlChance };
+};
+
+/**
+ * Calculate probability of a successful submssion
+ * @param {Object} attacker - Attacking fighter
+ * @param {Object} defender - Defending fighter
+ * @returns {number} Probability of success
+ */
+const calculateSubmissionProbability = (attacker, defender) => {
+  const offensiveSkill = attacker.Rating.submissionOffence;
+  const defensiveSkill = defender.Rating.submissionDefence;
+  const difference = offensiveSkill - defensiveSkill;
+
+  // Base probabilities
+  let successChance, failChance;
+
+  if (difference >= 35) {
+    successChance = 0.99;
+    failChance = 0.01;
+  } else if (difference >= 30) {
+    successChance = 0.95;
+    failChance = 0.05;
+  } else if (difference >= 25) {
+    successChance = 0.85;
+    failChance = 0.15;
+  } else if (difference >= 20) {
+    successChance = 0.75;
+    failChance = 0.25;
+  } else if (difference >= 15) {
+    successChance = 0.60;
+    failChance = 0.40;
+  } else if (difference >= 10) {
+    successChance = 0.50;
+    failChance = 0.50;
+  } else if (difference >= 5) {
+    successChance = 0.40;
+    failChance = 0.60;
+  } else if (difference >= 1) {
+    successChance = 0.33;
+    failChance = 0.67;
+  } else if (difference === 0) {
+    successChance = 0.25;
+    failChance = 0.85;
+  } else if (difference >= -4) {
+    successChance = 0.20;
+    failChance = 0.8;
+  } else if (difference >= -9) {
+    successChance = 0.125;
+    failChance = 0.875;
+  } else if (difference >= -14) {
+    successChance = 0.075;
+    failChance = 0.925;
+  } else if (difference >= -20) {
+    successChance = 0.05;
+    failChance = 0.95;
+  } else if (difference >= -30) {
+    successChance = 0.01;
+    failChance = 0.99;
+  } else {
+    successChance = 0.02;
+    failChance = 0.98;
+  }
+
+  console.log(`successChance: ${successChance} failChance: ${failChance}`);
+
+
+  return { successChance, failChance };
 };
 
 /**
@@ -150,172 +241,6 @@ const calculateProbabilities = (attacker, defender, actionType) => {
 };
 
 /**
- * Calculate the probability of a successful submission
- * @param {Object} attacker - Attacking fighter
- * @param {Object} defender - Defending fighter
- * @param {Object} submissionType - Type of submission being attempted
- * @returns {Object} Probabilities of success, defence, and escape
- */
-const calculateSubmissionProbability = (attacker, defender, submissionType) => {
-  const offensiveSkill = attacker.Rating.submissionOffence;
-  const defensiveSkill = defender.Rating.submissionDefence;
-  const attackerStamina = attacker.stamina;
-  const defenderStamina = defender.stamina;
-  const positionAdvantage = getPositionAdvantage(
-    attacker.position,
-    defender.position
-  );
-  const submissionDifficulty = submissionType.difficultyModifier;
-
-  let baseSuccessChance;
-
-  // Determine which calculation to use based on relative skill levels
-  if (offensiveSkill > defensiveSkill) {
-    baseSuccessChance = calculateOffenceDominantSubmission(
-      offensiveSkill,
-      defensiveSkill,
-      attackerStamina,
-      defenderStamina
-    );
-  } else if (defensiveSkill > offensiveSkill) {
-    baseSuccessChance = calculateDefenceDominantSubmission(
-      offensiveSkill,
-      defensiveSkill,
-      attackerStamina,
-      defenderStamina
-    );
-  } else {
-    baseSuccessChance = calculateEqualSkillSubmission(
-      offensiveSkill,
-      attackerStamina,
-      defenderStamina
-    );
-  }
-
-  // Apply position advantage and submission difficulty modifiers
-  let successChance =
-    (baseSuccessChance * (1 + positionAdvantage)) / submissionDifficulty;
-
-  // Ensure successChance is within [0, 1] range
-  successChance = Math.max(0, Math.min(1, successChance));
-
-  // Calculate defence and escape chances
-  let defenceChance = 1 - successChance;
-  let escapeChance = defenceChance * 0.3; // 30% of unsuccessful attempts result in escape
-  defenceChance -= escapeChance;
-
-  return { successChance, defenceChance, escapeChance };
-};
-
-const calculateOffenceDominantSubmission = (
-  offensiveSkill,
-  defensiveSkill,
-  attackerStamina,
-  defenderStamina
-) => {
-  const skillDifference = offensiveSkill - defensiveSkill;
-  const staminaFactor = calculateStaminaFactor(
-    attackerStamina,
-    defenderStamina
-  );
-
-  // Base chance increases with skill difference
-  let baseChance = 0.3 + skillDifference / 200;
-
-  // Apply stamina factor
-  baseChance *= staminaFactor;
-
-  // Exponential reduction for very high defence skills
-  if (defensiveSkill > 95) {
-    baseChance *= Math.pow(0.9, defensiveSkill - 95);
-  }
-
-  return baseChance;
-};
-
-const calculateDefenceDominantSubmission = (
-  offensiveSkill,
-  defensiveSkill,
-  attackerStamina,
-  defenderStamina
-) => {
-  const skillDifference = defensiveSkill - offensiveSkill;
-  const staminaFactor = calculateStaminaFactor(
-    attackerStamina,
-    defenderStamina
-  );
-
-  // Base chance decreases with skill difference
-  let baseChance = 0.2 - skillDifference / 250;
-
-  // Apply stamina factor
-  baseChance *= staminaFactor;
-
-  // Further reduction for very high defence skills
-  if (defensiveSkill > 95) {
-    baseChance *= Math.pow(0.8, defensiveSkill - 95);
-  }
-
-  return Math.max(0.01, baseChance); // Minimum 1% chance
-};
-
-const calculateEqualSkillSubmission = (
-  skill,
-  attackerStamina,
-  defenderStamina
-) => {
-  const staminaFactor = calculateStaminaFactor(
-    attackerStamina,
-    defenderStamina
-  );
-
-  // Base chance when skills are equal
-  let baseChance = 0.25;
-
-  // Apply stamina factor
-  baseChance *= staminaFactor;
-
-  // Slight reduction for very high skills
-  if (skill > 90) {
-    baseChance *= Math.pow(0.95, skill - 90);
-  }
-
-  return baseChance;
-};
-
-const calculateStaminaFactor = (attackerStamina, defenderStamina) => {
-  const staminaDifference = attackerStamina - defenderStamina;
-
-  // Exponential effect of stamina
-  let staminaFactor = Math.pow(1.05, staminaDifference / 10);
-
-  // Additional penalty for very low defender stamina
-  if (defenderStamina < 30) {
-    staminaFactor *= 1 + (30 - defenderStamina) / 50;
-  }
-
-  return staminaFactor;
-};
-
-/**
- * Calculates the position advantage for ground fighting
- * @param {string} attackerPosition - The attacker's current position
- * @param {string} defenderPosition - The defender's current position
- * @returns {number} The position advantage (0 to 1)
- */
-const getPositionAdvantage = (attackerPosition, defenderPosition) => {
-  const advantageousPositions = {
-    [FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE]: 0.3,
-    [FIGHTER_POSITIONS.GROUND_MOUNT_TOP]: 0.2,
-    [FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP]: 0.1,
-    [FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP]: 0.05,
-    [FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP]: 0,
-  };
-
-  return advantageousPositions[attackerPosition] || 0;
-};
-
-/**
  * Determines the next action for a fighter in a standing position
  * @param {Object} attacker - The fighter object
  * @param {Object} defender - The opponent fighter object
@@ -362,7 +287,7 @@ const determineStandingAction = (attacker, defender) => {
   if (random < strikeChance) {
     return determineStrikeType(attacker);
   } else if (random < strikeChance + takedownChance) {
-    return "takedownAttempt";
+    return determineTakedownType(attacker);
   } else if (random < strikeChance + takedownChance + clinchChance) {
     return "clinchAttempt";
   } else {
@@ -375,7 +300,7 @@ const determineStandingAction = (attacker, defender) => {
  * @param {Object} fighter - The fighter object
  * @returns {string} The determined action
  */
-const determineGroundAction = (fighter) => {
+const determineGroundAction = (fighter, opponent) => {
   const groundOffence = fighter.Rating.groundOffence;
   const groundDefence = fighter.Rating.groundDefence;
   const submissionOffence = fighter.Rating.submissionOffence;
@@ -384,24 +309,35 @@ const determineGroundAction = (fighter) => {
   // Determine if the fighter is in an offensive or defensive position
   const isOffensive = [
     FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+    FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP,
     FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP,
     FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP,
     FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
+    FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP,
     FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE,
   ].includes(fighter.position);
 
   // Define available actions based on position
-  let availableActions = ['groundPunch', 'getUpAttempt'];
+  let availableActions = ['groundPunch', 'groundElbow','getUpAttempt'];
 
   if (isOffensive) {
     availableActions.push('positionAdvance');
-    // Add submission option for positions where it's applicable
+    // Add option for posturing up where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
       FIGHTER_POSITIONS.GROUND_MOUNT_TOP,
-      FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE
     ].includes(fighter.position)) {
-      availableActions.push('submission');
+      availableActions.push('postureUp');
+    }
+    // Add armbar option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP,
+    ].includes(fighter.position)) {
+      availableActions.push('armbar');
+    }
+    // Add rear-naked choke option for positions where it's applicable
+    if (fighter.position === FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE) {
+      availableActions.push('rearNakedChoke');
     }
   } else {
     if ([
@@ -412,18 +348,39 @@ const determineGroundAction = (fighter) => {
       availableActions.push('sweep');
     }
     if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position) && 
+    (opponent.position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP || 
+     opponent.position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP)) {
+      availableActions.push('pullIntoGuard');
+    }
+    if ([
       FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM,
       FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM,
       FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE
     ].includes(fighter.position)) {
       availableActions.push('escape');
     }
-    // Add submission option for positions where it's applicable
+    // Add guillotine option for positions where it's applicable
     if ([
       FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
       FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM
     ].includes(fighter.position)) {
-      availableActions.push('submission');
+      availableActions.push('guillotine');
+    }
+      // Add armbar option for positions where it's applicable
+      if ([
+        FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      ].includes(fighter.position)) {
+        availableActions.push('armbar');
+      }
+    // Add traingle option for positions where it's applicable
+    if ([
+      FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM,
+      FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM
+    ].includes(fighter.position)) {
+      availableActions.push('triangleChoke');
     }
   }
 
@@ -437,10 +394,28 @@ const determineGroundAction = (fighter) => {
       case 'groundPunch':
         probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
         break;
-      case 'submission':
-        probability = submissionOffence * 0.3 * attackerStamina;
+      case 'groundElbow':
+        probability = (isOffensive ? groundOffence : groundDefence) * 0.4 * attackerStamina;
         break;
-      case 'positionAdvance':
+      case 'rearNakedChoke':
+        probability = submissionOffence * 0.35 * attackerStamina;
+        break;
+      case 'triangleChoke':
+        probability = submissionOffence * 0.2 * attackerStamina;
+        break;
+      case 'guillotine':
+        probability = submissionOffence * 0.25 * attackerStamina;
+        break;
+      case 'armbar':
+        probability = submissionOffence * 0.15 * attackerStamina;
+        break;
+      case 'postureUp':
+        probability = groundOffence * 0.2 * attackerStamina;
+        break;
+      case 'pullIntoGuard':
+        probability = groundDefence * 0.2 * attackerStamina;
+        break;
+       case 'positionAdvance':
         probability = groundOffence * 0.2 * attackerStamina;
         break;
       case 'sweep':
@@ -569,6 +544,43 @@ const determineStrikeType = (attacker) => {
 };
 
 /**
+ * Determines the specific type of takedown for a fighter
+ * @param {Object} attacker - The fighter object
+ * @returns {string} The specific takedown type
+ */
+const determineTakedownType = (attacker) => {
+    
+  // Relevant ratings
+  const wrestlingSkill = attacker.Rating.takedownOffence;
+  const judoSkill = attacker.Rating.clinchTakedown;
+
+  // Calculate probabilities
+  let singleLegProb = 0.3 + (wrestlingSkill / 200);
+  let doubleLegProb = 0.3 + (wrestlingSkill / 200);
+  let tripProb = 0.2 + (judoSkill / 200);
+  let throwProb = 0.2 + (judoSkill / 200);
+
+  // Normalize probabilities
+  const total = singleLegProb + doubleLegProb + tripProb + throwProb;
+  singleLegProb /= total;
+  doubleLegProb /= total;
+  tripProb /= total;
+  throwProb /= total;
+
+  // Choose takedown type based on probabilities
+  const random = Math.random();
+  if (random < singleLegProb) {
+    return "singleLegTakedown";
+  } else if (random < singleLegProb + doubleLegProb) {
+    return "doubleLegTakedown";
+  } else if (random < singleLegProb + doubleLegProb + tripProb) {
+    return "tripTakedown";
+  } else {
+    return "throwTakedown";
+  }
+};
+
+/**
  * Chooses a random item based on weights
  * @param {string[]} items - Array of items
  * @param {number[]} weights - Array of weights corresponding to items
@@ -626,7 +638,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   }
 
    // Determine if it's a punch or a kick
-  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch", "clinchStrike"].includes(strikeType);
+  const isPunch = ["jab", "cross", "hook", "uppercut", "overhand", "spinningBackfist", "supermanPunch", "bodyPunch", "groundPunch", "groundElbow", "clinchStrike"].includes(strikeType);
 
   // Apply power factor based on the attacker's rating
   const powerFactor = 1 + (isPunch ? attacker.Rating.punchPower : attacker.Rating.kickPower) / 100 * POWER_FACTOR;
@@ -636,6 +648,17 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
 
   // Calculate total damage
   let totalDamage = Math.round(baseDamage * powerFactor * variability);
+
+  // Calculate damage multiplier for postured-up positions
+  let postureDamageMultiplier = 1;
+  if (attacker.position === FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP ||
+      attacker.position === FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP) {
+    // Increase damage by 30-50% when postured up
+    postureDamageMultiplier = 1 + (0.3 + Math.random() * 0.2);
+  }
+
+  // Apply the multiplier to the total damage
+  totalDamage = Math.round(totalDamage * postureDamageMultiplier);
 
   // Check for critical hit
   const isCritical = Math.random() < CRITICAL_HIT_CHANCE;
@@ -660,7 +683,7 @@ const calculateStrikeDamage = (attacker, defender, strikeType) => {
   let isKnockout = false;
   let isStun = false;
 
-  if (strikeType !== "groundPunch" || strikeType !== "clinchStrike" ) {
+  if (strikeType !== "groundPunch" || strikeType !== "groundElbow" || strikeType !== "clinchStrike" ) {
     knockoutProbability = calculateKnockoutProbability(attacker, defender, totalDamage, target, strikeType);
     isKnockout = Math.random() < knockoutProbability;
 
@@ -729,8 +752,8 @@ export {
   calculateProbabilities,
   calculateProbability,
   calculateTDProbability,
-  calculateStaminaImpact,
   calculateSubmissionProbability,
+  calculateStaminaImpact,
   determineStandingAction,
   determineGroundAction,
   determineClinchAction,
