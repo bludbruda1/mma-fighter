@@ -652,11 +652,11 @@ const exitClinch = (defender, attacker, currentTime, logger) => {
     attacker.position = FIGHTER_POSITIONS.STANDING;
     defender.position = FIGHTER_POSITIONS.STANDING;
 
-    logger.logPositionChange(defender, attacker, defender.position, currentTime);
-
+    logger.logPositionChange(defender, attacker, "successful", currentTime);
     console.log(`${defender.name} successfully exits the clinch`);
     return "clinchExitSuccessful";
   } else {
+    logger.logPositionChange(defender, attacker, "unsuccessful", currentTime);
     console.log(`${defender.name} fails to exit the clinch`);
     return "clinchExitFailed";
   }
@@ -886,32 +886,25 @@ const doPostureUp = (attacker, defender, currentTime, logger) => {
   const timePassed = simulateTimePassing("postureUp");
 
   if (Math.random() < successProbability) {
-    let newAttackerPosition, newDefenderPosition;
-
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_MOUNT_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP;
+        defender.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
         break;
       default:
         return ["postureUpInvalid", timePassed] ;
     }
 
-    attacker.position = newAttackerPosition;
-    defender.position = newDefenderPosition;
-
-    logger.logPositionChange(attacker, defender, newAttackerPosition, currentTime);
-
-    console.log(
-      `${attacker.name} successfully postures up`
-    );
+    logger.logPositionChange(attacker, defender, "successful", currentTime);
+    console.log(`${attacker.name} successfully postures up`);
     return ["postureUpSuccessful", timePassed] ;
 
   } else {
+    logger.logPositionChange(attacker, defender, "unsuccessful", currentTime);
     console.log(`${defender.name} keeps ${attacker.name} in guard`);
     return ["postureUpUnsuccessful", timePassed] ;
   }
@@ -926,7 +919,6 @@ const doPostureUp = (attacker, defender, currentTime, logger) => {
 const doPullIntoGuard = (defender, attacker, currentTime, logger) => {
   console.log(`${defender.name} attempts to pull ${attacker.name} back into guard`);
 
-  // Calculate success probability based on defender's ground skills and attacker's posture control
   const successProbability = calculateProbability(
     defender.Rating.groundDefence,
     attacker.Rating.groundControl
@@ -935,28 +927,25 @@ const doPullIntoGuard = (defender, attacker, currentTime, logger) => {
   const timePassed = simulateTimePassing("pullIntoGuard");
 
   if (Math.random() < successProbability) {
-    let newDefenderPosition, newAttackerPosition;
-
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_FULL_GUARD_POSTURE_UP:
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
         break;
       case FIGHTER_POSITIONS.GROUND_MOUNT_POSTURE_UP:
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
         break;
       default:
         return ["pullIntoGuardInvalid", timePassed];
     }
 
-    defender.position = newDefenderPosition;
-    attacker.position = newAttackerPosition;
-
-    logger.logPositionChange(defender, attacker, newDefenderPosition, currentTime);
+    logger.logPositionChange(defender, attacker, "successful", currentTime);
     console.log(`${defender.name} successfully pulls ${attacker.name} back into guard`);
     return ["pullIntoGuardSuccessful", timePassed];
+
   } else {
+    logger.logPositionChange(defender, attacker, "unsuccessful", currentTime);
     console.log(`${defender.name} fails to pull ${attacker.name} back into guard`);
     return ["pullIntoGuardUnsuccessful", timePassed];
   }
@@ -977,38 +966,33 @@ const doPositionAdvance = (attacker, defender, currentTime, logger) => {
   );
 
   if (Math.random() < successProbability) {
-    let newAttackerPosition, newDefenderPosition;
-
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_MOUNT_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_MOUNT_TOP:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE;
+        attacker.position = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_OFFENCE;
+        defender.position = FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE;
         break;
       default:
         return "positionAdvanceInvalid";
     }
 
-    attacker.position = newAttackerPosition;
-    defender.position = newDefenderPosition;
-
-    logger.logPositionChange(attacker, defender, newAttackerPosition, currentTime);
-    console.log(
-      `${attacker.name} successfully advances to ${newAttackerPosition}`
-    );
+    logger.logPositionChange(attacker, defender, "successful", currentTime);
+    console.log(`${attacker.name} successfully advances to ${attacker.position}`);
     return "positionAdvanceSuccessful";
+    
   } else {
+    logger.logPositionChange(attacker, defender, "unsuccessful", currentTime);
     console.log(`${attacker.name} fails to advance position`);
     return "positionAdvanceFailed";
   }
@@ -1029,34 +1013,29 @@ const doSweep = (attacker, defender, currentTime, logger) => {
   );
 
   if (Math.random() < successProbability) {
-    let newAttackerPosition, newDefenderPosition;
-
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_HALF_GUARD_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_HALF_GUARD_BOTTOM;
         break;
       case FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
         break;
       default:
         return "sweepInvalid";
     }
 
-    attacker.position = newAttackerPosition;
-    defender.position = newDefenderPosition;
-
-    logger.logPositionChange(attacker, defender, newAttackerPosition, currentTime);
-    console.log(
-      `${attacker.name} successfully sweeps ${defender.name} and is now in ${newAttackerPosition}`
-    );
+    logger.logPositionChange(attacker, defender, "successful", currentTime);
+    console.log(`${attacker.name} successfully sweeps ${defender.name} and is now in ${attacker.position}`);
     return "sweepSuccessful";
+
   } else {
+    logger.logPositionChange(attacker, defender, "unsuccessful", currentTime);
     console.log(`${attacker.name} fails to sweep ${defender.name}`);
     return "sweepFailed";
   }
@@ -1077,34 +1056,29 @@ const doEscape = (attacker, defender, currentTime, logger) => {
   );
 
   if (Math.random() < successProbability) {
-    let newAttackerPosition, newDefenderPosition;
-
     switch (attacker.position) {
       case FIGHTER_POSITIONS.GROUND_SIDE_CONTROL_BOTTOM:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
         break;
       case FIGHTER_POSITIONS.GROUND_MOUNT_BOTTOM:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
         break;
       case FIGHTER_POSITIONS.GROUND_BACK_CONTROL_DEFENCE:
-        newAttackerPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
-        newDefenderPosition = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
+        attacker.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_BOTTOM;
+        defender.position = FIGHTER_POSITIONS.GROUND_FULL_GUARD_TOP;
         break;
       default:
         return "escapeInvalid";
     }
 
-    attacker.position = newAttackerPosition;
-    defender.position = newDefenderPosition;
-
-    logger.logPositionChange(attacker, defender, newAttackerPosition, currentTime);
-    console.log(
-      `${attacker.name} successfully escapes to ${newAttackerPosition}`
-    );
+    logger.logPositionChange(attacker, defender, "successful", currentTime);
+    console.log(`${attacker.name} successfully escapes to ${attacker.position}`);
     return "escapeSuccessful";
+
   } else {
+    logger.logPositionChange(attacker, defender, "unsuccessful", currentTime);
     console.log(`${attacker.name} fails to escape`);
     return "escapeFailed";
   }
@@ -1129,10 +1103,11 @@ const doGetUp = (attacker, defender, currentTime, logger) => {
     attacker.position = FIGHTER_POSITIONS.STANDING;
     defender.position = FIGHTER_POSITIONS.STANDING;
 
-    logger.logPositionChange(attacker, defender, attacker.position, currentTime);
+    logger.logPositionChange(attacker, defender, "successful", currentTime);  
     console.log(`${attacker.name} successfully gets up`);
     return "getUpSuccessful";
   } else {
+    logger.logPositionChange(attacker, defender, "unsuccessful", currentTime);
     console.log(`${attacker.name} fails to get up`);
     return "getUpFailed";
   }

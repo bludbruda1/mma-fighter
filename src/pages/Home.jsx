@@ -31,8 +31,8 @@ const Home = () => {
     navigate("/createevent");
   };
 
-  const handleGetStarted = () => {
-    navigate("/fight");
+  const handleViewEvents = () => {
+    navigate("/events");
   };
 
   const [loading, setLoading] = useState(false);
@@ -144,7 +144,7 @@ const Home = () => {
           <Grid item>
             <Button
               variant="contained"
-              onClick={handleGetStarted}
+              onClick={handleViewEvents}
               sx={{
                 ...fadeIn,
                 backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
@@ -154,7 +154,7 @@ const Home = () => {
                 },
               }}
             >
-              Get Started
+              View Events
             </Button>
           </Grid>
           {/* Reset Game Button */}

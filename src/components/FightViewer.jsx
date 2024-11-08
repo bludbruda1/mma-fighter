@@ -118,7 +118,22 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
 
     let newHealth = JSON.parse(JSON.stringify(healthState));
 
-    // Handle position changes
+    // Handle fighterState events for position updates
+    if (event.type === 'fighterState') {
+      setFighterPositions(prevPositions => {
+        const newPositions = [...prevPositions];
+        const fighterIndex = fighters.findIndex(f => 
+          f && (f.personid === event.fighterId || f.id === event.fighterId)
+        );
+        
+        if (fighterIndex !== -1 && event.position) {
+          newPositions[fighterIndex] = event.position;
+        }
+        return newPositions;
+      });
+    }
+
+    // Handle position change events
     if (event.type === 'position') {
       setFighterPositions(prevPositions => {
         const newPositions = [...prevPositions];
@@ -130,9 +145,9 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
         );
         
         if (attackerIndex !== -1) {
-          newPositions[attackerIndex] = event.newPosition;
+          newPositions[attackerIndex] = event.attackerPosition;
         }
-        if (defenderIndex !== -1 && event.defenderPosition) {
+        if (defenderIndex !== -1) {
           newPositions[defenderIndex] = event.defenderPosition;
         }
         return newPositions;
@@ -229,21 +244,21 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
     return newHealth;
   }, [fighters, updateStats]);
 
- /**
+  /**
    * Handles various time skip options during playback
    */
- const handleTimeSkip = useCallback((skipValue) => {
-  if (!Array.isArray(fightEvents)) return;
+  const handleTimeSkip = useCallback((skipValue) => {
+    if (!Array.isArray(fightEvents)) return;
 
-  // Reset display state
-  setIsPlaying(false);
-  setDisplayedEvents([]);
-  setCurrentStats({
-    strikesLanded: [0, 0],
-    takedownsLanded: [0, 0],
-    significantStrikes: [0, 0],
-    submissionAttempts: [0, 0],
-  });
+    // Reset display state
+    setIsPlaying(false);
+    setDisplayedEvents([]);
+    setCurrentStats({
+      strikesLanded: [0, 0],
+      takedownsLanded: [0, 0],
+      significantStrikes: [0, 0],
+      submissionAttempts: [0, 0],
+    });
 
   const findRoundStart = (roundNumber) => {
     return fightEvents.findIndex(event => 
