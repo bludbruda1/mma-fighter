@@ -1474,10 +1474,19 @@ const simulateAction = (fighters, actionFighter, currentTime, logger) => {
       break;
   }
   // Log fighter state after action if significant changes occurred
-  if (outcome?.includes('Landed') || outcome?.includes('Successful')) {
-    logger.logFighterState(fighter, currentTime - timePassed);
-    logger.logFighterState(opponentFighter, currentTime - timePassed);
-  }
+// Only log fighter states when positions change or for significant events
+if (outcome?.includes('Successful') && 
+    (actionType.includes('Takedown') || 
+     actionType.includes('sweep') || 
+     actionType.includes('escape') || 
+     actionType.includes('getUpAttempt') ||
+     actionType.includes('positionAdvance') ||
+     actionType.includes('postureUp') ||
+     actionType.includes('pullIntoGuard') ||
+     actionType.includes('clinch'))) {
+  logger.logFighterState(fighter, currentTime - timePassed);
+  logger.logFighterState(opponentFighter, currentTime - timePassed);
+}
 
   // Check for knockout or submission
   let roundWinner = null;
