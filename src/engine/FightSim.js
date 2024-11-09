@@ -86,9 +86,11 @@ const pickFighter = (fighters, lastActionFighter) => {
  * Simulate the start of the fight
  * @param {Object} fighter - The fighter initiating the fight start
  * @param {Object} opponent - The opponent fighter
+ * @param {number} currentTime - Current fight time
+ * @param {Object} logger - Fight event logger
  * @returns {[string, number]} Outcome of the action and time passed
  */
-const doFightStart = (fighter, opponent) => {
+const doFightStart = (fighter, opponent, currentTime, logger) => {
   const events = [
     `${fighter.name} and ${opponent.name} touch gloves`,
     `${fighter.name} refuses glove touch`,
@@ -101,6 +103,9 @@ const doFightStart = (fighter, opponent) => {
 
   const event = events[Math.floor(Math.random() * events.length)];
   console.log(event);
+
+  // Log the fight start event
+  logger.logFightStartAction(fighter, opponent, event, currentTime);
 
   const timePassed = simulateTimePassing("fightStart");
 
@@ -1364,7 +1369,7 @@ const simulateAction = (fighters, actionFighter, currentTime, logger) => {
 
   switch (actionType) {
     case "fightStart":
-      [outcome, timePassed] = doFightStart(fighter, opponentFighter);
+      [outcome, timePassed] = doFightStart(fighter, opponentFighter, currentTime, logger);
       break;
 
     // Standing strikes and kicks
@@ -1474,10 +1479,19 @@ const simulateAction = (fighters, actionFighter, currentTime, logger) => {
       break;
   }
   // Log fighter state after action if significant changes occurred
-  if (outcome?.includes('Landed') || outcome?.includes('Successful')) {
-    logger.logFighterState(fighter, currentTime - timePassed);
-    logger.logFighterState(opponentFighter, currentTime - timePassed);
-  }
+// Only log fighter states when positions change or for significant events
+if (outcome?.includes('Successful') && 
+    (actionType.includes('Takedown') || 
+     actionType.includes('sweep') || 
+     actionType.includes('escape') || 
+     actionType.includes('getUpAttempt') ||
+     actionType.includes('positionAdvance') ||
+     actionType.includes('postureUp') ||
+     actionType.includes('pullIntoGuard') ||
+     actionType.includes('clinch'))) {
+  logger.logFighterState(fighter, currentTime - timePassed);
+  logger.logFighterState(opponentFighter, currentTime - timePassed);
+}
 
   // Check for knockout or submission
   let roundWinner = null;

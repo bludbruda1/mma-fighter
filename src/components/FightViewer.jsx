@@ -94,7 +94,11 @@ const FightViewer = ({ fightEvents = [], fighters = [] }) => {
           break;
 
         case 'submission':
-          if (event.stage === 'attempt' && event.attackerId !== undefined) {
+          // Count as attempt on the first stage of any submission - will need to be updated for every new/updated first stage so not really a great implementation
+          if ((event.stage === 'engageArm' || // for rear-naked choke
+              event.stage === 'trapHead' || // for guillotine
+              event.stage === 'isolateArm') // for armbar and triangle
+             && event.attackerId !== undefined) {
             const attackerIndex = getAttackerIndex(event.attackerId);
             if (attackerIndex !== -1) {
               newStats.submissionAttempts[attackerIndex] = (newStats.submissionAttempts[attackerIndex] || 0) + 1;

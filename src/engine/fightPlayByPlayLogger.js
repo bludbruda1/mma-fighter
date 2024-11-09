@@ -89,6 +89,27 @@ class fightPlayByPlayLogger {
   }
 
   /**
+   * Log the actual start of fighting action
+   * @param {Object} fighter - The fighter initiating the action
+   * @param {Object} opponent - The opponent fighter
+   * @param {string} message - The fight start message
+   * @param {number} currentTime - Current fight time
+   */
+  logFightStartAction(fighter, opponent, message, currentTime) {
+    if (!this.active) return;
+
+    this.logEvent({
+      type: "fightStart",
+      message: message,
+      fighterId: this.getFighterId(fighter),
+      fighterName: this.getFighterName(fighter),
+      opponentId: this.getFighterId(opponent),
+      opponentName: this.getFighterName(opponent),
+      clock: currentTime
+    });
+  }
+
+  /**
    * Log round start
    * @param {number} round - Round number
    */
