@@ -13,7 +13,7 @@ const formatFightEvent = (event) => {
         return `${event.text}`; // Format introduction events with PRE-FIGHT tag
 
       case "fightStart":
-        return null; // Return null to skip displaying the initial fight start message
+        return event.message; 
       
       case "roundStart":
         return `Round ${event.round} begins!`;
