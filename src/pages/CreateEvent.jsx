@@ -25,6 +25,8 @@ import { EventContext } from "../contexts/EventContext";
 
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
+  const navigate = useNavigate();
+
   const [fighters, setFighters] = useState([]);
   const [numFights, setNumFights] = useState(1);
   const [fights, setFights] = useState(
@@ -35,13 +37,10 @@ const CreateEvent = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const navigate = useNavigate();
 
   useEffect(() => {
     getAllFighters()
-      .then((fetchedFighters) => {
-        setFighters(fetchedFighters);
-      })
+      .then((fetchedFighters) => setFighters(fetchedFighters))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
@@ -50,60 +49,54 @@ const CreateEvent = () => {
   }, [numFights]);
 
   const handleSaveEvent = async () => {
+    if (!eventName.trim()) {
+      console.log("Please enter an event name.");
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      if (!eventName.trim()) {
-        console.log("Please enter an event name.");
+      const fightIds = await Promise.all(
+        fights.map(async (fight) => {
+          if (!fight.fighter1 || !fight.fighter2) return null;
+
+          const nextFightId = await getNextFightId();
+          const fightData = {
+            id: String(nextFightId),
+            fighter1: { ...fight.fighter1 },
+            fighter2: { ...fight.fighter2 },
+            result: null,
+            stats: null,
+          };
+
+          await addFightToDB(fightData);
+          return fightData.id;
+        })
+      );
+
+      const validFightIds = fightIds.filter((id) => id !== null);
+      if (validFightIds.length === 0) {
+        console.log("Please select fighters for all fights.");
         return;
       }
 
-      setIsSaving(true);
-
-      // First, create all fights and get their IDs
-      const fightPromises = fights.map(async (fight) => {
-        if (!fight.fighter1 || !fight.fighter2) return null;
-
-        const nextFightId = await getNextFightId();
-        const fightData = {
-          id: String(nextFightId),
-          fighter1: {
-            personid: fight.fighter1.personid,
-            firstname: fight.fighter1.firstname,
-            lastname: fight.fighter1.lastname,
-          },
-          fighter2: {
-            personid: fight.fighter2.personid,
-            firstname: fight.fighter2.firstname,
-            lastname: fight.fighter2.lastname,
-          },
-          result: null,
-          stats: null,
-        };
-
-        await addFightToDB(fightData);
-        return fightData.id;
-      });
-
-      const fightIds = await Promise.all(fightPromises);
-      const validFightIds = fightIds.filter((id) => id !== null);
-
-      // Then create the event referencing the fight IDs
       const nextEventId = await getNextEventId();
+      // Convert selectedDate to UTC by setting its timezone offset to 0
+      const utcDate = new Date(selectedDate);
+      utcDate.setMinutes(utcDate.getMinutes() + utcDate.getTimezoneOffset());
+      const formattedDate = utcDate.toISOString().split("T")[0];
+
       const eventData = {
         id: String(nextEventId),
         name: eventName,
-        date: selectedDate,
+        date: formattedDate, // Save as UTC string (yyyy-mm-dd)
         fights: validFightIds,
       };
 
-      if (validFightIds.length > 0) {
-        await addEventToDB(eventData);
-        console.log("Event saved successfully:", eventData);
-
-        setEventIds((prevEventIds) => [...prevEventIds, eventData.id]);
-        navigate(`/event/${eventData.id}`);
-      } else {
-        console.log("Please select fighters for all fights.");
-      }
+      await addEventToDB(eventData);
+      console.log("Event saved successfully:", eventData);
+      setEventIds((prevEventIds) => [...prevEventIds, eventData.id]);
+      navigate(`/event/${eventData.id}`);
     } catch (error) {
       console.error("Error saving event:", error);
     } finally {
@@ -127,10 +120,7 @@ const CreateEvent = () => {
 
   return (
     <main>
-      <Container
-        maxWidth="md"
-        style={{ marginTop: "50px", marginBottom: "20px" }}
-      >
+      <Container maxWidth="md" sx={{ marginTop: 4, marginBottom: 4 }}>
         <Typography
           variant="h2"
           align="center"
@@ -140,7 +130,8 @@ const CreateEvent = () => {
           Create Event
         </Typography>
 
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+        {/* Event Details Section */}
+        <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <TextField
             label="Event Name"
             value={eventName}
@@ -150,13 +141,19 @@ const CreateEvent = () => {
           />
         </FormControl>
 
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
-          <InputLabel id="event-date">Event Date</InputLabel>{" "}
-          <input
+        <FormControl fullWidth sx={{ marginBottom: 2 }}>
+          <TextField
+            label="Event Date"
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true, // Keeps the label up when the date is selected
+            }}
           />
+        </FormControl>
+
+        <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <InputLabel id="num-fights-label">Number of Fights</InputLabel>
           <MuiSelect
             labelId="num-fights-label"
@@ -172,8 +169,9 @@ const CreateEvent = () => {
           </MuiSelect>
         </FormControl>
 
+        {/* Fights Selection Section */}
         {fights.map((fight, index) => (
-          <div key={index} style={{ marginBottom: "30px" }}>
+          <div key={index} style={{ marginBottom: 24 }}>
             <Typography variant="h5" align="center" gutterBottom>
               Fight {index + 1}
             </Typography>
@@ -200,7 +198,8 @@ const CreateEvent = () => {
           </div>
         ))}
 
-        <Grid container spacing={2} sx={{ justifyContent: "center" }}>
+        {/* Save Button */}
+        <Grid container spacing={2} justifyContent="center">
           <Grid item>
             <Button
               variant="contained"

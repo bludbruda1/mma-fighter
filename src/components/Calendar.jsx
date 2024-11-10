@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllEvents } from "../utils/indexedDB"; // Function to get all events from IndexedDB
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import "./Calendar.css";
 
 const Calendar = () => {
@@ -10,7 +12,6 @@ const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
-    // Load all events from IndexedDB when the component mounts
     const loadEvents = async () => {
       const eventData = await getAllEvents();
       setEvents(eventData);
@@ -18,18 +19,24 @@ const Calendar = () => {
     loadEvents();
   }, []);
 
-  // Utility to get events for a specific day
   const getEventsForDate = (date) => {
     const formattedDate = date.toISOString().split("T")[0];
     return events.filter((event) => event.date === formattedDate);
   };
 
-  // Handle click on a date with an event
   const handleDateClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
 
-  // Generate the days of the month for display
+  const handleMonthChange = (offset) => {
+    const newDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + offset,
+      1
+    );
+    setCurrentDate(newDate);
+  };
+
   const generateCalendarDays = () => {
     const daysInMonth = new Date(
       currentDate.getFullYear(),
@@ -43,14 +50,12 @@ const Calendar = () => {
     ).getDay();
     const calendarDays = [];
 
-    // Fill in days from the previous month if the first day is not Sunday
     for (let i = 0; i < firstDayOfMonth; i++) {
       calendarDays.push(
         <div key={`prev-${i}`} className="calendar-day empty" />
       );
     }
 
-    // Fill in days for the current month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(
         currentDate.getFullYear(),
@@ -67,7 +72,7 @@ const Calendar = () => {
               onClick={() => handleDateClick(event.id)}
               className="event-button"
             >
-              Event {event.id}
+              {event.name}
             </button>
           ))}
         </div>
@@ -78,10 +83,24 @@ const Calendar = () => {
 
   return (
     <div className="calendar-container">
-      <h2>
-        {currentDate.toLocaleString("default", { month: "long" })}{" "}
-        {currentDate.getFullYear()}
-      </h2>
+      <div className="calendar-header">
+        <button
+          onClick={() => handleMonthChange(-1)}
+          className="month-nav-button"
+        >
+          <ChevronLeftIcon fontSize="large" />
+        </button>
+        <h2>
+          {currentDate.toLocaleString("default", { month: "long" })}{" "}
+          {currentDate.getFullYear()}
+        </h2>
+        <button
+          onClick={() => handleMonthChange(1)}
+          className="month-nav-button"
+        >
+          <ChevronRightIcon fontSize="large" />
+        </button>
+      </div>
       <div className="calendar-grid">{generateCalendarDays()}</div>
     </div>
   );
