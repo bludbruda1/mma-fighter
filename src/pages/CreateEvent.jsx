@@ -19,12 +19,14 @@ import {
   addEventToDB,
   getNextEventId,
   getNextFightId,
-  addFightToDB
+  addFightToDB,
 } from "../utils/indexedDB";
 import { EventContext } from "../contexts/EventContext";
 
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
+  const navigate = useNavigate();
+
   const [fighters, setFighters] = useState([]);
   const [numFights, setNumFights] = useState(1);
   const [fights, setFights] = useState(
@@ -32,118 +34,117 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   useEffect(() => {
     getAllFighters()
-      .then((fetchedFighters) => {
-        setFighters(fetchedFighters);
-      })
+      .then((fetchedFighters) => setFighters(fetchedFighters))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
   useEffect(() => {
-    // Create an array of unique fight objects
-    setFights(Array(numFights).fill(null).map(() => ({ 
-      fighter1: null, 
-      fighter2: null 
-    })));
+    setFights(Array(numFights).fill({ fighter1: null, fighter2: null }));
   }, [numFights]);
 
-const handleSaveEvent = async () => {
-  try {
+  const handleSaveEvent = async () => {
     if (!eventName.trim()) {
       console.log("Please enter an event name.");
       return;
     }
 
     setIsSaving(true);
+    try {
+      const fightIds = await Promise.all(
+        fights.map(async (fight) => {
+          if (!fight.fighter1 || !fight.fighter2) return null;
 
-    // Validate that all fights have both fighters selected
-    const invalidFights = fights.some(
-      fight => !fight.fighter1 || !fight.fighter2
-    );
+          // Get and ensure fight ID is an integer
+          let nextFightId = await getNextFightId();
+          nextFightId = parseInt(nextFightId, 10); // Ensure integer format
+          if (isNaN(nextFightId)) {
+            console.error("Invalid fight ID:", nextFightId);
+            throw new Error("Fight ID must be an integer");
+          }
 
-    if (invalidFights) {
-      console.log("Please select fighters for all fights");
-      setIsSaving(false);
-      return;
-    }
+          const fightData = {
+            id: nextFightId, // Store as integer
+            fighter1: { ...fight.fighter1 },
+            fighter2: { ...fight.fighter2 },
+            result: null,
+            stats: null,
+          };
 
-    // Create all fights sequentially and collect their IDs
-    const fightIds = [];
-    for (const fight of fights) {
-      const nextFightId = await getNextFightId();
-      const fightData = {
-        id: nextFightId,
-        fighter1: {
-          personid: fight.fighter1.personid,
-          firstname: fight.fighter1.firstname,
-          lastname: fight.fighter1.lastname
-        },
-        fighter2: {
-          personid: fight.fighter2.personid,
-          firstname: fight.fighter2.firstname,
-          lastname: fight.fighter2.lastname
-        },
-        result: null,
-        stats: null
+          await addFightToDB(fightData);
+          return fightData.id;
+        })
+      );
+
+      const validFightIds = fightIds.filter((id) => id !== null);
+      if (validFightIds.length === 0) {
+        console.log("Please select fighters for all fights.");
+        return;
+      }
+
+      // Ensure event ID is an integer
+      let nextEventId = await getNextEventId();
+      nextEventId = parseInt(nextEventId, 10);
+      if (isNaN(nextEventId)) {
+        console.error("Invalid event ID:", nextEventId);
+        throw new Error("Event ID must be an integer");
+      }
+
+      const utcDate = new Date(selectedDate);
+      utcDate.setMinutes(utcDate.getMinutes() + utcDate.getTimezoneOffset());
+      const formattedDate = utcDate.toISOString().split("T")[0];
+
+      const eventData = {
+        id: nextEventId, // Store as integer
+        name: eventName,
+        date: formattedDate,
+        fights: validFightIds,
       };
 
-      // Store each fight individually
-      await addFightToDB(fightData);
-      fightIds.push(nextFightId);
-    }
-
-    // Create the event only after all fights are successfully stored
-    const nextEventId = await getNextEventId();
-    const eventData = {
-      id: nextEventId,
-      name: eventName,
-      date: new Date().toISOString().split('T')[0],
-      fights: fightIds
-    };
-
-    if (fightIds.length > 0) {
       await addEventToDB(eventData);
       console.log("Event saved successfully:", eventData);
-      
-      setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
+      setEventIds((prevEventIds) => [...prevEventIds, eventData.id]);
       navigate(`/event/${eventData.id}`);
-    } else {
-      console.log("No valid fights to save");
+    } catch (error) {
+      console.error("Error saving event:", error);
+    } finally {
+      setIsSaving(false);
     }
-  } catch (error) {
-    console.error("Error saving event:", error);
-  } finally {
-    setIsSaving(false);
-  }
-};
+    navigate("/calendar");
+  };
 
   const handleSelectChange = (fightIndex, fighterKey, event) => {
     const selectedId = Number(event.target.value);
-    const selectedFighter = fighters.find((f) => f.personid === selectedId);
-    
-    if (!selectedFighter) {
-      console.error('Fighter not found:', selectedId);
-      return;
-    }
-  
-    setFights(prevFights => prevFights.map((fight, index) => 
-      index === fightIndex 
-        ? { ...fight, [fighterKey]: selectedFighter }
-        : fight
-    ));
+    const selectedFighter = fighters.find((x) => x.personid === selectedId);
+    setFights((prevFights) => {
+      const updatedFights = [...prevFights];
+      updatedFights[fightIndex] = {
+        ...updatedFights[fightIndex],
+        [fighterKey]: selectedFighter,
+      };
+      return updatedFights;
+    });
   };
 
   return (
     <main>
-      <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
-        <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
+      <Container maxWidth="md" sx={{ marginTop: 4, marginBottom: 4 }}>
+        <Typography
+          variant="h2"
+          align="center"
+          color="textPrimary"
+          gutterBottom
+        >
           Create Event
         </Typography>
 
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+        {/* Event Details Section */}
+        <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <TextField
             label="Event Name"
             value={eventName}
@@ -153,7 +154,19 @@ const handleSaveEvent = async () => {
           />
         </FormControl>
 
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+        <FormControl fullWidth sx={{ marginBottom: 2 }}>
+          <TextField
+            label="Event Date"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true, // Keeps the label up when the date is selected
+            }}
+          />
+        </FormControl>
+
+        <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <InputLabel id="num-fights-label">Number of Fights</InputLabel>
           <MuiSelect
             labelId="num-fights-label"
@@ -169,8 +182,9 @@ const handleSaveEvent = async () => {
           </MuiSelect>
         </FormControl>
 
+        {/* Fights Selection Section */}
         {fights.map((fight, index) => (
-          <div key={index} style={{ marginBottom: "30px" }}>
+          <div key={index} style={{ marginBottom: 24 }}>
             <Typography variant="h5" align="center" gutterBottom>
               Fight {index + 1}
             </Typography>
@@ -197,7 +211,8 @@ const handleSaveEvent = async () => {
           </div>
         ))}
 
-        <Grid container spacing={2} sx={{ justifyContent: "center" }}>
+        {/* Save Button */}
+        <Grid container spacing={2} justifyContent="center">
           <Grid item>
             <Button
               variant="contained"
