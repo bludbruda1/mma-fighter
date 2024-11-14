@@ -647,10 +647,7 @@ const exitClinch = (defender, attacker, currentTime, logger) => {
 
   attacker.stats.clinchExits = (attacker.stats.clinchExits || 0) + 1;
 
-  const exitChance = calculateProbability(
-    defender.Rating.clinchControl,
-    attacker.Rating.clinchGrappling
-  );
+  const exitChance = 0.85; // Needs to rework, I want it similar to the doClinch
 
   if (Math.random() < exitChance) {
     // Successfully exit the clinch
@@ -743,7 +740,7 @@ const doClinchTakedown = (attacker, defender, currentTime, logger) => {
   );
 
   const takedownChance = calculateProbability(
-    attacker.Rating.clinchGrappling,
+    attacker.Rating.clinchTakedown,
     defender.Rating.clinchControl
   );
 

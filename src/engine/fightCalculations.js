@@ -509,8 +509,8 @@ const determineClinchAction = (attacker) => {
 
   // Calculate base chances
   let total = style.clinch.strikeChance + style.clinch.takedownChance + style.clinch.exitChance;
-  let strikeChance = Math.MAX( 0,( style.clinch.strikeChance / total ) + (clinchStrikingVsClinchTakedown / 50))
-  let takedownChance = Math.MAX( 0,( style.clinch.takedownChance / total ) + (clinchStrikingVsClinchTakedown / 50));
+  let strikeChance = Math.max( 0,( style.clinch.strikeChance / total ) + (clinchStrikingVsClinchTakedown / 50))
+  let takedownChance = Math.max( 0,( style.clinch.takedownChance / total ) + (clinchStrikingVsClinchTakedown / 50));
   let exitChance = style.clinch.exitChance / total;
 
   // Normalize probabilities
