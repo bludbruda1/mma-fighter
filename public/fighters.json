@@ -3,10 +3,12 @@
     "personid": 1,
     "firstname": "Conor",
     "lastname": "McGregor",
+    "dob": "1988-07-14",
     "hometown": "Dublin",
     "nationality": "Ireland 🇮🇪",
     "wins": 22,
     "losses": 6,
+    "ranking": null,
     "image": "/assets/images/connormc.png",
     "profile": "/assets/images/conor_mcgregor_mini.png",
     "weightClass": "Lightweight",
@@ -179,10 +181,12 @@
     "personid": 2,
     "firstname": "Dustin",
     "lastname": "Poirier",
+    "dob": "1988-07-14",
     "hometown": "Lafayette, Louisiana",
     "nationality": "United States 🇺🇸",
     "wins": 29,
     "losses": 7,
+    "ranking": 4,
     "image": "/assets/images/dustinpo.png",
     "profile": "/assets/images/dustin_poirier_mini.png",
     "weightClass": "Lightweight",
@@ -355,10 +359,12 @@
     "personid": 3,
     "firstname": "Islam",
     "lastname": "Makhachev",
+    "dob": "1988-07-14",
     "hometown": "Makhachkala",
     "nationality": "Russia 🇷🇺",
     "wins": 24,
     "losses": 1,
+    "ranking": "C",
     "image": "/assets/images/islammakhachev.png",
     "profile": "/assets/images/islam_makhachev_mini_belt.png",
     "weightClass": "Lightweight",
@@ -373,8 +379,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 1,
     "Rating": {
       "output": 90,
       "strength": 92,
@@ -533,10 +537,12 @@
     "personid": 4,
     "firstname": "Arman",
     "lastname": "Tsarukyan",
+    "dob": "1988-07-14",
     "hometown": "Akhalkalaki",
     "nationality": "Armenia 🇦🇲",
     "wins": 20,
     "losses": 3,
+    "ranking": 1,
     "image": "/assets/images/armantsarukyan.png",
     "profile": "/assets/images/arman_tsarukyan_mini.png",
     "weightClass": "Lightweight",
@@ -552,7 +558,6 @@
       "legs": 100
     },
 
-    "ranking": 4,
     "Rating": {
       "output": 91,
       "strength": 89,
@@ -711,10 +716,12 @@
     "personid": 5,
     "firstname": "Charles",
     "lastname": "Oliveira",
+    "dob": "1988-07-14",
     "hometown": "Guarujá",
     "nationality": "Brazil 🇧🇷",
     "wins": 34,
     "losses": 9,
+    "ranking": 2,
     "image": "/assets/images/charlesoliveira.png",
     "profile": "/assets/images/charles_oliviera_mini.png",
     "weightClass": "Lightweight",
@@ -729,8 +736,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 2,
     "Rating": {
       "output": 93,
       "strength": 87,
@@ -889,10 +894,12 @@
     "personid": 6,
     "firstname": "Justin",
     "lastname": "Gaethje",
+    "dob": "1988-07-14",
     "hometown": "Safford, Arizona",
     "nationality": "United States 🇺🇸",
     "wins": 25,
     "losses": 4,
+    "ranking": 3,
     "image": "/assets/images/justingaethje.png",
     "profile": "/assets/images/justin_gaethje_mini.png",
     "weightClass": "Lightweight",
@@ -907,8 +914,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 5,
     "Rating": {
       "output": 94,
       "strength": 91,
@@ -1067,10 +1072,12 @@
     "personid": 7,
     "firstname": "Mateusz",
     "lastname": "Gamrot",
+    "dob": "1988-07-14",
     "hometown": "Bielsko-Biała",
     "nationality": "Poland 🇵🇱",
     "wins": 22,
     "losses": 2,
+    "ranking": 9,
     "image": "/assets/images/mateuszgamrot.png",
     "profile": "/assets/images/mateusz_gamrot_mini.png",
     "weightClass": "Lightweight",
@@ -1085,8 +1092,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 7,
     "Rating": {
       "output": 91,
       "strength": 88,
@@ -1245,10 +1250,12 @@
     "personid": 8,
     "firstname": "Michael",
     "lastname": "Chandler",
+    "dob": "1988-07-14",
     "hometown": "High Ridge, Missouri",
     "nationality": "United States 🇺🇸",
     "wins": 23,
     "losses": 8,
+    "ranking": 7,
     "image": "/assets/images/michaelchandler.png",
     "profile": "/assets/images/michael_chandler_mini.png",
     "weightClass": "Lightweight",
@@ -1263,8 +1270,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 9,
     "Rating": {
       "output": 90,
       "strength": 92,
@@ -1423,10 +1428,12 @@
     "personid": 9,
     "firstname": "Beneil",
     "lastname": "Dariush",
+    "dob": "1988-07-14",
     "hometown": "Yorba Linda, California",
     "nationality": "Iran 🇮🇷",
     "wins": 22,
     "losses": 5,
+    "ranking": 8,
     "image": "/assets/images/beneildariush.png",
     "profile": "/assets/images/beneil_dariush_mini.png",
     "weightClass": "Lightweight",
@@ -1441,8 +1448,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 6,
     "Rating": {
       "output": 89,
       "strength": 88,
@@ -1601,10 +1606,12 @@
     "personid": 10,
     "firstname": "Rafael",
     "lastname": "Fiziev",
+    "dob": "1988-07-14",
     "hometown": "Korday",
     "nationality": "Kazakhstan 🇰🇿",
     "wins": 12,
     "losses": 2,
+    "ranking": 10,
     "image": "/assets/images/rafaelfiziev.png",
     "profile": "/assets/images/rafael_fiziev_mini.png",
     "weightClass": "Lightweight",
@@ -1619,8 +1626,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 8,
     "Rating": {
       "output": 91,
       "strength": 88,
@@ -1779,10 +1784,12 @@
     "personid": 11,
     "firstname": "Max",
     "lastname": "Holloway",
+    "dob": "1988-07-14",
     "hometown": "Waianae, Hawaii",
     "nationality": "United States 🇺🇸",
     "wins": 24,
     "losses": 7,
+    "ranking": 5,
     "image": "/assets/images/maxholloway.png",
     "profile": "/assets/images/max_holloway_mini.png",
     "weightClass": "Lightweight",
@@ -1797,8 +1804,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 1,
     "Rating": {
       "output": 97,
       "strength": 86,
@@ -1957,10 +1962,12 @@
     "personid": 12,
     "firstname": "Renato",
     "lastname": "Moicano",
+    "dob": "1988-07-14",
     "hometown": "Brasília",
     "nationality": "Brazil 🇧🇷",
     "wins": 17,
     "losses": 5,
+    "ranking": 10,
     "image": "/assets/images/renatomoicano.png",
     "profile": "/assets/images/renato_moicano_mini.png",
     "weightClass": "Lightweight",
@@ -1975,8 +1982,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 10,
     "Rating": {
       "output": 87,
       "strength": 85,
@@ -2135,10 +2140,12 @@
     "personid": 13,
     "firstname": "Dan",
     "lastname": "Hooker",
+    "dob": "1988-07-14",
     "hometown": "Auckland",
     "nationality": "New Zealand 🇳🇿",
     "wins": 22,
     "losses": 12,
+    "ranking": 6,
     "image": "/assets/images/danhooker.png",
     "profile": "/assets/images/dan_hooker_mini.png",
     "weightClass": "Lightweight",
@@ -2153,8 +2160,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 11,
     "Rating": {
       "output": 89,
       "strength": 87,
@@ -2313,10 +2318,12 @@
     "personid": 14,
     "firstname": "Benoît",
     "lastname": "Saint Denis",
+    "dob": "1988-07-14",
     "hometown": "Nîmes",
     "nationality": "France 🇫🇷",
     "wins": 11,
     "losses": 1,
+    "ranking": 12,
     "image": "/assets/images/benoitsaintdenis.png",
     "profile": "/assets/images/saint_denis_mini.png",
     "weightClass": "Lightweight",
@@ -2331,8 +2338,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 12,
     "Rating": {
       "output": 90,
       "strength": 87,
@@ -2491,10 +2496,12 @@
     "personid": 15,
     "firstname": "Jalin",
     "lastname": "Turner",
+    "dob": "1988-07-14",
     "hometown": "San Bernardino, California",
     "nationality": "United States 🇺🇸",
     "wins": 13,
     "losses": 7,
+    "ranking": 13,
     "image": "/assets/images/jalinturner.png",
     "profile": "/assets/images/jalin_turner_mini.png",
     "weightClass": "Lightweight",
@@ -2509,8 +2516,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 13,
     "Rating": {
       "output": 88,
       "strength": 89,
@@ -2669,10 +2674,12 @@
     "personid": 16,
     "firstname": "Paddy",
     "lastname": "Pimblett",
+    "dob": "1988-07-14",
     "hometown": "Liverpool",
     "nationality": "England 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     "wins": 20,
     "losses": 3,
+    "ranking": 14,
     "image": "/assets/images/paddypimblett.png",
     "profile": "/assets/images/paddy_pimblett_mini.png",
     "weightClass": "Lightweight",
@@ -2687,8 +2694,6 @@
       "body": 100,
       "legs": 100
     },
-
-    "ranking": 14,
     "Rating": {
       "output": 87,
       "strength": 85,
