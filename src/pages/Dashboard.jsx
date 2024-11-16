@@ -18,7 +18,7 @@ import {
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { getAllFighters, getAllFights } from "../utils/indexedDB";
-import { formatFightingStyle } from "../utils/uiHelpers";
+import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -125,6 +125,23 @@ const Dashboard = () => {
       roundEnded: fight.result.roundEnded,
       timeEnded: fight.result.timeEnded
     };
+  };
+
+  // function to calculate the fighters age - this will eventually be needed in alot of places or to changes fighters.json
+  const calculateAge = (dob) => {
+    if (!dob) return "N/A";
+    
+    const birthDate = new Date(dob);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return `${age} years old`;
   };
 
   // Helper function to format the method
@@ -343,10 +360,27 @@ const Dashboard = () => {
               image={fighter.image}
               alt={`${fighter.firstname} ${fighter.lastname}`}
             />
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Basic Information
-              </Typography>
+                <CardContent>
+                  <Typography variant="h5" gutterBottom>
+                    Basic Information
+                  </Typography>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                    <Typography variant="body1">Date of Birth:</Typography>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant="body1">
+                        {formatBirthday(fighter.dob)}
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'text.secondary',
+                          mt: 0.5 
+                        }}
+                      >
+                        {calculateAge(fighter.dob)}
+                      </Typography>
+                    </Box>
+                  </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Nationality:</Typography>
                 <Typography variant="body1">{fighter.nationality}</Typography>

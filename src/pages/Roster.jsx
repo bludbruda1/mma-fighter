@@ -13,7 +13,7 @@ import {
   Paper,
 } from "@mui/material";
 import { getAllFighters } from "../utils/indexedDB";
-import { formatFightingStyle } from "../utils/uiHelpers";
+import { formatFightingStyle, formatBirthdayWithAge } from "../utils/uiHelpers";
 
 const Roster = () => {
   const [fighters, setFighters] = useState([]);
@@ -21,6 +21,23 @@ const Roster = () => {
   // Add sorting state
   const [orderBy, setOrderBy] = useState('firstname'); // Default sort by first name
   const [order, setOrder] = useState('asc'); // Default ascending order
+
+  // Helper function to get age for sorting purposes
+  const getAge = (dob) => {
+    if (!dob) return 0;
+    
+    const birthDate = new Date(dob);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
 
   useEffect(() => {
     // Fetch fighters from IndexedDB using the getAllFighters function
@@ -51,6 +68,11 @@ const Roster = () => {
         const nameA = `${a.firstname} ${a.lastname}`.toLowerCase();
         const nameB = `${b.firstname} ${b.lastname}`.toLowerCase();
         return nameA.localeCompare(nameB);
+      }
+
+      // For DOB sorting, we'll sort by actual age
+      if (property === 'dob') {
+        return getAge(a.dob) - getAge(b.dob);
       }
   
       // Handle regular string properties
@@ -91,6 +113,15 @@ const Roster = () => {
                     Name
                   </TableSortLabel>
                 </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'dob'}
+                    direction={orderBy === 'dob' ? order : 'asc'}
+                    onClick={createSortHandler('dob')}
+                  >
+                    Date of Birth (Age)
+                  </TableSortLabel>
+                </TableCell>          
                 <TableCell>
                   <TableSortLabel
                     active={orderBy === 'weightClass'}
@@ -170,6 +201,7 @@ const Roster = () => {
                       {`${fighter.firstname} ${fighter.lastname}`}
                     </Link>
                   </TableCell>
+                  <TableCell>{formatBirthdayWithAge(fighter.dob)}</TableCell>
                   <TableCell>{fighter.weightClass}</TableCell>
                   <TableCell>{formatFightingStyle(fighter.fightingStyle)}</TableCell>
                   <TableCell>{fighter.nationality}</TableCell>
