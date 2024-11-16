@@ -275,6 +275,19 @@ const handleSaveEvent = async () => {
                   onSelectChange={(event) =>
                     handleSelectChange(index, "fighter1", event)
                   }
+                  bookedFighters={bookedFighters}
+                  selectedFightersInEvent={new Set(
+                    // Create set of fighter IDs selected in other fights
+                    fights
+                      .filter((_, fightIndex) => fightIndex !== index) // Exclude current fight
+                      .flatMap(f => [
+                        f.fighter1?.personid,
+                        f.fighter2?.personid
+                      ])
+                      .filter(Boolean) // Remove nulls/undefined
+                  )}
+                  currentFightIndex={index}
+                  fightPosition="fighter1"
                 />
               </Grid>
 
@@ -291,12 +304,23 @@ const handleSaveEvent = async () => {
                   onSelectChange={(event) =>
                     handleSelectChange(index, "fighter2", event)
                   }
+                  bookedFighters={bookedFighters}
+                  selectedFightersInEvent={new Set(
+                    fights
+                      .filter((_, fightIndex) => fightIndex !== index)
+                      .flatMap(f => [
+                        f.fighter1?.personid,
+                        f.fighter2?.personid
+                      ])
+                      .filter(Boolean)
+                  )}
+                  currentFightIndex={index}
+                  fightPosition="fighter2"
                 />
               </Grid>
             </Grid>
           </div>
         ))}
-
 
         <Grid container spacing={2} sx={{ justifyContent: "center" }}>
           <Grid item>
