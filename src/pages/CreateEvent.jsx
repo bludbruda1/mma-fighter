@@ -50,9 +50,8 @@ const CreateEvent = () => {
     const loadData = async () => {
       try {
         // Fetch fighters, events, and fights
-        const [fetchedFighters, allEvents, allFights] = await Promise.all([
+        const [fetchedFighters, allFights] = await Promise.all([
           getAllFighters(),
-          getAllEvents(),
           getAllFights()
         ]);
 
