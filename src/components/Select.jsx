@@ -11,29 +11,63 @@ import {
   Paper,
   Select,
   Typography,
+  Chip,
 } from "@mui/material";
 import { formatFightingStyle } from "../utils/uiHelpers"
 
 /* BasicSelect component that passes a fighters, selectedItem, and onSelectChange prop 
 so that when we call this component we can dynamically add the info instead of the value being fixed at the component level. **/
-const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
+const BasicSelect = ({ 
+  fighters, 
+  selectedItem, 
+  onSelectChange,
+  bookedFighters = new Set(),
+  selectedFightersInEvent = new Set(),
+  currentFightIndex,
+  fightPosition
+ }) => {
   return (
     <>
-      <Box sx={{ minWidth: 120, m: 2 }}>
+   <Box sx={{ minWidth: 120, m: 2 }}>
         <FormControl fullWidth>
           <InputLabel id="simple-select-label">Fighter</InputLabel>
           <Select
             labelId="simple-select-label"
             id="simple-select"
-            value={selectedItem ? selectedItem.personid : ""} // This value will be determined by the selected fighters id.
+            value={selectedItem ? selectedItem.personid : ""} 
             label="Fighter"
             onChange={onSelectChange}
           >
-            {fighters.map((info) => (
-              <MenuItem key={info.personid} value={info.personid}>
-                {info.firstname} {info.lastname}
-              </MenuItem>
-            ))}
+            {fighters.map((info) => {
+              // Determine if fighter is unavailable
+              const isBooked = bookedFighters.has(info.personid);
+              const isSelectedInOtherFight = selectedFightersInEvent.has(info.personid) && 
+                (!selectedItem || selectedItem.personid !== info.personid);
+              const isUnavailable = isBooked || isSelectedInOtherFight;
+           
+              return (
+                <MenuItem 
+                  key={info.personid} 
+                  value={info.personid}
+                  disabled={isUnavailable}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <span>{info.firstname} {info.lastname}</span>
+                  {isUnavailable && (
+                    <Chip 
+                      label={isBooked ? "Booked in Event" : "Already Selected"} 
+                      size="small"
+                      color={isBooked ? "error" : "warning"}
+                      sx={{ ml: 1 }}
+                    />
+                  )}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
       </Box>
@@ -44,9 +78,9 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
               <CardMedia
                 component="img"
                 sx={{
-                  height: 280, // Adjust the height as needed
-                  width: "100%", // Ensures the image spans the width of the Card
-                  objectFit: "contain", // Ensures the entire image fits within the CardMedia without distortion
+                  height: 280,
+                  width: "100%",
+                  objectFit: "contain",
                   bgcolor: "grey.200",
                 }}
                 image={selectedItem.image}
@@ -68,7 +102,7 @@ const BasicSelect = ({ fighters, selectedItem, onSelectChange }) => {
                       e.currentTarget.style.textDecoration = "none";
                     }}
                     onClick={() => {
-                      window.scrollTo(0, 0); // Scrolls to the top of the page
+                      window.scrollTo(0, 0);
                     }}
                   >
                     {selectedItem.firstname} {selectedItem.lastname}
