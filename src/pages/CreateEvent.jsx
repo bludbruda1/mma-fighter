@@ -12,6 +12,7 @@ import {
   InputLabel,
   TextField,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import Select from "../components/Select";
 import {
@@ -19,7 +20,9 @@ import {
   addEventToDB,
   getNextEventId,
   getNextFightId,
-  addFightToDB
+  addFightToDB,
+  getAllEvents,
+  getAllFights
 } from "../utils/indexedDB";
 import { EventContext } from "../contexts/EventContext";
 
@@ -32,23 +35,122 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Track booked fighters across events and within current event
+  const [bookedFighters, setBookedFighters] = useState(new Set());
+  const [selectedFightersInEvent, setSelectedFightersInEvent] = useState(new Set());
+  
+  // Track error messages for fighter selection
+  const [selectionErrors, setSelectionErrors] = useState({});
+    
   const navigate = useNavigate();
 
+  // Load fighters and check existing bookings
   useEffect(() => {
-    getAllFighters()
-      .then((fetchedFighters) => {
+    const loadData = async () => {
+      try {
+        // Fetch fighters, events, and fights
+        const [fetchedFighters, allFights] = await Promise.all([
+          getAllFighters(),
+          getAllFights()
+        ]);
+
+        // Create set of booked fighter IDs from existing events
+        const bookedFighterIds = new Set();
+        allFights.forEach(fight => {
+          if (!fight.result) { // Only consider unfinished fights
+            if (fight.fighter1?.personid) bookedFighterIds.add(fight.fighter1.personid);
+            if (fight.fighter2?.personid) bookedFighterIds.add(fight.fighter2.personid);
+          }
+        });
+
         setFighters(fetchedFighters);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+        setBookedFighters(bookedFighterIds);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    loadData();
   }, []);
 
   useEffect(() => {
-    // Create an array of unique fight objects
     setFights(Array(numFights).fill(null).map(() => ({ 
       fighter1: null, 
       fighter2: null 
     })));
   }, [numFights]);
+
+  // Check if a fighter is available for selection
+  const isFighterAvailable = (fighterId, fightIndex, fighterPosition) => {
+    // Check if fighter is already booked in another event
+    if (bookedFighters.has(fighterId)) {
+      return {
+        available: false,
+        error: "Fighter is already booked in another event"
+      };
+    }
+
+    // Check if fighter is already selected in current event
+    if (selectedFightersInEvent.has(fighterId)) {
+      return {
+        available: false,
+        error: "Fighter is already scheduled in this event"
+      };
+    }
+
+    return { available: true };
+  };
+
+  const handleSelectChange = (fightIndex, fighterKey, event) => {
+    const selectedId = Number(event.target.value);
+    const selectedFighter = fighters.find((f) => f.personid === selectedId);
+    
+    if (!selectedFighter) {
+      console.error('Fighter not found:', selectedId);
+      return;
+    }
+
+    // Check fighter availability
+    const { available, error } = isFighterAvailable(selectedId, fightIndex, fighterKey);
+    
+    if (!available) {
+      // Update error state
+      setSelectionErrors({
+        ...selectionErrors,
+        [`${fightIndex}-${fighterKey}`]: error
+      });
+      return;
+    }
+
+    // Clear any existing error for this selection
+    const newErrors = { ...selectionErrors };
+    delete newErrors[`${fightIndex}-${fighterKey}`];
+    setSelectionErrors(newErrors);
+
+    // Update fights state
+    setFights(prevFights => {
+      const newFights = [...prevFights];
+      
+      // Remove previous fighter from selectedFightersInEvent if exists
+      if (newFights[fightIndex]?.[fighterKey]?.personid) {
+        const newSelected = new Set(selectedFightersInEvent);
+        newSelected.delete(newFights[fightIndex][fighterKey].personid);
+        setSelectedFightersInEvent(newSelected);
+      }
+
+      // Add new fighter
+      newFights[fightIndex] = {
+        ...newFights[fightIndex],
+        [fighterKey]: selectedFighter
+      };
+
+      // Add new fighter to selectedFightersInEvent
+      setSelectedFightersInEvent(prev => new Set([...prev, selectedId]));
+      
+      return newFights;
+    });
+  };
 
 const handleSaveEvent = async () => {
   try {
@@ -120,22 +222,6 @@ const handleSaveEvent = async () => {
   }
 };
 
-  const handleSelectChange = (fightIndex, fighterKey, event) => {
-    const selectedId = Number(event.target.value);
-    const selectedFighter = fighters.find((f) => f.personid === selectedId);
-    
-    if (!selectedFighter) {
-      console.error('Fighter not found:', selectedId);
-      return;
-    }
-  
-    setFights(prevFights => prevFights.map((fight, index) => 
-      index === fightIndex 
-        ? { ...fight, [fighterKey]: selectedFighter }
-        : fight
-    ));
-  };
-
   return (
     <main>
       <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
@@ -175,22 +261,60 @@ const handleSaveEvent = async () => {
               Fight {index + 1}
             </Typography>
             <Grid container spacing={3} justifyContent="space-between">
+              {/* Fighter 1 Selection */}
               <Grid item xs={12} md={5}>
+                {selectionErrors[`${index}-fighter1`] && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {selectionErrors[`${index}-fighter1`]}
+                  </Alert>
+                )}
                 <Select
                   fighters={fighters}
                   selectedItem={fight.fighter1}
                   onSelectChange={(event) =>
                     handleSelectChange(index, "fighter1", event)
                   }
+                  bookedFighters={bookedFighters}
+                  selectedFightersInEvent={new Set(
+                    // Create set of fighter IDs selected in other fights
+                    fights
+                      .filter((_, fightIndex) => fightIndex !== index) // Exclude current fight
+                      .flatMap(f => [
+                        f.fighter1?.personid,
+                        f.fighter2?.personid
+                      ])
+                      .filter(Boolean) // Remove nulls/undefined
+                  )}
+                  currentFightIndex={index}
+                  fightPosition="fighter1"
                 />
               </Grid>
+
+              {/* Fighter 2 Selection */}
               <Grid item xs={12} md={5}>
+                {selectionErrors[`${index}-fighter2`] && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {selectionErrors[`${index}-fighter2`]}
+                  </Alert>
+                )}
                 <Select
                   fighters={fighters}
                   selectedItem={fight.fighter2}
                   onSelectChange={(event) =>
                     handleSelectChange(index, "fighter2", event)
                   }
+                  bookedFighters={bookedFighters}
+                  selectedFightersInEvent={new Set(
+                    fights
+                      .filter((_, fightIndex) => fightIndex !== index)
+                      .flatMap(f => [
+                        f.fighter1?.personid,
+                        f.fighter2?.personid
+                      ])
+                      .filter(Boolean)
+                  )}
+                  currentFightIndex={index}
+                  fightPosition="fighter2"
                 />
               </Grid>
             </Grid>
