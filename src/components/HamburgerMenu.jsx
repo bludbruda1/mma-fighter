@@ -115,6 +115,17 @@ const HamburgerMenu = () => {
             </ListItemIcon>
             <ListItemText primary="Events" sx={{ color: "#fff" }} />
           </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/calendar"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Calendar" sx={{ color: "#fff" }} />
+          </ListItem>
         </List>
       </Drawer>
     </>
