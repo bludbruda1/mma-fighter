@@ -12,7 +12,6 @@ import {
   InputLabel,
   TextField,
   CircularProgress,
-  Alert,
 } from "@mui/material";
 import Select from "../components/Select";
 import {
@@ -39,7 +38,6 @@ const CreateEvent = () => {
     new Date().toISOString().split("T")[0]
   );
 
-  // Load fighters and check existing bookings
   useEffect(() => {
     getAllFighters()
       .then((fetchedFighters) => setFighters(fetchedFighters))
@@ -191,60 +189,22 @@ const CreateEvent = () => {
               Fight {index + 1}
             </Typography>
             <Grid container spacing={3} justifyContent="space-between">
-              {/* Fighter 1 Selection */}
               <Grid item xs={12} md={5}>
-                {selectionErrors[`${index}-fighter1`] && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {selectionErrors[`${index}-fighter1`]}
-                  </Alert>
-                )}
                 <Select
                   fighters={fighters}
                   selectedItem={fight.fighter1}
                   onSelectChange={(event) =>
                     handleSelectChange(index, "fighter1", event)
                   }
-                  bookedFighters={bookedFighters}
-                  selectedFightersInEvent={new Set(
-                    // Create set of fighter IDs selected in other fights
-                    fights
-                      .filter((_, fightIndex) => fightIndex !== index) // Exclude current fight
-                      .flatMap(f => [
-                        f.fighter1?.personid,
-                        f.fighter2?.personid
-                      ])
-                      .filter(Boolean) // Remove nulls/undefined
-                  )}
-                  currentFightIndex={index}
-                  fightPosition="fighter1"
                 />
               </Grid>
-
-              {/* Fighter 2 Selection */}
               <Grid item xs={12} md={5}>
-                {selectionErrors[`${index}-fighter2`] && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {selectionErrors[`${index}-fighter2`]}
-                  </Alert>
-                )}
                 <Select
                   fighters={fighters}
                   selectedItem={fight.fighter2}
                   onSelectChange={(event) =>
                     handleSelectChange(index, "fighter2", event)
                   }
-                  bookedFighters={bookedFighters}
-                  selectedFightersInEvent={new Set(
-                    fights
-                      .filter((_, fightIndex) => fightIndex !== index)
-                      .flatMap(f => [
-                        f.fighter1?.personid,
-                        f.fighter2?.personid
-                      ])
-                      .filter(Boolean)
-                  )}
-                  currentFightIndex={index}
-                  fightPosition="fighter2"
                 />
               </Grid>
             </Grid>
