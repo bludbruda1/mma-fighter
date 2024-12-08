@@ -10,6 +10,7 @@ import {
   calculateProbabilities,
   calculateProbability,
   calculateTDProbability,
+  calculateClinchProbability,
   determineStandingAction,
   determineClinchAction,
   determineGroundAction,
@@ -611,12 +612,11 @@ const doGroundStrike = (attacker, defender, strikeType, currentTime, logger) => 
  */
 const doClinch = (attacker, defender, currentTime, logger) => {
   console.log(`${attacker.name} attempts to clinch ${defender.name}`);
-  const clinchChance = calculateProbability(
-    attacker.Rating.clinchGrappling,
-    defender.Rating.clinchGrappling
-  );
+  const { success, failure } = calculateClinchProbability(attacker, defender);
 
-  if (Math.random() < clinchChance) {
+  const random = Math.random();
+
+  if (random < success) {
     // Set attacker's states
     attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENCE;
     defender.position = FIGHTER_POSITIONS.CLINCH_DEFENCE;
@@ -628,7 +628,7 @@ const doClinch = (attacker, defender, currentTime, logger) => {
       `${attacker.name} successfully gets ${defender.name} in a clinch against the cage`
     );
     return "clinchSuccessful";
-  } else {
+  } else if (random < success + failure) {
     console.log(`${defender.name} defends the clinch attempt`);
     logger.logClinch(attacker, defender, "defended", currentTime);
     updateFightStats(attacker, defender, "clinch", "clinch", "defended");
@@ -647,10 +647,7 @@ const exitClinch = (defender, attacker, currentTime, logger) => {
 
   attacker.stats.clinchExits = (attacker.stats.clinchExits || 0) + 1;
 
-  const exitChance = calculateProbability(
-    defender.Rating.clinchControl,
-    attacker.Rating.clinchGrappling
-  );
+  const exitChance = 0.85; // Needs to rework, I want it similar to the doClinch
 
   if (Math.random() < exitChance) {
     // Successfully exit the clinch
@@ -743,7 +740,7 @@ const doClinchTakedown = (attacker, defender, currentTime, logger) => {
   );
 
   const takedownChance = calculateProbability(
-    attacker.Rating.clinchGrappling,
+    attacker.Rating.clinchTakedown,
     defender.Rating.clinchControl
   );
 
