@@ -48,7 +48,7 @@ const HamburgerMenu = () => {
           </IconButton>
           <SportsMmaIcon sx={{ mr: 2 }} />
           <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
-            <Typography variant="h6">MMA Fighter</Typography>
+            <Typography variant="h6">Planet Fighter</Typography>
           </Link>
         </Toolbar>
       </AppBar>

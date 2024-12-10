@@ -98,7 +98,7 @@ const Roster = () => {
     return (
       <Container maxWidth="lg" style={{ marginTop: "50px", marginBottom: "50px" }}>
         <Typography variant="h2" align="center" gutterBottom>
-          MMA Fighter Roster
+          Planet Fighter Roster
         </Typography>
         <TableContainer component={Paper}>
           <Table>
