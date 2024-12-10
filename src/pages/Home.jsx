@@ -87,16 +87,16 @@ const Home = () => {
             src="/assets/images/logo.png"
             alt="Logo"
             style={{
-              width: "150px", // Adjust the size as needed
+              width: "200px", // Adjust the size as needed
               height: "auto",
             }}
           />
         </Box>
         <Typography variant="h2" gutterBottom sx={fadeIn}>
-          MMA Fighter
+          Planet Fighter
         </Typography>
         <Typography variant="h6" gutterBottom sx={fadeIn}>
-          Welcome to MMAFighter, a combat sport simulation game that lets you
+          Welcome to Planet Fight, a combat sport simulation game that lets you
           create your own world of fighting and provides an experience of
           running the show.
         </Typography>
