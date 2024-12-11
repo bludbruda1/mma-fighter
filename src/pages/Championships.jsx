@@ -1,10 +1,13 @@
+// src/pages/Championships.jsx
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Container,
   Typography,
   Grid,
   Card,
   CardContent,
+  CardMedia,
   Button,
   Dialog,
   DialogTitle,
@@ -92,15 +95,14 @@ const Championships = () => {
     }
   };
 
-  const getChampionName = (championId) => {
-    const champion = fighters.find(f => f.personid === parseInt(championId));
-    return champion ? `${champion.firstname} ${champion.lastname}` : 'Vacant';
+  const getChampion = (championId) => {
+    return fighters.find(f => f.personid === parseInt(championId)) || null;
   };
 
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Typography>Loading championships...</Typography>
+        <Typography>Loading champions...</Typography>
       </Container>
     );
   }
@@ -114,7 +116,7 @@ const Championships = () => {
         mb: 4 
       }}>
         <Typography variant="h4" component="h1">
-          Championships
+          Champions
         </Typography>
         <Button 
           variant="contained" 
@@ -132,26 +134,59 @@ const Championships = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {championships.map((championship) => (
-          <Grid item xs={12} md={6} lg={4} key={championship.id}>
-            <Card sx={{ height: '100%' }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {championship.name}
-                </Typography>
-                <Typography color="textSecondary" gutterBottom>
-                  {championship.weightClass}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                  Champion: {getChampionName(championship.currentChampionId)}
-                </Typography>
-                <Typography variant="body2">
-                  {championship.description}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+        {championships.map((championship) => {
+          const champion = getChampion(championship.currentChampionId);
+          
+          return (
+            <Grid item xs={12} md={6} lg={4} key={championship.id}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent>
+                  {/* Champion Profile Picture */}
+                  {champion && (
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={champion.profile}
+                      alt={`${champion.firstname} ${champion.lastname}`}
+                      sx={{ 
+                        objectFit: "contain",
+                        mb: 2
+                      }}
+                    />
+                  )}
+                  <Typography variant="h6" gutterBottom>
+                    {championship.name}
+                  </Typography>
+                  <Typography color="textSecondary" gutterBottom>
+                    {championship.weightClass}
+                  </Typography>
+                  <Typography variant="body1" gutterBottom>
+                    Champion:{' '}
+                    {champion ? (
+                      <Link
+                        to={`/dashboard/${champion.personid}`}
+                        style={{
+                          textDecoration: 'none',
+                          color: '#1976d2',
+                          '&:hover': {
+                            textDecoration: 'underline'
+                          }
+                        }}
+                      >
+                        {`${champion.firstname} ${champion.lastname}`}
+                      </Link>
+                    ) : (
+                      'Vacant'
+                    )}
+                  </Typography>
+                  <Typography variant="body2">
+                    {championship.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
 
       {/* Create Championship Dialog */}

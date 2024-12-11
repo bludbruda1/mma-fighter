@@ -136,7 +136,7 @@ const HamburgerMenu = () => {
             <ListItemIcon sx={{ color: "#fff" }}>
               <EmojiEventsIcon />
             </ListItemIcon>
-            <ListItemText primary="Championships" sx={{ color: '#fff'}} />
+            <ListItemText primary="Champions" sx={{ color: '#fff'}} />
           </ListItem>
         </List>
       </Drawer>
