@@ -17,6 +17,7 @@ import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 // HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
@@ -125,6 +126,17 @@ const HamburgerMenu = () => {
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Calendar" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/championships"
+            onClick={handleDrawerToggle}
+            >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <EmojiEventsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Championships" sx={{ color: '#fff'}} />
           </ListItem>
         </List>
       </Drawer>
