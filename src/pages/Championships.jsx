@@ -1,4 +1,3 @@
-// src/pages/Championships.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -12,6 +11,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   TextField,
   Select,
@@ -19,7 +19,11 @@ import {
   FormControl,
   InputLabel,
   Box,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
   addChampionship,
   getAllChampionships,
@@ -30,17 +34,26 @@ import {
 } from '../utils/indexedDB';
 
 const Championships = () => {
+  // State management for championships and fighters data
   const [championships, setChampionships] = useState([]);
   const [fighters, setFighters] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // State for managing different dialogs
   const [openDialog, setOpenDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [vacateDialogOpen, setVacateDialogOpen] = useState(false);
+  const [selectedChampionship, setSelectedChampionship] = useState(null);
+
+  // State for new championship form
   const [newChampionship, setNewChampionship] = useState({
     name: '',
     weightClass: '',
     currentChampionId: '',
     description: '',
   });
-  const [loading, setLoading] = useState(true);
 
+  // Available weight classes
   const weightClasses = [
     'Flyweight',
     'Bantamweight',
@@ -52,7 +65,7 @@ const Championships = () => {
     'Heavyweight',
   ];
 
-  // Load championships and fighters on component mount
+  // Load championships and fighters data
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -72,6 +85,7 @@ const Championships = () => {
     loadData();
   }, []);
 
+  // Handle creating a new championship
   const handleCreateChampionship = async () => {
     try {
       const nextId = await getNextChampionshipId();
@@ -84,6 +98,7 @@ const Championships = () => {
       await addChampionship(championship);
       setChampionships(prev => [...prev, championship]);
       setOpenDialog(false);
+      // Reset form
       setNewChampionship({
         name: '',
         weightClass: '',
@@ -95,10 +110,181 @@ const Championships = () => {
     }
   };
 
+  // Handle deleting a championship
+  const handleDeleteChampionship = async () => {
+    try {
+      if (!selectedChampionship) return;
+      
+      await deleteChampionship(selectedChampionship.id);
+      setChampionships(prev => prev.filter(c => c.id !== selectedChampionship.id));
+      setDeleteDialogOpen(false);
+      setSelectedChampionship(null);
+    } catch (error) {
+      console.error('Error deleting championship:', error);
+    }
+  };
+
+  // Handle vacating a championship
+  const handleVacateChampionship = async () => {
+    try {
+      if (!selectedChampionship) return;
+
+      const updatedChampionship = {
+        ...selectedChampionship,
+        currentChampionId: ''
+      };
+
+      await updateChampionship(updatedChampionship);
+      setChampionships(prev => prev.map(c => 
+        c.id === selectedChampionship.id ? updatedChampionship : c
+      ));
+      setVacateDialogOpen(false);
+      setSelectedChampionship(null);
+    } catch (error) {
+      console.error('Error vacating championship:', error);
+    }
+  };
+
+  // Helper function to get champion details
   const getChampion = (championId) => {
     return fighters.find(f => f.personid === parseInt(championId)) || null;
   };
 
+  // Render management buttons for each championship card
+  const renderManagementButtons = (championship) => {
+    const champion = getChampion(championship.currentChampionId);
+    
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end',
+        mt: 2,
+        gap: 1
+      }}>
+        {/* Only show vacate button if there's a champion */}
+        {champion && (
+        <Tooltip title="Vacate Title" arrow placement="top">
+          <IconButton
+            aria-label="vacate championship"
+            onClick={() => {
+              setSelectedChampionship(championship);
+              setVacateDialogOpen(true);
+            }}
+            sx={{
+              backgroundColor: 'warning.light',
+              color: 'warning.contrastText',
+              '&:hover': {
+                backgroundColor: 'warning.main',
+              },
+            }}
+          >
+            <RemoveCircleOutlineIcon />
+          </IconButton>
+          </Tooltip>
+        )} 
+        <Tooltip title="Delete Championship" arrow placement="top">
+        <IconButton
+          aria-label="delete championship"
+          onClick={() => {
+            setSelectedChampionship(championship);
+            setDeleteDialogOpen(true);
+          }}
+          sx={{
+            backgroundColor: 'error.light',
+            color: 'error.contrastText',
+            '&:hover': {
+              backgroundColor: 'error.main',
+            },
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
+        </Tooltip>
+      </Box>
+    );
+  };
+
+  // Render warning dialogs for delete and vacate actions
+  const renderWarningDialogs = () => (
+    <>
+      {/* Delete Championship Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setSelectedChampionship(null);
+        }}
+      >
+        <DialogTitle>Delete Championship?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the {selectedChampionship?.name}?
+            This action cannot be undone. The championship and its history will be permanently removed.
+            {selectedChampionship?.currentChampionId && 
+              " The current champion will lose their title."}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => {
+              setDeleteDialogOpen(false);
+              setSelectedChampionship(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteChampionship}
+            variant="contained"
+            color="error"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Vacate Championship Dialog */}
+      <Dialog
+        open={vacateDialogOpen}
+        onClose={() => {
+          setVacateDialogOpen(false);
+          setSelectedChampionship(null);
+        }}
+      >
+        <DialogTitle>Vacate Championship?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to vacate the {selectedChampionship?.name}?
+            {selectedChampionship && getChampion(selectedChampionship.currentChampionId) && (
+              ` ${getChampion(selectedChampionship.currentChampionId).firstname} 
+              ${getChampion(selectedChampionship.currentChampionId).lastname} 
+              will lose their champion status.`
+            )}
+            This will make the championship vacant until a new champion is crowned.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => {
+              setVacateDialogOpen(false);
+              setSelectedChampionship(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleVacateChampionship}
+            variant="contained"
+            color="warning"
+          >
+            Vacate
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+
+  // Show loading state
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -107,8 +293,10 @@ const Championships = () => {
     );
   }
 
+  // Main render
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
+      {/* Page Header */}
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -133,6 +321,7 @@ const Championships = () => {
         </Button>
       </Box>
 
+      {/* Championships Grid */}
       <Grid container spacing={3}>
         {championships.map((championship) => {
           const champion = getChampion(championship.currentChampionId);
@@ -154,6 +343,7 @@ const Championships = () => {
                       }}
                     />
                   )}
+                  {/* Championship Details */}
                   <Typography variant="h6" gutterBottom>
                     {championship.name}
                   </Typography>
@@ -182,6 +372,9 @@ const Championships = () => {
                   <Typography variant="body2">
                     {championship.description}
                   </Typography>
+                  
+                  {/* Management Buttons */}
+                  {renderManagementButtons(championship)}
                 </CardContent>
               </Card>
             </Grid>
@@ -222,7 +415,10 @@ const Championships = () => {
               <Select
                 value={newChampionship.currentChampionId}
                 label="Current Champion"
-                onChange={(e) => setNewChampionship(prev => ({ ...prev, currentChampionId: e.target.value }))}
+                onChange={(e) => setNewChampionship(prev => ({ 
+                  ...prev, 
+                  currentChampionId: e.target.value 
+                }))}
               >
                 <MenuItem value="">Vacant</MenuItem>
                 {fighters
@@ -241,7 +437,10 @@ const Championships = () => {
               multiline
               rows={4}
               value={newChampionship.description}
-              onChange={(e) => setNewChampionship(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) => setNewChampionship(prev => ({ 
+                ...prev, 
+                description: e.target.value 
+              }))}
             />
           </Box>
         </DialogContent>
@@ -262,6 +461,9 @@ const Championships = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Warning Dialogs */}
+      {renderWarningDialogs()}
     </Container>
   );
 };
