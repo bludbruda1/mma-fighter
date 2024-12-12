@@ -6,6 +6,8 @@ import {
   getAllFighters, 
   getFightsByIds,
   updateFightResults,
+  getChampionshipById,
+  updateChampionship,
 } from "../utils/indexedDB";
 import {
   Container,
@@ -29,6 +31,7 @@ import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
 import ResultCard from "../components/ResultCard";
 import FightViewer from "../components/FightViewer";
+import { formatTime } from "../engine/helper.js";
 import { simulateFight } from "../engine/FightSim";
 import { calculateFightStats } from "../engine/FightStatistics";
 import fightPlayByPlayLogger from "../engine/fightPlayByPlayLogger";
@@ -144,41 +147,19 @@ const Event = () => {
    */
   const handleGenerateFight = async (index, fighter1, fighter2) => {
     try {
-      // Prepare fighters for simulation with complete data
-      const opponents = [fighter1, fighter2].map(fighter => ({
-        id: fighter?.personid ?? "unknown",
-        name: `${fighter?.firstname ?? "Unknown"} ${fighter?.lastname ?? ""}`,
-        firstname: fighter?.firstname,
-        lastname: fighter?.lastname,
-        fightingStyle: fighter?.fightingStyle ?? "Unspecified",
-        health: {
-          head: fighter?.maxHealth?.head || 100,
-          body: fighter?.maxHealth?.body || 100,
-          legs: fighter?.maxHealth?.legs || 100,
-        },
-        maxHealth: {
-          head: fighter?.maxHealth?.head || 100,
-          body: fighter?.maxHealth?.body || 100,
-          legs: fighter?.maxHealth?.legs || 100,
-        },
-        stamina: fighter?.stamina || 100,
-        Rating: fighter?.Rating || {},
-        ...fighter,
-      }));
-
-      // Set intial fight logger and run simulation
+      // Set initial fight logger and run simulation
       const logger = new fightPlayByPlayLogger(true);
-      const result = simulateFight(opponents, logger);
-
+      const result = simulateFight([fighter1, fighter2], logger);
+  
       if (!result || typeof result.winner === "undefined") {
         console.error("simulateFight did not return a valid winner:", result);
-        return;
+        return null;
       }
-
+  
       // Capture fight events for playback
       const fightEvents = logger.getFightPlayByPlay();
       setCurrentFightEvents(fightEvents);
-
+  
       const winnerIndex = result.winner;
       const fightStats = calculateFightStats(
         {
@@ -192,16 +173,16 @@ const Event = () => {
           maxHealth: result.fighterMaxHealth?.[1] || {},
         }
       );
-
+  
       // Format fight result data
       const fightResult = {
         winner: winnerIndex,
         method: result.method,
         roundEnded: result.roundEnded,
-        timeEnded: formatEndTime(result.endTime),
+        timeEnded: formatTime(result.endTime),
         submissionType: result.submissionType
       };
-
+  
       // Update fight results in database including fight events
       const fightId = eventData.fights[index].id;
       await updateFightResults(fightId, {
@@ -209,7 +190,7 @@ const Event = () => {
         stats: fightStats,
         fightEvents: fightEvents
       });
-
+  
       // Mark fight as completed
       setCompletedFights(prev => new Set([...prev, fightId]));
       
@@ -220,35 +201,60 @@ const Event = () => {
           winnerIndex,
           fightResult,
           fightStats,
-          formattedEndTime: formatEndTime(result.endTime),
+          formattedEndTime: formatTime(result.endTime),
           roundStats: result.roundStats || [],
           fightEvents: fightEvents,
-          fighters: opponents,
+          fighters: [fighter1, fighter2],
         },
       }));
-
+  
       // Update fighter records
-      await updateFighterRecords(opponents, winnerIndex, result);
-
+      await updateFighterRecords([fighter1, fighter2], result);
+  
       // Store fighters for fight viewer
-      setSelectedFighters(opponents);
-
-      return true; // Added to indicate successful simulation
+      setSelectedFighters([fighter1, fighter2]);
+  
+      return { winnerIndex, fightResult }; // Return both the winner index and fight result
     } catch (error) {
       console.error("Error simulating fight:", error);
-      return false;
+      return null;
     }
   };
 
   // Function specifically for direct simulation
   const handleSimulateFight = async (index, fighter1, fighter2) => {
     const result = await handleGenerateFight(index, fighter1, fighter2);
-    if (result) {
-      // Only set simulatedFights when directly simulating
+    if (result && typeof result.winnerIndex !== 'undefined') {
       const fightId = eventData.fights[index].id;
       setSimulatedFights(prev => new Set([...prev, fightId]));
+  
+      // Handle championship changes if this was a title fight
+      const fight = eventData.fights[index];
+      if (fight.championship) {
+        const winnerFighter = result.winnerIndex === 0 ? fighter1 : fighter2;
+        const loserFighter = result.winnerIndex === 0 ? fighter2 : fighter1;
+        
+        try {
+          // Get current championship data
+          const championship = await getChampionshipById(fight.championship.id);
+          
+          // Update championship with new champion
+          if (championship && championship.currentChampionId === loserFighter.personid) {
+            const updatedChampionship = {
+              ...championship,
+              currentChampionId: winnerFighter.personid
+            };
+            
+            await updateChampionship(updatedChampionship);
+            console.log(`Championship updated: New champion is ${winnerFighter.firstname} ${winnerFighter.lastname}`);
+          }
+        } catch (error) {
+          console.error('Error updating championship:', error);
+        }
+      }
     }
   };
+  
 
   /**
      * Opens the fight viewer dialog and simulates fight if not already completed
@@ -332,30 +338,23 @@ const Event = () => {
 
   /**
    * Updates fighter records after a fight
-   * @param {Array} fighters - Array of fighter objects
-   * @param {number} winnerIndex - Index of the winning fighter
-   * @param {Object} result - Fight result object
-   */
-  /**
-   * Updates fighter records after a fight
    * @param {Object[]} fighters - Array of fighter objects
    * @param {number} winnerIndex - Index of the winning fighter
    * @param {Object} result - Fight result object
    */
   const updateFighterRecords = async (fighters, result) => {
-    const winnerIndex = result.winner;
-
-    // Validate winnerIndex
-    if (typeof winnerIndex !== "number" || winnerIndex < 0 || winnerIndex > 1) {
-      console.error("Invalid winnerIndex:", winnerIndex);
+    // Validate result and winnerIndex
+    if (!result || typeof result.winner !== 'number' || result.winner < 0 || result.winner > 1) {
+      console.error("Invalid fight result or winner index:", result);
       return;
     }
 
     // Assign winner and loser fighters
+    const winnerIndex = result.winner;
     const winnerFighter = fighters[winnerIndex];
     const loserFighter = fighters[1 - winnerIndex];
 
-    // Ensure winner and loser are properly assigned
+    // Ensure both fighters exist
     if (!winnerFighter || !loserFighter) {
       console.error("Error: Unable to determine winner or loser.");
       console.log("Fighters Array:", fighters);
