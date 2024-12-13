@@ -8,6 +8,7 @@ import {
   updateFightResults,
   getChampionshipById,
   updateChampionship,
+  getAllChampionships,
 } from "../utils/indexedDB";
 import {
   Container,
@@ -51,6 +52,7 @@ const Event = () => {
   const [currentFightIndex, setCurrentFightIndex] = useState(null);
   const [completedFights, setCompletedFights] = useState(new Set());
   const [simulatedFights, setSimulatedFights] = useState(new Set());
+  const [championships, setChampionships] = useState([]);
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -70,7 +72,12 @@ const Event = () => {
         
         // Fetch all fighters
         const allFighters = await getAllFighters();
+
+        // Fetch all championships
+        const allChampionships = await getAllChampionships();
         
+        setChampionships(allChampionships);
+
         // Create a map of fighter data by personid
         const fighterMap = allFighters.reduce((map, fighter) => {
           map[fighter.personid] = fighter;
@@ -87,8 +94,15 @@ const Event = () => {
         setSimulatedFights(completedFightsIds);
         setViewedFights(new Set()); // Initially empty
           
-        // Combine fight data with complete fighter data where available
-        const completeFights = fights.map(fight => ({
+      // Combine fight data with complete fighter data and championship data
+      const completeFights = fights.map(fight => {
+        // If this is a championship fight, get the full championship data
+        let championshipData = null;
+        if (fight.championship) {
+          championshipData = allChampionships.find(c => c.id === fight.championship.id);
+        }
+
+        return {
           ...fight,
           fighter1: fight.fighter1.personid ? {
             ...fighterMap[fight.fighter1.personid],
@@ -97,8 +111,10 @@ const Event = () => {
           fighter2: fight.fighter2.personid ? {
             ...fighterMap[fight.fighter2.personid],
             ...fight.fighter2
-          } : fight.fighter2
-        }));
+          } : fight.fighter2,
+          championship: championshipData // Replace with full championship data
+        };
+      });
 
         // Set initial fight results including fight events
         const initialResults = {};
@@ -495,6 +511,28 @@ const Event = () => {
         const isFightCompleted = completedFights.has(fight.id);
         const shouldShowWinner = viewedFights.has(fight.id) || (simulatedFights.has(fight.id) && !viewerOpen);
 
+
+        // Determine if each fighter is a champion
+        const fighter1IsChamp = championships.some(c => 
+          c.currentChampionId === fight.fighter1.personid
+        );
+        const fighter2IsChamp = championships.some(c => 
+          c.currentChampionId === fight.fighter2.personid
+        );
+
+        console.log("Championship data:", {
+          championship: fight.championship,
+          fighter1: {
+            id: fight.fighter1.personid,
+            isChamp: fighter1IsChamp
+          },
+          fighter2: {
+            id: fight.fighter2.personid,
+            isChamp: fighter2IsChamp
+          },
+          championships: championships
+        });
+
         return (
           <Grid container spacing={3} key={index} style={{ marginBottom: "40px" }}>
             <Grid item xs={12}>
@@ -503,6 +541,8 @@ const Event = () => {
                 selectedItem2={fight.fighter2}
                 winnerIndex={shouldShowWinner ? winnerIndex : undefined}
                 championship={fight.championship}
+                fighter1IsChamp={fighter1IsChamp}
+                fighter2IsChamp={fighter2IsChamp}
               />
               <Grid
                 container

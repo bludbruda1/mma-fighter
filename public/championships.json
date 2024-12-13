@@ -1,16 +1,16 @@
 [
     {
-      "id": "1",
+      "id": 1,
       "name": "Lightweight Championship",
       "weightClass": "Lightweight",
-      "currentChampionId": "3",
+      "currentChampionId": 3,
       "description": "UFC Lightweight Championship"
     },
     {
-      "id": "2",
+      "id": 2,
       "name": "Lightweight Interim Championship",
       "weightClass": "Lightweight",
-      "currentChampionId": "",
+      "currentChampionId": null,
       "description": "UFC Interim Lightweight Championship"
     }
   ]

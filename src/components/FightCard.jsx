@@ -7,28 +7,57 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Icon,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
-const FightCard = ({ selectedItem1, selectedItem2, winnerIndex, championship }) => {
+const FightCard = ({ 
+  selectedItem1, 
+  selectedItem2, 
+  winnerIndex, 
+  championship,
+  fighter1IsChamp,
+  fighter2IsChamp
+ }) => {
+
+  console.log("FightCard props:", {
+    fighter1: {
+      name: selectedItem1.firstname + " " + selectedItem1.lastname,
+      isChamp: fighter1IsChamp
+    },
+    fighter2: {
+      name: selectedItem2.firstname + " " + selectedItem2.lastname,
+      isChamp: fighter2IsChamp
+    },
+    championship
+  });
+
+
   // Helper function to render champion indicator
-  const renderChampionBadge = (isChampion) => {
-    if (!isChampion) return null;
-    
+  const renderChampionBadge = () => {
     return (
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center',
         gap: 1,
-        mb: 1,
-      }}>
-        <EmojiEventsIcon sx={{ color: 'gold' }} />
+        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+        padding: '4px 12px',
+        borderRadius: '4px',
+        marginBottom: '8px', 
+        marginTop: championship ? '32px' : '8px', 
+        width: 'fit-content',
+        alignSelf: 'center',  
+        }}>
+        <EmojiEventsIcon sx={{ 
+          color: 'gold',
+          fontSize: '1.5rem'
+        }} />
         <Typography 
           variant="subtitle2" 
           sx={{ 
             color: 'gold',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
           }}
         >
           Champion
@@ -48,7 +77,6 @@ const FightCard = ({ selectedItem1, selectedItem2, winnerIndex, championship }) 
         position: 'relative' 
       }}
     >
-      {/* Championship Banner - only show if it's a title fight */}
       {championship && (
         <Box
           sx={{
@@ -82,8 +110,8 @@ const FightCard = ({ selectedItem1, selectedItem2, winnerIndex, championship }) 
               alignItems: "center",
             }}
           >
-            {/* Champion Badge */}
-            {renderChampionBadge(championship && championship.currentChampionId === selectedItem1.personid)}
+            {/* Show champion badge if fighter1 is champ */}
+            {fighter1IsChamp && renderChampionBadge()}
             
             <Typography
               variant="h5"
@@ -153,8 +181,8 @@ const FightCard = ({ selectedItem1, selectedItem2, winnerIndex, championship }) 
               alignItems: "center",
             }}
           >
-            {/* Champion Badge */}
-            {renderChampionBadge(championship && championship.currentChampionId === selectedItem2.personid)}
+            {/* Show champion badge if fighter2 is champ */}
+            {fighter2IsChamp && renderChampionBadge()}
             
             <Typography
               variant="h5"

@@ -233,7 +233,8 @@ const getChampionship = (fighterId) => {
           // Include championship information if applicable
           championship: fightsWithChampionship[index] ? {
             id: fightsWithChampionship[index].id,
-            name: fightsWithChampionship[index].name
+            name: fightsWithChampionship[index].name,
+            currentChampionId: fightsWithChampionship[index].currentChampionId 
           } : null
         };
 
