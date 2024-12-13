@@ -44,8 +44,7 @@ const Roster = () => {
 
   // Helper function to get championship info for a fighter
   const getChampionshipInfo = (fighterId) => {
-    const championship = championships.find(c => c.currentChampionId === fighterId);
-    return championship ? championship.name : null;
+    return championships.filter(c => c.currentChampionId === fighterId);
   };
 
   // Helper function to get age for sorting purposes
@@ -75,9 +74,9 @@ const Roster = () => {
   // Sorting function for different data types
   const compareValues = (a, b, property) => {
     if (property === 'isChampion') {
-      const champA = getChampionshipInfo(a.personid) ? 1 : 0;
-      const champB = getChampionshipInfo(b.personid) ? 1 : 0;
-      return champA - champB;
+      const champCountA = getChampionshipInfo(a.personid).length;
+      const champCountB = getChampionshipInfo(b.personid).length;
+      return champCountB - champCountA; // Sort by number of championships
     }
 
     // Special handling for record comparison
@@ -201,9 +200,7 @@ const Roster = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedFighters.map((fighter) => {
-              const championshipName = getChampionshipInfo(fighter.personid);
-              return (
+            {sortedFighters.map((fighter) => (
               <TableRow
                 key={fighter.personid}
                 style={{
@@ -243,14 +240,19 @@ const Roster = () => {
                   {fighter.wins}W-{fighter.losses}L
                 </TableCell>
                 <TableCell>
-                    {championshipName && (
-                      <Tooltip title={championshipName} arrow>
-                        <EmojiEventsIcon sx={{ color: 'gold' }} />
-                      </Tooltip>
-                    )}
-                  </TableCell>
+                  {getChampionshipInfo(fighter.personid).map((championship, index) => (
+                    <Tooltip key={championship.id} title={championship.name} arrow>
+                      <EmojiEventsIcon 
+                        sx={{ 
+                          color: 'gold',
+                          marginRight: index < getChampionshipInfo(fighter.personid).length - 1 ? 1 : 0 
+                        }} 
+                      />
+                    </Tooltip>
+                  ))}
+                </TableCell>
               </TableRow>
-)})}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
