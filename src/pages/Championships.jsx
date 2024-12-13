@@ -21,16 +21,23 @@ import {
   Box,
   IconButton,
   Tooltip,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Chip,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import HistoryIcon from '@mui/icons-material/History'; // Add new icon for history
 import {
   addChampionship,
   getAllChampionships,
   updateChampionship,
   deleteChampionship,
   getAllFighters,
-  getNextChampionshipId
+  getNextChampionshipId,
+  getAllFights,
 } from '../utils/indexedDB';
 
 const Championships = () => {
@@ -53,6 +60,11 @@ const Championships = () => {
     description: '',
   });
 
+  // State for fight history
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [championshipHistory, setChampionshipHistory] = useState([]);
+  const [fights, setFights] = useState([]); 
+
   // Available weight classes
   const weightClasses = [
     'Flyweight',
@@ -69,12 +81,14 @@ const Championships = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [fetchedChampionships, fetchedFighters] = await Promise.all([
+        const [fetchedChampionships, fetchedFighters, fetchedFights] = await Promise.all([
           getAllChampionships(),
-          getAllFighters()
+          getAllFighters(),
+          getAllFights()
         ]);
         setChampionships(fetchedChampionships);
         setFighters(fetchedFighters);
+        setFights(fetchedFights);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -84,6 +98,101 @@ const Championships = () => {
 
     loadData();
   }, []);
+
+  // Function to get championship fight history
+  const getChampionshipHistory = (championshipId) => {
+    // Filter fights for this championship
+    const championshipFights = fights.filter(fight => {
+      // Check both the championship.id and direct championship property
+      const matchesChampionship = 
+        (fight.championship?.id === championshipId) || 
+        (fight.championship === championshipId);
+      
+      // Only include completed fights (has a result)
+      const isCompleted = fight.result !== null;
+      
+      return matchesChampionship && isCompleted;
+    });
+    
+    // Sort fights by date (assuming we have a date field)
+    // If no date field, we'll sort by ID which should generally correspond to chronological order
+    return championshipFights.sort((a, b) => {
+      if (a.date && b.date) return new Date(b.date) - new Date(a.date);
+      return b.id - a.id;
+    });
+  };
+
+  // Handle opening history dialog
+  const handleViewHistory = (championship) => {
+    const history = getChampionshipHistory(championship.id);
+    setChampionshipHistory(history);
+    setSelectedChampionship(championship);
+    setHistoryDialogOpen(true);
+  };
+
+  // Helper function to format fight result
+  const formatFightResult = (fight) => {
+    const winner = fight.result.winner === 0 ? fight.fighter1 : fight.fighter2;
+    const loser = fight.result.winner === 0 ? fight.fighter2 : fight.fighter1;
+    return {
+      winner: `${winner.firstname} ${winner.lastname}`,
+      loser: `${loser.firstname} ${loser.lastname}`,
+      method: fight.result.method,
+      round: fight.result.roundEnded,
+      time: fight.result.timeEnded
+    };
+  };
+
+  // History dialog to render function's return statement
+  const renderHistoryDialog = () => (
+    <Dialog
+      open={historyDialogOpen}
+      onClose={() => setHistoryDialogOpen(false)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        {selectedChampionship?.name} History
+      </DialogTitle>
+      <DialogContent>
+        {championshipHistory.length > 0 ? (
+          <List>
+            {championshipHistory.map((fight, index) => {
+              const result = formatFightResult(fight);
+              return (
+                <React.Fragment key={fight.id}>
+                  <ListItem>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body1">
+                            {result.winner} def. {result.loser}
+                          </Typography>
+                          <Chip 
+                            size="small" 
+                            label={result.method}
+                            color="primary"
+                            variant="outlined"
+                          />
+                        </Box>
+                      }
+                      secondary={`Round ${result.round} - ${result.time}`}
+                    />
+                  </ListItem>
+                  {index < championshipHistory.length - 1 && <Divider />}
+                </React.Fragment>
+              );
+            })}
+          </List>
+        ) : (
+          <Typography>No title fight history available.</Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setHistoryDialogOpen(false)}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   // Handle creating a new championship
   const handleCreateChampionship = async () => {
@@ -161,6 +270,22 @@ const Championships = () => {
         mt: 2,
         gap: 1
       }}>
+        {/* History Button */}
+        <Tooltip title="View Title History" arrow placement="top">
+          <IconButton
+            aria-label="view championship history"
+            onClick={() => handleViewHistory(championship)}
+            sx={{
+              backgroundColor: 'info.light',
+              color: 'info.contrastText',
+              '&:hover': {
+                backgroundColor: 'info.main',
+              },
+            }}
+          >
+            <HistoryIcon />
+          </IconButton>
+        </Tooltip>
         {/* Only show vacate button if there's a champion */}
         {champion && (
         <Tooltip title="Vacate Title" arrow placement="top">
@@ -464,6 +589,9 @@ const Championships = () => {
 
       {/* Warning Dialogs */}
       {renderWarningDialogs()}
+
+      {/* History Dialog */}
+      {renderHistoryDialog()}
     </Container>
   );
 };
