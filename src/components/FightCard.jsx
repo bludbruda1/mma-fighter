@@ -19,19 +19,6 @@ const FightCard = ({
   fighter2IsChamp
  }) => {
 
-  console.log("FightCard props:", {
-    fighter1: {
-      name: selectedItem1.firstname + " " + selectedItem1.lastname,
-      isChamp: fighter1IsChamp
-    },
-    fighter2: {
-      name: selectedItem2.firstname + " " + selectedItem2.lastname,
-      isChamp: fighter2IsChamp
-    },
-    championship
-  });
-
-
   // Helper function to render champion indicator
   const renderChampionBadge = () => {
     return (

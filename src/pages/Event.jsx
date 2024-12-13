@@ -262,7 +262,6 @@ const Event = () => {
             };
             
             await updateChampionship(updatedChampionship);
-            console.log(`Championship updated: New champion is ${winnerFighter.firstname} ${winnerFighter.lastname}`);
           }
         } catch (error) {
           console.error('Error updating championship:', error);
@@ -519,19 +518,6 @@ const Event = () => {
         const fighter2IsChamp = championships.some(c => 
           c.currentChampionId === fight.fighter2.personid
         );
-
-        console.log("Championship data:", {
-          championship: fight.championship,
-          fighter1: {
-            id: fight.fighter1.personid,
-            isChamp: fighter1IsChamp
-          },
-          fighter2: {
-            id: fight.fighter2.personid,
-            isChamp: fighter2IsChamp
-          },
-          championships: championships
-        });
 
         return (
           <Grid container spacing={3} key={index} style={{ marginBottom: "40px" }}>
