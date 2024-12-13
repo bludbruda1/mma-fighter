@@ -159,38 +159,47 @@ const Championships = () => {
           <List>
             {championshipHistory.map((fight, index) => {
               const result = formatFightResult(fight);
+              const winnerFighter = fight.result.winner === 0 ? fight.fighter1 : fight.fighter2;
+              const loserFighter = fight.result.winner === 0 ? fight.fighter2 : fight.fighter1;
+  
               return (
                 <React.Fragment key={fight.id}>
                   <ListItem>
                     <ListItemText
                       primary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body1">
-                            <Link
-                              to={`/dashboard/${fight.result.winner === 0 ? fight.fighter1.personid : fight.fighter2.personid}`}
-                              style={{
-                                textDecoration: 'none',
-                                color: '#1976d2',
-                                '&:hover': {
-                                  textDecoration: 'underline'
-                                }
-                              }}
-                            >
-                              {result.winner}
-                            </Link>
+                          <Typography variant="body1" component="span">
+                            {winnerFighter.personid ? (
+                              <Link
+                                to={`/dashboard/${winnerFighter.personid}`}
+                                style={{
+                                  textDecoration: "none",
+                                  color: "#1976d2",
+                                }}
+                              >
+                                {result.winner}
+                              </Link>
+                            ) : (
+                              <Typography component="span">
+                                {result.winner}
+                              </Typography>
+                            )}
                             {' def. '}
-                            <Link
-                              to={`/dashboard/${fight.result.winner === 0 ? fight.fighter2.personid : fight.fighter1.personid}`}
-                              style={{
-                                textDecoration: 'none',
-                                color: '#1976d2',
-                                '&:hover': {
-                                  textDecoration: 'underline'
-                                }
-                              }}
-                            >
-                              {result.loser}
-                            </Link>
+                            {loserFighter.personid ? (
+                              <Link
+                                to={`/dashboard/${loserFighter.personid}`}
+                                style={{
+                                  textDecoration: "none",
+                                  color: "#1976d2",
+                                }}
+                              >
+                                {result.loser}
+                              </Link>
+                            ) : (
+                              <Typography component="span">
+                                {result.loser}
+                              </Typography>
+                            )}
                           </Typography>
                           <Chip 
                             size="small" 
