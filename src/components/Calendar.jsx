@@ -20,7 +20,13 @@ const Calendar = () => {
   }, []);
 
   const getEventsForDate = (date) => {
-    const formattedDate = date.toISOString().split("T")[0];
+    // Create a date string in YYYY-MM-DD format without timezone conversion
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+  
+    // Filter events for this date
     return events.filter((event) => event.date === formattedDate);
   };
 
@@ -43,25 +49,32 @@ const Calendar = () => {
       currentDate.getMonth() + 1,
       0
     ).getDate();
+    
     const firstDayOfMonth = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
       1
     ).getDay();
+  
     const calendarDays = [];
-
+  
+    // Add empty days for the start of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       calendarDays.push(
         <div key={`prev-${i}`} className="calendar-day empty" />
       );
     }
-
+  
+    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
+      // Create date object for this day without time component
       const date = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
         day
       );
+      date.setHours(0, 0, 0, 0); // Reset time component
+  
       const eventsForDate = getEventsForDate(date);
       calendarDays.push(
         <div key={day} className="calendar-day">

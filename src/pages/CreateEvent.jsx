@@ -119,10 +119,8 @@ const CreateEvent = () => {
 
   // Helper function for date changes
   const handleDateChange = (e) => {
-    const selectedDate = new Date(e.target.value);
-    selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
-    const formattedDate = selectedDate.toISOString().split('T')[0];
-    setSelectedDate(formattedDate);
+    const dateString = e.target.value;
+    setSelectedDate(dateString);
   }; 
 
   // Helper function to check if a fighter is a champion
