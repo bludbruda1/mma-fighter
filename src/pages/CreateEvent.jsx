@@ -42,11 +42,9 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [eventDate, setEventDate] = useState(() => {
-    const today = new Date();
-    today.setMinutes(today.getMinutes() + today.getTimezoneOffset());
-    return today.toISOString().split('T')[0];
-  });
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
@@ -124,7 +122,7 @@ const CreateEvent = () => {
     const selectedDate = new Date(e.target.value);
     selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
     const formattedDate = selectedDate.toISOString().split('T')[0];
-    setEventDate(formattedDate);
+    setSelectedDate(formattedDate);
   }; 
 
   // Helper function to check if a fighter is a champion
@@ -260,7 +258,7 @@ const getChampionship = (fighterId) => {
       const eventData = {
         id: nextEventId,
         name: eventName,
-        date: eventDate,
+        date: selectedDate,
         fights: fightIds
       };
 
@@ -388,7 +386,7 @@ const getChampionship = (fighterId) => {
           <TextField
             label="Event Date"
             type="date"
-            value={eventDate}
+            value={selectedDate}
             onChange={handleDateChange}
             required
             InputLabelProps={{
