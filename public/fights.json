@@ -1,6 +1,11 @@
 [
     {
       "id": 1,
+      "championship": {
+        "currentChampionId": 3,
+        "id": 1,
+        "name": "Lightweight Championship"
+      },
       "fighter1": {
         "personid": 3,
         "firstname": "Islam",
