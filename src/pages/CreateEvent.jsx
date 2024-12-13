@@ -42,6 +42,11 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [eventDate, setEventDate] = useState(() => {
+    const today = new Date();
+    today.setMinutes(today.getMinutes() + today.getTimezoneOffset());
+    return today.toISOString().split('T')[0];
+  });
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
@@ -113,6 +118,14 @@ const CreateEvent = () => {
 
     return { available: true };
   };
+
+  // Helper function for date changes
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value);
+    selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
+    const formattedDate = selectedDate.toISOString().split('T')[0];
+    setEventDate(formattedDate);
+  }; 
 
   // Helper function to check if a fighter is a champion
 const getChampionship = (fighterId) => {
@@ -247,7 +260,7 @@ const getChampionship = (fighterId) => {
       const eventData = {
         id: nextEventId,
         name: eventName,
-        date: new Date().toISOString().split('T')[0],
+        date: eventDate,
         fights: fightIds
       };
 
@@ -367,6 +380,20 @@ const getChampionship = (fighterId) => {
             onChange={(e) => setEventName(e.target.value)}
             required
             placeholder="e.g., UFC 285"
+          />
+        </FormControl>
+
+        {/* Event Date Input */}
+        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+          <TextField
+            label="Event Date"
+            type="date"
+            value={eventDate}
+            onChange={handleDateChange}
+            required
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
         </FormControl>
 
