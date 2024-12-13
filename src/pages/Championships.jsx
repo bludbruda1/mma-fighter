@@ -166,7 +166,31 @@ const Championships = () => {
                       primary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography variant="body1">
-                            {result.winner} def. {result.loser}
+                            <Link
+                              to={`/dashboard/${fight.result.winner === 0 ? fight.fighter1.personid : fight.fighter2.personid}`}
+                              style={{
+                                textDecoration: 'none',
+                                color: '#1976d2',
+                                '&:hover': {
+                                  textDecoration: 'underline'
+                                }
+                              }}
+                            >
+                              {result.winner}
+                            </Link>
+                            {' def. '}
+                            <Link
+                              to={`/dashboard/${fight.result.winner === 0 ? fight.fighter2.personid : fight.fighter1.personid}`}
+                              style={{
+                                textDecoration: 'none',
+                                color: '#1976d2',
+                                '&:hover': {
+                                  textDecoration: 'underline'
+                                }
+                              }}
+                            >
+                              {result.loser}
+                            </Link>
                           </Typography>
                           <Chip 
                             size="small" 
