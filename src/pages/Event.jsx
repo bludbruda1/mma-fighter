@@ -502,6 +502,7 @@ const Event = () => {
                 selectedItem1={fight.fighter1}
                 selectedItem2={fight.fighter2}
                 winnerIndex={shouldShowWinner ? winnerIndex : undefined}
+                championship={fight.championship}
               />
               <Grid
                 container

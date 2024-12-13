@@ -7,15 +7,69 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Icon,
 } from "@mui/material";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
-const FightCard = ({ selectedItem1, selectedItem2, winnerIndex }) => {
+const FightCard = ({ selectedItem1, selectedItem2, winnerIndex, championship }) => {
+  // Helper function to render champion indicator
+  const renderChampionBadge = (isChampion) => {
+    if (!isChampion) return null;
+    
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center',
+        gap: 1,
+        mb: 1,
+      }}>
+        <EmojiEventsIcon sx={{ color: 'gold' }} />
+        <Typography 
+          variant="subtitle2" 
+          sx={{ 
+            color: 'gold',
+            fontWeight: 'bold'
+          }}
+        >
+          Champion
+        </Typography>
+      </Box>
+    );
+  };
+
   return (
     <Card
       elevation={3}
-      sx={{ padding: "20px", maxWidth: 800, margin: "auto", marginTop: "20px" }}
+      sx={{ 
+        padding: "20px", 
+        maxWidth: 800, 
+        margin: "auto", 
+        marginTop: "20px",
+        position: 'relative' 
+      }}
     >
-      <CardContent>
+      {/* Championship Banner - only show if it's a title fight */}
+      {championship && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'gold',
+            color: 'black',
+            padding: '8px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            borderTopLeftRadius: 'inherit',
+            borderTopRightRadius: 'inherit',
+          }}
+        >
+          {championship.name}
+        </Box>
+      )}
+
+      <CardContent sx={{ pt: championship ? 4 : 0 }}>
         <Grid container alignItems="center" justifyContent="space-between">
           {/* Left Fighter Details */}
           <Grid
@@ -28,6 +82,9 @@ const FightCard = ({ selectedItem1, selectedItem2, winnerIndex }) => {
               alignItems: "center",
             }}
           >
+            {/* Champion Badge */}
+            {renderChampionBadge(championship && championship.currentChampionId === selectedItem1.personid)}
+            
             <Typography
               variant="h5"
               align="center"
@@ -96,6 +153,9 @@ const FightCard = ({ selectedItem1, selectedItem2, winnerIndex }) => {
               alignItems: "center",
             }}
           >
+            {/* Champion Badge */}
+            {renderChampionBadge(championship && championship.currentChampionId === selectedItem2.personid)}
+            
             <Typography
               variant="h5"
               align="center"
