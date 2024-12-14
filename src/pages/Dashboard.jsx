@@ -17,7 +17,8 @@ import {
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import { getAllFighters, getAllFights } from "../utils/indexedDB";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import { getAllFighters, getAllFights, getAllChampionships } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 
 const Dashboard = () => {
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [allFighterIds, setAllFighterIds] = useState([]);
   const [fights, setFights] = useState([]);
+  const [championships, setChampionships] = useState([]);
 
   // Helper function to sort fights
   const sortFights = (fights) => {
@@ -65,18 +67,23 @@ const Dashboard = () => {
     fetchAllFighterIds();
   }, []);
 
-  // Effect to fetch fighter data and fights
+  // Effect to fetch fighter, fights and championships data
   useEffect(() => {
-    const fetchFighterData = async () => {
+    const fetchData = async () => {
       try {
         // Get the fighter data
-        const fighters = await getAllFighters();
+        const [fighters, fetchedChampionships] = await Promise.all([
+          getAllFighters(),
+          getAllChampionships()
+        ]);
+        
         const selectedFighter = fighters.find(
           (f) => f.personid === parseInt(id)
         );
         
         if (selectedFighter) {
           setFighter(selectedFighter);
+          setChampionships(fetchedChampionships);
           
           // Get all fights
           const allFights = await getAllFights();
@@ -96,7 +103,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchFighterData();
+    fetchData();
   }, [id]);
 
   // Function to navigate between fighters
@@ -405,6 +412,80 @@ const Dashboard = () => {
               </Box>
             </CardContent>
           </Card>
+
+          {/* Accolades Section */}
+          {championships.filter(c => c.currentChampionId === fighter.personid).length > 0 && (
+            <Card elevation={3} sx={{ mt: 3 }}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom>
+                  Current Titles
+                </Typography>
+                <Grid container spacing={2}>
+                  {championships
+                    .filter(c => c.currentChampionId === fighter.personid)
+                    .map(championship => (
+                      <Grid item xs={12} key={championship.id}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            padding: 2,
+                            borderRadius: 1,
+                            backgroundColor: 'rgba(255, 215, 0, 0.05)',
+                            border: '1px solid rgba(255, 215, 0, 0.2)',
+                            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                              backgroundColor: 'rgba(255, 215, 0, 0.08)'
+                            }
+                          }}
+                        >
+                          <EmojiEventsIcon 
+                            sx={{ 
+                              color: 'gold', 
+                              fontSize: '2.5rem',
+                              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                            }} 
+                          />
+                          <Box>
+                            <Typography 
+                              variant="h6" 
+                              sx={{ 
+                                color: 'text.primary',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {championship.name}
+                            </Typography>
+                            {championship.description && (
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{ mt: 0.5 }}
+                              >
+                                {championship.description}
+                              </Typography>
+                            )}
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                mt: 1,
+                                color: 'text.secondary',
+                                fontSize: '0.875rem'
+                              }}
+                            >
+                              Weight Class: {championship.weightClass}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    ))}
+                </Grid>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Fight History */}
           {renderFightHistory()}
