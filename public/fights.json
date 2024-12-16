@@ -1,6 +1,11 @@
 [
     {
       "id": 1,
+      "championship": {
+        "currentChampionId": 5,
+        "id": 1,
+        "name": "Lightweight Championship"
+      },
       "fighter1": {
         "personid": 3,
         "firstname": "Islam",
@@ -11,7 +16,14 @@
         "firstname": "Charles",
         "lastname": "Oliveira"
       },
-      "result": null,
+      "weightClass": "Lightweight",
+      "date": "2022-10-22",
+      "result": {
+        "winner": 0,
+        "method": "Submission",
+        "roundEnded": 2,
+        "timeEnded": "3:16"
+      },
       "stats": null  
     },
     {
@@ -102,5 +114,86 @@
         "timeEnded": "0:40"
       },
       "stats": null
+    },
+    {
+      "id": 7,
+      "championship": {
+        "currentChampionId": 3,
+        "id": 1,
+        "name": "Lightweight Championship"
+      },
+      "fighter1": {
+        "personid": 3,
+        "firstname": "Islam",
+        "lastname": "Makhachev"
+      },
+      "fighter2": {
+        "personid": null,
+        "firstname": "Alexander",
+        "lastname": "Volkanovski"
+      },
+      "weightClass": "Lightweight",
+      "date": "2023-02-12",
+      "result": {
+        "winner": 0,
+        "method": "Decision",
+        "roundEnded": 5,
+        "timeEnded": "5:00"
+      },
+      "stats": null  
+    },
+    {
+      "id": 8,
+      "championship": {
+        "currentChampionId": 3,
+        "id": 1,
+        "name": "Lightweight Championship"
+      },
+      "fighter1": {
+        "personid": 3,
+        "firstname": "Islam",
+        "lastname": "Makhachev"
+      },
+      "fighter2": {
+        "personid": null,
+        "firstname": "Alexander",
+        "lastname": "Volkanovski"
+      },
+      "weightClass": "Lightweight",
+      "date": "2023-10-21",
+      "result": {
+        "winner": 0,
+        "method": "Knockout",
+        "roundEnded": 1,
+        "timeEnded": "3:06"
+      },
+      "stats": null  
+    },
+    {
+      "id": 9,
+      "championship": {
+        "currentChampionId": 3,
+        "id": 1,
+        "name": "Lightweight Championship"
+      },
+      "fighter1": {
+        "personid": 3,
+        "firstname": "Islam",
+        "lastname": "Makhachev"
+      },
+      "fighter2": {
+        "personid": 2,
+        "firstname": "Dustin",
+        "lastname": "Poirier"
+      },
+      "weightClass": "Lightweight",
+      "date": "2024-06-01",
+      "result": {
+        "winner": 0,
+        "method": "Submission",
+        "roundEnded": 5,
+        "timeEnded": "2:42"
+      },
+      "stats": null  
     }
   ]
