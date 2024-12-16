@@ -12,7 +12,8 @@ function initDB() {
         Promise.all([
           checkAndStoreFighters(db),
           checkAndStoreEvents(db),
-          checkAndStoreFights(db)
+          checkAndStoreFights(db),
+          checkAndStoreChampionships(db)
         ]).then(() => resolve(db));
       })
       .catch((error) => {
@@ -94,6 +95,29 @@ function checkAndStoreFights(db) {
   });
 }
 
+// Function to check if there is already existing championship data for the save game, do not overwrite it using the fights.json file
+function checkAndStoreChampionships(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("championships", "readonly");
+    const store = transaction.objectStore("championships");
+    const countRequest = store.count();
+
+    countRequest.onsuccess = () => {
+      if (countRequest.result === 0) {
+        storeChampionshipsInDB(db).then(() => resolve());
+      } else {
+        console.log("Championship data already exists in IndexedDB, skipping initialization.");
+        resolve();
+      }
+    };
+
+    countRequest.onerror = (error) => {
+      console.error("Error checking championships count", error);
+      reject(error);
+    };
+  });
+}
+
 // Grabs the fighter info from the fighters.json file and stores it in our DB
 function storeFightersInDB(db) {
   return fetch("/fighters.json")
@@ -161,6 +185,29 @@ function storeFightsInDB(db) {
       });
     })
     .catch((error) => console.error("Failed to fetch fights", error));
+}
+
+// Grabs the champs info from the championships.json file and stores it in our DB
+function storeChampionshipsInDB(db) {
+  return fetch("/championships.json")
+    .then((response) => response.json())
+    .then((championships) => {
+      const transaction = db.transaction(["championships"], "readwrite");
+      const store = transaction.objectStore("championships");
+
+      championships.forEach((championship) => {
+        store.put(championship);
+      });
+
+      return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => {
+          console.log("All championships stored in IndexedDB");
+          resolve();
+        };
+        transaction.onerror = () => reject("Error storing championships");
+      });
+    })
+    .catch((error) => console.error("Failed to fetch championships", error));
 }
 
 export default initDB;

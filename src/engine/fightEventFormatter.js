@@ -13,7 +13,7 @@ const formatFightEvent = (event) => {
         return `${event.text}`; // Format introduction events with PRE-FIGHT tag
 
       case "fightStart":
-        return null; // Return null to skip displaying the initial fight start message
+        return event.message; 
       
       case "roundStart":
         return `Round ${event.round} begins!`;
@@ -178,25 +178,39 @@ const formatFightIntroduction = (fighter1, fighter2) => {
     ];
   };  
   
-  /**
-   * Format a submission event into readable text
-   * @param {Object} event - The submission event to format
-   * @returns {string} Formatted text description
-   */
-  const formatSubmissionEvent = (event) => {
-    switch (event.stage) {
-      case "attempt":
-        return `${event.attackerName} attempts a ${event.submissionType}`;
-      case "progress":
-        return `${event.attackerName} working on the ${event.submissionType}`;
-      case "success":
-        return `${event.attackerName} submits ${event.defenderName} with a ${event.submissionType}!`;
-      case "escape":
-        return `${event.defenderName} escapes the ${event.submissionType}`;
-      default:
-        return `${event.attackerName} looking for a ${event.submissionType}`;
-    }
-  };
+/**
+ * Format a submission event into readable text
+ * @param {Object} event - The submission event to format
+ * @returns {string} Formatted text description
+ */
+const formatSubmissionEvent = (event) => {
+  switch (event.stage) {
+    case "attempt":
+      return `${event.attackerName} attempts a ${event.submissionType}`;
+    case "engageArm":
+      return `${event.attackerName} looking to secure arm position for the ${event.submissionType}`;
+    case "lockChoke":
+      return `${event.attackerName} attempting to lock in the ${event.submissionType}`;
+    case "applyChoke":
+      return `${event.attackerName} applying pressure with the ${event.submissionType}`;
+    case "trapHead":
+      return `${event.attackerName} looking to trap the head for the ${event.submissionType}`;
+    case "closeGuard":
+      return `${event.attackerName} trying to close guard and secure the ${event.submissionType}`;
+    case "lockTriangle":
+      return `${event.attackerName} attempting to lock up the ${event.submissionType}`;
+    case "isolateArm":
+      return `${event.attackerName} working to isolate the arm for the ${event.submissionType}`;
+    case "applyPressure":
+      return `${event.attackerName} applying pressure with the ${event.submissionType}`;
+    case "success":
+      return `${event.attackerName} submits ${event.defenderName} with a ${event.submissionType}!`;
+    case "escape":
+      return `${event.defenderName} escapes the ${event.submissionType}`;
+    default:
+      return `${event.attackerName} looking for a ${event.submissionType}`;
+  }
+};
   
   
 /**

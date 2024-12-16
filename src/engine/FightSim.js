@@ -10,6 +10,7 @@ import {
   calculateProbabilities,
   calculateProbability,
   calculateTDProbability,
+  calculateClinchProbability,
   determineStandingAction,
   determineClinchAction,
   determineGroundAction,
@@ -86,9 +87,11 @@ const pickFighter = (fighters, lastActionFighter) => {
  * Simulate the start of the fight
  * @param {Object} fighter - The fighter initiating the fight start
  * @param {Object} opponent - The opponent fighter
+ * @param {number} currentTime - Current fight time
+ * @param {Object} logger - Fight event logger
  * @returns {[string, number]} Outcome of the action and time passed
  */
-const doFightStart = (fighter, opponent) => {
+const doFightStart = (fighter, opponent, currentTime, logger) => {
   const events = [
     `${fighter.name} and ${opponent.name} touch gloves`,
     `${fighter.name} refuses glove touch`,
@@ -101,6 +104,9 @@ const doFightStart = (fighter, opponent) => {
 
   const event = events[Math.floor(Math.random() * events.length)];
   console.log(event);
+
+  // Log the fight start event
+  logger.logFightStartAction(fighter, opponent, event, currentTime);
 
   const timePassed = simulateTimePassing("fightStart");
 
@@ -606,12 +612,11 @@ const doGroundStrike = (attacker, defender, strikeType, currentTime, logger) => 
  */
 const doClinch = (attacker, defender, currentTime, logger) => {
   console.log(`${attacker.name} attempts to clinch ${defender.name}`);
-  const clinchChance = calculateProbability(
-    attacker.Rating.clinchGrappling,
-    defender.Rating.clinchGrappling
-  );
+  const { success, failure } = calculateClinchProbability(attacker, defender);
 
-  if (Math.random() < clinchChance) {
+  const random = Math.random();
+
+  if (random < success) {
     // Set attacker's states
     attacker.position = FIGHTER_POSITIONS.CLINCH_OFFENCE;
     defender.position = FIGHTER_POSITIONS.CLINCH_DEFENCE;
@@ -623,7 +628,7 @@ const doClinch = (attacker, defender, currentTime, logger) => {
       `${attacker.name} successfully gets ${defender.name} in a clinch against the cage`
     );
     return "clinchSuccessful";
-  } else {
+  } else if (random < success + failure) {
     console.log(`${defender.name} defends the clinch attempt`);
     logger.logClinch(attacker, defender, "defended", currentTime);
     updateFightStats(attacker, defender, "clinch", "clinch", "defended");
@@ -642,10 +647,7 @@ const exitClinch = (defender, attacker, currentTime, logger) => {
 
   attacker.stats.clinchExits = (attacker.stats.clinchExits || 0) + 1;
 
-  const exitChance = calculateProbability(
-    defender.Rating.clinchControl,
-    attacker.Rating.clinchGrappling
-  );
+  const exitChance = 0.85; // Needs to rework, I want it similar to the doClinch
 
   if (Math.random() < exitChance) {
     // Successfully exit the clinch
@@ -738,7 +740,7 @@ const doClinchTakedown = (attacker, defender, currentTime, logger) => {
   );
 
   const takedownChance = calculateProbability(
-    attacker.Rating.clinchGrappling,
+    attacker.Rating.clinchTakedown,
     defender.Rating.clinchControl
   );
 
@@ -1364,7 +1366,7 @@ const simulateAction = (fighters, actionFighter, currentTime, logger) => {
 
   switch (actionType) {
     case "fightStart":
-      [outcome, timePassed] = doFightStart(fighter, opponentFighter);
+      [outcome, timePassed] = doFightStart(fighter, opponentFighter, currentTime, logger);
       break;
 
     // Standing strikes and kicks
@@ -1474,10 +1476,19 @@ const simulateAction = (fighters, actionFighter, currentTime, logger) => {
       break;
   }
   // Log fighter state after action if significant changes occurred
-  if (outcome?.includes('Landed') || outcome?.includes('Successful')) {
-    logger.logFighterState(fighter, currentTime - timePassed);
-    logger.logFighterState(opponentFighter, currentTime - timePassed);
-  }
+// Only log fighter states when positions change or for significant events
+if (outcome?.includes('Successful') && 
+    (actionType.includes('Takedown') || 
+     actionType.includes('sweep') || 
+     actionType.includes('escape') || 
+     actionType.includes('getUpAttempt') ||
+     actionType.includes('positionAdvance') ||
+     actionType.includes('postureUp') ||
+     actionType.includes('pullIntoGuard') ||
+     actionType.includes('clinch'))) {
+  logger.logFighterState(fighter, currentTime - timePassed);
+  logger.logFighterState(opponentFighter, currentTime - timePassed);
+}
 
   // Check for knockout or submission
   let roundWinner = null;

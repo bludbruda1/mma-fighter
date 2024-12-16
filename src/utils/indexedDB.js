@@ -1,15 +1,14 @@
-// src/utils/indexedDB.js
-
 // Declaring our DB and store names
 const dbName = "FightersDB";
 const fighterStoreName = "fighters";
 const eventStoreName = "events";
 const fightsStoreName = "fights";
+const championshipStoreName = 'championships';
 
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = () => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 2); // Increment version to trigger upgrade if needed
+    const request = indexedDB.open(dbName, 3); // Increment version to trigger upgrade if needed
 
     request.onerror = () => {
       console.error("Error opening database");
@@ -41,6 +40,12 @@ export const openDB = () => {
       if (!db.objectStoreNames.contains(fightsStoreName)) {
         console.log(`Creating object store: ${fightsStoreName}`);
         db.createObjectStore(fightsStoreName, { keyPath: "id" });
+      }
+
+      // Create the "championships" store if it doesn't exist
+      if (!db.objectStoreNames.contains(championshipStoreName)) {
+        console.log(`Creating object store: ${championshipStoreName}`);
+        db.createObjectStore(championshipStoreName, { keyPath: "id" });
       }
     };
   });
@@ -393,4 +398,91 @@ export const updateFightResults = async (fightId, results) => {
     console.error('Database error while updating fight results:', error);
     return Promise.reject(error);
   }
+};
+
+
+// Function to add a new championship
+export const addChampionship = async (championship) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(championshipStoreName, "readwrite");
+    const store = transaction.objectStore(championshipStoreName);
+    const request = store.add(championship);
+
+    request.onsuccess = () => resolve(championship);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Function to get all championships
+export const getAllChampionships = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(championshipStoreName, "readonly");
+    const store = transaction.objectStore(championshipStoreName);
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Function to update a championship
+export const updateChampionship = async (championship) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(championshipStoreName, "readwrite");
+    const store = transaction.objectStore(championshipStoreName);
+    const request = store.put(championship);
+
+    request.onsuccess = () => resolve(championship);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Function to get the next championship ID
+export const getNextChampionshipId = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(championshipStoreName, "readonly");
+    const store = transaction.objectStore(championshipStoreName);
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      const championships = request.result;
+      const maxId = championships.reduce((max, current) => {
+        const idNumber = parseInt(current.id, 10);
+        return Math.max(max, idNumber);
+      }, 0);
+      resolve(maxId + 1);
+    };
+
+    request.onerror = () => reject("Error fetching championships");
+  });
+};
+
+// Function to delete a championship
+export const deleteChampionship = async (id) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(championshipStoreName, "readwrite");
+    const store = transaction.objectStore(championshipStoreName);
+    const request = store.delete(id);
+
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Function to get a championship by ID
+export const getChampionshipById = async (id) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(championshipStoreName, "readonly");
+    const store = transaction.objectStore(championshipStoreName);
+    const request = store.get(id);
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
 };

@@ -17,6 +17,7 @@ import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 // HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
@@ -48,7 +49,7 @@ const HamburgerMenu = () => {
           </IconButton>
           <SportsMmaIcon sx={{ mr: 2 }} />
           <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
-            <Typography variant="h6">MMA Fighter</Typography>
+            <Typography variant="h6">Planet Fighter</Typography>
           </Link>
         </Toolbar>
       </AppBar>
@@ -114,6 +115,28 @@ const HamburgerMenu = () => {
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Events" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/calendar"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Calendar" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/championships"
+            onClick={handleDrawerToggle}
+            >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <EmojiEventsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Champions" sx={{ color: '#fff'}} />
           </ListItem>
         </List>
       </Drawer>

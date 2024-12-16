@@ -97,6 +97,46 @@ const calculateTDProbability = (attacker, defender) => {
   return { landsChance, defendedChance, sprawlChance };
 };
 
+const calculateClinchProbability = (attacker, defender) => {
+  const offensiveSkill = attacker.Rating.clinchControl;
+  const defensiveSkill = defender.Rating.clinchControl;
+  const difference = offensiveSkill - defensiveSkill;
+
+  // Base probabilities
+  let success, failure;
+
+  if (difference >= 15) {
+    success = 0.60;
+    failure = 0.40;
+  } else if (difference >= 10) {
+    success = 0.50;
+    failure = 0.50;
+  } else if (difference >= 5) {
+    success = 0.40;
+    failure = 0.60;
+  } else if (difference >= 1) {
+    success = 0.33;
+    failure = 0.67;
+  } else if (difference === 0) {
+    success = 0.25;
+    failure = 0.75;
+  } else if (difference >= -4) {
+    success = 0.20;
+    failure = 0.80;
+  } else if (difference >= -9) {
+    success = 0.125;
+    failure = 0.875;
+  } else if (difference >= -14) {
+    success = 0.075;
+    failure = 0.25;
+  } else {
+    success = 0.02;
+    failure = 0.98;
+  }
+
+  return { success, failure };
+};
+
 /**
  * Calculate probability of a successful submssion
  * @param {Object} attacker - Attacking fighter
@@ -469,8 +509,8 @@ const determineClinchAction = (attacker) => {
 
   // Calculate base chances
   let total = style.clinch.strikeChance + style.clinch.takedownChance + style.clinch.exitChance;
-  let strikeChance = Math.MAX( 0,( style.clinch.strikeChance / total ) + (clinchStrikingVsClinchTakedown / 50))
-  let takedownChance = Math.MAX( 0,( style.clinch.takedownChance / total ) + (clinchStrikingVsClinchTakedown / 50));
+  let strikeChance = Math.max( 0,( style.clinch.strikeChance / total ) + (clinchStrikingVsClinchTakedown / 50))
+  let takedownChance = Math.max( 0,( style.clinch.takedownChance / total ) + (clinchStrikingVsClinchTakedown / 50));
   let exitChance = style.clinch.exitChance / total;
 
   // Normalize probabilities
@@ -752,6 +792,7 @@ export {
   calculateProbabilities,
   calculateProbability,
   calculateTDProbability,
+  calculateClinchProbability,
   calculateSubmissionProbability,
   calculateStaminaImpact,
   determineStandingAction,
