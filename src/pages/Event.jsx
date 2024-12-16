@@ -254,14 +254,41 @@ const Event = () => {
           // Get current championship data
           const championship = await getChampionshipById(fight.championship.id);
           
-          // Update championship with new champion
-          if (championship && championship.currentChampionId === loserFighter.personid) {
-            const updatedChampionship = {
-              ...championship,
-              currentChampionId: winnerFighter.personid
-            };
-            
-            await updateChampionship(updatedChampionship);
+          if (championship) {
+            let updatedChampionship;
+  
+            // Handle both vacant and active title scenarios
+            if (!championship.currentChampionId) {
+              // Vacant title scenario - winner becomes new champion
+              updatedChampionship = {
+                ...championship,
+                currentChampionId: winnerFighter.personid
+              };
+              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} wins the vacant ${championship.name}`);
+            } else if (championship.currentChampionId === loserFighter.personid) {
+              // Champion lost - update to new champion
+              updatedChampionship = {
+                ...championship,
+                currentChampionId: winnerFighter.personid
+              };
+              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} is the new ${championship.name} champion`);
+            } else if (championship.currentChampionId === winnerFighter.personid) {
+              // Champion retained - no update needed
+              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} retains the ${championship.name}`);
+              return;
+            }
+  
+            // Update championship if there were changes
+            if (updatedChampionship) {
+              await updateChampionship(updatedChampionship);
+              
+              // Update local championships state
+              setChampionships(prevChampionships => 
+                prevChampionships.map(c => 
+                  c.id === updatedChampionship.id ? updatedChampionship : c
+                )
+              );
+            }
           }
         } catch (error) {
           console.error('Error updating championship:', error);

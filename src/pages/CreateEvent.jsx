@@ -24,7 +24,6 @@ import {
   getNextEventId,
   getNextFightId,
   addFightToDB,
-  getAllEvents,
   getAllFights,
   getAllChampionships,
 } from "../utils/indexedDB";
@@ -55,7 +54,9 @@ const CreateEvent = () => {
 
   // Championship tracking
   const [championships, setChampionships] = useState([]);
+  const [vacantChampionships, setVacantChampionships] = useState([]);
   const [fightsWithChampionship, setFightsWithChampionship] = useState({});
+  const [fightsWithVacantTitle, setFightsWithVacantTitle] = useState({});
 
   // Initialize number of fights when it changes
   useEffect(() => {
@@ -84,6 +85,10 @@ const CreateEvent = () => {
             if (fight.fighter2?.personid) bookedFighterIds.add(fight.fighter2.personid);
           }
         });
+
+        // Identify vacant championships
+        const vacant = fetchedChampionships.filter(c => !c.currentChampionId);
+        setVacantChampionships(vacant);
 
         setFighters(fetchedFighters);
         setBookedFighters(bookedFighterIds);
@@ -188,15 +193,51 @@ const getChampionship = (fighterId) => {
   };
 
   // Handle championship toggle for a fight
-  const handleChampionshipToggle = (fightIndex, checked) => {
+  const handleChampionshipToggle = (fightIndex, checked, championshipId = null) => {
     const fight = fights[fightIndex];
-    const championship = getChampionship(fight.fighter1?.personid) || 
-                        getChampionship(fight.fighter2?.personid);
     
-    setFightsWithChampionship(prev => ({
-      ...prev,
-      [fightIndex]: checked ? championship : null
-    }));
+    // Handle active champion's title
+    const championTitle = getChampionship(fight.fighter1?.personid) || 
+                         getChampionship(fight.fighter2?.personid);
+    
+    if (championTitle) {
+      setFightsWithChampionship(prev => ({
+        ...prev,
+        [fightIndex]: checked ? championTitle : null
+      }));
+      // Clear any vacant title selection if champion's title is selected
+      if (checked) {
+        setFightsWithVacantTitle(prev => {
+          const updated = { ...prev };
+          delete updated[fightIndex];
+          return updated;
+        });
+      }
+    } else if (championshipId) {
+      // Handle vacant title selection
+      const vacantTitle = vacantChampionships.find(c => c.id === championshipId);
+      if (vacantTitle) {
+        setFightsWithVacantTitle(prev => ({
+          ...prev,
+          [fightIndex]: checked ? vacantTitle : null
+        }));
+        // Clear any champion's title if vacant title is selected
+        setFightsWithChampionship(prev => {
+          const updated = { ...prev };
+          delete updated[fightIndex];
+          return updated;
+        });
+      }
+    }
+  };
+
+  // Helper function to check if fighters are eligible for a vacant title
+  const canCompeteForVacantTitle = (fight, championship) => {
+    if (!fight.fighter1 || !fight.fighter2) return false;
+    
+    // Check if both fighters are in the correct weight class
+    return fight.fighter1.weightClass === championship.weightClass &&
+            fight.fighter2.weightClass === championship.weightClass;
   };
 
   // Save the entire event including all fights
@@ -239,11 +280,15 @@ const getChampionship = (fighterId) => {
           },
           result: null,
           stats: null,
-          // Include championship information if applicable
+          // Include championship information (either active or vacant)
           championship: fightsWithChampionship[index] ? {
             id: fightsWithChampionship[index].id,
             name: fightsWithChampionship[index].name,
-            currentChampionId: fightsWithChampionship[index].currentChampionId 
+            currentChampionId: fightsWithChampionship[index].currentChampionId
+          } : fightsWithVacantTitle[index] ? {
+            id: fightsWithVacantTitle[index].id,
+            name: fightsWithVacantTitle[index].name,
+            currentChampionId: null // Explicitly null for vacant titles
           } : null
         };
 
@@ -282,6 +327,11 @@ const getChampionship = (fighterId) => {
     const fighter1IsChampion = fight.fighter1 && getChampionship(fight.fighter1.personid);
     const fighter2IsChampion = fight.fighter2 && getChampionship(fight.fighter2.personid);
     const championship = fighter1IsChampion || fighter2IsChampion;
+
+    // Get eligible vacant titles for this fight
+    const eligibleVacantTitles = vacantChampionships.filter(c => 
+      canCompeteForVacantTitle(fight, c)
+    );
 
     return (
       <div key={index} style={{ marginBottom: "30px" }}>
@@ -339,10 +389,11 @@ const getChampionship = (fighterId) => {
             />
           </Grid>
 
-          {/* Championship toggle when a champion is involved */}
-          {championship && (
+          {/* Championship options */}
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', mt: 2 }}>
+              {/* Active champion's title option */}
+              {championship && (
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -352,9 +403,26 @@ const getChampionship = (fighterId) => {
                   }
                   label={`Make this a ${championship.name} title fight`}
                 />
-              </Box>
-            </Grid>
-          )}
+              )}
+
+              {/* Vacant title options */}
+              {eligibleVacantTitles.length > 0 && (
+                eligibleVacantTitles.map(vacantTitle => (
+                  <FormControlLabel
+                    key={vacantTitle.id}
+                    control={
+                      <Checkbox
+                        checked={fightsWithVacantTitle[index]?.id === vacantTitle.id}
+                        onChange={(e) => handleChampionshipToggle(index, e.target.checked, vacantTitle.id)}
+                        disabled={!!fightsWithChampionship[index]}
+                      />
+                    }
+                    label={`Make this fight for the vacant ${vacantTitle.name}`}
+                  />
+                ))
+              )}
+            </Box>
+          </Grid>
         </Grid>
       </div>
     );
