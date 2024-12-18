@@ -8,6 +8,7 @@ import {
   updateFightResults,
   getChampionshipById,
   updateChampionship,
+  updateChampionshipWithHistory,
   getAllChampionships,
 } from "../utils/indexedDB";
 import {
@@ -53,6 +54,7 @@ const Event = () => {
   const [completedFights, setCompletedFights] = useState(new Set());
   const [simulatedFights, setSimulatedFights] = useState(new Set());
   const [championships, setChampionships] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -243,7 +245,7 @@ const Event = () => {
     if (result && typeof result.winnerIndex !== 'undefined') {
       const fightId = eventData.fights[index].id;
       setSimulatedFights(prev => new Set([...prev, fightId]));
-  
+    
       // Handle championship changes if this was a title fight
       const fight = eventData.fights[index];
       if (fight.championship) {
@@ -254,42 +256,28 @@ const Event = () => {
           // Get current championship data
           const championship = await getChampionshipById(fight.championship.id);
           
-          if (championship) {
-            let updatedChampionship;
+          // Create history entry for the title change
+          const historyEntry = {
+            championId: winnerFighter.personid,
+            name: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
+            startDate: eventData.date || new Date().toISOString().split('T')[0],
+            endDate: null,
+            defenses: 0,
+            wonFromId: loserFighter.personid,
+            wonFromName: `${loserFighter.firstname} ${loserFighter.lastname}`,
+            winMethod: result.fightResult.method,
+            winRound: result.fightResult.roundEnded,
+            winTime: result.fightResult.timeEnded,
+            eventId: parseInt(eventId),
+            fightId: fightId
+          };
   
-            // Handle both vacant and active title scenarios
-            if (!championship.currentChampionId) {
-              // Vacant title scenario - winner becomes new champion
-              updatedChampionship = {
-                ...championship,
-                currentChampionId: winnerFighter.personid
-              };
-              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} wins the vacant ${championship.name}`);
-            } else if (championship.currentChampionId === loserFighter.personid) {
-              // Champion lost - update to new champion
-              updatedChampionship = {
-                ...championship,
-                currentChampionId: winnerFighter.personid
-              };
-              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} is the new ${championship.name} champion`);
-            } else if (championship.currentChampionId === winnerFighter.personid) {
-              // Champion retained - no update needed
-              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} retains the ${championship.name}`);
-              return;
-            }
-  
-            // Update championship if there were changes
-            if (updatedChampionship) {
-              await updateChampionship(updatedChampionship);
-              
-              // Update local championships state
-              setChampionships(prevChampionships => 
-                prevChampionships.map(c => 
-                  c.id === updatedChampionship.id ? updatedChampionship : c
-                )
-              );
-            }
-          }
+          // Update championship with new champion and history
+          await updateChampionshipWithHistory(championship, historyEntry);
+          
+          // Refresh championships data
+          const updatedChampionships = await getAllChampionships();
+          setChampionships(updatedChampionships);
         } catch (error) {
           console.error('Error updating championship:', error);
         }

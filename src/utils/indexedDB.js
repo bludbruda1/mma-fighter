@@ -407,9 +407,13 @@ export const addChampionship = async (championship) => {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readwrite");
     const store = transaction.objectStore(championshipStoreName);
-    const request = store.add(championship);
+    const championshipWithHistory = {
+      ...championship,
+      history: []
+    };
+    const request = store.add(championshipWithHistory);
 
-    request.onsuccess = () => resolve(championship);
+    request.onsuccess = () => resolve(championshipWithHistory);
     request.onerror = () => reject(request.error);
   });
 };
@@ -433,10 +437,23 @@ export const updateChampionship = async (championship) => {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readwrite");
     const store = transaction.objectStore(championshipStoreName);
-    const request = store.put(championship);
+    
+    // First get existing championship to preserve history
+    const getRequest = store.get(championship.id);
+    
+    getRequest.onsuccess = () => {
+      const existingChampionship = getRequest.result;
+      const updatedChampionship = {
+        ...championship,
+        history: existingChampionship?.history || []
+      };
+      
+      const putRequest = store.put(updatedChampionship);
+      putRequest.onsuccess = () => resolve(updatedChampionship);
+      putRequest.onerror = () => reject(putRequest.error);
+    };
 
-    request.onsuccess = () => resolve(championship);
-    request.onerror = () => reject(request.error);
+    getRequest.onerror = () => reject(getRequest.error);
   });
 };
 
@@ -485,4 +502,32 @@ export const getChampionshipById = async (id) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+};
+
+// Function to update championship history
+export const updateChampionshipWithHistory = async (championship, historyEntry) => {
+  try {
+    const db = await openDB();
+    const updatedChampionship = {
+      ...championship,
+      currentChampionId: historyEntry.championId,
+      history: [
+        historyEntry,
+        ...(championship.history || []).map(entry => 
+          entry.championId === historyEntry.wonFromId ? 
+          { ...entry, endDate: historyEntry.startDate } : 
+          entry
+        )
+      ]
+    };
+
+    const transaction = db.transaction(championshipStoreName, "readwrite");
+    const store = transaction.objectStore(championshipStoreName);
+    await store.put(updatedChampionship);
+
+    return updatedChampionship;
+  } catch (error) {
+    console.error('Error updating championship history:', error);
+    throw error;
+  }
 };
