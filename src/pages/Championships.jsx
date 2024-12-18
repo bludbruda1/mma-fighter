@@ -29,7 +29,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import HistoryIcon from '@mui/icons-material/History'; // Add new icon for history
+import HistoryIcon from '@mui/icons-material/History';
 import {
   addChampionship,
   getAllChampionships,

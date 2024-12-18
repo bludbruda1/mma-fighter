@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import ChampionshipCard from '../components/ChampionshipCard';
 import { getAllFighters, getAllFights, getAllChampionships } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 
@@ -188,92 +188,6 @@ const Dashboard = () => {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
-
-  const ChampionshipCard = ({ championship, isCurrentChamp }) => {
-    const [showHistory, setShowHistory] = useState(false);
-    
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-          padding: 2,
-          borderRadius: 1,
-          backgroundColor: 'rgba(255, 215, 0, 0.05)',
-          border: '1px solid rgba(255, 215, 0, 0.2)',
-        }}
-      >
-        {/* Championship Title and Icon */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <EmojiEventsIcon 
-            sx={{ 
-              color: 'gold', 
-              fontSize: '2.5rem',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
-            }} 
-          />
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              {championship.name}
-            </Typography>
-            {championship.description && (
-              <Typography variant="body2" color="text.secondary">
-                {championship.description}
-              </Typography>
-            )}
-          </Box>
-        </Box>
-  
-        {/* Championship Status */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Status: {isCurrentChamp ? 'Current Champion' : 'Former Champion'}
-          </Typography>
-          <Button
-            size="small"
-            onClick={() => setShowHistory(!showHistory)}
-            sx={{ mt: 1 }}
-          >
-            {showHistory ? 'Hide History' : 'Show History'}
-          </Button>
-        </Box>
-  
-        {/* Championship History */}
-        {showHistory && (
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
-              Title History
-            </Typography>
-            <List dense>
-              {championship.history
-                .filter(entry => entry.championId === fighter.personid)
-                .map((reign, index) => (
-                  <ListItem key={index} sx={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <Typography variant="body2">
-                      {new Date(reign.startDate).toLocaleDateString()} - 
-                      {reign.endDate ? new Date(reign.endDate).toLocaleDateString() : 'Present'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Won from: {reign.wonFromName}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Method: {reign.winMethod} (R{reign.winRound} {reign.winTime})
-                    </Typography>
-                    {reign.defenses > 0 && (
-                      <Typography variant="body2" color="text.secondary">
-                        Successful defenses: {reign.defenses}
-                      </Typography>
-                    )}
-                  </ListItem>
-                ))}
-            </List>
-          </Box>
-        )}
-      </Box>
-    );
-  };
-  
 
   // Fight history section render
   const renderFightHistory = () => (
@@ -520,6 +434,8 @@ const Dashboard = () => {
                         <ChampionshipCard 
                           championship={championship}
                           isCurrentChamp={championship.currentChampionId === fighter.personid}
+                          currentFighterId={fighter.personid}
+                          showFullHistory={false}
                         />
                       </Grid>
                     ))}
