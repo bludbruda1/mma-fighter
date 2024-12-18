@@ -9,15 +9,15 @@
         {
           "championId": 3,
           "name": "Islam Makhachev",
-          "startDate": "2024-10-05",
+          "startDate": "2022-10-22",
           "endDate": null,
           "defenses": 0,
           "wonFromId": 5,
           "wonFromName": "Charles Oliveira",
-          "winMethod": "Knockout",
+          "winMethod": "Submission",
           "winRound": 2,
-          "winTime": "3:45",
-          "eventId": 1,
+          "winTime": "3:16",
+          "eventId": null,
           "fightId": 1
         },
         {
