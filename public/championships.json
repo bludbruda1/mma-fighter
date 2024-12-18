@@ -4,7 +4,37 @@
       "name": "Lightweight Championship",
       "weightClass": "Lightweight",
       "currentChampionId": 3,
-      "description": "UFC Lightweight Championship"
+      "description": "UFC Lightweight Championship",
+      "history": [
+        {
+          "championId": 3,
+          "name": "Islam Makhachev",
+          "startDate": "2024-10-05",
+          "endDate": null,
+          "defenses": 0,
+          "wonFromId": 5,
+          "wonFromName": "Charles Oliveira",
+          "winMethod": "Knockout",
+          "winRound": 2,
+          "winTime": "3:45",
+          "eventId": 1,
+          "fightId": 1
+        },
+        {
+          "championId": 5,
+          "name": "Charles Oliveira",
+          "startDate": "2023-05-15",
+          "endDate": "2024-10-05",
+          "defenses": 2,
+          "wonFromId": null,
+          "wonFromName": "Vacant",
+          "winMethod": "Submission",
+          "winRound": 3,
+          "winTime": "2:17",
+          "eventId": null,
+          "fightId": null
+        }
+      ]
     },
     {
       "id": 2,
