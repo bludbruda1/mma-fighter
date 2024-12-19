@@ -243,29 +243,50 @@ const getChampionship = (fighterId) => {
   // Save the entire event including all fights
   const handleSaveEvent = async () => {
     try {
-      // Validate event name
+      // Validate event name and other basic checks
       if (!eventName.trim()) {
         console.log("Please enter an event name.");
         return;
       }
-
+  
       setIsSaving(true);
-
+  
       // Validate all fights have both fighters selected
       const invalidFights = fights.some(
         fight => !fight.fighter1 || !fight.fighter2
       );
-
+  
       if (invalidFights) {
         console.log("Please select fighters for all fights");
         setIsSaving(false);
         return;
       }
-
+  
+      const allChampionships = await getAllChampionships();
+  
       // Create all fights sequentially and collect their IDs
       const fightIds = [];
       for (const [index, fight] of fights.entries()) {
         const nextFightId = await getNextFightId();
+        const championship = fightsWithChampionship[index];
+  
+        // Only add championship data if this fight involves a championship
+        let championshipData = null;
+        if (championship) {
+          // Find the current champion if there is one
+          const currentChampId = championship.currentChampionId;
+          const isTitleDefense = currentChampId === fight.fighter1.personid || 
+                               currentChampId === fight.fighter2.personid;
+  
+          // Add championship data if it exists
+          championshipData = {
+            id: championship.id,
+            name: championship.name,
+            // Include current champion info for result processing
+            currentChampionId: currentChampId
+          };
+        }
+  
         const fightData = {
           id: nextFightId,
           fighter1: {
@@ -280,22 +301,14 @@ const getChampionship = (fighterId) => {
           },
           result: null,
           stats: null,
-          // Include championship information (either active or vacant)
-          championship: fightsWithChampionship[index] ? {
-            id: fightsWithChampionship[index].id,
-            name: fightsWithChampionship[index].name,
-            currentChampionId: fightsWithChampionship[index].currentChampionId
-          } : fightsWithVacantTitle[index] ? {
-            id: fightsWithVacantTitle[index].id,
-            name: fightsWithVacantTitle[index].name,
-            currentChampionId: null // Explicitly null for vacant titles
-          } : null
+          championship: championshipData,
+          date: selectedDate
         };
-
+  
         await addFightToDB(fightData);
         fightIds.push(nextFightId);
       }
-
+  
       // Create the event with all fight IDs
       const nextEventId = await getNextEventId();
       const eventData = {
@@ -304,7 +317,7 @@ const getChampionship = (fighterId) => {
         date: selectedDate,
         fights: fightIds
       };
-
+  
       if (fightIds.length > 0) {
         await addEventToDB(eventData);
         console.log("Event saved successfully:", eventData);

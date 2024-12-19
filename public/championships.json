@@ -1,41 +1,68 @@
 [
-    {
-      "id": 1,
-      "name": "Lightweight Championship",
-      "weightClass": "Lightweight",
-      "currentChampionId": 3,
-      "description": "UFC Lightweight Championship",
-      "history": [
-        {
-          "championId": 3,
-          "name": "Islam Makhachev",
-          "startDate": "2022-10-22",
-          "endDate": null,
-          "defenses": 0,
-          "wonFromId": 5,
-          "wonFromName": "Charles Oliveira",
-          "winMethod": "Submission",
-          "winRound": 2,
-          "winTime": "3:16",
-          "eventId": null,
-          "fightId": 1
-        },
-        {
-          "championId": 5,
-          "name": "Charles Oliveira",
-          "startDate": "2023-05-15",
-          "endDate": "2024-10-05",
-          "defenses": 2,
-          "wonFromId": null,
-          "wonFromName": "Vacant",
-          "winMethod": "Submission",
-          "winRound": 3,
-          "winTime": "2:17",
-          "eventId": null,
-          "fightId": null
-        }
-      ]
-    },
+  {
+    "id": 1,
+    "name": "Lightweight Championship",
+    "weightClass": "Lightweight",
+    "currentChampionId": 3,
+    "description": "UFC Lightweight Championship",
+    "reigns": [
+      {
+        "championId": 3,
+        "name": "Islam Makhachev",
+        "startDate": "2022-10-22",
+        "endDate": null,
+        "wonFromId": 5,
+        "wonFromName": "Charles Oliveira",
+        "winMethod": "Submission",
+        "winRound": 2,
+        "winTime": "3:16",
+        "eventId": null,
+        "defenses": [
+          {
+            "date": "2023-02-12",
+            "opponentId": null,
+            "opponentName": "Alexander Volkanovski",
+            "method": "Decision",
+            "round": 5,
+            "time": "5:00",
+            "eventId": null
+          }
+        ]
+      },
+      {
+        "championId": 5,
+        "name": "Charles Oliveira",
+        "startDate": "2021-05-15",
+        "endDate": "2022-10-22",
+        "wonFromId": 8,
+        "wonFromName": "Michael Chandler",
+        "winMethod": "Knockout",
+        "winRound": 2,
+        "winTime": "0:19",
+        "eventId": null,
+        "defenses": [
+          {
+            "date": "2022-07-15",
+            "opponentId": 6,
+            "opponentName": "Justin Gaethje",
+            "method": "Submission",
+            "round": 2,
+            "time": "3:22",
+            "eventId": null
+          },
+          {
+            "date": "2021-12-11",
+            "opponentId": 2,
+            "opponentName": "Dustin Poirier",
+            "method": "Submission",
+            "round": 4,
+            "time": "2:17",
+            "eventId": null
+          }
+        ]
+      }
+    ]
+  },
     {
       "id": 2,
       "name": "Lightweight Interim Championship",

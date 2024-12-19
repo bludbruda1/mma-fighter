@@ -8,9 +8,12 @@ import {
   ListItem,
   IconButton,
   Tooltip,
+  Collapse,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import InfoIcon from '@mui/icons-material/Info';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 /**
  * ChampionshipCard Component
@@ -29,6 +32,7 @@ const ChampionshipCard = ({
   showFullHistory = false 
 }) => {
   const [showHistory, setShowHistory] = useState(false);
+  const [expandedReigns, setExpandedReigns] = useState({});
 
   // Format date to locale string
   const formatDate = (dateString) => {
@@ -55,10 +59,18 @@ const ChampionshipCard = ({
     return duration.join(' ');
   };
 
-  // Filter history based on showFullHistory flag
-  const filteredHistory = showFullHistory 
-    ? championship.history
-    : championship.history.filter(entry => entry.championId === currentFighterId);
+  // Filter reigns based on showFullHistory flag
+  const filteredReigns = showFullHistory 
+    ? championship.reigns
+    : championship.reigns.filter(reign => reign.championId === currentFighterId);
+
+  // Toggle defense details for a specific reign
+  const toggleDefenses = (reignId) => {
+    setExpandedReigns(prev => ({
+      ...prev,
+      [reignId]: !prev[reignId]
+    }));
+  };
 
   return (
     <Box
@@ -130,9 +142,9 @@ const ChampionshipCard = ({
             {showFullHistory ? 'Complete Title History' : 'Championship Reigns'}
           </Typography>
           <List dense>
-            {filteredHistory.map((reign, index) => (
+            {filteredReigns.map((reign, index) => (
               <ListItem 
-                key={index} 
+                key={index}
                 sx={{ 
                   flexDirection: 'column', 
                   alignItems: 'flex-start',
@@ -142,56 +154,98 @@ const ChampionshipCard = ({
                   padding: 1.5
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 0.5 }}>
-                  <Typography variant="body2" fontWeight="bold">
-                    {reign.name}
+                {/* Championship Win Details */}
+                <Box sx={{ width: '100%' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 0.5 }}>
+                    <Typography variant="body2" fontWeight="bold">
+                      {reign.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {calculateReignDuration(reign.startDate, reign.endDate)}
+                    </Typography>
+                  </Box>
+                  
+                  <Typography variant="body2">
+                    {formatDate(reign.startDate)} - {formatDate(reign.endDate)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {calculateReignDuration(reign.startDate, reign.endDate)}
-                  </Typography>
-                </Box>
-                
-                <Typography variant="body2">
-                  {formatDate(reign.startDate)} - {formatDate(reign.endDate)}
-                </Typography>
 
-                <Typography variant="body2" color="text.secondary">
-                  Won from: {' '}
-                  {reign.wonFromId ? (
-                    <Link
-                      to={`/dashboard/${reign.wonFromId}`}
-                      style={{
-                        textDecoration: 'none',
-                        color: '#1976d2'
-                      }}
-                    >
-                      {reign.wonFromName}
-                    </Link>
-                  ) : (
-                    reign.wonFromName
+                  <Typography variant="body2" color="text.secondary">
+                    Won from: {' '}
+                    {reign.wonFromId ? (
+                      <Link
+                        to={`/dashboard/${reign.wonFromId}`}
+                        style={{
+                          textDecoration: 'none',
+                          color: '#1976d2'
+                        }}
+                      >
+                        {reign.wonFromName}
+                      </Link>
+                    ) : (
+                      reign.wonFromName
+                    )}
+                  </Typography>
+
+                  <Typography variant="body2" color="text.secondary">
+                    Method: {reign.winMethod} (R{reign.winRound} {reign.winTime})
+                  </Typography>
+
+                  {/* Title Defenses Section */}
+                  {reign.defenses?.length > 0 && (
+                    <>
+                      <Button
+                        size="small"
+                        onClick={() => toggleDefenses(index)}
+                        endIcon={expandedReigns[index] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        sx={{ mt: 1, fontSize: '0.75rem' }}
+                      >
+                        {`${reign.defenses.length} Title Defense${reign.defenses.length > 1 ? 's' : ''}`}
+                      </Button>
+                      
+                      <Collapse in={expandedReigns[index]}>
+                        <Box sx={{ pl: 2, mt: 1, borderLeft: '2px solid rgba(255, 215, 0, 0.3)' }}>
+                          {reign.defenses.map((defense, defIndex) => (
+                            <Box key={defIndex} sx={{ mb: 1 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                Defense #{defIndex + 1}: vs{' '}
+                                {defense.opponentId ? (
+                                  <Link
+                                    to={`/dashboard/${defense.opponentId}`}
+                                    style={{
+                                      textDecoration: 'none',
+                                      color: '#1976d2'
+                                    }}
+                                  >
+                                    {defense.opponentName}
+                                  </Link>
+                                ) : (
+                                  defense.opponentName
+                                )}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {defense.method} (R{defense.round} {defense.time})
+                              </Typography>
+                              <Typography variant="caption" display="block" sx={{ color: 'text.secondary' }}>
+                                {formatDate(defense.date)}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Collapse>
+                    </>
                   )}
-                </Typography>
 
-                <Typography variant="body2" color="text.secondary">
-                  Method: {reign.winMethod} (R{reign.winRound} {reign.winTime})
-                </Typography>
-
-                {reign.defenses > 0 && (
-                  <Typography variant="body2" color="text.secondary">
-                    Successful defenses: {reign.defenses}
-                  </Typography>
-                )}
-
-                {reign.eventId && (
-                  <Button
-                    size="small"
-                    component={Link}
-                    to={`/event/${reign.eventId}`}
-                    sx={{ mt: 1, fontSize: '0.75rem' }}
-                  >
-                    View Event
-                  </Button>
-                )}
+                  {reign.eventId && (
+                    <Button
+                      size="small"
+                      component={Link}
+                      to={`/event/${reign.eventId}`}
+                      sx={{ mt: 1, fontSize: '0.75rem' }}
+                    >
+                      View Event
+                    </Button>
+                  )}
+                </Box>
               </ListItem>
             ))}
           </List>
