@@ -346,8 +346,19 @@ const getChampionship = (fighterId) => {
 
     return (
       <div key={index} style={{ marginBottom: "30px" }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Fight {index + 1}
+        <Typography 
+          variant="h5" 
+          align="center" 
+          gutterBottom
+          sx={{
+            fontWeight: index === 0 ? 'bold' : 'normal',
+            mb: 3
+          }}
+        >
+          {index === 0 ? "Main Event" : 
+          index === 1 && fights.length > 2 ? "Co-Main Event" : 
+          index === fights.length - 1 ? "Opening Fight" : 
+          `Fight ${fights.length - index}`}
         </Typography>
         <Grid container spacing={3} justifyContent="space-between">
           {/* Fighter 1 Selection */}
