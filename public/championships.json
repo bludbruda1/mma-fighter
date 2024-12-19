@@ -19,12 +19,12 @@
         "eventId": null,
         "defenses": [
           {
-            "date": "2024-12-19",
-            "opponentId": 4,
-            "opponentName": "Arman Tsarukyan",
-            "method": "Submission",
-            "round": 3,
-            "time": "11:32",
+            "date": "2023-02-12",
+            "opponentId": null,
+            "opponentName": "Alexander Volkanovski",
+            "method": "Decision",
+            "round": 5,
+            "time": "5:00",
             "eventId": null
           }
         ]
@@ -32,26 +32,26 @@
       {
         "championId": 5,
         "name": "Charles Oliveira",
-        "startDate": "2023-05-15",
+        "startDate": "2021-05-15",
         "endDate": "2022-10-22",
-        "wonFromId": null,
-        "wonFromName": "Vacant",
-        "winMethod": "Submission",
-        "winRound": 3,
-        "winTime": "2:17",
+        "wonFromId": 8,
+        "wonFromName": "Michael Chandler",
+        "winMethod": "Knockout",
+        "winRound": 2,
+        "winTime": "0:19",
         "eventId": null,
         "defenses": [
           {
-            "date": "2023-07-15",
+            "date": "2022-07-15",
             "opponentId": 6,
             "opponentName": "Justin Gaethje",
             "method": "Submission",
             "round": 2,
-            "time": "3:45",
+            "time": "3:22",
             "eventId": null
           },
           {
-            "date": "2023-12-10",
+            "date": "2021-12-11",
             "opponentId": 2,
             "opponentName": "Dustin Poirier",
             "method": "Submission",
