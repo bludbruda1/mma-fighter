@@ -2,40 +2,70 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
   Paper,
+  Tooltip,
   Box,
 } from "@mui/material";
-import { getAllEvents } from "../utils/indexedDB"; // Function to get all events
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import { getAllEvents, getFightsByIds } from "../utils/indexedDB";
 
 const EventsList = () => {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  // Add sorting state
+  const [orderBy, setOrderBy] = useState('date');
+  const [order, setOrder] = useState('desc'); // Default to newest first
   const navigate = useNavigate();
 
-  // Load all events from IndexedDB
+  // Load events data with fights details
   useEffect(() => {
     const loadEvents = async () => {
       try {
         const eventsData = await getAllEvents();
-        console.log("Fetched events:", eventsData); // Debugging
-        setEvents(Array.isArray(eventsData) ? eventsData : []); // Ensure it's an array
+        
+        // For each event, fetch its fights
+        const eventsWithFights = await Promise.all(eventsData.map(async (event) => {
+          const fights = await getFightsByIds(event.fights);
+          return {
+            ...event,
+            fights,
+            // Find main event (last fight in the card)
+            mainEvent: fights[fights.length - 1]
+          };
+        }));
+
+        setEvents(eventsWithFights);
       } catch (error) {
         console.error("Error fetching events:", error);
-        setEvents([]); // Set to empty array in case of an error
+      } finally {
+        setLoading(false);
       }
     };
 
     loadEvents();
   }, []);
 
-  // Handle click to navigate to the event page
-  const handleEventClick = (eventId) => {
-    navigate(`/event/${eventId}`);
+  // Handle sort request
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
   };
 
+  // Create sort handler
+  const createSortHandler = (property) => () => {
+    handleRequestSort(property);
+  };
+
+  // Format date for display
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -45,53 +75,109 @@ const EventsList = () => {
     });
   };
 
+  // Format main event display
+  const formatMainEvent = (mainEvent) => {
+    if (!mainEvent) return "No fights scheduled";
+
+    const fighter1 = `${mainEvent.fighter1.firstname} ${mainEvent.fighter1.lastname}`;
+    const fighter2 = `${mainEvent.fighter2.firstname} ${mainEvent.fighter2.lastname}`;
+
+    if (mainEvent.result) {
+      const winner = mainEvent.result.winner === 0 ? fighter1 : fighter2;
+      const loser = mainEvent.result.winner === 0 ? fighter2 : fighter1;
+      return `${winner} def. ${loser} by ${mainEvent.result.method}`;
+    }
+
+    return `${fighter1} vs ${fighter2}`;
+  };
+
+  // Sort function for different data types
+  const sortData = (a, b) => {
+    switch (orderBy) {
+      case 'date':
+        return (new Date(a.date) - new Date(b.date)) * (order === 'asc' ? 1 : -1);
+      case 'name':
+        return (a.name || '').localeCompare(b.name || '') * (order === 'asc' ? 1 : -1);
+      case 'fights':
+        return (a.fights.length - b.fights.length) * (order === 'asc' ? 1 : -1);
+      default:
+        return 0;
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg">
+        <Typography>Loading events...</Typography>
+      </Container>
+    );
+  }
+
   return (
-    <Container maxWidth="md" sx={{ marginTop: "40px" }}>
-      <Paper elevation={3} sx={{ padding: "20px" }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Events List
-        </Typography>
-        {events.length === 0 ? (
-          <Typography variant="body1" align="center">
-            No events available.
-          </Typography>
-        ) : (
-          <List>
-            {events.map((event) => (
-              <ListItem
-                button
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Events
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'date'}
+                  direction={orderBy === 'date' ? order : 'asc'}
+                  onClick={createSortHandler('date')}
+                >
+                  Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'name'}
+                  direction={orderBy === 'name' ? order : 'asc'}
+                  onClick={createSortHandler('name')}
+                >
+                  Event Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'fights'}
+                  direction={orderBy === 'fights' ? order : 'asc'}
+                  onClick={createSortHandler('fights')}
+                >
+                  Fights
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>Main Event</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[...events].sort(sortData).map((event) => (
+              <TableRow
                 key={event.id}
-                onClick={() => handleEventClick(event.id)}
-                sx={{
-                  marginBottom: "10px",
-                  borderRadius: "8px",
-                  "&:hover": {
-                    backgroundColor: "grey.100",
-                  },
-                }}
+                hover
+                onClick={() => navigate(`/event/${event.id}`)}
+                sx={{ cursor: 'pointer' }}
               >
-                <ListItemText
-                  primary={
-                    <Typography variant="h6" component="div">
-                      {event.name || `Event ${event.id}`}
-                    </Typography>
-                  }
-                  secondary={
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {event.date && formatDate(event.date)}
-                      </Typography>
-                      <Typography variant="body2">
-                        {`${event.fights.length} Fight${event.fights.length !== 1 ? 's' : ''} Scheduled`}
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </ListItem>
+                <TableCell>{formatDate(event.date)}</TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {event.mainEvent?.championship && (
+                      <Tooltip title={event.mainEvent.championship.name} arrow>
+                        <EmojiEventsIcon sx={{ color: 'gold' }} />
+                      </Tooltip>
+                    )}
+                    {event.name}
+                  </Box>
+                </TableCell>
+                <TableCell>{event.fights.length}</TableCell>
+                <TableCell>{formatMainEvent(event.mainEvent)}</TableCell>
+              </TableRow>
             ))}
-          </List>
-        )}
-      </Paper>
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Container>
   );
 };
