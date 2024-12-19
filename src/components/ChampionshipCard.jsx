@@ -62,7 +62,7 @@ const ChampionshipCard = ({
   // Filter reigns based on showFullHistory flag
   const filteredReigns = showFullHistory 
     ? championship.reigns
-    : championship.reigns.filter(reign => reign.championId === currentFighterId);
+    : championship.reigns?.filter(reign => reign.championId === currentFighterId);
 
   // Toggle defense details for a specific reign
   const toggleDefenses = (reignId) => {
@@ -70,6 +70,29 @@ const ChampionshipCard = ({
       ...prev,
       [reignId]: !prev[reignId]
     }));
+  };
+
+  // Helper function to render event link button if eventId exists
+  const renderEventButton = (eventId) => {
+    if (eventId) {
+      return (
+        <Button
+          size="small"
+          component={Link}
+          to={`/event/${eventId}`}
+          sx={{ 
+            mt: 1, 
+            fontSize: '0.75rem',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+            }
+          }}
+        >
+          View Event
+        </Button>
+      );
+    }
+    return null;
   };
 
   return (
@@ -142,7 +165,7 @@ const ChampionshipCard = ({
             {showFullHistory ? 'Complete Title History' : 'Championship Reigns'}
           </Typography>
           <List dense>
-            {filteredReigns.map((reign, index) => (
+            {filteredReigns?.map((reign, index) => (
               <ListItem 
                 key={index}
                 sx={{ 
@@ -173,7 +196,7 @@ const ChampionshipCard = ({
                     Won from: {' '}
                     {reign.wonFromId ? (
                       <Link
-                        to={`/dashboard/${reign.wonFromId}`}
+                        to={`/Dashboard/${reign.wonFromId}`}
                         style={{
                           textDecoration: 'none',
                           color: '#1976d2'
@@ -189,6 +212,9 @@ const ChampionshipCard = ({
                   <Typography variant="body2" color="text.secondary">
                     Method: {reign.winMethod} (R{reign.winRound} {reign.winTime})
                   </Typography>
+
+                  {/* Add View Event button for title win */}
+                  {renderEventButton(reign.eventId)}
 
                   {/* Title Defenses Section */}
                   {reign.defenses?.length > 0 && (
@@ -210,7 +236,7 @@ const ChampionshipCard = ({
                                 Defense #{defIndex + 1}: vs{' '}
                                 {defense.opponentId ? (
                                   <Link
-                                    to={`/dashboard/${defense.opponentId}`}
+                                    to={`/Dashboard/${defense.opponentId}`}
                                     style={{
                                       textDecoration: 'none',
                                       color: '#1976d2'
@@ -228,22 +254,13 @@ const ChampionshipCard = ({
                               <Typography variant="caption" display="block" sx={{ color: 'text.secondary' }}>
                                 {formatDate(defense.date)}
                               </Typography>
+                              {/* Add View Event button for title defense */}
+                              {renderEventButton(defense.eventId)}
                             </Box>
                           ))}
                         </Box>
                       </Collapse>
                     </>
-                  )}
-
-                  {reign.eventId && (
-                    <Button
-                      size="small"
-                      component={Link}
-                      to={`/event/${reign.eventId}`}
-                      sx={{ mt: 1, fontSize: '0.75rem' }}
-                    >
-                      View Event
-                    </Button>
                   )}
                 </Box>
               </ListItem>
