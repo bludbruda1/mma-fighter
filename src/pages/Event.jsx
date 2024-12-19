@@ -54,7 +54,6 @@ const Event = () => {
   const [completedFights, setCompletedFights] = useState(new Set());
   const [simulatedFights, setSimulatedFights] = useState(new Set());
   const [championships, setChampionships] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -256,24 +255,60 @@ const Event = () => {
           // Get current championship data
           const championship = await getChampionshipById(fight.championship.id);
           
-          // Create history entry for the title change
-          const historyEntry = {
-            championId: winnerFighter.personid,
-            name: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
-            startDate: eventData.date || new Date().toISOString().split('T')[0],
-            endDate: null,
-            defenses: 0,
-            wonFromId: loserFighter.personid,
-            wonFromName: `${loserFighter.firstname} ${loserFighter.lastname}`,
-            winMethod: result.fightResult.method,
-            winRound: result.fightResult.roundEnded,
-            winTime: result.fightResult.timeEnded,
-            eventId: parseInt(eventId),
-            fightId: fightId
-          };
+          // Determine if this is a title defense or title change
+          const isDefense = championship.currentChampionId === winnerFighter.personid;
   
-          // Update championship with new champion and history
-          await updateChampionshipWithHistory(championship, historyEntry);
+          if (isDefense) {
+            // Handle successful title defense
+            const currentReign = championship.reigns?.find(reign => 
+              reign.championId === championship.currentChampionId && !reign.endDate
+            );
+  
+            if (currentReign) {
+              // Create new defense entry
+              const defenseEntry = {
+                date: eventData.date || new Date().toISOString().split('T')[0],
+                opponentId: loserFighter.personid,
+                opponentName: `${loserFighter.firstname} ${loserFighter.lastname}`,
+                method: result.fightResult.method,
+                round: result.fightResult.roundEnded,
+                time: result.fightResult.timeEnded,
+                eventId: parseInt(eventId),
+                fightId: fightId
+              };
+  
+              // Update the current reign with the new defense
+              currentReign.defenses = currentReign.defenses || [];
+              currentReign.defenses.push(defenseEntry);
+  
+              // Update the championship
+              await updateChampionship({
+                ...championship,
+                reigns: championship.reigns.map(reign =>
+                  reign === currentReign ? currentReign : reign
+                )
+              });
+            }
+          } else {
+            // Handle title change
+            const historyEntry = {
+              championId: winnerFighter.personid,
+              name: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
+              startDate: eventData.date || new Date().toISOString().split('T')[0],
+              endDate: null,
+              defenses: [],
+              wonFromId: loserFighter.personid,
+              wonFromName: `${loserFighter.firstname} ${loserFighter.lastname}`,
+              winMethod: result.fightResult.method,
+              winRound: result.fightResult.roundEnded,
+              winTime: result.fightResult.timeEnded,
+              eventId: parseInt(eventId),
+              fightId: fightId
+            };
+  
+            // Update championship with new champion and history
+            await updateChampionshipWithHistory(championship, historyEntry);
+          }
           
           // Refresh championships data
           const updatedChampionships = await getAllChampionships();

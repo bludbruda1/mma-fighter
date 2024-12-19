@@ -28,45 +28,52 @@
     },
     {
       "id": 2,
+      "championship": {
+        "currentChampionId": 3,
+        "id": 1,
+        "name": "Lightweight Championship"
+      },
       "fighter1": {
-        "personid": 2,
-        "firstname": "Dustin",
-        "lastname": "Poirier"
+        "personid": 3,
+        "firstname": "Islam",
+        "lastname": "Makhachev"
       },
       "fighter2": {
-        "personid": 6,
-        "firstname": "Justin",
-        "lastname": "Gaethje"
+        "personid": 4,
+        "firstname": "Arman",
+        "lastname": "Tsarukyan"
       },
+      "date": "2025-01-18",
       "result": null,
       "stats": null
     },
     {
       "id": 3,
       "fighter1": {
-        "personid": 1,
-        "firstname": "Conor",
-        "lastname": "McGregor"
+        "personid": 9,
+        "firstname": "Beneil",
+        "lastname": "Dariush"
       },
       "fighter2": {
-        "personid": 8,
-        "firstname": "Michael",
-        "lastname": "Chandler"
+        "personid": 12,
+        "firstname": "Renato",
+        "lastname": "Moicano"
       },
+      "date": "2025-01-18",
       "result": null,
       "stats": null  
     },
     {
       "id": 4,
       "fighter1": {
-        "personid": 9,
-        "firstname": "Beneil",
+        "personid": 1,
+        "firstname": "Conor McGregor",
         "lastname": "Dariush"
       },
       "fighter2": {
-        "personid": 10,
-        "firstname": "Rafael",
-        "lastname": "Fiziev"
+        "personid": 8,
+        "firstname": "Michael",
+        "lastname": "Chandler"
       },
       "result": null,
       "stats": null

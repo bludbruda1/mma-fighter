@@ -261,9 +261,7 @@ const getChampionship = (fighterId) => {
         setIsSaving(false);
         return;
       }
-  
-      const allChampionships = await getAllChampionships();
-  
+    
       // Create all fights sequentially and collect their IDs
       const fightIds = [];
       for (const [index, fight] of fights.entries()) {
@@ -275,8 +273,6 @@ const getChampionship = (fighterId) => {
         if (championship) {
           // Find the current champion if there is one
           const currentChampId = championship.currentChampionId;
-          const isTitleDefense = currentChampId === fight.fighter1.personid || 
-                               currentChampId === fight.fighter2.personid;
   
           // Add championship data if it exists
           championshipData = {
@@ -323,7 +319,9 @@ const getChampionship = (fighterId) => {
         console.log("Event saved successfully:", eventData);
         
         setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
-        navigate(`/event/${eventData.id}`);
+
+        // Navigate to events list instead of the specific event
+        navigate(`/events`);
       } else {
         console.log("No valid fights to save");
       }
@@ -348,8 +346,19 @@ const getChampionship = (fighterId) => {
 
     return (
       <div key={index} style={{ marginBottom: "30px" }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Fight {index + 1}
+        <Typography 
+          variant="h5" 
+          align="center" 
+          gutterBottom
+          sx={{
+            fontWeight: index === 0 ? 'bold' : 'normal',
+            mb: 3
+          }}
+        >
+          {index === 0 ? "Main Event" : 
+          index === 1 && fights.length > 2 ? "Co-Main Event" : 
+          index === fights.length - 1 ? "Opening Fight" : 
+          `Fight ${fights.length - index}`}
         </Typography>
         <Grid container spacing={3} justifyContent="space-between">
           {/* Fighter 1 Selection */}
