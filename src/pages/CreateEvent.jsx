@@ -319,7 +319,9 @@ const getChampionship = (fighterId) => {
         console.log("Event saved successfully:", eventData);
         
         setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
-        navigate(`/event/${eventData.id}`);
+
+        // Navigate to events list instead of the specific event
+        navigate(`/events`);
       } else {
         console.log("No valid fights to save");
       }
