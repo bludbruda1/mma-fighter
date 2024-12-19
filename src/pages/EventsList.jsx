@@ -35,11 +35,12 @@ const EventsList = () => {
         // For each event, fetch its fights
         const eventsWithFights = await Promise.all(eventsData.map(async (event) => {
           const fights = await getFightsByIds(event.fights);
+          
           return {
             ...event,
             fights,
             // Find main event (last fight in the card)
-            mainEvent: fights[fights.length - 1]
+            mainEvent: fights[0]
           };
         }));
 
