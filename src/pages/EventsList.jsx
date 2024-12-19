@@ -13,6 +13,7 @@ import {
   Paper,
   Tooltip,
   Box,
+  Button,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllEvents, getFightsByIds } from "../utils/indexedDB";
@@ -115,9 +116,31 @@ const EventsList = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Events
-      </Typography>
+            {/* Header section with title and create button */}
+            <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 4 
+      }}>
+        <Typography variant="h4" component="h1">
+          Events
+        </Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate('/createevent')}
+          sx={{
+            backgroundColor: "rgba(33, 33, 33, 0.9)",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "rgba(33, 33, 33, 0.7)",
+            },
+          }}
+        >
+          Create Event
+        </Button>
+      </Box>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -146,7 +169,7 @@ const EventsList = () => {
                   direction={orderBy === 'fights' ? order : 'asc'}
                   onClick={createSortHandler('fights')}
                 >
-                  Fights
+                  No. of Fights
                 </TableSortLabel>
               </TableCell>
               <TableCell>Main Event</TableCell>
