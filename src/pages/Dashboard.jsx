@@ -416,7 +416,7 @@ const Dashboard = () => {
           {/* Accolades Section */}
           {championships.some(c => 
             c.currentChampionId === fighter.personid || 
-            c.history?.some(h => h.championId === fighter.personid)
+            c.reigns?.some(reign => reign.championId === fighter.personid)
           ) && (
             <Card elevation={3} sx={{ mt: 3 }}>
               <CardContent>
@@ -427,7 +427,7 @@ const Dashboard = () => {
                   {championships
                     .filter(c => 
                       c.currentChampionId === fighter.personid || 
-                      c.history?.some(h => h.championId === fighter.personid)
+                      c.reigns?.some(reign => reign.championId === fighter.personid)
                     )
                     .map(championship => (
                       <Grid item xs={12} key={championship.id}>
@@ -443,7 +443,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           )}
-
           {/* Fight History */}
           {renderFightHistory()}
         </Grid>

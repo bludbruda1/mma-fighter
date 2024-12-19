@@ -531,3 +531,127 @@ export const updateChampionshipWithHistory = async (championship, historyEntry) 
     throw error;
   }
 };
+
+export const updateChampionshipWithResult = async (championship, fightResult, isDefense = false) => {
+  try {
+    const db = await openDB();
+    const currentDate = new Date().toISOString();
+
+    if (isDefense) {
+      // Handle title defense
+      const updatedReigns = championship.reigns.map(reign => {
+        if (reign.championId === championship.currentChampionId && !reign.endDate) {
+          return {
+            ...reign,
+            defenses: [
+              ...reign.defenses,
+              {
+                date: currentDate,
+                opponentId: fightResult.loserId,
+                opponentName: fightResult.loserName,
+                method: fightResult.method,
+                round: fightResult.round,
+                time: fightResult.time,
+                eventId: fightResult.eventId
+              }
+            ]
+          };
+        }
+        return reign;
+      });
+
+      const updatedChampionship = {
+        ...championship,
+        reigns: updatedReigns
+      };
+
+      const transaction = db.transaction(championshipStoreName, "readwrite");
+      const store = transaction.objectStore(championshipStoreName);
+      await store.put(updatedChampionship);
+
+      return updatedChampionship;
+    } else {
+      // Handle new champion
+      // End the previous champion's reign if exists
+      const updatedReigns = championship.reigns.map(reign => {
+        if (reign.championId === championship.currentChampionId && !reign.endDate) {
+          return {
+            ...reign,
+            endDate: currentDate
+          };
+        }
+        return reign;
+      });
+
+      // Add new champion's reign
+      const newReign = {
+        championId: fightResult.winnerId,
+        name: fightResult.winnerName,
+        startDate: currentDate,
+        endDate: null,
+        wonFromId: fightResult.loserId,
+        wonFromName: fightResult.loserName,
+        winMethod: fightResult.method,
+        winRound: fightResult.round,
+        winTime: fightResult.time,
+        eventId: fightResult.eventId,
+        defenses: []
+      };
+
+      const updatedChampionship = {
+        ...championship,
+        currentChampionId: fightResult.winnerId,
+        reigns: [newReign, ...updatedReigns]
+      };
+
+      const transaction = db.transaction(championshipStoreName, "readwrite");
+      const store = transaction.objectStore(championshipStoreName);
+      await store.put(updatedChampionship);
+
+      return updatedChampionship;
+    }
+  } catch (error) {
+    console.error('Error updating championship data:', error);
+    throw error;
+  }
+};
+
+/**
+ * Determines if a fight is a championship defense
+ */
+export const isChampionshipDefense = (fight, championships) => {
+  if (!fight.championship) return false;
+  
+  const championship = championships.find(c => c.id === fight.championship.id);
+  if (!championship || !championship.currentChampionId) return false;
+
+  // Check if the current champion is one of the fighters
+  return fight.fighter1.personid === championship.currentChampionId || 
+         fight.fighter2.personid === championship.currentChampionId;
+};
+
+/**
+ * Gets championship details for a specific fight
+ */
+export const getChampionshipByFight = async (fightId) => {
+  try {
+    const [fight, championships] = await Promise.all([
+      getFightFromDB(fightId),
+      getAllChampionships()
+    ]);
+
+    if (!fight?.championship) return null;
+
+    const championship = championships.find(c => c.id === fight.championship.id);
+    if (!championship) return null;
+
+    // Add fight-specific context to championship data
+    return {
+      ...championship,
+      isDefense: isChampionshipDefense(fight, [championship])
+    };
+  } catch (error) {
+    console.error('Error getting championship details:', error);
+    return null;
+  }
+};
