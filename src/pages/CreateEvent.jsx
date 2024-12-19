@@ -261,9 +261,7 @@ const getChampionship = (fighterId) => {
         setIsSaving(false);
         return;
       }
-  
-      const allChampionships = await getAllChampionships();
-  
+    
       // Create all fights sequentially and collect their IDs
       const fightIds = [];
       for (const [index, fight] of fights.entries()) {
@@ -275,8 +273,6 @@ const getChampionship = (fighterId) => {
         if (championship) {
           // Find the current champion if there is one
           const currentChampId = championship.currentChampionId;
-          const isTitleDefense = currentChampId === fight.fighter1.personid || 
-                               currentChampId === fight.fighter2.personid;
   
           // Add championship data if it exists
           championshipData = {

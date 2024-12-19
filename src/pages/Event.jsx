@@ -7,7 +7,6 @@ import {
   getFightsByIds,
   updateFightResults,
   getChampionshipById,
-  updateChampionship,
   updateChampionshipWithHistory,
   getAllChampionships,
 } from "../utils/indexedDB";
@@ -54,7 +53,6 @@ const Event = () => {
   const [completedFights, setCompletedFights] = useState(new Set());
   const [simulatedFights, setSimulatedFights] = useState(new Set());
   const [championships, setChampionships] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
