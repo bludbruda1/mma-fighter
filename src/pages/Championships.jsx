@@ -37,6 +37,7 @@ import {
   deleteChampionship,
   getAllFighters,
   getNextChampionshipId,
+  getAllFights,
 } from '../utils/indexedDB';
 
 const Championships = () => {
@@ -62,6 +63,7 @@ const Championships = () => {
   // State for fight history
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [championshipHistory, setChampionshipHistory] = useState([]);
+  const [fights, setFights] = useState([]); 
 
   // Available weight classes
   const weightClasses = [
@@ -79,12 +81,14 @@ const Championships = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [fetchedChampionships, fetchedFighters] = await Promise.all([
+        const [fetchedChampionships, fetchedFighters, fetchedFights] = await Promise.all([
           getAllChampionships(),
-          getAllFighters()
+          getAllFighters(),
+          getAllFights()
         ]);
         setChampionships(fetchedChampionships);
         setFighters(fetchedFighters);
+        setFights(fetchedFights);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -96,76 +100,61 @@ const Championships = () => {
   }, []);
 
   // Function to get championship fight history
-  const getChampionshipHistory = (championship) => {
-    const history = [];
-    
-    // Go through each reign and create fight entries
-    championship.reigns.forEach(reign => {
-      // Add the title win
-      history.push({
-        date: reign.startDate,
-        winner: {
-          id: reign.championId,
-          name: reign.name
-        },
-        loser: {
-          id: reign.wonFromId,
-          name: reign.wonFromName
-        },
-        method: reign.winMethod,
-        round: reign.winRound,
-        time: reign.winTime,
-        eventId: reign.eventId,
-        isTitleWin: true
-      });
-  
-      // Check if defenses exist and is an array before iterating
-      if (reign.defenses && Array.isArray(reign.defenses)) {
-        reign.defenses.forEach(defense => {
-          history.push({
-            date: defense.date,
-            winner: {
-              id: reign.championId,
-              name: reign.name
-            },
-            loser: {
-              id: defense.opponentId,
-              name: defense.opponentName
-            },
-            method: defense.method,
-            round: defense.round,
-            time: defense.time,
-            eventId: defense.eventId,
-            isTitleDefense: true
-          });
-        });
-      }
+  const getChampionshipHistory = (championshipId) => {
+    // Filter fights for this championship
+    const championshipFights = fights.filter(fight => {
+      // Check both the championship.id and direct championship property
+      const matchesChampionship = 
+        (fight.championship?.id === championshipId) || 
+        (fight.championship === championshipId);
+      
+      // Only include completed fights (has a result)
+      const isCompleted = fight.result !== null;
+      
+      return matchesChampionship && isCompleted;
     });
-  
-    // Sort by date in descending order
-    return history.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Sort fights by date (assuming we have a date field)
+    // If no date field, we'll sort by ID which should generally correspond to chronological order
+    return championshipFights.sort((a, b) => {
+      if (a.date && b.date) return new Date(b.date) - new Date(a.date);
+      return b.id - a.id;
+    });
   };
 
   // Handle opening history dialog
   const handleViewHistory = (championship) => {
-    const history = getChampionshipHistory(championship); 
+    const history = getChampionshipHistory(championship.id);
     setChampionshipHistory(history);
     setSelectedChampionship(championship);
     setHistoryDialogOpen(true);
+  };
+
+  // Helper function to format fight result
+  const formatFightResult = (fight) => {
+    const winner = fight.result.winner === 0 ? fight.fighter1 : fight.fighter2;
+    const loser = fight.result.winner === 0 ? fight.fighter2 : fight.fighter1;
+    return {
+      winner: `${winner.firstname} ${winner.lastname}`,
+      loser: `${loser.firstname} ${loser.lastname}`,
+      method: fight.result.method,
+      round: fight.result.roundEnded,
+      time: fight.result.timeEnded
+    };
   };
 
   // History dialog to render function's return statement
   const renderHistoryDialog = () => {
     // Helper function to format date
     const formatDate = (dateString) => {
-      if (!dateString) return ''; 
+      if (!dateString) return ''; // Handle cases where date might be missing
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
     };
-    
+  
     return (
       <Dialog
         open={historyDialogOpen}
@@ -179,83 +168,69 @@ const Championships = () => {
         <DialogContent>
           {championshipHistory.length > 0 ? (
             <List>
-              {championshipHistory.map((fight, index) => (
-                <React.Fragment key={`${fight.date}-${index}`}>
-                  <ListItem>
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body1" component="span">
-                            {fight.winner.id ? (
-                              <Link
-                                to={`/dashboard/${fight.winner.id}`}
-                                style={{
-                                  textDecoration: "none",
-                                  color: "#1976d2",
-                                }}
-                              >
-                                {fight.winner.name}
-                              </Link>
-                            ) : (
-                              <Typography component="span">
-                                {fight.winner.name}
-                              </Typography>
-                            )}
-                            {' def. '}
-                            {fight.loser.id ? (
-                              <Link
-                                to={`/dashboard/${fight.loser.id}`}
-                                style={{
-                                  textDecoration: "none",
-                                  color: "#1976d2",
-                                }}
-                              >
-                                {fight.loser.name}
-                              </Link>
-                            ) : (
-                              <Typography component="span">
-                                {fight.loser.name}
-                              </Typography>
-                            )}
-                          </Typography>
-                          <Chip 
-                            size="small" 
-                            label={fight.method}
-                            color="primary"
-                            variant="outlined"
-                          />
-                          {fight.isTitleWin && (
+              {championshipHistory.map((fight, index) => {
+                const result = formatFightResult(fight);
+                const winnerFighter = fight.result.winner === 0 ? fight.fighter1 : fight.fighter2;
+                const loserFighter = fight.result.winner === 0 ? fight.fighter2 : fight.fighter1;
+  
+                return (
+                  <React.Fragment key={fight.id}>
+                    <ListItem>
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body1" component="span">
+                              {winnerFighter.personid ? (
+                                <Link
+                                  to={`/dashboard/${winnerFighter.personid}`}
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "#1976d2",
+                                  }}
+                                >
+                                  {result.winner}
+                                </Link>
+                              ) : (
+                                <Typography component="span">
+                                  {result.winner}
+                                </Typography>
+                              )}
+                              {' def. '}
+                              {loserFighter.personid ? (
+                                <Link
+                                  to={`/dashboard/${loserFighter.personid}`}
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "#1976d2",
+                                  }}
+                                >
+                                  {result.loser}
+                                </Link>
+                              ) : (
+                                <Typography component="span">
+                                  {result.loser}
+                                </Typography>
+                              )}
+                            </Typography>
                             <Chip 
                               size="small" 
-                              label="Won Title"
-                              color="success"
-                              sx={{
-                                bgcolor: 'rgba(255, 215, 0, 0.1)',
-                                borderColor: 'gold',
-                                color: 'gold'
-                              }}
-                            />
-                          )}
-                          {fight.isTitleDefense && (
-                            <Chip 
-                              size="small" 
-                              label="Title Defense"
-                              color="info"
+                              label={result.method}
+                              color="primary"
                               variant="outlined"
                             />
-                          )}
-                        </Box>
-                      }
-                      secondary={
-                        <Typography variant="body2" color="text.secondary">
-                          {formatDate(fight.date)} • Round {fight.round} • {fight.time}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                  {index < championshipHistory.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
+                          </Box>
+                        }
+                        secondary={
+                          <Typography variant="body2" color="text.secondary">
+                            {fight.date && `${formatDate(fight.date)} • `}Round {result.round} • {result.time}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                    {index < championshipHistory.length - 1 && <Divider />}
+                  </React.Fragment>
+                );
+              })}
             </List>
           ) : (
             <Typography>No title fight history available.</Typography>
