@@ -95,10 +95,12 @@ const Championships = () => {
     loadData();
   }, []);
 
-  // Function to get championship fight history
-  const getChampionshipHistory = (championship) => {
-    const history = [];
-    
+// Function to get championship fight history
+const getChampionshipHistory = (championship) => {
+  const history = [];
+
+  // Check if the championship has reigns before iterating
+  if (championship.reigns && Array.isArray(championship.reigns)) {
     // Go through each reign and create fight entries
     championship.reigns.forEach(reign => {
       // Add the title win
@@ -118,7 +120,7 @@ const Championships = () => {
         eventId: reign.eventId,
         isTitleWin: true
       });
-  
+
       // Check if defenses exist and is an array before iterating
       if (reign.defenses && Array.isArray(reign.defenses)) {
         reign.defenses.forEach(defense => {
@@ -141,7 +143,7 @@ const Championships = () => {
         });
       }
     });
-  
+  }
     // Sort by date in descending order
     return history.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
