@@ -17,7 +17,10 @@ import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 
 // HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
@@ -90,20 +93,9 @@ const HamburgerMenu = () => {
             onClick={handleDrawerToggle}
           >
             <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
+              <EditCalendarIcon />
             </ListItemIcon>
             <ListItemText primary="Create Event" sx={{ color: "#fff" }} />
-          </ListItem>
-          <ListItem
-            button
-            component={Link}
-            to="/fight"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Fight Screen" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem
             button
@@ -112,7 +104,7 @@ const HamburgerMenu = () => {
             onClick={handleDrawerToggle}
           >
             <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
+              <EventSeatIcon />
             </ListItemIcon>
             <ListItemText primary="Events" sx={{ color: "#fff" }} />
           </ListItem>
@@ -123,7 +115,7 @@ const HamburgerMenu = () => {
             onClick={handleDrawerToggle}
           >
             <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
+              <CalendarTodayIcon />
             </ListItemIcon>
             <ListItemText primary="Calendar" sx={{ color: "#fff" }} />
           </ListItem>
@@ -132,11 +124,11 @@ const HamburgerMenu = () => {
             component={Link}
             to="/championships"
             onClick={handleDrawerToggle}
-            >
+          >
             <ListItemIcon sx={{ color: "#fff" }}>
               <EmojiEventsIcon />
             </ListItemIcon>
-            <ListItemText primary="Champions" sx={{ color: '#fff'}} />
+            <ListItemText primary="Champions" sx={{ color: "#fff" }} />
           </ListItem>
         </List>
       </Drawer>
