@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   CssBaseline,
@@ -12,6 +12,7 @@ import {
   Toolbar,
   Typography,
   Divider,
+  Box,
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -21,14 +22,46 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import { getGameDate } from "../utils/indexedDB";
 
-// HamburgerMenu component that handles navigation on the left side of the page.
+const formatDate = (isoDate) => {
+  const date = new Date(isoDate);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+      ? "nd"
+      : day % 10 === 3 && day !== 13
+      ? "rd"
+      : "th";
+
+  return `${day}${suffix} ${month} ${year}`;
+};
+
 const HamburgerMenu = () => {
   const [open, setOpen] = useState(false);
+  const [gameDate, setGameDate] = useState("");
 
   const handleDrawerToggle = () => {
     setOpen(!open);
   };
+
+  useEffect(() => {
+    // Fetch the game date from IndexedDB
+    const fetchGameDate = async () => {
+      try {
+        const date = await getGameDate();
+        setGameDate(date);
+      } catch (error) {
+        console.error("Error fetching game date:", error);
+      }
+    };
+    fetchGameDate();
+  }, []);
 
   return (
     <>
@@ -54,6 +87,10 @@ const HamburgerMenu = () => {
           <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
             <Typography variant="h6">Planet Fighter</Typography>
           </Link>
+          <Box sx={{ flexGrow: 1 }} />
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            {gameDate ? formatDate(gameDate) : "Loading..."}
+          </Typography>
         </Toolbar>
       </AppBar>
       <Drawer
