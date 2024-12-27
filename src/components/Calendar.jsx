@@ -17,6 +17,8 @@ const Calendar = () => {
     new Date().toISOString().split("T")[0]
   );
 
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; // Array of day names
+
   useEffect(() => {
     const initializeCalendar = async () => {
       try {
@@ -171,6 +173,13 @@ const Calendar = () => {
         >
           <ChevronRightIcon fontSize="large" />
         </button>
+      </div>
+      <div className="day-names">
+        {dayNames.map((day, index) => (
+          <div key={index} className="day-name">
+            {day}
+          </div>
+        ))}
       </div>
       <div className="calendar-grid">{generateCalendarDays()}</div>
     </div>

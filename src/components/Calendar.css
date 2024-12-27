@@ -21,13 +21,6 @@
   gap: 0.5rem;
 }
 
-/* .calendar-day {
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  position: relative;
-} */
-
 .calendar-day {
   position: relative; /* For positioning hover elements */
   padding: 1rem;
@@ -91,4 +84,18 @@
 /* Show the hover container only when hovering over the calendar day */
 .calendar-day:hover .hover-icon-container {
   display: block;
+}
+
+.day-names {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* Match the calendar grid structure */
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 15px; /* Space between day names and the calendar grid */
+  font-size: 1.2rem; /* Optional: Make the day names more prominent */
+  gap: 4.2rem;
+}
+
+.day-name {
+  padding: 5px 0; /* Add some padding for better spacing */
 }
