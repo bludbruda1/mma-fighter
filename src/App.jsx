@@ -11,6 +11,7 @@ import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
 import EventsList from "./pages/EventsList";
 import Calendar from "./components/Calendar";
+import SelectDate from "./pages/SelectDate";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/fight" element={<FightScreen />} />
+        <Route path="/selectdate" element={<SelectDate />} />
         <Route path="/roster" element={<Roster />} />
         <Route path="/championships" element={<Championships />} />
         <Route path="/createevent" element={<CreateEvent />} />

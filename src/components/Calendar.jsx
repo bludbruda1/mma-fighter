@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllEvents } from "../utils/indexedDB";
+import { getAllEvents, getGameDate } from "../utils/indexedDB"; // Import getGameDate
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import "./Calendar.css";
@@ -18,11 +18,25 @@ const Calendar = () => {
   );
 
   useEffect(() => {
-    const loadEvents = async () => {
-      const eventData = await getAllEvents();
-      setEvents(eventData);
+    const initializeCalendar = async () => {
+      try {
+        const gameDate = await getGameDate(); // Fetch game date from IndexedDB
+        const initialDate = new Date(gameDate); // Convert to Date object
+        setCurrentDate(initialDate); // Set as currentDate
+        setSelectedDate(initialDate.toISOString().split("T")[0]); // Set selectedDate for input
+      } catch (error) {
+        console.error("Error fetching game date:", error);
+      }
+
+      try {
+        const eventData = await getAllEvents();
+        setEvents(eventData);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
     };
-    loadEvents();
+
+    initializeCalendar();
   }, []);
 
   const getEventsForDate = (date) => {
@@ -38,16 +52,9 @@ const Calendar = () => {
   };
 
   const handleDateClick = (date) => {
-    // Create a new Date object to ensure the date is not modified unintentionally
     const selectedDate = new Date(date);
-
-    // Reset the time to midnight to avoid time zone offset issues
-    selectedDate.setHours(0, 0, 0, 0); // Ensures it's at midnight in local time
-
-    // Format the date to YYYY-MM-DD to avoid time zone shifts
-    const formattedDate = selectedDate.toLocaleDateString("en-CA"); // "en-CA" ensures YYYY-MM-DD format
-
-    // Navigate to the Create Event page with the selected date
+    selectedDate.setHours(0, 0, 0, 0);
+    const formattedDate = selectedDate.toLocaleDateString("en-CA");
     navigate(`/createevent?date=${formattedDate}`);
   };
 
@@ -88,14 +95,12 @@ const Calendar = () => {
 
     const calendarDays = [];
 
-    // Add empty days for the start of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       calendarDays.push(
         <div key={`prev-${i}`} className="calendar-day empty" />
       );
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(
         currentDate.getFullYear(),

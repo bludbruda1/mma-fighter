@@ -27,6 +27,10 @@ const Home = () => {
     navigate("/roster");
   };
 
+  const handleSelectDate = () => {
+    navigate("/selectdate");
+  };
+
   const handleCreateEvent = () => {
     navigate("/createevent");
   };
@@ -87,16 +91,16 @@ const Home = () => {
             src="/assets/images/logo.png"
             alt="Logo"
             style={{
-              width: "200px", // Adjust the size as needed
+              width: "150px", // Adjust the size as needed
               height: "auto",
             }}
           />
         </Box>
         <Typography variant="h2" gutterBottom sx={fadeIn}>
-          Planet Fighter
+          MMA Fighter
         </Typography>
         <Typography variant="h6" gutterBottom sx={fadeIn}>
-          Welcome to Planet Fight, a combat sport simulation game that lets you
+          Welcome to MMAFighter, a combat sport simulation game that lets you
           create your own world of fighting and provides an experience of
           running the show.
         </Typography>
@@ -123,6 +127,22 @@ const Home = () => {
               }}
             >
               View Roster
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleSelectDate}
+              sx={{
+                ...fadeIn,
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
+                color: "#000", // Text color
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.6)", // Darker on hover
+                },
+              }}
+            >
+              Select Date
             </Button>
           </Grid>
           <Grid item>
