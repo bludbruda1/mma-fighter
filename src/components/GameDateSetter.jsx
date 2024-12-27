@@ -24,11 +24,13 @@ const GameDateSetter = () => {
       <Grid
         container
         spacing={2}
-        justifyContent="center"
-        alignItems="center"
-        style={{ height: "100vh" }}
+        sx={{
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+        }}
       >
-        <Grid item xs={12} md={6}>
+        <Grid item>
           <FormControl>
             <TextField
               type="date"
@@ -40,7 +42,7 @@ const GameDateSetter = () => {
             />
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item>
           <Button
             variant="contained"
             onClick={handleSaveDate}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, Typography, Paper, Button } from "@mui/material";
+import { Grid, Typography, Button, Container } from "@mui/material";
 import GameDateSetter from "../components/GameDateSetter";
 import { getGameDate } from "../utils/indexedDB";
 
@@ -17,59 +17,61 @@ const SelectDate = () => {
   };
 
   return (
-    <Grid
-      container
-      spacing={3}
-      justifyContent="center"
-      alignItems="center"
-      style={{ height: "100vh", backgroundColor: "#f5f5f5" }}
+    <Container
+      maxWidth="sm"
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        marginTop: 2,
+      }}
     >
-      <Grid item xs={12} md={6}>
-        <Paper
-          elevation={3}
-          style={{
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: "#ffffff",
-          }}
-        >
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            style={{ fontWeight: "bold" }}
+      <Typography
+        variant="h4"
+        align="center"
+        gutterBottom
+        sx={{ fontWeight: "bold" }}
+      >
+        Set Game Date
+      </Typography>
+
+      <GameDateSetter />
+
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: 2,
+        }}
+      >
+        <Grid item>
+          <Button
+            variant="contained"
+            onClick={handleFetchDate}
+            sx={{
+              backgroundColor: "rgba(33, 33, 33, 0.9)",
+              color: "#fff",
+              "&:hover": { backgroundColor: "rgba(33, 33, 33, 0.7)" },
+            }}
           >
-            Set Game Date
-          </Typography>
-          <Grid item xs={12} md={6}>
-            <GameDateSetter />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Button
-              variant="contained"
-              onClick={handleFetchDate}
-              sx={{
-                marginTop: 2,
-                backgroundColor: "rgba(33, 33, 33, 0.9)",
-                color: "#fff",
-                "&:hover": { backgroundColor: "rgba(33, 33, 33, 0.7)" },
-              }}
-            >
-              Fetch Game Date
-            </Button>
-          </Grid>
-          {displayDate && (
-            <Typography
-              variant="body1"
-              align="center"
-              style={{ marginTop: "20px", color: "#333" }}
-            >
-              {displayDate}
-            </Typography>
-          )}
-        </Paper>
+            Fetch Game Date
+          </Button>
+        </Grid>
       </Grid>
-    </Grid>
+
+      {displayDate && (
+        <Typography
+          variant="body1"
+          align="center"
+          sx={{ marginTop: 2, color: "#333" }}
+        >
+          {displayDate}
+        </Typography>
+      )}
+    </Container>
   );
 };
 
