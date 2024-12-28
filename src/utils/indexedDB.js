@@ -498,6 +498,7 @@ export const getChampionshipById = async (id) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
 
 export const saveGameDate = async (date) => {
   const db = await openDB();
