@@ -36,6 +36,7 @@ import { formatTime } from "../engine/helper.js";
 import { simulateFight } from "../engine/FightSim";
 import { calculateFightStats } from "../engine/FightStatistics";
 import fightPlayByPlayLogger from "../engine/fightPlayByPlayLogger";
+import { updateRankingsAfterFight } from "../utils/rankingsHelper.js";
 
 /**
  * Event Component
@@ -451,8 +452,18 @@ const Event = () => {
       }
     });
 
+    // Update rankings based on fight outcome
+    const allFighters = await getAllFighters();
+    const rankingUpdates = updateRankingsAfterFight(winnerFighter, loserFighter, allFighters, championships);
+    
+    // Merge ranking updates with record updates
+    const finalUpdates = updatedFighters.map(fighter => {
+      const rankingUpdate = rankingUpdates.find(r => r.personid === fighter.personid);
+      return rankingUpdate ? { ...fighter, ranking: rankingUpdate.ranking } : fighter;
+    });
+
     // Update fighters in the database
-    await Promise.all(updatedFighters.map(updateFighter));
+    await Promise.all(finalUpdates.map(updateFighter));
   };
 
   // Helper functions for displaying stats and preparing tabs
