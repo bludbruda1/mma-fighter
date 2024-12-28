@@ -13,53 +13,56 @@ import {
   Typography,
   Chip,
 } from "@mui/material";
-import { formatFightingStyle } from "../utils/uiHelpers"
+import { formatFightingStyle } from "../utils/uiHelpers";
 
 /* BasicSelect component that passes a fighters, selectedItem, and onSelectChange prop 
 so that when we call this component we can dynamically add the info instead of the value being fixed at the component level. **/
-const BasicSelect = ({ 
-  fighters, 
-  selectedItem, 
+const BasicSelect = ({
+  fighters,
+  selectedItem,
   onSelectChange,
   bookedFighters = new Set(),
   selectedFightersInEvent = new Set(),
   currentFightIndex,
-  fightPosition
- }) => {
+  fightPosition,
+}) => {
   return (
     <>
-   <Box sx={{ minWidth: 120, m: 2 }}>
+      <Box sx={{ minWidth: 120, m: 2 }}>
         <FormControl fullWidth>
           <InputLabel id="simple-select-label">Fighter</InputLabel>
           <Select
             labelId="simple-select-label"
             id="simple-select"
-            value={selectedItem ? selectedItem.personid : ""} 
+            value={selectedItem ? selectedItem.personid : ""}
             label="Fighter"
             onChange={onSelectChange}
           >
             {fighters.map((info) => {
               // Determine if fighter is unavailable
               const isBooked = bookedFighters.has(info.personid);
-              const isSelectedInOtherFight = selectedFightersInEvent.has(info.personid) && 
+              const isSelectedInOtherFight =
+                selectedFightersInEvent.has(info.personid) &&
                 (!selectedItem || selectedItem.personid !== info.personid);
               const isUnavailable = isBooked || isSelectedInOtherFight;
-           
+
               return (
-                <MenuItem 
-                  key={info.personid} 
+                <MenuItem
+                  key={info.personid}
                   value={info.personid}
                   disabled={isUnavailable}
                   sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
-                  <span>{info.firstname} {info.lastname}</span>
+                  <span>
+                    {info.firstname} {info.lastname}
+                  </span>
                   {isUnavailable && (
-                    <Chip 
-                      label={isBooked ? "Booked in Event" : "Already Selected"} 
+                    <Chip
+                      label={isBooked ? "Booked in Event" : "Already Selected"}
                       size="small"
                       color={isBooked ? "error" : "warning"}
                       sx={{ ml: 1 }}
@@ -115,7 +118,11 @@ const BasicSelect = ({
                   Record: {selectedItem.wins}W-{selectedItem.losses}L
                 </Typography>
                 <Typography variant="body2">
-                  Fighting Style: {formatFightingStyle(selectedItem.fightingStyle)}
+                  Fighting Style:{" "}
+                  {formatFightingStyle(selectedItem.fightingStyle)}
+                </Typography>
+                <Typography variant="body2">
+                  Rank: {selectedItem.ranking ?? "Unranked"}
                 </Typography>
               </CardContent>
             </Card>
