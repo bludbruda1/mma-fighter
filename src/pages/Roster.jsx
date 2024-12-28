@@ -16,6 +16,7 @@ import {
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllFighters, getAllChampionships } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthdayWithAge } from "../utils/uiHelpers";
+import { getRankingDisplay } from "../utils/rankingsHelper";
 
 const Roster = () => {
   const [fighters, setFighters] = useState([]);
@@ -73,6 +74,21 @@ const Roster = () => {
 
   // Sorting function for different data types
   const compareValues = (a, b, property) => {
+    if (property === 'ranking') {
+      const aIsChamp = getChampionshipInfo(a.personid).length > 0;
+      const bIsChamp = getChampionshipInfo(b.personid).length > 0;
+      
+      // Champions always come first
+      if (aIsChamp && !bIsChamp) return -1;
+      if (!aIsChamp && bIsChamp) return 1;
+      if (aIsChamp && bIsChamp) return 0;
+      
+      // Then sort by ranking
+      const aRank = a.ranking || 999;
+      const bRank = b.ranking || 999;
+      return aRank - bRank;
+    }
+    
     if (property === 'isChampion') {
       const champCountA = getChampionshipInfo(a.personid).length;
       const champCountB = getChampionshipInfo(b.personid).length;
@@ -125,6 +141,15 @@ const Roster = () => {
         <Table>
           <TableHead>
             <TableRow>
+            <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'ranking'}
+                  direction={orderBy === 'ranking' ? order : 'asc'}
+                  onClick={createSortHandler('ranking')}
+                >
+                  Ranking
+                </TableSortLabel>
+              </TableCell>
               <TableCell>
                 <TableSortLabel
                   active={orderBy === 'fullname'}
@@ -214,6 +239,9 @@ const Roster = () => {
                   e.currentTarget.style.backgroundColor = "transparent";
                 }}
               >
+                <TableCell>
+                  {getRankingDisplay(fighter, championships)}
+                </TableCell>
                 <TableCell>
                   <Link
                     to={`/dashboard/${fighter.personid}`}
