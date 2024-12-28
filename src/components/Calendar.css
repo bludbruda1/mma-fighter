@@ -15,15 +15,27 @@
 
 .calendar-grid {
   display: grid;
+  align-items: center;
+  justify-content: center;
   grid-template-columns: repeat(7, 1fr);
   gap: 0.5rem;
 }
 
 .calendar-day {
+  position: relative; /* For positioning hover elements */
   padding: 1rem;
+  display: flex;
+  flex-direction: column; /* Stack day number, events, and icon */
+  align-items: center;
+  justify-content: flex-start; /* Align content at the top */
+  width: 100px; /* Set consistent width */
+  height: 100px; /* Set consistent height */
+  border: 1px solid #ccc; /* Optional: add a border for clarity */
+  box-sizing: border-box; /* Include padding/borders in size */
+  padding: 5px; /* Add padding for content spacing */
+  background-color: white; /* Background color for each day */
   border: 1px solid #ddd;
   border-radius: 4px;
-  position: relative;
 }
 
 .calendar-day.empty {
@@ -55,4 +67,35 @@
 
 .month-nav-button:hover {
   color: #1565c0;
+}
+
+.event-button {
+  display: block;
+  margin-top: 5px;
+}
+
+.hover-icon-container {
+  display: none; /* Hidden by default */
+  bottom: 5px; /* Position near the bottom of the day */
+  right: 5px; /* Align to the right */
+  z-index: 10; /* Ensure it appears above other elements */
+}
+
+/* Show the hover container only when hovering over the calendar day */
+.calendar-day:hover .hover-icon-container {
+  display: block;
+}
+
+.day-names {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* Match the calendar grid structure */
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 15px; /* Space between day names and the calendar grid */
+  font-size: 1.2rem; /* Optional: Make the day names more prominent */
+  gap: 4.2rem;
+}
+
+.day-name {
+  padding: 5px 0; /* Add some padding for better spacing */
 }

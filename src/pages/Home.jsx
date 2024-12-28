@@ -27,6 +27,10 @@ const Home = () => {
     navigate("/roster");
   };
 
+  const handleSelectDate = () => {
+    navigate("/selectdate");
+  };
+
   const handleCreateEvent = () => {
     navigate("/createevent");
   };
@@ -96,8 +100,8 @@ const Home = () => {
           Planet Fighter
         </Typography>
         <Typography variant="h6" gutterBottom sx={fadeIn}>
-          Welcome to Planet Fight, a combat sport simulation game that lets you
-          create your own world of fighting and provides an experience of
+          Welcome to Planet Fighter, a combat sport simulation game that lets
+          you create your own world of fighting and provides an experience of
           running the show.
         </Typography>
         <Grid
@@ -123,6 +127,22 @@ const Home = () => {
               }}
             >
               View Roster
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleSelectDate}
+              sx={{
+                ...fadeIn,
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
+                color: "#000", // Text color
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.6)", // Darker on hover
+                },
+              }}
+            >
+              Select Date
             </Button>
           </Grid>
           <Grid item>
