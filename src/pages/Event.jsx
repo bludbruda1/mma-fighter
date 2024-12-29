@@ -379,92 +379,104 @@ const Event = () => {
     setCurrentFightIndex(null);
   };
 
-  /**
-   * Updates fighter records after a fight
+    /**
+   * Updates fighter records and rankings after a fight
    * @param {Object[]} fighters - Array of fighter objects
-   * @param {number} winnerIndex - Index of the winning fighter
    * @param {Object} result - Fight result object
    */
-  const updateFighterRecords = async (fighters, result) => {
-    // Validate result and winnerIndex
-    if (!result || typeof result.winner !== 'number' || result.winner < 0 || result.winner > 1) {
-      console.error("Invalid fight result or winner index:", result);
-      return;
-    }
-
-    // Assign winner and loser fighters
-    const winnerIndex = result.winner;
-    const winnerFighter = fighters[winnerIndex];
-    const loserFighter = fighters[1 - winnerIndex];
-
-    // Ensure both fighters exist
-    if (!winnerFighter || !loserFighter) {
-      console.error("Error: Unable to determine winner or loser.");
-      console.log("Fighters Array:", fighters);
-      console.log("Winner Fighter:", winnerFighter);
-      console.log("Loser Fighter:", loserFighter);
-      return;
-    }
-
-    // Construct opponent names
-    const winnerOpponentName = `${loserFighter.firstname || "Unknown"} ${
-      loserFighter.lastname || ""
-    }`.trim();
-    const loserOpponentName = `${winnerFighter.firstname || "Unknown"} ${
-      winnerFighter.lastname || ""
-    }`.trim();
-
-    // Define fight result entries
-    const fightResultForWinner = {
-      opponentId: loserFighter.id,
-      opponentName: winnerOpponentName,
-      result: "Win",
-      method: result.method,
-      roundEnded: result.roundEnded,
-      timeEnded: formatEndTime(result.endTime),
-    };
-
-    const fightResultForLoser = {
-      opponentId: winnerFighter.id,
-      opponentName: loserOpponentName,
-      result: "Loss",
-      method: result.method,
-      roundEnded: result.roundEnded,
-      timeEnded: formatEndTime(result.endTime),
-    };
-
-    // Update records for each fighter
-    const updatedFighters = fighters.map((fighter) => {
-      if (fighter.id === winnerFighter.id) {
-        return {
-          ...fighter,
-          wins: (fighter.wins || 0) + 1,
-          fightHistory: [fightResultForWinner, ...(fighter.fightHistory || [])],
-        };
-      } else if (fighter.id === loserFighter.id) {
-        return {
-          ...fighter,
-          losses: (fighter.losses || 0) + 1,
-          fightHistory: [fightResultForLoser, ...(fighter.fightHistory || [])],
-        };
-      } else {
-        return fighter;
+    const updateFighterRecords = async (fighters, result) => {
+      try {
+        // Validate result and winnerIndex
+        if (!result || typeof result.winner !== 'number' || result.winner < 0 || result.winner > 1) {
+          console.error("Invalid fight result or winner index:", result);
+          return;
+        }
+  
+        // Assign winner and loser fighters
+        const winnerIndex = result.winner;
+        const winnerFighter = fighters[winnerIndex];
+        const loserFighter = fighters[1 - winnerIndex];
+  
+        // Ensure both fighters exist
+        if (!winnerFighter || !loserFighter) {
+          console.error("Error: Unable to determine winner or loser.");
+          return;
+        }
+  
+        // Get all fighters for ranking updates
+        const allFighters = await getAllFighters();
+        
+        // Update rankings
+        const rankingUpdates = await updateRankingsAfterFight(
+          winnerFighter, 
+          loserFighter, 
+          allFighters, 
+          championships
+        );
+  
+        // Create a map of all fighters that need updates
+        const fighterUpdates = new Map();
+  
+        // Add record updates for winner and loser
+        fighterUpdates.set(winnerFighter.personid, {
+          ...winnerFighter,
+          wins: (winnerFighter.wins || 0) + 1,
+          fightHistory: [
+            {
+              opponentId: loserFighter.personid,
+              opponentName: `${loserFighter.firstname} ${loserFighter.lastname}`,
+              result: "Win",
+              method: result.method,
+              roundEnded: result.roundEnded,
+              timeEnded: formatEndTime(result.endTime),
+            },
+            ...(winnerFighter.fightHistory || []),
+          ],
+        });
+  
+        fighterUpdates.set(loserFighter.personid, {
+          ...loserFighter,
+          losses: (loserFighter.losses || 0) + 1,
+          fightHistory: [
+            {
+              opponentId: winnerFighter.personid,
+              opponentName: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
+              result: "Loss",
+              method: result.method,
+              roundEnded: result.roundEnded,
+              timeEnded: formatEndTime(result.endTime),
+            },
+            ...(loserFighter.fightHistory || []),
+          ],
+        });
+  
+        // Add ranking updates
+        rankingUpdates.forEach(fighter => {
+          const existingUpdate = fighterUpdates.get(fighter.personid);
+          if (existingUpdate) {
+            fighterUpdates.set(fighter.personid, {
+              ...existingUpdate,
+              ranking: fighter.ranking,
+            });
+          } else {
+            const baseFighter = allFighters.find(f => f.personid === fighter.personid);
+            fighterUpdates.set(fighter.personid, {
+              ...baseFighter,
+              ranking: fighter.ranking,
+            });
+          }
+        });
+  
+        // Update all affected fighters in the database
+        await Promise.all(
+          Array.from(fighterUpdates.values()).map(fighter => updateFighter(fighter))
+        );
+  
+        console.log("Updated fighters:", Array.from(fighterUpdates.values()));
+      } catch (error) {
+        console.error("Error updating fighter records:", error);
       }
-    });
-
-    // Update rankings based on fight outcome
-    const allFighters = await getAllFighters();
-    const rankingUpdates = updateRankingsAfterFight(winnerFighter, loserFighter, allFighters, championships);
-    
-    // Merge ranking updates with record updates
-    const finalUpdates = updatedFighters.map(fighter => {
-      const rankingUpdate = rankingUpdates.find(r => r.personid === fighter.personid);
-      return rankingUpdate ? { ...fighter, ranking: rankingUpdate.ranking } : fighter;
-    });
-
-    // Update fighters in the database
-    await Promise.all(finalUpdates.map(updateFighter));
-  };
+    };
 
   // Helper functions for displaying stats and preparing tabs
   const prepareTabs = (fightData) => [
