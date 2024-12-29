@@ -1,4 +1,4 @@
-// src/utils/rankingsHelper.js
+const DEFAULT_RANKING_SLOTS = 15;
 
 /**
  * Handles updating fighter rankings after a fight
@@ -8,7 +8,7 @@
  * @param {Array} championships - Array of all championships
  * @returns {Array} Array of fighters that need their rankings updated
  */
-export const updateRankingsAfterFight = (winner, loser, allFighters, championships) => {
+export const updateRankingsAfterFight = (winner, loser, allFighters, championships, maxRankings = DEFAULT_RANKING_SLOTS) => {
   // Don't update rankings if either fighter is a champion
   const isChampion = (fighter) => championships.some(c => c.currentChampionId === fighter.personid);
   if (isChampion(winner) || isChampion(loser)) {
@@ -41,14 +41,14 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
     let currentRank = 1;
 
     // Process each ranking position
-    while (currentRank <= 10) {
+    while (currentRank <= maxRankings) {
       if (currentRank === loserRank) {
         // Place winner at loser's rank
         updatedFighters.push({
           ...winner,
           ranking: currentRank
         });
-
+  
         // Move loser and everyone else down
         weightClassFighters
           .filter(f => 
@@ -56,13 +56,12 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
             f.personid === loser.personid
           )
           .forEach(fighter => {
-            if (currentRank < 10) {
+            if (currentRank < maxRankings) {
               updatedFighters.push({
                 ...fighter,
                 ranking: currentRank + 1
               });
             } else {
-              // If we're at rank 10, any remaining fighters become unranked
               updatedFighters.push({
                 ...fighter,
                 ranking: null
@@ -70,7 +69,7 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
             }
             currentRank++;
           });
-
+  
         break;
       } else {
         // Keep existing fighter at their rank
@@ -120,17 +119,15 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
  * @param {Array} championships - Array of all championships
  * @returns {string} Formatted ranking display text
  */
-export const getRankingDisplay = (fighter, championships) => {
+export const getRankingDisplay = (fighter, championships, maxRankings = DEFAULT_RANKING_SLOTS) => {
   if (!fighter) return '';
   
-  // Check if fighter is a champion
   const isChampion = championships.some(c => c.currentChampionId === fighter.personid);
   if (isChampion) return 'C';
   
-  // Return ranking if it exists and is within valid range
-  if (fighter.ranking && fighter.ranking > 0 && fighter.ranking <= 10) {
+  if (fighter.ranking && fighter.ranking > 0 && fighter.ranking <= maxRankings) {
     return `#${fighter.ranking}`;
   }
   
-  return 'NR'; // Not Ranked
+  return 'NR';
 };

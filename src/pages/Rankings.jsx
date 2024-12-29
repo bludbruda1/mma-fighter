@@ -22,20 +22,27 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TextField,
+  Grid,
+  Chip,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllFighters, getAllChampionships, updateFighter } from '../utils/indexedDB';
 
 const Rankings = () => {
-  // State management
+  // Core state management
   const [championships, setChampionships] = useState([]);
   const [fighters, setFighters] = useState([]);
   const [selectedChampionship, setSelectedChampionship] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedFighter, setSelectedFighter] = useState(null);
   const [selectedRank, setSelectedRank] = useState('');
+  
+  // Ranking slots state management
+  const [maxRankings, setMaxRankings] = useState(15); // Current active max rankings
+  const [tempMaxRankings, setTempMaxRankings] = useState(15); // Temporary state for ranking slots input
 
-  // Load initial data
+  // Load initial data on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -46,7 +53,7 @@ const Rankings = () => {
         setChampionships(fetchedChampionships);
         setFighters(fetchedFighters);
         
-        // Set default selected championship
+        // Set default selected championship if available
         if (fetchedChampionships.length > 0) {
           setSelectedChampionship(fetchedChampionships[0]);
         }
@@ -57,36 +64,90 @@ const Rankings = () => {
     loadData();
   }, []);
 
-  // Get fighters for current weight class
+  // Helper function to get sorted fighters for current weight class
   const getWeightClassFighters = () => {
     if (!selectedChampionship) return [];
     
-    return fighters
+    // Create array of maxRankings length filled with null
+    const rankedPositions = Array(maxRankings).fill(null);
+    
+    // Get all fighters in weight class
+    const weightClassFighters = fighters
       .filter(f => f.weightClass === selectedChampionship.weightClass)
       .sort((a, b) => {
         // Champion first
         if (selectedChampionship.currentChampionId === a.personid) return -1;
         if (selectedChampionship.currentChampionId === b.personid) return 1;
         
-        // Then by ranking
-        const rankA = a.ranking || 999;
-        const rankB = b.ranking || 999;
-        return rankA - rankB;
+        // Then by ranking, preserve gaps by not defaulting to 999
+        if (a.ranking === null && b.ranking === null) return 0;
+        if (a.ranking === null) return 1;
+        if (b.ranking === null) return -1;
+        return a.ranking - b.ranking;
       });
+  
+    // Place fighters in their ranked positions
+    weightClassFighters.forEach(fighter => {
+      if (fighter.ranking && fighter.ranking <= maxRankings) {
+        rankedPositions[fighter.ranking - 1] = fighter;
+      }
+    });
+  
+    // Filter out unranked fighters
+    const unrankedFighters = weightClassFighters.filter(f => !f.ranking);
+  
+    // Combine ranked positions (including nulls for vacant spots) with unranked fighters
+    return [...rankedPositions.map((fighter, index) => 
+      fighter || { vacant: true, displayRank: index + 1 }
+    ), ...unrankedFighters];
   };
 
-  // Handle manual ranking update
+  // Handler for ranking slots input change
+  const handleRankingSlotsChange = (event) => {
+    const value = parseInt(event.target.value);
+    if (value >= 1 && value <= 50) { // Enforce reasonable limits
+      setTempMaxRankings(value);
+    }
+  };
+
+  // Handler for confirming ranking slots change
+  const handleConfirmRankingSlots = async () => {
+    setMaxRankings(tempMaxRankings);
+    
+    // Reprocess rankings with new max value
+    const weightClassFighters = getWeightClassFighters();
+    const normalizedFighters = normalizeRankings(weightClassFighters);
+    
+    try {
+      // Update fighters in database
+      await Promise.all(
+        normalizedFighters
+          .filter(f => f.ranking !== (
+            fighters.find(orig => orig.personid === f.personid)?.ranking
+          ))
+          .map(f => updateFighter(f))
+      );
+
+      // Refresh fighters data
+      const refreshedFighters = await getAllFighters();
+      setFighters(refreshedFighters);
+    } catch (error) {
+      console.error('Error updating rankings:', error);
+    }
+  };
+
+  // Handler for opening the ranking update dialog
   const handleOpenUpdateDialog = (fighter) => {
     setSelectedFighter(fighter);
     setSelectedRank(fighter.ranking || '');
     setOpenDialog(true);
   };
 
+  // Handler for updating a fighter's ranking
   const handleUpdateRanking = async () => {
     if (!selectedFighter || !selectedRank) return;
 
     try {
-      // Get affected fighters (those whose ranks need to shift)
       const weightClassFighters = getWeightClassFighters();
       const updatedFighters = weightClassFighters.map(f => {
         if (f.personid === selectedFighter.personid) {
@@ -95,10 +156,10 @@ const Rankings = () => {
         return f;
       });
 
-      // Sort and normalize rankings
+      // Normalize and update rankings
       const normalizedFighters = normalizeRankings(updatedFighters);
 
-      // Update in database
+      // Update changed fighters in database
       await Promise.all(
         normalizedFighters
           .filter(f => f.ranking !== (
@@ -111,6 +172,7 @@ const Rankings = () => {
       const refreshedFighters = await getAllFighters();
       setFighters(refreshedFighters);
       
+      // Reset dialog state
       setOpenDialog(false);
       setSelectedFighter(null);
       setSelectedRank('');
@@ -119,79 +181,93 @@ const Rankings = () => {
     }
   };
 
-  // Normalize rankings to ensure they're sequential and valid
   const normalizeRankings = (fightersToNormalize) => {
-    // First, find the fighter being updated and their new rank
+    // Get the fighter being updated and their new rank
     const updatedFighter = fightersToNormalize.find(f => f.personid === selectedFighter.personid);
     const newRank = parseInt(selectedRank);
-
-    // Filter out champion and sort remaining fighters
-    const otherFighters = fightersToNormalize
-      .filter(f => f.personid !== selectedChampionship?.currentChampionId)
-      .filter(f => f.personid !== selectedFighter.personid)
-      .sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
-
-    // Create final array with updated rankings
-    const finalRankings = [];
-    let currentRank = 1;
-
-    // Add fighters before the new rank
-    while (currentRank < newRank) {
-      const nextFighter = otherFighters.find(f => f.ranking === currentRank);
-      if (nextFighter) {
-        finalRankings.push({ ...nextFighter, ranking: currentRank });
-        otherFighters.splice(otherFighters.indexOf(nextFighter), 1);
-      }
-      currentRank++;
-    }
-
-    // Add the updated fighter at their new rank
-    finalRankings.push({ ...updatedFighter, ranking: newRank });
-    currentRank++;
-
-    // Add remaining fighters
-    otherFighters.forEach(fighter => {
-      if (currentRank <= 10) {
-        finalRankings.push({ ...fighter, ranking: currentRank });
-        currentRank++;
-      } else {
-        finalRankings.push({ ...fighter, ranking: null });
+  
+    // Create array of rankings
+    const rankingsArray = Array(maxRankings).fill(null);
+  
+    // Place all current fighters in their positions
+    fightersToNormalize.forEach(fighter => {
+      if (fighter.ranking && fighter.ranking <= maxRankings) {
+        rankingsArray[fighter.ranking - 1] = fighter;
       }
     });
-
-    // Add the champion back to the list if they exist
-    const champion = fightersToNormalize.find(f => f.personid === selectedChampionship?.currentChampionId);
-    if (champion) {
-      finalRankings.push(champion);
+  
+    // Place the updated fighter in their new position
+    if (newRank && newRank <= maxRankings) {
+      // Remove fighter from old position if they had one
+      if (updatedFighter.ranking) {
+        rankingsArray[updatedFighter.ranking - 1] = null;
+      }
+      // Place in new position
+      rankingsArray[newRank - 1] = { ...updatedFighter, ranking: newRank };
     }
-
-    return finalRankings;
+  
+    // Convert back to fighter array, preserving nulls as vacant spots
+    return rankingsArray
+      .map((fighter, index) => fighter ? { ...fighter } : null)
+      .filter(f => f !== null);
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Title and Championship selector */}
+      {/* Title and Controls Section */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom>
           Rankings
         </Typography>
-        <FormControl fullWidth>
-          <InputLabel>Championship</InputLabel>
-          <Select
-            value={selectedChampionship?.id || ''}
-            label="Championship"
-            onChange={(e) => {
-              const championship = championships.find(c => c.id === e.target.value);
-              setSelectedChampionship(championship);
-            }}
-          >
-            {championships.map((championship) => (
-              <MenuItem key={championship.id} value={championship.id}>
-                {championship.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Grid container spacing={2}>
+          {/* Championship Selector */}
+          <Grid item xs={12} md={8}>
+            <FormControl fullWidth>
+              <InputLabel>Championship</InputLabel>
+              <Select
+                value={selectedChampionship?.id || ''}
+                label="Championship"
+                onChange={(e) => {
+                  const championship = championships.find(c => c.id === e.target.value);
+                  setSelectedChampionship(championship);
+                }}
+              >
+                {championships.map((championship) => (
+                  <MenuItem key={championship.id} value={championship.id}>
+                    {championship.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* Ranking Slots Control */}
+          <Grid item xs={12} md={4}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <TextField
+                label="Number of Ranking Slots"
+                type="number"
+                value={tempMaxRankings}
+                onChange={handleRankingSlotsChange}
+                InputProps={{ inputProps: { min: 1, max: 50 } }}
+                fullWidth
+              />
+              <Button
+                variant="contained"
+                onClick={handleConfirmRankingSlots}
+                disabled={tempMaxRankings === maxRankings}
+                sx={{
+                  backgroundColor: "rgba(33, 33, 33, 0.9)",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "rgba(33, 33, 33, 0.7)",
+                  },
+                }}
+              >
+                Confirm
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
 
       {/* Rankings Display */}
@@ -208,86 +284,178 @@ const Rankings = () => {
             </Box>
 
             <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rank</TableCell>
-                    <TableCell>Fighter</TableCell>
-                    <TableCell>Record</TableCell>
-                    <TableCell>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {/* Champion Row */}
-                  {getWeightClassFighters()
-                    .filter(f => f.personid === selectedChampionship.currentChampionId)
-                    .map((fighter) => (
-                      <TableRow 
-                        key={fighter.personid}
-                        sx={{ 
-                          backgroundColor: 'rgba(255, 215, 0, 0.05)',
-                          '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.1)' }
-                        }}
-                      >
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <EmojiEventsIcon sx={{ color: 'gold' }} />
-                            <Typography>Champion</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Link
-                            to={`/dashboard/${fighter.personid}`}
-                            style={{
-                              textDecoration: "none",
-                              color: "#1976d2",
-                            }}
-                          >
-                            {fighter.firstname} {fighter.lastname}
-                          </Link>
-                        </TableCell>
-                        <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
-                        <TableCell>-</TableCell>
-                      </TableRow>
-                    ))}
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell>Rank</TableCell>
+        <TableCell>Fighter</TableCell>
+        <TableCell>Record</TableCell>
+        <TableCell>Action</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {/* Champion Row */}
+      {getWeightClassFighters()
+        .filter(f => f.personid === selectedChampionship.currentChampionId)
+        .map((fighter) => (
+          <TableRow 
+            key={fighter.personid}
+            sx={{ 
+              backgroundColor: 'rgba(255, 215, 0, 0.05)',
+              '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.1)' }
+            }}
+          >
+            <TableCell>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <EmojiEventsIcon sx={{ color: 'gold' }} />
+                <Typography>Champion</Typography>
+              </Box>
+            </TableCell>
+            <TableCell>
+              <Link
+                to={`/dashboard/${fighter.personid}`}
+                style={{
+                  textDecoration: "none",
+                  color: "#1976d2",
+                }}
+              >
+                {fighter.firstname} {fighter.lastname}
+              </Link>
+            </TableCell>
+            <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
+            <TableCell>-</TableCell>
+          </TableRow>
+        ))}
 
-                  {/* Ranked Fighters */}
-                  {getWeightClassFighters()
-                    .filter(f => f.personid !== selectedChampionship.currentChampionId)
-                    .map((fighter, index) => (
-                      <TableRow 
-                        key={fighter.personid}
-                        sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
-                      >
-                        <TableCell>
-                          {fighter.ranking ? `#${fighter.ranking}` : 'NR'}
-                        </TableCell>
-                        <TableCell>
-                          <Link
-                            to={`/dashboard/${fighter.personid}`}
-                            style={{
-                              textDecoration: "none",
-                              color: "#1976d2",
-                            }}
-                          >
-                            {fighter.firstname} {fighter.lastname}
-                          </Link>
-                        </TableCell>
-                        <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
-                        <TableCell>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => handleOpenUpdateDialog(fighter)}
-                          >
-                            Update Rank
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+      {/* Ranked and Vacant Spots */}
+      {getWeightClassFighters()
+        .filter(f => f.personid !== selectedChampionship.currentChampionId)
+        .map((fighter) => {
+          if (fighter.vacant) {
+            // Vacant spot row styling
+            return (
+              <TableRow 
+                key={`vacant-${fighter.displayRank}`}
+                sx={{ 
+                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                  borderLeft: '3px solid rgba(0, 0, 0, 0.1)',
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                }}
+              >
+                <TableCell>
+                  <Typography color="text.secondary">
+                    #{fighter.displayRank}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography color="text.secondary" fontStyle="italic">
+                    Vacant Position
+                  </Typography>
+                </TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => handleOpenUpdateDialog({ ranking: fighter.displayRank })}
+                    sx={{
+                      borderColor: 'rgba(0, 0, 0, 0.2)',
+                      color: 'rgba(0, 0, 0, 0.6)',
+                      '&:hover': {
+                        borderColor: 'rgba(0, 0, 0, 0.3)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                      }
+                    }}
+                  >
+                    Assign Rank
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          }
+
+          // Determine if fighter is ranked or unranked
+          const isRanked = fighter.ranking && fighter.ranking <= maxRankings;
+
+          return (
+            <TableRow 
+              key={fighter.personid}
+              sx={{ 
+                ...(isRanked ? {
+                  // Ranked fighter styling
+                  backgroundColor: 'white',
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                } : {
+                  // Unranked fighter styling
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  borderLeft: '3px solid rgba(0, 0, 0, 0.2)',
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.08)' }
+                })
+              }}
+            >
+              <TableCell>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {isRanked ? (
+                    // Ranked number display
+                    <Typography 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        color: 'primary.main'
+                      }}
+                    >
+                      #{fighter.ranking}
+                    </Typography>
+                  ) : (
+                    // Unranked label
+                    <Chip 
+                      label="UNRANKED"
+                      size="small"
+                      sx={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                        color: 'rgba(0, 0, 0, 0.6)',
+                        fontWeight: 'medium'
+                      }}
+                    />
+                  )}
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Link
+                  to={`/dashboard/${fighter.personid}`}
+                  style={{
+                    textDecoration: "none",
+                    color: "#1976d2",
+                  }}
+                >
+                  {fighter.firstname} {fighter.lastname}
+                </Link>
+              </TableCell>
+              <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
+              <TableCell>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => handleOpenUpdateDialog(fighter)}
+                  sx={
+                    isRanked ? {} : {
+                      borderColor: 'rgba(0, 0, 0, 0.2)',
+                      color: 'rgba(0, 0, 0, 0.6)',
+                      '&:hover': {
+                        borderColor: 'rgba(0, 0, 0, 0.3)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                      }
+                    }
+                  }
+                >
+                  {isRanked ? 'Update Rank' : 'Assign Rank'}
+                </Button>
+              </TableCell>
+            </TableRow>
+          );
+        })}
+    </TableBody>
+  </Table>
+</TableContainer>
           </CardContent>
         </Card>
       )}
@@ -305,7 +473,7 @@ const Rankings = () => {
               label="New Ranking"
               onChange={(e) => setSelectedRank(e.target.value)}
             >
-              {[...Array(10)].map((_, i) => (
+              {[...Array(maxRankings)].map((_, i) => (
                 <MenuItem key={i + 1} value={i + 1}>
                   #{i + 1}
                 </MenuItem>
