@@ -114,20 +114,30 @@ const Rankings = () => {
   const handleConfirmRankingSlots = async () => {
     setMaxRankings(tempMaxRankings);
     
-    // Reprocess rankings with new max value
-    const weightClassFighters = getWeightClassFighters();
-    const normalizedFighters = normalizeRankings(weightClassFighters);
-    
     try {
-      // Update fighters in database
+      // Get current fighters in weight class
+      const weightClassFighters = fighters.filter(f => 
+        f.weightClass === selectedChampionship.weightClass
+      );
+  
+      // Normalize rankings to new max value
+      const updatedFighters = weightClassFighters.map(fighter => {
+        if (fighter.ranking && fighter.ranking > tempMaxRankings) {
+          // Remove ranking if it exceeds new max
+          return { ...fighter, ranking: null };
+        }
+        return fighter;
+      });
+  
+      // Update changed fighters in database
       await Promise.all(
-        normalizedFighters
+        updatedFighters
           .filter(f => f.ranking !== (
             fighters.find(orig => orig.personid === f.personid)?.ranking
           ))
           .map(f => updateFighter(f))
       );
-
+  
       // Refresh fighters data
       const refreshedFighters = await getAllFighters();
       setFighters(refreshedFighters);
@@ -182,28 +192,30 @@ const Rankings = () => {
   };
 
   const normalizeRankings = (fightersToNormalize) => {
-    // Get the fighter being updated and their new rank
-    const updatedFighter = fightersToNormalize.find(f => f.personid === selectedFighter.personid);
-    const newRank = parseInt(selectedRank);
-  
     // Create array of rankings
     const rankingsArray = Array(maxRankings).fill(null);
-  
+    
     // Place all current fighters in their positions
     fightersToNormalize.forEach(fighter => {
-      if (fighter.ranking && fighter.ranking <= maxRankings) {
+      // Skip vacant positions and ensure fighter has a personid
+      if (!fighter.vacant && fighter.personid && fighter.ranking && fighter.ranking <= maxRankings) {
         rankingsArray[fighter.ranking - 1] = fighter;
       }
     });
-  
-    // Place the updated fighter in their new position
-    if (newRank && newRank <= maxRankings) {
-      // Remove fighter from old position if they had one
-      if (updatedFighter.ranking) {
-        rankingsArray[updatedFighter.ranking - 1] = null;
+    
+    // Only handle updating selected fighter if one exists and has a new rank
+    if (selectedFighter && selectedFighter.personid && selectedRank) {
+      const updatedFighter = fightersToNormalize.find(f => f.personid === selectedFighter.personid);
+      const newRank = parseInt(selectedRank);
+      
+      if (updatedFighter && newRank && newRank <= maxRankings) {
+        // Remove fighter from old position if they had one
+        if (updatedFighter.ranking) {
+          rankingsArray[updatedFighter.ranking - 1] = null;
+        }
+        // Place in new position
+        rankingsArray[newRank - 1] = { ...updatedFighter, ranking: newRank };
       }
-      // Place in new position
-      rankingsArray[newRank - 1] = { ...updatedFighter, ranking: newRank };
     }
   
     // Convert back to fighter array, preserving nulls as vacant spots
