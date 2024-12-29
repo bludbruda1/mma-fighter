@@ -11,6 +11,7 @@ import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
 import EventsList from "./pages/EventsList";
 import Calendar from "./components/Calendar";
+import Rankings from "./pages/Rankings";
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
         <Route path="/dashboard/:id" element={<Dashboard />} />
         <Route path="/events" element={<EventsList />} />
         <Route path="/calendar" element={<Calendar />} />
+        <Route path="/rankings" element={<Rankings />} />
       </Routes>
     </>
   );

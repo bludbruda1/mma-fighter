@@ -138,6 +138,17 @@ const HamburgerMenu = () => {
             </ListItemIcon>
             <ListItemText primary="Champions" sx={{ color: '#fff'}} />
           </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/rankings"
+            onClick={handleDrawerToggle}
+            >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <EmojiEventsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Rankings" sx={{ color: '#fff'}} />
+          </ListItem>
         </List>
       </Drawer>
     </>
