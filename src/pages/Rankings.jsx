@@ -402,24 +402,8 @@ const Rankings = () => {
                     Vacant Position
                   </Typography>
                 </TableCell>
+                <TableCell></TableCell>
                 <TableCell>-</TableCell>
-                <TableCell>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => handleOpenUpdateDialog({ ranking: fighter.displayRank })}
-                    sx={{
-                      borderColor: 'rgba(0, 0, 0, 0.2)',
-                      color: 'rgba(0, 0, 0, 0.6)',
-                      '&:hover': {
-                        borderColor: 'rgba(0, 0, 0, 0.3)',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)'
-                      }
-                    }}
-                  >
-                    Assign Rank
-                  </Button>
-                </TableCell>
               </TableRow>
             );
           }
