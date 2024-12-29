@@ -39,8 +39,9 @@ const Rankings = () => {
   const [selectedRank, setSelectedRank] = useState('');
   
   // Ranking slots state management
-  const [maxRankings, setMaxRankings] = useState(15); // Current active max rankings
-  const [tempMaxRankings, setTempMaxRankings] = useState(15); // Temporary state for ranking slots input
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [maxRankings, setMaxRankings] = useState(15); // Keep default of 15
+  const [tempMaxRankings, setTempMaxRankings] = useState(15);
 
   // Load initial data on component mount
   useEffect(() => {
@@ -56,13 +57,25 @@ const Rankings = () => {
         // Set default selected championship if available
         if (fetchedChampionships.length > 0) {
           setSelectedChampionship(fetchedChampionships[0]);
+          
+          // Find the highest current ranking in the data
+          const highestRanking = fetchedFighters.reduce((max, fighter) => {
+            return fighter.ranking ? Math.max(max, fighter.ranking) : max;
+          }, 0);
+  
+          // Only update if we found rankings and haven't initialized yet
+          if (highestRanking > 0 && !isInitialized) {
+            setMaxRankings(highestRanking);
+            setTempMaxRankings(highestRanking);
+            setIsInitialized(true);
+          }
         }
       } catch (error) {
         console.error('Error loading data:', error);
       }
     };
     loadData();
-  }, []);
+  }, [isInitialized]); // Add isInitialized to dependencies
 
   // Helper function to get sorted fighters for current weight class
   const getWeightClassFighters = () => {
@@ -112,37 +125,62 @@ const Rankings = () => {
 
   // Handler for confirming ranking slots change
   const handleConfirmRankingSlots = async () => {
-    setMaxRankings(tempMaxRankings);
-    
     try {
+      // Update the max rankings state
+      setMaxRankings(tempMaxRankings);
+      
       // Get current fighters in weight class
       const weightClassFighters = fighters.filter(f => 
-        f.weightClass === selectedChampionship.weightClass
+        f.weightClass === selectedChampionship.weightClass &&
+        f.personid !== selectedChampionship.currentChampionId // Exclude current champion
       );
   
-      // Normalize rankings to new max value
-      const updatedFighters = weightClassFighters.map(fighter => {
-        if (fighter.ranking && fighter.ranking > tempMaxRankings) {
-          // Remove ranking if it exceeds new max
-          return { ...fighter, ranking: null };
+      // Map to track updates needed
+      const updatedFighters = new Map();
+  
+      // Process each fighter
+      weightClassFighters.forEach(fighter => {
+        if (fighter.ranking) {
+          if (fighter.ranking > tempMaxRankings) {
+            // If fighter's ranking is now above the new max, remove their ranking
+            updatedFighters.set(fighter.personid, {
+              ...fighter,
+              ranking: null
+            });
+          } else {
+            // Keep existing ranking if within new range
+            updatedFighters.set(fighter.personid, fighter);
+          }
         }
-        return fighter;
       });
   
-      // Update changed fighters in database
-      await Promise.all(
-        updatedFighters
-          .filter(f => f.ranking !== (
-            fighters.find(orig => orig.personid === f.personid)?.ranking
-          ))
-          .map(f => updateFighter(f))
-      );
+      // Convert map back to array and filter for changes
+      const fightersToUpdate = Array.from(updatedFighters.values())
+        .filter(updatedFighter => {
+          const originalFighter = fighters.find(f => f.personid === updatedFighter.personid);
+          return originalFighter.ranking !== updatedFighter.ranking;
+        });
   
-      // Refresh fighters data
-      const refreshedFighters = await getAllFighters();
-      setFighters(refreshedFighters);
+      // Batch update all changed fighters
+      if (fightersToUpdate.length > 0) {
+        await Promise.all(
+          fightersToUpdate.map(fighter => updateFighter(fighter))
+        );
+  
+        // Refresh fighters data after updates
+        const refreshedFighters = await getAllFighters();
+        setFighters(refreshedFighters);
+      }
+  
+      // Keep tempMaxRankings in sync
+      setTempMaxRankings(tempMaxRankings);
+  
+      console.log(`Successfully updated ranking slots to ${tempMaxRankings}`);
     } catch (error) {
-      console.error('Error updating rankings:', error);
+      console.error('Error updating ranking slots:', error);
+      
+      // On error, reset tempMaxRankings to current maxRankings
+      setTempMaxRankings(maxRankings);
     }
   };
 
