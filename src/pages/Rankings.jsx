@@ -586,18 +586,57 @@ useEffect(() => {
               label="New Ranking"
               onChange={(e) => setSelectedRank(e.target.value)}
             >
-              {[...Array(maxRankings)].map((_, i) => (
-                <MenuItem key={i + 1} value={i + 1}>
-                  #{i + 1}
-                </MenuItem>
-              ))}
-              <MenuItem value={null}>Unranked</MenuItem>
+              {[...Array(maxRankings)].map((_, i) => {
+                const rankNumber = i + 1;
+                // Find fighter currently at this rank
+                const currentFighter = fighters.find(f => 
+                  f.weightClass === selectedChampionship.weightClass && 
+                  f.ranking === rankNumber &&
+                  f.personid !== selectedFighter?.personid // Exclude selected fighter
+                );
+
+                return (
+                  <MenuItem 
+                    key={rankNumber} 
+                    value={rankNumber}
+                    sx={{
+                      fontWeight: currentFighter ? 'normal' : 'light',
+                      color: currentFighter ? 'text.primary' : 'text.secondary'
+                    }}
+                  >
+                    {`#${rankNumber} - ${currentFighter ? 
+                      `${currentFighter.firstname} ${currentFighter.lastname}` : 
+                      'Vacant'}`}
+                  </MenuItem>
+                );
+              })}
+              <MenuItem 
+                value={null}
+                sx={{ 
+                  borderTop: 1, 
+                  borderColor: 'divider',
+                  mt: 1,
+                  fontWeight: 'bold'
+                }}
+              >
+                Unranked
+              </MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateRanking} variant="contained">
+          <Button 
+            onClick={handleUpdateRanking} 
+            variant="contained"
+            sx={{
+              backgroundColor: "rgba(33, 33, 33, 0.9)",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "rgba(33, 33, 33, 0.7)",
+              },
+            }}
+          >
             Update
           </Button>
         </DialogActions>
