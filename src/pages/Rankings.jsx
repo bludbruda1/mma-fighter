@@ -671,18 +671,25 @@ useEffect(() => {
                   f.personid !== selectedFighter?.personid // Exclude selected fighter
                 );
 
+                // Determine if this is the selected fighter's current rank
+                const isCurrentFighterRank = selectedFighter?.ranking === rankNumber;
+
                 return (
                   <MenuItem 
                     key={rankNumber} 
                     value={rankNumber}
                     sx={{
-                      fontWeight: currentFighter ? 'normal' : 'light',
-                      color: currentFighter ? 'text.primary' : 'text.secondary'
+                      // Style differently based on whether it's occupied or the current fighter's rank
+                      fontWeight: currentFighter || isCurrentFighterRank ? 'normal' : 'light',
+                      color: isCurrentFighterRank ? 'primary.main' : (currentFighter ? 'text.primary' : 'text.secondary'),
+                      fontStyle: isCurrentFighterRank ? 'italic' : 'normal'
                     }}
                   >
-                    {`#${rankNumber} - ${currentFighter ? 
-                      `${currentFighter.firstname} ${currentFighter.lastname}` : 
-                      'Vacant'}`}
+                    {`#${rankNumber} - ${isCurrentFighterRank ? 
+                      `Current Position (${selectedFighter.firstname} ${selectedFighter.lastname})` : 
+                      (currentFighter ? 
+                        `${currentFighter.firstname} ${currentFighter.lastname}` : 
+                        'Vacant')}`}
                   </MenuItem>
                 );
               })}
