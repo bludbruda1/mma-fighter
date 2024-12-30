@@ -3,12 +3,13 @@ const dbName = "FightersDB";
 const fighterStoreName = "fighters";
 const eventStoreName = "events";
 const fightsStoreName = "fights";
-const championshipStoreName = 'championships';
+const championshipStoreName = "championships";
+const settingsStoreName = "settings";
 
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = () => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 3); // Increment version to trigger upgrade if needed
+    const request = indexedDB.open(dbName, 4); // Increment version to trigger upgrade if needed
 
     request.onerror = () => {
       console.error("Error opening database");
@@ -46,6 +47,12 @@ export const openDB = () => {
       if (!db.objectStoreNames.contains(championshipStoreName)) {
         console.log(`Creating object store: ${championshipStoreName}`);
         db.createObjectStore(championshipStoreName, { keyPath: "id" });
+      }
+
+      // Create the "settings" store if it doesn't exist
+      if (!db.objectStoreNames.contains(settingsStoreName)) {
+        console.log(`Creating object store: ${settingsStoreName}`);
+        db.createObjectStore(settingsStoreName, { keyPath: "key" });
       }
     };
   });
@@ -108,16 +115,16 @@ export const addEventToDB = async (event) => {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(eventStoreName, "readwrite");
     const store = transaction.objectStore(eventStoreName);
-    
+
     // Validate that ID is numeric
     if (!Number.isInteger(event.id)) {
-      reject(new Error('Event ID must be an integer'));
+      reject(new Error("Event ID must be an integer"));
       return;
     }
 
     // Validate that fight IDs are numeric
-    if (!event.fights.every(id => Number.isInteger(id))) {
-      reject(new Error('All fight IDs must be integers'));
+    if (!event.fights.every((id) => Number.isInteger(id))) {
+      reject(new Error("All fight IDs must be integers"));
       return;
     }
 
@@ -155,7 +162,7 @@ export const getAllEvents = async () => {
 export const getEventFromDB = async (eventId) => {
   const numericId = Number(eventId);
   if (!Number.isInteger(numericId)) {
-    return Promise.reject('Event ID must be an integer');
+    return Promise.reject("Event ID must be an integer");
   }
 
   try {
@@ -196,7 +203,10 @@ export const getNextEventId = async () => {
     getRequest.onsuccess = (event) => {
       const events = event.target.result;
       // Find highest numeric ID
-      const maxId = events.reduce((max, current) => Math.max(max, current.id), 0);
+      const maxId = events.reduce(
+        (max, current) => Math.max(max, current.id),
+        0
+      );
       resolve(maxId + 1);
     };
 
@@ -207,13 +217,13 @@ export const getNextEventId = async () => {
 // Function to add a fight to IndexedDB
 export const addFightToDB = async (fight) => {
   if (!fight || !fight.fighter1 || !fight.fighter2) {
-    console.error('Invalid fight data:', fight);
-    return Promise.reject('Invalid fight structure');
+    console.error("Invalid fight data:", fight);
+    return Promise.reject("Invalid fight structure");
   }
 
   // Validate that ID is numeric
   if (!Number.isInteger(fight.id)) {
-    return Promise.reject('Fight ID must be an integer');
+    return Promise.reject("Fight ID must be an integer");
   }
 
   try {
@@ -228,29 +238,29 @@ export const addFightToDB = async (fight) => {
         fighter1: {
           personid: fight.fighter1.personid || null,
           firstname: fight.fighter1.firstname,
-          lastname: fight.fighter1.lastname
+          lastname: fight.fighter1.lastname,
         },
         fighter2: {
           personid: fight.fighter2.personid || null,
           firstname: fight.fighter2.firstname,
-          lastname: fight.fighter2.lastname
-        }
+          lastname: fight.fighter2.lastname,
+        },
       };
 
       store.put(normalizedFight);
 
       transaction.oncomplete = () => {
-        console.log('Fight successfully added to database:', normalizedFight);
+        console.log("Fight successfully added to database:", normalizedFight);
         resolve(fight);
       };
 
       transaction.onerror = (error) => {
-        console.error('Transaction error while adding fight:', error);
+        console.error("Transaction error while adding fight:", error);
         reject(error);
       };
     });
   } catch (error) {
-    console.error('Database error while adding fight:', error);
+    console.error("Database error while adding fight:", error);
     return Promise.reject(error);
   }
 };
@@ -270,7 +280,7 @@ export const getAllFights = async () => {
     };
 
     request.onerror = (error) => {
-      console.error('Error fetching fights:', error);
+      console.error("Error fetching fights:", error);
       reject("Error fetching fights");
     };
   });
@@ -279,34 +289,35 @@ export const getAllFights = async () => {
 // Function to get multiple fights by their IDs
 export const getFightsByIds = async (fightIds) => {
   if (!Array.isArray(fightIds)) {
-    return Promise.reject('fightIds must be an array of numbers');
+    return Promise.reject("fightIds must be an array of numbers");
   }
 
   const db = await openDB();
   return Promise.all(
-    fightIds.map(id => 
-      new Promise((resolve, reject) => {
-        const transaction = db.transaction(fightsStoreName, "readonly");
-        const store = transaction.objectStore(fightsStoreName);
-        const request = store.get(id);
+    fightIds.map(
+      (id) =>
+        new Promise((resolve, reject) => {
+          const transaction = db.transaction(fightsStoreName, "readonly");
+          const store = transaction.objectStore(fightsStoreName);
+          const request = store.get(id);
 
-        request.onsuccess = () => {
-          resolve(request.result || null);
-        };
-        request.onerror = (error) => {
-          console.error(`Error fetching fight ${id}:`, error);
-          reject(error);
-        };
-      })
+          request.onsuccess = () => {
+            resolve(request.result || null);
+          };
+          request.onerror = (error) => {
+            console.error(`Error fetching fight ${id}:`, error);
+            reject(error);
+          };
+        })
     )
-  ).then(fights => fights.filter(fight => fight !== null));
+  ).then((fights) => fights.filter((fight) => fight !== null));
 };
 
 // Function to get a single fight by ID
 export const getFightFromDB = async (fightId) => {
   const numericId = Number(fightId);
   if (!Number.isInteger(numericId)) {
-    return Promise.reject('Fight ID must be an integer');
+    return Promise.reject("Fight ID must be an integer");
   }
 
   try {
@@ -347,12 +358,15 @@ export const getNextFightId = async () => {
     request.onsuccess = (event) => {
       const fights = event.target.result || [];
       // Find highest numeric ID
-      const maxId = fights.reduce((max, current) => Math.max(max, current.id), 0);
+      const maxId = fights.reduce(
+        (max, current) => Math.max(max, current.id),
+        0
+      );
       resolve(maxId + 1);
     };
 
     request.onerror = (error) => {
-      console.error('Error getting next fight ID:', error);
+      console.error("Error getting next fight ID:", error);
       reject("Error fetching fights");
     };
   });
@@ -361,15 +375,15 @@ export const getNextFightId = async () => {
 // Function to update fight results
 export const updateFightResults = async (fightId, results) => {
   if (!Number.isInteger(fightId)) {
-    return Promise.reject('Fight ID must be an integer');
+    return Promise.reject("Fight ID must be an integer");
   }
 
   try {
     const db = await openDB();
     const fight = await getFightFromDB(fightId);
-    
+
     if (!fight) {
-      return Promise.reject('Fight not found');
+      return Promise.reject("Fight not found");
     }
 
     return new Promise((resolve, reject) => {
@@ -379,27 +393,26 @@ export const updateFightResults = async (fightId, results) => {
       const updatedFight = {
         ...fight,
         result: results.result,
-        stats: results.stats
+        stats: results.stats,
       };
 
       store.put(updatedFight);
 
       transaction.oncomplete = () => {
-        console.log('Fight results updated:', updatedFight);
+        console.log("Fight results updated:", updatedFight);
         resolve(updatedFight);
       };
 
       transaction.onerror = (error) => {
-        console.error('Error updating fight results:', error);
+        console.error("Error updating fight results:", error);
         reject(error);
       };
     });
   } catch (error) {
-    console.error('Database error while updating fight results:', error);
+    console.error("Database error while updating fight results:", error);
     return Promise.reject(error);
   }
 };
-
 
 // Function to add a new championship
 export const addChampionship = async (championship) => {
@@ -440,7 +453,7 @@ export const updateChampionship = async (championship) => {
   });
 };
 
-// Function to get the next championship ID
+//  Function to get the next championship ID
 export const getNextChampionshipId = async () => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -483,6 +496,64 @@ export const getChampionshipById = async (id) => {
     const request = store.get(id);
 
     request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+export const saveGameDate = async (date) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readwrite");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.put({ key: "gameDate", value: date }); // Save as YYYY-MM-DD
+
+    request.onsuccess = () => {
+      console.log("Game date saved successfully:", date);
+      resolve();
+    };
+
+    request.onerror = (event) => {
+      console.error("Error saving game date:", event.target.error);
+      reject(event.target.error);
+    };
+  });
+};
+
+// Retrieve the game date
+export const getGameDate = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readonly");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.get("gameDate");
+
+    request.onsuccess = () =>
+      resolve(request.result?.value || new Date().toISOString());
+    request.onerror = (event) => reject(event.target.error);
+  });
+};
+
+// Functions to manage settings
+export const updateSettings = async (key, value) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readwrite");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.put({ key, value });
+
+    request.onsuccess = () => resolve(value);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+export const getSettings = async (key) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readonly");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.get(key);
+
+    request.onsuccess = () => resolve(request.result?.value);
     request.onerror = () => reject(request.error);
   });
 };

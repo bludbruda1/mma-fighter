@@ -30,7 +30,7 @@ const Dashboard = () => {
   const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
 
-  // Helper function to sort fights
+  //  Helper function to sort fights
   const sortFights = (fights) => {
     const upcoming = [];
     const completed = [];

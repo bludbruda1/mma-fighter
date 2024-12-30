@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
 import {
   Button,
@@ -32,6 +32,7 @@ import { EventContext } from "../contexts/EventContext";
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Core state management
   const [fighters, setFighters] = useState([]);
@@ -47,8 +48,10 @@ const CreateEvent = () => {
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
-  const [selectedFightersInEvent, setSelectedFightersInEvent] = useState(new Set());
-  
+  const [selectedFightersInEvent, setSelectedFightersInEvent] = useState(
+    new Set()
+  );
+
   // Error tracking
   const [selectionErrors, setSelectionErrors] = useState({});
 
@@ -60,10 +63,14 @@ const CreateEvent = () => {
 
   // Initialize number of fights when it changes
   useEffect(() => {
-    setFights(Array(numFights).fill(null).map(() => ({ 
-      fighter1: null, 
-      fighter2: null 
-    })));
+    setFights(
+      Array(numFights)
+        .fill(null)
+        .map(() => ({
+          fighter1: null,
+          fighter2: null,
+        }))
+    );
   }, [numFights]);
 
   // Load initial data: fighters, championships, and check bookings
@@ -71,23 +78,27 @@ const CreateEvent = () => {
     const loadData = async () => {
       try {
         // Fetch fighters, fights, and championships data
-        const [fetchedFighters, allFights, fetchedChampionships] = await Promise.all([
-          getAllFighters(),
-          getAllFights(),
-          getAllChampionships(),
-        ]);
+        const [fetchedFighters, allFights, fetchedChampionships] =
+          await Promise.all([
+            getAllFighters(),
+            getAllFights(),
+            getAllChampionships(),
+          ]);
 
         // Create set of fighter IDs that are already booked in other events
         const bookedFighterIds = new Set();
-        allFights.forEach(fight => {
-          if (!fight.result) { // Only consider unfinished fights
-            if (fight.fighter1?.personid) bookedFighterIds.add(fight.fighter1.personid);
-            if (fight.fighter2?.personid) bookedFighterIds.add(fight.fighter2.personid);
+        allFights.forEach((fight) => {
+          if (!fight.result) {
+            // Only consider unfinished fights
+            if (fight.fighter1?.personid)
+              bookedFighterIds.add(fight.fighter1.personid);
+            if (fight.fighter2?.personid)
+              bookedFighterIds.add(fight.fighter2.personid);
           }
         });
 
         // Identify vacant championships
-        const vacant = fetchedChampionships.filter(c => !c.currentChampionId);
+        const vacant = fetchedChampionships.filter((c) => !c.currentChampionId);
         setVacantChampionships(vacant);
 
         setFighters(fetchedFighters);
@@ -107,7 +118,7 @@ const CreateEvent = () => {
     if (bookedFighters.has(fighterId)) {
       return {
         available: false,
-        error: "Fighter is already booked in another event"
+        error: "Fighter is already booked in another event",
       };
     }
 
@@ -115,50 +126,64 @@ const CreateEvent = () => {
     if (selectedFightersInEvent.has(fighterId)) {
       return {
         available: false,
-        error: "Fighter is already scheduled in this event"
+        error: "Fighter is already scheduled in this event",
       };
     }
 
     return { available: true };
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const dateFromQuery = params.get("date");
+    if (dateFromQuery) {
+      setSelectedDate(dateFromQuery); // Set the selected date if available
+    }
+  }, [location.search]);
+
   // Helper function for date changes
   const handleDateChange = (e) => {
     const dateString = e.target.value;
     setSelectedDate(dateString);
-  }; 
+  };
 
   // Helper function to check if a fighter is a champion
-const getChampionship = (fighterId) => {
-  
-  // Convert fighterId to string for safety if needed
-  const fighterIdStr = String(fighterId);
-  const fighterIdNum = Number(fighterId);
-  
-  const championship = championships.find(c => {
-    return c.currentChampionId === fighterIdNum || c.currentChampionId === fighterIdStr;
-  });
-  
-  return championship;
-};
+  const getChampionship = (fighterId) => {
+    // Convert fighterId to string for safety if needed
+    const fighterIdStr = String(fighterId);
+    const fighterIdNum = Number(fighterId);
+
+    const championship = championships.find((c) => {
+      return (
+        c.currentChampionId === fighterIdNum ||
+        c.currentChampionId === fighterIdStr
+      );
+    });
+
+    return championship;
+  };
 
   // Handle fighter selection for a fight
   const handleSelectChange = (fightIndex, fighterKey, event) => {
     const selectedId = Number(event.target.value);
     const selectedFighter = fighters.find((f) => f.personid === selectedId);
-    
+
     if (!selectedFighter) {
-      console.error('Fighter not found:', selectedId);
+      console.error("Fighter not found:", selectedId);
       return;
     }
 
     // Validate fighter availability
-    const { available, error } = isFighterAvailable(selectedId, fightIndex, fighterKey);
-    
+    const { available, error } = isFighterAvailable(
+      selectedId,
+      fightIndex,
+      fighterKey
+    );
+
     if (!available) {
       setSelectionErrors({
         ...selectionErrors,
-        [`${fightIndex}-${fighterKey}`]: error
+        [`${fightIndex}-${fighterKey}`]: error,
       });
       return;
     }
@@ -169,9 +194,9 @@ const getChampionship = (fighterId) => {
     setSelectionErrors(newErrors);
 
     // Update fights state and selected fighters tracking
-    setFights(prevFights => {
+    setFights((prevFights) => {
       const newFights = [...prevFights];
-      
+
       // Remove previous fighter from tracking if exists
       if (newFights[fightIndex]?.[fighterKey]?.personid) {
         const newSelected = new Set(selectedFightersInEvent);
@@ -182,32 +207,37 @@ const getChampionship = (fighterId) => {
       // Add new fighter
       newFights[fightIndex] = {
         ...newFights[fightIndex],
-        [fighterKey]: selectedFighter
+        [fighterKey]: selectedFighter,
       };
 
       // Add new fighter to tracking
-      setSelectedFightersInEvent(prev => new Set([...prev, selectedId]));
-      
+      setSelectedFightersInEvent((prev) => new Set([...prev, selectedId]));
+
       return newFights;
     });
   };
 
   // Handle championship toggle for a fight
-  const handleChampionshipToggle = (fightIndex, checked, championshipId = null) => {
+  const handleChampionshipToggle = (
+    fightIndex,
+    checked,
+    championshipId = null
+  ) => {
     const fight = fights[fightIndex];
-    
+
     // Handle active champion's title
-    const championTitle = getChampionship(fight.fighter1?.personid) || 
-                         getChampionship(fight.fighter2?.personid);
-    
+    const championTitle =
+      getChampionship(fight.fighter1?.personid) ||
+      getChampionship(fight.fighter2?.personid);
+
     if (championTitle) {
-      setFightsWithChampionship(prev => ({
+      setFightsWithChampionship((prev) => ({
         ...prev,
-        [fightIndex]: checked ? championTitle : null
+        [fightIndex]: checked ? championTitle : null,
       }));
       // Clear any vacant title selection if champion's title is selected
       if (checked) {
-        setFightsWithVacantTitle(prev => {
+        setFightsWithVacantTitle((prev) => {
           const updated = { ...prev };
           delete updated[fightIndex];
           return updated;
@@ -215,14 +245,16 @@ const getChampionship = (fighterId) => {
       }
     } else if (championshipId) {
       // Handle vacant title selection
-      const vacantTitle = vacantChampionships.find(c => c.id === championshipId);
+      const vacantTitle = vacantChampionships.find(
+        (c) => c.id === championshipId
+      );
       if (vacantTitle) {
-        setFightsWithVacantTitle(prev => ({
+        setFightsWithVacantTitle((prev) => ({
           ...prev,
-          [fightIndex]: checked ? vacantTitle : null
+          [fightIndex]: checked ? vacantTitle : null,
         }));
         // Clear any champion's title if vacant title is selected
-        setFightsWithChampionship(prev => {
+        setFightsWithChampionship((prev) => {
           const updated = { ...prev };
           delete updated[fightIndex];
           return updated;
@@ -234,10 +266,12 @@ const getChampionship = (fighterId) => {
   // Helper function to check if fighters are eligible for a vacant title
   const canCompeteForVacantTitle = (fight, championship) => {
     if (!fight.fighter1 || !fight.fighter2) return false;
-    
+
     // Check if both fighters are in the correct weight class
-    return fight.fighter1.weightClass === championship.weightClass &&
-            fight.fighter2.weightClass === championship.weightClass;
+    return (
+      fight.fighter1.weightClass === championship.weightClass &&
+      fight.fighter2.weightClass === championship.weightClass
+    );
   };
 
   // Save the entire event including all fights
@@ -253,7 +287,7 @@ const getChampionship = (fighterId) => {
 
       // Validate all fights have both fighters selected
       const invalidFights = fights.some(
-        fight => !fight.fighter1 || !fight.fighter2
+        (fight) => !fight.fighter1 || !fight.fighter2
       );
 
       if (invalidFights) {
@@ -271,12 +305,12 @@ const getChampionship = (fighterId) => {
           fighter1: {
             personid: fight.fighter1.personid,
             firstname: fight.fighter1.firstname,
-            lastname: fight.fighter1.lastname
+            lastname: fight.fighter1.lastname,
           },
           fighter2: {
             personid: fight.fighter2.personid,
             firstname: fight.fighter2.firstname,
-            lastname: fight.fighter2.lastname
+            lastname: fight.fighter2.lastname,
           },
           result: null,
           stats: null,
@@ -302,13 +336,12 @@ const getChampionship = (fighterId) => {
         id: nextEventId,
         name: eventName,
         date: selectedDate,
-        fights: fightIds
+        fights: fightIds,
       };
 
       if (fightIds.length > 0) {
         await addEventToDB(eventData);
         console.log("Event saved successfully:", eventData);
-        
         setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
         navigate(`/event/${eventData.id}`);
       } else {
@@ -324,19 +357,35 @@ const getChampionship = (fighterId) => {
   // Render a single fight card
   const renderFightCard = (fight, index) => {
     // Check if either fighter is a champion
-    const fighter1IsChampion = fight.fighter1 && getChampionship(fight.fighter1.personid);
-    const fighter2IsChampion = fight.fighter2 && getChampionship(fight.fighter2.personid);
+    const fighter1IsChampion =
+      fight.fighter1 && getChampionship(fight.fighter1.personid);
+    const fighter2IsChampion =
+      fight.fighter2 && getChampionship(fight.fighter2.personid);
     const championship = fighter1IsChampion || fighter2IsChampion;
 
     // Get eligible vacant titles for this fight
-    const eligibleVacantTitles = vacantChampionships.filter(c => 
+    const eligibleVacantTitles = vacantChampionships.filter((c) =>
       canCompeteForVacantTitle(fight, c)
     );
 
     return (
       <div key={index} style={{ marginBottom: "30px" }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Fight {index + 1}
+        <Typography
+          variant="h5"
+          align="center"
+          gutterBottom
+          sx={{
+            fontWeight: index === 0 ? "bold" : "normal",
+            mb: 3,
+          }}
+        >
+          {index === 0
+            ? "Main Event"
+            : index === 1 && fights.length > 2
+            ? "Co-Main Event"
+            : index === fights.length - 1
+            ? "Opening Fight"
+            : `Fight ${fights.length - index}`}
         </Typography>
         <Grid container spacing={3} justifyContent="space-between">
           {/* Fighter 1 Selection */}
@@ -353,12 +402,17 @@ const getChampionship = (fighterId) => {
                 handleSelectChange(index, "fighter1", event)
               }
               bookedFighters={bookedFighters}
-              selectedFightersInEvent={new Set(
-                fights
-                  .filter((_, fightIndex) => fightIndex !== index)
-                  .flatMap(f => [f.fighter1?.personid, f.fighter2?.personid])
-                  .filter(Boolean)
-              )}
+              selectedFightersInEvent={
+                new Set(
+                  fights
+                    .filter((_, fightIndex) => fightIndex !== index)
+                    .flatMap((f) => [
+                      f.fighter1?.personid,
+                      f.fighter2?.personid,
+                    ])
+                    .filter(Boolean)
+                )
+              }
               currentFightIndex={index}
               fightPosition="fighter1"
             />
@@ -378,27 +432,42 @@ const getChampionship = (fighterId) => {
                 handleSelectChange(index, "fighter2", event)
               }
               bookedFighters={bookedFighters}
-              selectedFightersInEvent={new Set(
-                fights
-                  .filter((_, fightIndex) => fightIndex !== index)
-                  .flatMap(f => [f.fighter1?.personid, f.fighter2?.personid])
-                  .filter(Boolean)
-              )}
+              selectedFightersInEvent={
+                new Set(
+                  fights
+                    .filter((_, fightIndex) => fightIndex !== index)
+                    .flatMap((f) => [
+                      f.fighter1?.personid,
+                      f.fighter2?.personid,
+                    ])
+                    .filter(Boolean)
+                )
+              }
               currentFightIndex={index}
               fightPosition="fighter2"
             />
           </Grid>
 
           {/* Championship options */}
-            <Grid item xs={12}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', mt: 2 }}>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                alignItems: "center",
+                mt: 2,
+              }}
+            >
               {/* Active champion's title option */}
               {championship && (
                 <FormControlLabel
                   control={
                     <Checkbox
                       checked={!!fightsWithChampionship[index]}
-                      onChange={(e) => handleChampionshipToggle(index, e.target.checked)}
+                      onChange={(e) =>
+                        handleChampionshipToggle(index, e.target.checked)
+                      }
                     />
                   }
                   label={`Make this a ${championship.name} title fight`}
@@ -406,21 +475,28 @@ const getChampionship = (fighterId) => {
               )}
 
               {/* Vacant title options */}
-              {eligibleVacantTitles.length > 0 && (
-                eligibleVacantTitles.map(vacantTitle => (
+              {eligibleVacantTitles.length > 0 &&
+                eligibleVacantTitles.map((vacantTitle) => (
                   <FormControlLabel
                     key={vacantTitle.id}
                     control={
                       <Checkbox
-                        checked={fightsWithVacantTitle[index]?.id === vacantTitle.id}
-                        onChange={(e) => handleChampionshipToggle(index, e.target.checked, vacantTitle.id)}
+                        checked={
+                          fightsWithVacantTitle[index]?.id === vacantTitle.id
+                        }
+                        onChange={(e) =>
+                          handleChampionshipToggle(
+                            index,
+                            e.target.checked,
+                            vacantTitle.id
+                          )
+                        }
                         disabled={!!fightsWithChampionship[index]}
                       />
                     }
                     label={`Make this fight for the vacant ${vacantTitle.name}`}
                   />
-                ))
-              )}
+                ))}
             </Box>
           </Grid>
         </Grid>
@@ -431,8 +507,16 @@ const getChampionship = (fighterId) => {
   // Main component render
   return (
     <main>
-      <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
-        <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
+      <Container
+        maxWidth="md"
+        style={{ marginTop: "50px", marginBottom: "20px" }}
+      >
+        <Typography
+          variant="h2"
+          align="center"
+          color="textPrimary"
+          gutterBottom
+        >
           Create Event
         </Typography>
 
