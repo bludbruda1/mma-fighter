@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   CssBaseline,
@@ -12,20 +12,47 @@ import {
   Toolbar,
   Typography,
   Divider,
+  Box,
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import { getGameDate } from "../utils/indexedDB";
 
-// HamburgerMenu component that handles navigation on the left side of the page.
+const formatDate = (isoDate) => {
+  const date = new Date(isoDate);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+
+  return `${day} ${month} ${year}`;
+};
+
 const HamburgerMenu = () => {
   const [open, setOpen] = useState(false);
+  const [gameDate, setGameDate] = useState("");
 
   const handleDrawerToggle = () => {
     setOpen(!open);
   };
+
+  useEffect(() => {
+    // Fetch the game date from IndexedDB
+    const fetchGameDate = async () => {
+      try {
+        const date = await getGameDate();
+        setGameDate(date);
+      } catch (error) {
+        console.error("Error fetching game date:", error);
+      }
+    };
+    fetchGameDate();
+  }, []);
 
   return (
     <>
@@ -51,6 +78,10 @@ const HamburgerMenu = () => {
           <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
             <Typography variant="h6">Planet Fighter</Typography>
           </Link>
+          <Box sx={{ flexGrow: 1 }} />
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            {gameDate ? formatDate(gameDate) : "Loading..."}
+          </Typography>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -90,20 +121,9 @@ const HamburgerMenu = () => {
             onClick={handleDrawerToggle}
           >
             <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
+              <EditCalendarIcon />
             </ListItemIcon>
             <ListItemText primary="Create Event" sx={{ color: "#fff" }} />
-          </ListItem>
-          <ListItem
-            button
-            component={Link}
-            to="/fight"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Fight Screen" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem
             button
@@ -112,7 +132,7 @@ const HamburgerMenu = () => {
             onClick={handleDrawerToggle}
           >
             <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
+              <EventSeatIcon />
             </ListItemIcon>
             <ListItemText primary="Events" sx={{ color: "#fff" }} />
           </ListItem>
@@ -123,7 +143,7 @@ const HamburgerMenu = () => {
             onClick={handleDrawerToggle}
           >
             <ListItemIcon sx={{ color: "#fff" }}>
-              <PeopleIcon />
+              <CalendarTodayIcon />
             </ListItemIcon>
             <ListItemText primary="Calendar" sx={{ color: "#fff" }} />
           </ListItem>
@@ -132,11 +152,11 @@ const HamburgerMenu = () => {
             component={Link}
             to="/championships"
             onClick={handleDrawerToggle}
-            >
+          >
             <ListItemIcon sx={{ color: "#fff" }}>
               <EmojiEventsIcon />
             </ListItemIcon>
-            <ListItemText primary="Champions" sx={{ color: '#fff'}} />
+            <ListItemText primary="Champions" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem
             button

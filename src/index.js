@@ -1,21 +1,25 @@
+// index.js
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 import initDB from "./utils/initDB";
 import { EventProvider } from "./contexts/EventContext";
+import { GameDateProvider } from "./contexts/GameDateContext";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 
-// Wrapping our app with initDB to initilise our DB upon up start up
+// Initialize IndexedDB and render the application
 initDB()
   .then(() => {
     root.render(
       <Router>
-        <EventProvider>
-          <App />
-        </EventProvider>
+        <GameDateProvider>
+          <EventProvider>
+            <App />
+          </EventProvider>
+        </GameDateProvider>
       </Router>
     );
   })
