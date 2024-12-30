@@ -498,7 +498,7 @@ export const getChampionshipById = async (id) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
-}
+};
 
 export const saveGameDate = async (date) => {
   const db = await openDB();
@@ -531,4 +531,33 @@ export const getGameDate = async () => {
       resolve(request.result?.value || new Date().toISOString());
     request.onerror = (event) => reject(event.target.error);
   });
+};
+
+export const updateGameDate = async (newDate) => {
+  if (!newDate || typeof newDate !== "string") {
+    return Promise.reject("Invalid date format");
+  }
+
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(settingsStoreName, "readwrite");
+    const store = transaction.objectStore(settingsStoreName);
+
+    // Update the "gameDate" key in the settings store
+    const updateRequest = store.put({ key: "gameDate", value: newDate });
+
+    return new Promise((resolve, reject) => {
+      updateRequest.onsuccess = () => {
+        console.log("Game date updated successfully:", newDate);
+        resolve(true);
+      };
+      updateRequest.onerror = (error) => {
+        console.error("Error updating game date:", error);
+        reject(error);
+      };
+    });
+  } catch (error) {
+    console.error("Database error while updating game date:", error);
+    return Promise.reject(error);
+  }
 };

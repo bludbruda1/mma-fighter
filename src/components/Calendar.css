@@ -99,3 +99,14 @@
 .day-name {
   padding: 5px 0; /* Add some padding for better spacing */
 }
+
+.calendar-day.today {
+  background-color: #e0ffe0; /* Light green for "Today" */
+  border: 2px solid #4caf50; /* Green border */
+}
+
+.calendar-day.past {
+  background-color: #f5f5f5; /* Light grey for past dates */
+  color: #999; /* Muted text color */
+  pointer-events: none; /* Disable interaction */
+}
