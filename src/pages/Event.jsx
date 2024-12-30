@@ -9,6 +9,7 @@ import {
   getChampionshipById,
   updateChampionship,
   getAllChampionships,
+  getSettings
 } from "../utils/indexedDB";
 import {
   Container,
@@ -54,6 +55,7 @@ const Event = () => {
   const [completedFights, setCompletedFights] = useState(new Set());
   const [simulatedFights, setSimulatedFights] = useState(new Set());
   const [championships, setChampionships] = useState([]);
+  const [maxRankings, setMaxRankings] = useState(15); // Default to 15
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -76,6 +78,9 @@ const Event = () => {
 
         // Fetch all championships
         const allChampionships = await getAllChampionships();
+
+        // Fetch saved maxRankings
+        const savedMaxRankings = await getSettings('maxRankings');
         
         setChampionships(allChampionships);
 
@@ -91,31 +96,31 @@ const Event = () => {
         );
         setCompletedFights(completedFightsIds);
 
-      // viewedFights starts empty and is populated only after watching
+        // viewedFights starts empty and is populated only after watching
         setSimulatedFights(completedFightsIds);
         setViewedFights(new Set()); // Initially empty
-          
-      // Combine fight data with complete fighter data and championship data
-      const completeFights = fights.map(fight => {
-        // If this is a championship fight, get the full championship data
-        let championshipData = null;
-        if (fight.championship) {
-          championshipData = allChampionships.find(c => c.id === fight.championship.id);
-        }
+            
+        // Combine fight data with complete fighter data and championship data
+        const completeFights = fights.map(fight => {
+          // If this is a championship fight, get the full championship data
+          let championshipData = null;
+          if (fight.championship) {
+            championshipData = allChampionships.find(c => c.id === fight.championship.id);
+          }
 
-        return {
-          ...fight,
-          fighter1: fight.fighter1.personid ? {
-            ...fighterMap[fight.fighter1.personid],
-            ...fight.fighter1
-          } : fight.fighter1,
-          fighter2: fight.fighter2.personid ? {
-            ...fighterMap[fight.fighter2.personid],
-            ...fight.fighter2
-          } : fight.fighter2,
-          championship: championshipData // Replace with full championship data
-        };
-      });
+          return {
+            ...fight,
+            fighter1: fight.fighter1.personid ? {
+              ...fighterMap[fight.fighter1.personid],
+              ...fight.fighter1
+            } : fight.fighter1,
+            fighter2: fight.fighter2.personid ? {
+              ...fighterMap[fight.fighter2.personid],
+              ...fight.fighter2
+            } : fight.fighter2,
+            championship: championshipData // Replace with full championship data
+          };
+        });
 
         // Set initial fight results including fight events
         const initialResults = {};
@@ -138,7 +143,10 @@ const Event = () => {
           ...event,
           fights: completeFights
         });
-        
+
+        // Set maxRankings from saved settings or default to 15
+        setMaxRankings(savedMaxRankings || 15);
+          
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -411,7 +419,8 @@ const Event = () => {
           winnerFighter, 
           loserFighter, 
           allFighters, 
-          championships
+          championships,
+          maxRankings 
         );
   
         // Create a map of all fighters that need updates
@@ -421,6 +430,7 @@ const Event = () => {
         fighterUpdates.set(winnerFighter.personid, {
           ...winnerFighter,
           wins: (winnerFighter.wins || 0) + 1,
+          ranking: rankingUpdates.find(f => f.personid === winnerFighter.personid)?.ranking || winnerFighter.ranking,
           fightHistory: [
             {
               opponentId: loserFighter.personid,
@@ -437,6 +447,7 @@ const Event = () => {
         fighterUpdates.set(loserFighter.personid, {
           ...loserFighter,
           losses: (loserFighter.losses || 0) + 1,
+          ranking: rankingUpdates.find(f => f.personid === loserFighter.personid)?.ranking || loserFighter.ranking,
           fightHistory: [
             {
               opponentId: winnerFighter.personid,
@@ -450,21 +461,27 @@ const Event = () => {
           ],
         });
   
-        // Add ranking updates
+        // Handle additional ranking updates
         rankingUpdates.forEach(fighter => {
-          const existingUpdate = fighterUpdates.get(fighter.personid);
-          if (existingUpdate) {
-            fighterUpdates.set(fighter.personid, {
-              ...existingUpdate,
-              ranking: fighter.ranking,
-            });
-          } else {
-            const baseFighter = allFighters.find(f => f.personid === fighter.personid);
-            fighterUpdates.set(fighter.personid, {
-              ...baseFighter,
-              ranking: fighter.ranking,
-            });
+          if (!fighterUpdates.has(fighter.personid)) {
+            const existingFighter = allFighters.find(f => f.personid === fighter.personid);
+            if (existingFighter) {
+              fighterUpdates.set(fighter.personid, {
+                ...existingFighter,
+                ranking: fighter.ranking
+              });
+            }
           }
+        });
+        
+        // Log updates for debugging
+        console.log('Fighter updates:', {
+          maxRankings,
+          updates: Array.from(fighterUpdates.values()).map(f => ({
+            name: `${f.firstname} ${f.lastname}`,
+            oldRanking: allFighters.find(of => of.personid === f.personid)?.ranking,
+            newRanking: f.ranking
+          }))
         });
   
         // Update all affected fighters in the database
@@ -472,7 +489,6 @@ const Event = () => {
           Array.from(fighterUpdates.values()).map(fighter => updateFighter(fighter))
         );
   
-        console.log("Updated fighters:", Array.from(fighterUpdates.values()));
       } catch (error) {
         console.error("Error updating fighter records:", error);
       }
