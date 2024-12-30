@@ -29,70 +29,70 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
     .filter(f => f.weightClass === winner.weightClass && !isChampion(f))
     .map(f => ({
       ...f,
-      originalRanking: f.ranking // Keep track of original ranking
+      originalRanking: f.ranking
     }))
     .sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
 
-  // Initialize array for updated rankings
   let updatedFighters = [];
 
   // Handle case where winner moves up in rankings
   if (winnerRank > loserRank || winnerRank === 999) {
-    let currentRank = 1;
+    // Place winner at loser's rank
+    if (loserRank <= maxRankings) {
+      updatedFighters.push({
+        ...winner,
+        ranking: loserRank
+      });
 
-    // Process each ranking position
-    while (currentRank <= maxRankings) {
-      if (currentRank === loserRank) {
-        // Place winner at loser's rank
-        updatedFighters.push({
-          ...winner,
-          ranking: currentRank
+      // Move loser and everyone below down one rank
+      weightClassFighters
+        .filter(f => 
+          (f.ranking && f.ranking >= loserRank && f.personid !== winner.personid) || 
+          f.personid === loser.personid
+        )
+        .forEach(fighter => {
+          const newRank = fighter.ranking + 1;
+          if (newRank <= maxRankings) {
+            updatedFighters.push({
+              ...fighter,
+              ranking: newRank
+            });
+          } else {
+            // Fighter falls out of rankings
+            updatedFighters.push({
+              ...fighter,
+              ranking: null
+            });
+          }
         });
-  
-        // Move loser and everyone else down
-        weightClassFighters
-          .filter(f => 
-            (f.ranking && f.ranking >= loserRank && f.personid !== winner.personid) || 
-            f.personid === loser.personid
-          )
-          .forEach(fighter => {
-            if (currentRank < maxRankings) {
-              updatedFighters.push({
-                ...fighter,
-                ranking: currentRank + 1
-              });
-            } else {
-              updatedFighters.push({
-                ...fighter,
-                ranking: null
-              });
-            }
-            currentRank++;
-          });
-  
-        break;
-      } else {
-        // Keep existing fighter at their rank
-        const existingFighter = weightClassFighters.find(f => f.ranking === currentRank);
-        if (existingFighter && existingFighter.personid !== winner.personid) {
-          updatedFighters.push({
-            ...existingFighter,
-            ranking: currentRank
-          });
-        }
-      }
-      currentRank++;
     }
+  } else {
+    // Keep existing rankings
+    weightClassFighters
+      .filter(f => f.ranking && f.ranking <= maxRankings)
+      .forEach(fighter => {
+        updatedFighters.push({
+          ...fighter,
+          ranking: fighter.ranking
+        });
+      });
   }
 
   // Filter out unchanged rankings and ensure no duplicates
-  const changedFighters = updatedFighters.filter(newFighter => {
-    const originalFighter = allFighters.find(f => f.personid === newFighter.personid);
-    return originalFighter.ranking !== newFighter.ranking;
-  });
+  const changedFighters = updatedFighters
+    .filter(newFighter => {
+      const originalFighter = allFighters.find(f => f.personid === newFighter.personid);
+      return originalFighter.ranking !== newFighter.ranking;
+    })
+    // Ensure no fighter has a ranking beyond maxRankings
+    .map(fighter => ({
+      ...fighter,
+      ranking: fighter.ranking > maxRankings ? null : fighter.ranking
+    }));
 
-  // Log the changes for debugging
+  // Log changes for debugging
   console.log('Ranking Changes:', {
+    maxRankings,
     winner: {
       name: `${winner.firstname} ${winner.lastname}`,
       oldRank: winnerRank,

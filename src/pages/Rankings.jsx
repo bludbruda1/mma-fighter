@@ -27,7 +27,7 @@ import {
   Chip,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { getAllFighters, getAllChampionships, updateFighter } from '../utils/indexedDB';
+import { getAllFighters, getAllChampionships, updateFighter, updateSettings, getSettings } from '../utils/indexedDB';
 
 const Rankings = () => {
   // Core state management
@@ -44,25 +44,35 @@ const Rankings = () => {
   const [tempMaxRankings, setTempMaxRankings] = useState(15);
 
   // Load initial data on component mount
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [fetchedChampionships, fetchedFighters] = await Promise.all([
-          getAllChampionships(),
-          getAllFighters()
-        ]);
-        setChampionships(fetchedChampionships);
-        setFighters(fetchedFighters);
+useEffect(() => {
+  const loadData = async () => {
+    try {
+      const [fetchedChampionships, fetchedFighters, savedMaxRankings] = await Promise.all([
+        getAllChampionships(),
+        getAllFighters(),
+        getSettings('maxRankings')
+      ]);
+
+      setChampionships(fetchedChampionships);
+      setFighters(fetchedFighters);
+      
+      // Set default selected championship if available
+      if (fetchedChampionships.length > 0) {
+        setSelectedChampionship(fetchedChampionships[0]);
         
-        // Set default selected championship if available
-        if (fetchedChampionships.length > 0) {
-          setSelectedChampionship(fetchedChampionships[0]);
-          
+        // If we have a saved maxRankings value, use that
+        if (savedMaxRankings) {
+          setMaxRankings(savedMaxRankings);
+          setTempMaxRankings(savedMaxRankings);
+          setIsInitialized(true);
+        }
+        // Otherwise use the highest current ranking as before
+        else {
           // Find the highest current ranking in the data
           const highestRanking = fetchedFighters.reduce((max, fighter) => {
             return fighter.ranking ? Math.max(max, fighter.ranking) : max;
           }, 0);
-  
+    
           // Only update if we found rankings and haven't initialized yet
           if (highestRanking > 0 && !isInitialized) {
             setMaxRankings(highestRanking);
@@ -70,12 +80,13 @@ const Rankings = () => {
             setIsInitialized(true);
           }
         }
-      } catch (error) {
-        console.error('Error loading data:', error);
       }
-    };
-    loadData();
-  }, [isInitialized]); // Add isInitialized to dependencies
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  };
+  loadData();
+}, [isInitialized]); // Add isInitialized to dependencies
 
   // Helper function to get sorted fighters for current weight class
   const getWeightClassFighters = () => {
@@ -128,6 +139,9 @@ const Rankings = () => {
     try {
       // Update the max rankings state
       setMaxRankings(tempMaxRankings);
+      
+      // Store in IndexedDB
+      await updateSettings('maxRankings', tempMaxRankings);
       
       // Get current fighters in weight class
       const weightClassFighters = fighters.filter(f => 
