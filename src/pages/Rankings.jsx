@@ -25,6 +25,9 @@ import {
   TextField,
   Grid,
   Chip,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllFighters, getAllChampionships, updateFighter, updateSettings, getSettings } from '../utils/indexedDB';
@@ -37,6 +40,7 @@ const Rankings = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedFighter, setSelectedFighter] = useState(null);
   const [selectedRank, setSelectedRank] = useState('');
+  const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   
   // Ranking slots state management
   const [isInitialized, setIsInitialized] = useState(false);
@@ -126,11 +130,30 @@ useEffect(() => {
     ), ...unrankedFighters];
   };
 
+  // Add function to calculate affected fighters
+  const getAffectedFighters = () => {
+    return fighters.filter(f => 
+      f.weightClass === selectedChampionship?.weightClass && 
+      f.ranking && 
+      f.ranking > tempMaxRankings
+    );
+  };
+
   // Handler for ranking slots input change
   const handleRankingSlotsChange = (event) => {
     const value = parseInt(event.target.value);
     if (value >= 1 && value <= 50) { // Enforce reasonable limits
       setTempMaxRankings(value);
+    }
+  };
+
+  // Function that handles the confirmation dialog
+  const handleConfirmRankingSlotsClick = () => {
+    const affectedFighters = getAffectedFighters();
+    if (affectedFighters.length > 0) {
+      setConfirmationDialogOpen(true);
+    } else {
+      handleConfirmRankingSlots(); // If no fighters affected, proceed directly
     }
   };
 
@@ -382,7 +405,7 @@ useEffect(() => {
               />
               <Button
                 variant="contained"
-                onClick={handleConfirmRankingSlots}
+                onClick={handleConfirmRankingSlotsClick}
                 disabled={tempMaxRankings === maxRankings}
                 sx={{
                   backgroundColor: "rgba(33, 33, 33, 0.9)",
@@ -413,165 +436,218 @@ useEffect(() => {
             </Box>
 
             <TableContainer component={Paper}>
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell>Rank</TableCell>
-        <TableCell>Fighter</TableCell>
-        <TableCell>Record</TableCell>
-        <TableCell>Action</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {/* Champion Row */}
-      {getWeightClassFighters()
-        .filter(f => f.personid === selectedChampionship.currentChampionId)
-        .map((fighter) => (
-          <TableRow 
-            key={fighter.personid}
-            sx={{ 
-              backgroundColor: 'rgba(255, 215, 0, 0.05)',
-              '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.1)' }
-            }}
-          >
-            <TableCell>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <EmojiEventsIcon sx={{ color: 'gold' }} />
-                <Typography>Champion</Typography>
-              </Box>
-            </TableCell>
-            <TableCell>
-              <Link
-                to={`/dashboard/${fighter.personid}`}
-                style={{
-                  textDecoration: "none",
-                  color: "#1976d2",
-                }}
-              >
-                {fighter.firstname} {fighter.lastname}
-              </Link>
-            </TableCell>
-            <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
-            <TableCell>-</TableCell>
-          </TableRow>
-        ))}
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Fighter</TableCell>
+                    <TableCell>Record</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {/* Champion Row */}
+                  {getWeightClassFighters()
+                    .filter(f => f.personid === selectedChampionship.currentChampionId)
+                    .map((fighter) => (
+                      <TableRow 
+                        key={fighter.personid}
+                        sx={{ 
+                          backgroundColor: 'rgba(255, 215, 0, 0.05)',
+                          '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.1)' }
+                        }}
+                      >
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <EmojiEventsIcon sx={{ color: 'gold' }} />
+                            <Typography>Champion</Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            to={`/dashboard/${fighter.personid}`}
+                            style={{
+                              textDecoration: "none",
+                              color: "#1976d2",
+                            }}
+                          >
+                            {fighter.firstname} {fighter.lastname}
+                          </Link>
+                        </TableCell>
+                        <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
+                        <TableCell>-</TableCell>
+                      </TableRow>
+                    ))}
 
-      {/* Ranked and Vacant Spots */}
-      {getWeightClassFighters()
-        .filter(f => f.personid !== selectedChampionship.currentChampionId)
-        .map((fighter) => {
-          if (fighter.vacant) {
-            // Vacant spot row styling
-            return (
-              <TableRow 
-                key={`vacant-${fighter.displayRank}`}
-                sx={{ 
-                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                  borderLeft: '3px solid rgba(0, 0, 0, 0.1)',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                }}
-              >
-                <TableCell>
-                  <Typography color="text.secondary">
-                    #{fighter.displayRank}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography color="text.secondary" fontStyle="italic">
-                    Vacant Position
-                  </Typography>
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>-</TableCell>
-              </TableRow>
-            );
-          }
-
-          // Determine if fighter is ranked or unranked
-          const isRanked = fighter.ranking && fighter.ranking <= maxRankings;
-
-          return (
-            <TableRow 
-              key={fighter.personid}
-              sx={{ 
-                ...(isRanked ? {
-                  // Ranked fighter styling
-                  backgroundColor: 'white',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                } : {
-                  // Unranked fighter styling
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  borderLeft: '3px solid rgba(0, 0, 0, 0.2)',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.08)' }
-                })
-              }}
-            >
-              <TableCell>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {isRanked ? (
-                    // Ranked number display
-                    <Typography 
-                      sx={{ 
-                        fontWeight: 'bold',
-                        color: 'primary.main'
-                      }}
-                    >
-                      #{fighter.ranking}
-                    </Typography>
-                  ) : (
-                    // Unranked label
-                    <Chip 
-                      label="UNRANKED"
-                      size="small"
-                      sx={{
-                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                        color: 'rgba(0, 0, 0, 0.6)',
-                        fontWeight: 'medium'
-                      }}
-                    />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell>
-                <Link
-                  to={`/dashboard/${fighter.personid}`}
-                  style={{
-                    textDecoration: "none",
-                    color: "#1976d2",
-                  }}
-                >
-                  {fighter.firstname} {fighter.lastname}
-                </Link>
-              </TableCell>
-              <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
-              <TableCell>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => handleOpenUpdateDialog(fighter)}
-                  sx={
-                    isRanked ? {} : {
-                      borderColor: 'rgba(0, 0, 0, 0.2)',
-                      color: 'rgba(0, 0, 0, 0.6)',
-                      '&:hover': {
-                        borderColor: 'rgba(0, 0, 0, 0.3)',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                  {/* Ranked and Vacant Spots */}
+                  {getWeightClassFighters()
+                    .filter(f => f.personid !== selectedChampionship.currentChampionId)
+                    .map((fighter) => {
+                      if (fighter.vacant) {
+                        // Vacant spot row styling
+                        return (
+                          <TableRow 
+                            key={`vacant-${fighter.displayRank}`}
+                            sx={{ 
+                              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                              borderLeft: '3px solid rgba(0, 0, 0, 0.1)',
+                              '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                            }}
+                          >
+                            <TableCell>
+                              <Typography color="text.secondary">
+                                #{fighter.displayRank}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography color="text.secondary" fontStyle="italic">
+                                Vacant Position
+                              </Typography>
+                            </TableCell>
+                            <TableCell></TableCell>
+                            <TableCell>-</TableCell>
+                          </TableRow>
+                        );
                       }
-                    }
-                  }
-                >
-                  {isRanked ? 'Update Rank' : 'Assign Rank'}
-                </Button>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-    </TableBody>
-  </Table>
-</TableContainer>
+
+                      // Determine if fighter is ranked or unranked
+                      const isRanked = fighter.ranking && fighter.ranking <= maxRankings;
+
+                      return (
+                        <TableRow 
+                          key={fighter.personid}
+                          sx={{ 
+                            ...(isRanked ? {
+                              // Ranked fighter styling
+                              backgroundColor: 'white',
+                              '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                            } : {
+                              // Unranked fighter styling
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                              borderLeft: '3px solid rgba(0, 0, 0, 0.2)',
+                              '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.08)' }
+                            })
+                          }}
+                        >
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              {isRanked ? (
+                                // Ranked number display
+                                <Typography 
+                                  sx={{ 
+                                    fontWeight: 'bold',
+                                    color: 'primary.main'
+                                  }}
+                                >
+                                  #{fighter.ranking}
+                                </Typography>
+                              ) : (
+                                // Unranked label
+                                <Chip 
+                                  label="UNRANKED"
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                    fontWeight: 'medium'
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Link
+                              to={`/dashboard/${fighter.personid}`}
+                              style={{
+                                textDecoration: "none",
+                                color: "#1976d2",
+                              }}
+                            >
+                              {fighter.firstname} {fighter.lastname}
+                            </Link>
+                          </TableCell>
+                          <TableCell>{fighter.wins}W-{fighter.losses}L</TableCell>
+                          <TableCell>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleOpenUpdateDialog(fighter)}
+                              sx={
+                                isRanked ? {} : {
+                                  borderColor: 'rgba(0, 0, 0, 0.2)',
+                                  color: 'rgba(0, 0, 0, 0.6)',
+                                  '&:hover': {
+                                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                                  }
+                                }
+                              }
+                            >
+                              {isRanked ? 'Update Rank' : 'Assign Rank'}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CardContent>
         </Card>
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmationDialogOpen}
+        onClose={() => setConfirmationDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Ranking Slots Change</DialogTitle>
+        <DialogContent>
+          <Typography>
+            {getAffectedFighters().length === 1 ? (
+              `Are you sure you want to do this? ${getAffectedFighters()[0].firstname} ${getAffectedFighters()[0].lastname} will become unranked.`
+            ) : (
+              `Are you sure you want to do this? ${getAffectedFighters().length} fighters will become unranked:`
+            )}
+          </Typography>
+          {getAffectedFighters().length > 1 && (
+            <List dense>
+              {getAffectedFighters().map((fighter) => (
+                <ListItem key={fighter.personid}>
+                  <ListItemText 
+                    primary={`#${fighter.ranking} - ${fighter.firstname} ${fighter.lastname}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setConfirmationDialogOpen(false)}
+            sx={{ color: 'text.secondary' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setConfirmationDialogOpen(false);
+              handleConfirmRankingSlots();
+            }}
+            variant="contained"
+            color="primary"
+            sx={{
+              backgroundColor: "rgba(33, 33, 33, 0.9)",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "rgba(33, 33, 33, 0.7)",
+              },
+            }}
+          >
+            Confirm Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Update Ranking Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
