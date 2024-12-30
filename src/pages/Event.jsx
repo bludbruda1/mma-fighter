@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { 
-  getEventFromDB, 
-  updateFighter, 
-  getAllFighters, 
+import {
+  getEventFromDB,
+  updateFighter,
+  getAllFighters,
   getFightsByIds,
   updateFightResults,
   getChampionshipById,
   updateChampionship,
   getAllChampionships,
+  getSettings,
 } from "../utils/indexedDB";
 import {
   Container,
@@ -36,6 +37,7 @@ import { formatTime } from "../engine/helper.js";
 import { simulateFight } from "../engine/FightSim";
 import { calculateFightStats } from "../engine/FightStatistics";
 import fightPlayByPlayLogger from "../engine/fightPlayByPlayLogger";
+import { updateRankingsAfterFight } from "../utils/rankingsHelper.js";
 
 /**
  * Event Component
@@ -44,7 +46,7 @@ import fightPlayByPlayLogger from "../engine/fightPlayByPlayLogger";
  */
 const Event = () => {
   const { eventId } = useParams();
-  
+
   // Core event and fight state
   const [eventData, setEventData] = useState(null);
   const [fightResults, setFightResults] = useState({});
@@ -53,6 +55,7 @@ const Event = () => {
   const [completedFights, setCompletedFights] = useState(new Set());
   const [simulatedFights, setSimulatedFights] = useState(new Set());
   const [championships, setChampionships] = useState([]);
+  const [maxRankings, setMaxRankings] = useState(15); // Default to 15
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -69,13 +72,16 @@ const Event = () => {
 
         // Fetch fights data
         const fights = await getFightsByIds(event.fights);
-        
+
         // Fetch all fighters
         const allFighters = await getAllFighters();
 
         // Fetch all championships
         const allChampionships = await getAllChampionships();
-        
+
+        // Fetch saved maxRankings
+        const savedMaxRankings = await getSettings("maxRankings");
+
         setChampionships(allChampionships);
 
         // Create a map of fighter data by personid
@@ -86,35 +92,41 @@ const Event = () => {
 
         // Load completed fight data and their fight events
         const completedFightsIds = new Set(
-          fights.filter(fight => fight.result).map(fight => fight.id)
+          fights.filter((fight) => fight.result).map((fight) => fight.id)
         );
         setCompletedFights(completedFightsIds);
 
-      // viewedFights starts empty and is populated only after watching
+        // viewedFights starts empty and is populated only after watching
         setSimulatedFights(completedFightsIds);
         setViewedFights(new Set()); // Initially empty
-          
-      // Combine fight data with complete fighter data and championship data
-      const completeFights = fights.map(fight => {
-        // If this is a championship fight, get the full championship data
-        let championshipData = null;
-        if (fight.championship) {
-          championshipData = allChampionships.find(c => c.id === fight.championship.id);
-        }
 
-        return {
-          ...fight,
-          fighter1: fight.fighter1.personid ? {
-            ...fighterMap[fight.fighter1.personid],
-            ...fight.fighter1
-          } : fight.fighter1,
-          fighter2: fight.fighter2.personid ? {
-            ...fighterMap[fight.fighter2.personid],
-            ...fight.fighter2
-          } : fight.fighter2,
-          championship: championshipData // Replace with full championship data
-        };
-      });
+        // Combine fight data with complete fighter data and championship data
+        const completeFights = fights.map((fight) => {
+          // If this is a championship fight, get the full championship data
+          let championshipData = null;
+          if (fight.championship) {
+            championshipData = allChampionships.find(
+              (c) => c.id === fight.championship.id
+            );
+          }
+
+          return {
+            ...fight,
+            fighter1: fight.fighter1.personid
+              ? {
+                  ...fighterMap[fight.fighter1.personid],
+                  ...fight.fighter1,
+                }
+              : fight.fighter1,
+            fighter2: fight.fighter2.personid
+              ? {
+                  ...fighterMap[fight.fighter2.personid],
+                  ...fight.fighter2,
+                }
+              : fight.fighter2,
+            championship: championshipData, // Replace with full championship data
+          };
+        });
 
         // Set initial fight results including fight events
         const initialResults = {};
@@ -135,9 +147,11 @@ const Event = () => {
 
         setEventData({
           ...event,
-          fights: completeFights
+          fights: completeFights,
         });
-        
+
+        // Set maxRankings from saved settings or default to 15
+        setMaxRankings(savedMaxRankings || 15);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -166,16 +180,16 @@ const Event = () => {
       // Set initial fight logger and run simulation
       const logger = new fightPlayByPlayLogger(true);
       const result = simulateFight([fighter1, fighter2], logger);
-  
+
       if (!result || typeof result.winner === "undefined") {
         console.error("simulateFight did not return a valid winner:", result);
         return null;
       }
-  
+
       // Capture fight events for playback
       const fightEvents = logger.getFightPlayByPlay();
       setCurrentFightEvents(fightEvents);
-  
+
       const winnerIndex = result.winner;
       const fightStats = calculateFightStats(
         {
@@ -189,29 +203,29 @@ const Event = () => {
           maxHealth: result.fighterMaxHealth?.[1] || {},
         }
       );
-  
+
       // Format fight result data
       const fightResult = {
         winner: winnerIndex,
         method: result.method,
         roundEnded: result.roundEnded,
         timeEnded: formatTime(result.endTime),
-        submissionType: result.submissionType
+        submissionType: result.submissionType,
       };
-  
+
       // Update fight results in database including fight events
       const fightId = eventData.fights[index].id;
       await updateFightResults(fightId, {
         result: fightResult,
         stats: fightStats,
-        fightEvents: fightEvents
+        fightEvents: fightEvents,
       });
-  
+
       //  Mark fight as completed
-      setCompletedFights(prev => new Set([...prev, fightId]));
-      
+      setCompletedFights((prev) => new Set([...prev, fightId]));
+
       // Update state with fight results
-      setFightResults(prevResults => ({
+      setFightResults((prevResults) => ({
         ...prevResults,
         [index]: {
           winnerIndex,
@@ -223,13 +237,13 @@ const Event = () => {
           fighters: [fighter1, fighter2],
         },
       }));
-  
+
       // Update fighter records
       await updateFighterRecords([fighter1, fighter2], result);
-  
+
       // Store fighters for fight viewer
       setSelectedFighters([fighter1, fighter2]);
-  
+
       return { winnerIndex, fightResult }; // Return both the winner index and fight result
     } catch (error) {
       console.error("Error simulating fight:", error);
@@ -240,79 +254,90 @@ const Event = () => {
   // Function specifically for direct simulation
   const handleSimulateFight = async (index, fighter1, fighter2) => {
     const result = await handleGenerateFight(index, fighter1, fighter2);
-    if (result && typeof result.winnerIndex !== 'undefined') {
+    if (result && typeof result.winnerIndex !== "undefined") {
       const fightId = eventData.fights[index].id;
-      setSimulatedFights(prev => new Set([...prev, fightId]));
-  
+      setSimulatedFights((prev) => new Set([...prev, fightId]));
+
       // Handle championship changes if this was a title fight
       const fight = eventData.fights[index];
       if (fight.championship) {
         const winnerFighter = result.winnerIndex === 0 ? fighter1 : fighter2;
         const loserFighter = result.winnerIndex === 0 ? fighter2 : fighter1;
-        
+
         try {
           // Get current championship data
           const championship = await getChampionshipById(fight.championship.id);
-          
+
           if (championship) {
             let updatedChampionship;
-  
+
             // Handle both vacant and active title scenarios
             if (!championship.currentChampionId) {
               // Vacant title scenario - winner becomes new champion
               updatedChampionship = {
                 ...championship,
-                currentChampionId: winnerFighter.personid
+                currentChampionId: winnerFighter.personid,
               };
-              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} wins the vacant ${championship.name}`);
-            } else if (championship.currentChampionId === loserFighter.personid) {
+              console.log(
+                `${winnerFighter.firstname} ${winnerFighter.lastname} wins the vacant ${championship.name}`
+              );
+            } else if (
+              championship.currentChampionId === loserFighter.personid
+            ) {
               // Champion lost - update to new champion
               updatedChampionship = {
                 ...championship,
-                currentChampionId: winnerFighter.personid
+                currentChampionId: winnerFighter.personid,
               };
-              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} is the new ${championship.name} champion`);
-            } else if (championship.currentChampionId === winnerFighter.personid) {
+              console.log(
+                `${winnerFighter.firstname} ${winnerFighter.lastname} is the new ${championship.name} champion`
+              );
+            } else if (
+              championship.currentChampionId === winnerFighter.personid
+            ) {
               // Champion retained - no update needed
-              console.log(`${winnerFighter.firstname} ${winnerFighter.lastname} retains the ${championship.name}`);
+              console.log(
+                `${winnerFighter.firstname} ${winnerFighter.lastname} retains the ${championship.name}`
+              );
               return;
             }
-  
+
             // Update championship if there were changes
             if (updatedChampionship) {
               await updateChampionship(updatedChampionship);
-              
+
               // Update local championships state
-              setChampionships(prevChampionships => 
-                prevChampionships.map(c => 
+              setChampionships((prevChampionships) =>
+                prevChampionships.map((c) =>
                   c.id === updatedChampionship.id ? updatedChampionship : c
                 )
               );
             }
           }
         } catch (error) {
-          console.error('Error updating championship:', error);
+          console.error("Error updating championship:", error);
         }
       }
     }
   };
-  
 
   /**
-     * Opens the fight viewer dialog and simulates fight if not already completed
-     * Can be triggered before simulation to watch fight in real-time
-     * @param {number} index - Index of the fight to watch
-     */
+   * Opens the fight viewer dialog and simulates fight if not already completed
+   * Can be triggered before simulation to watch fight in real-time
+   * @param {number} index - Index of the fight to watch
+   */
   const handleWatchFight = async (index) => {
     const fight = eventData.fights[index];
 
     // Prevent watching if already viewed or simulated without viewing
-    if (viewedFights.has(fight.id) || 
-        (simulatedFights.has(fight.id) && !viewedFights.has(fight.id))) {
+    if (
+      viewedFights.has(fight.id) ||
+      (simulatedFights.has(fight.id) && !viewedFights.has(fight.id))
+    ) {
       return;
     }
-    
-  // If fight is already completed and hasn't been viewed, show it
+
+    // If fight is already completed and hasn't been viewed, show it
     if (fightResults[index] && fightResults[index].fightEvents) {
       setCurrentFightEvents(fightResults[index].fightEvents);
       setSelectedFighters(fightResults[index].fighters);
@@ -320,16 +345,16 @@ const Event = () => {
       return;
     }
 
-  // If fight needs to be simulated, do that first
-  try {
-    // Only remove from simulatedFights if this fight hasn't been simulated yet
-    if (!completedFights.has(fight.id)) {
-      setSimulatedFights(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(fight.id);
-        return newSet;
-      });
-    }
+    // If fight needs to be simulated, do that first
+    try {
+      // Only remove from simulatedFights if this fight hasn't been simulated yet
+      if (!completedFights.has(fight.id)) {
+        setSimulatedFights((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(fight.id);
+          return newSet;
+        });
+      }
 
       await handleGenerateFight(index, fight.fighter1, fight.fighter2);
       // Need to wait briefly for fight events to be processed
@@ -348,13 +373,14 @@ const Event = () => {
     // If there's a fight result, find its ID and mark as viewed
     if (currentFightEvents && currentFightEvents.length > 0) {
       const fightIndex = eventData.fights.findIndex(
-        fight => fight.fighter1.personid === selectedFighters[0].personid &&
-                fight.fighter2.personid === selectedFighters[1].personid
+        (fight) =>
+          fight.fighter1.personid === selectedFighters[0].personid &&
+          fight.fighter2.personid === selectedFighters[1].personid
       );
       if (fightIndex !== -1) {
         const fightId = eventData.fights[fightIndex].id;
-        setViewedFights(prev => new Set([...prev, fightId]));
-        setSimulatedFights(prev => new Set([...prev, fightId]));
+        setViewedFights((prev) => new Set([...prev, fightId]));
+        setSimulatedFights((prev) => new Set([...prev, fightId]));
       }
     }
     setViewerOpen(false);
@@ -379,80 +405,123 @@ const Event = () => {
   };
 
   /**
-   * Updates fighter records after a fight
+   * Updates fighter records and rankings after a fight
    * @param {Object[]} fighters - Array of fighter objects
-   * @param {number} winnerIndex - Index of the winning fighter
    * @param {Object} result - Fight result object
    */
   const updateFighterRecords = async (fighters, result) => {
-    // Validate result and winnerIndex
-    if (!result || typeof result.winner !== 'number' || result.winner < 0 || result.winner > 1) {
-      console.error("Invalid fight result or winner index:", result);
-      return;
-    }
-
-    // Assign winner and loser fighters
-    const winnerIndex = result.winner;
-    const winnerFighter = fighters[winnerIndex];
-    const loserFighter = fighters[1 - winnerIndex];
-
-    // Ensure both fighters exist
-    if (!winnerFighter || !loserFighter) {
-      console.error("Error: Unable to determine winner or loser.");
-      console.log("Fighters Array:", fighters);
-      console.log("Winner Fighter:", winnerFighter);
-      console.log("Loser Fighter:", loserFighter);
-      return;
-    }
-
-    // Construct opponent names
-    const winnerOpponentName = `${loserFighter.firstname || "Unknown"} ${
-      loserFighter.lastname || ""
-    }`.trim();
-    const loserOpponentName = `${winnerFighter.firstname || "Unknown"} ${
-      winnerFighter.lastname || ""
-    }`.trim();
-
-    // Define fight result entries
-    const fightResultForWinner = {
-      opponentId: loserFighter.id,
-      opponentName: winnerOpponentName,
-      result: "Win",
-      method: result.method,
-      roundEnded: result.roundEnded,
-      timeEnded: formatEndTime(result.endTime),
-    };
-
-    const fightResultForLoser = {
-      opponentId: winnerFighter.id,
-      opponentName: loserOpponentName,
-      result: "Loss",
-      method: result.method,
-      roundEnded: result.roundEnded,
-      timeEnded: formatEndTime(result.endTime),
-    };
-
-    // Update records for each fighter
-    const updatedFighters = fighters.map((fighter) => {
-      if (fighter.id === winnerFighter.id) {
-        return {
-          ...fighter,
-          wins: (fighter.wins || 0) + 1,
-          fightHistory: [fightResultForWinner, ...(fighter.fightHistory || [])],
-        };
-      } else if (fighter.id === loserFighter.id) {
-        return {
-          ...fighter,
-          losses: (fighter.losses || 0) + 1,
-          fightHistory: [fightResultForLoser, ...(fighter.fightHistory || [])],
-        };
-      } else {
-        return fighter;
+    try {
+      // Validate result and winnerIndex
+      if (
+        !result ||
+        typeof result.winner !== "number" ||
+        result.winner < 0 ||
+        result.winner > 1
+      ) {
+        console.error("Invalid fight result or winner index:", result);
+        return;
       }
-    });
 
-    // Update fighters in the database
-    await Promise.all(updatedFighters.map(updateFighter));
+      // Assign winner and loser fighters
+      const winnerIndex = result.winner;
+      const winnerFighter = fighters[winnerIndex];
+      const loserFighter = fighters[1 - winnerIndex];
+
+      // Ensure both fighters exist
+      if (!winnerFighter || !loserFighter) {
+        console.error("Error: Unable to determine winner or loser.");
+        return;
+      }
+
+      // Get all fighters for ranking updates
+      const allFighters = await getAllFighters();
+
+      // Update rankings
+      const rankingUpdates = await updateRankingsAfterFight(
+        winnerFighter,
+        loserFighter,
+        allFighters,
+        championships,
+        maxRankings
+      );
+
+      // Create a map of all fighters that need updates
+      const fighterUpdates = new Map();
+
+      // Add record updates for winner and loser
+      fighterUpdates.set(winnerFighter.personid, {
+        ...winnerFighter,
+        wins: (winnerFighter.wins || 0) + 1,
+        ranking:
+          rankingUpdates.find((f) => f.personid === winnerFighter.personid)
+            ?.ranking || winnerFighter.ranking,
+        fightHistory: [
+          {
+            opponentId: loserFighter.personid,
+            opponentName: `${loserFighter.firstname} ${loserFighter.lastname}`,
+            result: "Win",
+            method: result.method,
+            roundEnded: result.roundEnded,
+            timeEnded: formatEndTime(result.endTime),
+          },
+          ...(winnerFighter.fightHistory || []),
+        ],
+      });
+
+      fighterUpdates.set(loserFighter.personid, {
+        ...loserFighter,
+        losses: (loserFighter.losses || 0) + 1,
+        ranking:
+          rankingUpdates.find((f) => f.personid === loserFighter.personid)
+            ?.ranking || loserFighter.ranking,
+        fightHistory: [
+          {
+            opponentId: winnerFighter.personid,
+            opponentName: `${winnerFighter.firstname} ${winnerFighter.lastname}`,
+            result: "Loss",
+            method: result.method,
+            roundEnded: result.roundEnded,
+            timeEnded: formatEndTime(result.endTime),
+          },
+          ...(loserFighter.fightHistory || []),
+        ],
+      });
+
+      // Handle additional ranking updates
+      rankingUpdates.forEach((fighter) => {
+        if (!fighterUpdates.has(fighter.personid)) {
+          const existingFighter = allFighters.find(
+            (f) => f.personid === fighter.personid
+          );
+          if (existingFighter) {
+            fighterUpdates.set(fighter.personid, {
+              ...existingFighter,
+              ranking: fighter.ranking,
+            });
+          }
+        }
+      });
+
+      // Log updates for debugging
+      console.log("Fighter updates:", {
+        maxRankings,
+        updates: Array.from(fighterUpdates.values()).map((f) => ({
+          name: `${f.firstname} ${f.lastname}`,
+          oldRanking: allFighters.find((of) => of.personid === f.personid)
+            ?.ranking,
+          newRanking: f.ranking,
+        })),
+      });
+
+      // Update all affected fighters in the database
+      await Promise.all(
+        Array.from(fighterUpdates.values()).map((fighter) =>
+          updateFighter(fighter)
+        )
+      );
+    } catch (error) {
+      console.error("Error updating fighter records:", error);
+    }
   };
 
   // Helper functions for displaying stats and preparing tabs
@@ -525,9 +594,12 @@ const Event = () => {
   }
 
   return (
-    <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
+    <Container
+      maxWidth="md"
+      style={{ marginTop: "50px", marginBottom: "20px" }}
+    >
       <Typography variant="h4" align="center" gutterBottom>
-        {eventData?.name || 'Main Card'}
+        {eventData?.name || "Main Card"}
       </Typography>
 
       {/* Fight Cards */}
@@ -535,19 +607,25 @@ const Event = () => {
         const fightResult = fightResults[index];
         const winnerIndex = fightResult?.winnerIndex;
         const isFightCompleted = completedFights.has(fight.id);
-        const shouldShowWinner = viewedFights.has(fight.id) || (simulatedFights.has(fight.id) && !viewerOpen);
-
+        const shouldShowWinner =
+          viewedFights.has(fight.id) ||
+          (simulatedFights.has(fight.id) && !viewerOpen);
 
         // Determine if each fighter is a champion
-        const fighter1IsChamp = championships.some(c => 
-          c.currentChampionId === fight.fighter1.personid
+        const fighter1IsChamp = championships.some(
+          (c) => c.currentChampionId === fight.fighter1.personid
         );
-        const fighter2IsChamp = championships.some(c => 
-          c.currentChampionId === fight.fighter2.personid
+        const fighter2IsChamp = championships.some(
+          (c) => c.currentChampionId === fight.fighter2.personid
         );
 
         return (
-          <Grid container spacing={3} key={index} style={{ marginBottom: "40px" }}>
+          <Grid
+            container
+            spacing={3}
+            key={index}
+            style={{ marginBottom: "40px" }}
+          >
             <Grid item xs={12}>
               <FightCard
                 selectedItem1={fight.fighter1}
@@ -573,12 +651,18 @@ const Event = () => {
                       color: "#fff",
                       "&:disabled": {
                         backgroundColor: "rgba(33, 33, 33, 0.4)",
-                      }
+                      },
                     }}
                     // Disable if fight has been viewed or simulated without vieweing
-                    disabled={viewedFights.has(fight.id) || (simulatedFights.has(fight.id) && !viewedFights.has(fight.id))}
+                    disabled={
+                      viewedFights.has(fight.id) ||
+                      (simulatedFights.has(fight.id) &&
+                        !viewedFights.has(fight.id))
+                    }
                   >
-                    {viewedFights.has(fight.id) ? "Already Viewed" : "Watch Fight"}
+                    {viewedFights.has(fight.id)
+                      ? "Already Viewed"
+                      : "Watch Fight"}
                   </Button>
                 </Grid>
 
@@ -586,14 +670,16 @@ const Event = () => {
                 <Grid item>
                   <Button
                     variant="contained"
-                    onClick={() => handleSimulateFight(index, fight.fighter1, fight.fighter2)}
-                    disabled={isFightCompleted}  
+                    onClick={() =>
+                      handleSimulateFight(index, fight.fighter1, fight.fighter2)
+                    }
+                    disabled={isFightCompleted}
                     sx={{
                       backgroundColor: "rgba(33, 33, 33, 0.9)",
                       color: "#fff",
                       "&:disabled": {
                         backgroundColor: "rgba(33, 33, 33, 0.4)",
-                      }
+                      },
                     }}
                   >
                     {isFightCompleted ? "Fight Complete" : "Simulate Fight"}
@@ -775,33 +861,33 @@ const Event = () => {
       </Dialog>
 
       {/* Fight Viewer Dialog */}
-      <Dialog
-        open={viewerOpen}
-        onClose={handleCloseViewer}
-        fullScreen
-      >
-        <Box sx={{ 
-          position: 'relative', 
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
+      <Dialog open={viewerOpen} onClose={handleCloseViewer} fullScreen>
+        <Box
+          sx={{
+            position: "relative",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           {/* Close button positioned at top right */}
-          <Box sx={{ 
-            position: 'absolute',
-            top: 16,
-            right: 16,
-            zIndex: 1200
-          }}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 16,
+              right: 16,
+              zIndex: 1200,
+            }}
+          >
             <Button
               variant="contained"
               onClick={handleCloseViewer}
               sx={{
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
                 },
-                color: '#fff',
+                color: "#fff",
               }}
             >
               Close
@@ -810,7 +896,7 @@ const Event = () => {
 
           {/* Fight Viewer Content */}
           <Box sx={{ flexGrow: 1 }}>
-            <FightViewer 
+            <FightViewer
               fightEvents={currentFightEvents}
               fighters={selectedFighters}
             />

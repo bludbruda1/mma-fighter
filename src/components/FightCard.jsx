@@ -8,43 +8,46 @@ import {
   CardContent,
   CardMedia,
 } from "@mui/material";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
-const FightCard = ({ 
-  selectedItem1, 
-  selectedItem2, 
-  winnerIndex, 
+const FightCard = ({
+  selectedItem1,
+  selectedItem2,
+  winnerIndex,
   championship,
   fighter1IsChamp,
-  fighter2IsChamp
- }) => {
-
+  fighter2IsChamp,
+}) => {
   // Helper function to render champion indicator
   const renderChampionBadge = () => {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center',
-        gap: 1,
-        backgroundColor: 'rgba(255, 215, 0, 0.1)',
-        padding: '4px 12px',
-        borderRadius: '4px',
-        marginBottom: '8px', 
-        marginTop: championship ? '32px' : '8px', 
-        width: 'fit-content',
-        alignSelf: 'center',  
-        }}>
-        <EmojiEventsIcon sx={{ 
-          color: 'gold',
-          fontSize: '1.5rem'
-        }} />
-        <Typography 
-          variant="subtitle2" 
-          sx={{ 
-            color: 'gold',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          backgroundColor: "rgba(255, 215, 0, 0.1)",
+          padding: "4px 12px",
+          borderRadius: "4px",
+          marginBottom: "8px",
+          marginTop: championship ? "32px" : "8px",
+          width: "fit-content",
+          alignSelf: "center",
+        }}
+      >
+        <EmojiEventsIcon
+          sx={{
+            color: "gold",
+            fontSize: "1.5rem",
+          }}
+        />
+        <Typography
+          variant="subtitle2"
+          sx={{
+            color: "gold",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
           }}
         >
           Champion
@@ -56,28 +59,28 @@ const FightCard = ({
   return (
     <Card
       elevation={3}
-      sx={{ 
-        padding: "20px", 
-        maxWidth: 800, 
-        margin: "auto", 
+      sx={{
+        padding: "20px",
+        maxWidth: 800,
+        margin: "auto",
         marginTop: "20px",
-        position: 'relative' 
+        position: "relative",
       }}
     >
       {championship && (
         <Box
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
-            backgroundColor: 'gold',
-            color: 'black',
-            padding: '8px',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            borderTopLeftRadius: 'inherit',
-            borderTopRightRadius: 'inherit',
+            backgroundColor: "gold",
+            color: "black",
+            padding: "8px",
+            textAlign: "center",
+            fontWeight: "bold",
+            borderTopLeftRadius: "inherit",
+            borderTopRightRadius: "inherit",
           }}
         >
           {championship.name}
@@ -99,7 +102,7 @@ const FightCard = ({
           >
             {/* Show champion badge if fighter1 is champ */}
             {fighter1IsChamp && renderChampionBadge()}
-            
+
             <Typography
               variant="h5"
               align="center"
@@ -148,6 +151,9 @@ const FightCard = ({
             <Typography variant="body2" align="center">
               Record: {selectedItem1.wins}W-{selectedItem1.losses}L
             </Typography>
+            <Typography variant="body2" align="center">
+              Rank: {selectedItem1.ranking ?? "Unranked"}
+            </Typography>
           </Grid>
 
           {/* VS Text in the middle */}
@@ -170,7 +176,7 @@ const FightCard = ({
           >
             {/* Show champion badge if fighter2 is champ */}
             {fighter2IsChamp && renderChampionBadge()}
-            
+
             <Typography
               variant="h5"
               align="center"
@@ -218,6 +224,9 @@ const FightCard = ({
             </Typography>
             <Typography variant="body2" align="center">
               Record: {selectedItem2.wins}W-{selectedItem2.losses}L
+            </Typography>
+            <Typography variant="body2" align="center">
+              Rank: {selectedItem2.ranking ?? "Unranked"}
             </Typography>
           </Grid>
         </Grid>

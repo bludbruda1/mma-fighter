@@ -9,7 +9,7 @@ const settingsStoreName = "settings";
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = () => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 3); // Increment version to trigger upgrade if needed
+    const request = indexedDB.open(dbName, 4); // Increment version to trigger upgrade if needed
 
     request.onerror = () => {
       console.error("Error opening database");
@@ -498,7 +498,7 @@ export const getChampionshipById = async (id) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
-}
+};
 
 export const saveGameDate = async (date) => {
   const db = await openDB();
@@ -530,5 +530,30 @@ export const getGameDate = async () => {
     request.onsuccess = () =>
       resolve(request.result?.value || new Date().toISOString());
     request.onerror = (event) => reject(event.target.error);
+  });
+};
+
+// Functions to manage settings
+export const updateSettings = async (key, value) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readwrite");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.put({ key, value });
+
+    request.onsuccess = () => resolve(value);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+export const getSettings = async (key) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readonly");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.get(key);
+
+    request.onsuccess = () => resolve(request.result?.value);
+    request.onerror = () => reject(request.error);
   });
 };
