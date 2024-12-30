@@ -557,28 +557,3 @@ export const getSettings = async (key) => {
     request.onerror = () => reject(request.error);
   });
 };
-
-// Functions to manage settings
-export const updateSettings = async (key, value) => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(settingsStoreName, "readwrite");
-    const store = transaction.objectStore(settingsStoreName);
-    const request = store.put({ key, value });
-
-    request.onsuccess = () => resolve(value);
-    request.onerror = () => reject(request.error);
-  });
-};
-
-export const getSettings = async (key) => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(settingsStoreName, "readonly");
-    const store = transaction.objectStore(settingsStoreName);
-    const request = store.get(key);
-
-    request.onsuccess = () => resolve(request.result?.value);
-    request.onerror = () => reject(request.error);
-  });
-};
