@@ -11,6 +11,7 @@ import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
 import EventsList from "./pages/EventsList";
 import Calendar from "./components/Calendar";
+import Rankings from "./pages/Rankings";
 import SelectDate from "./pages/SelectDate";
 import Rankings from "./pages/Rankings";
 

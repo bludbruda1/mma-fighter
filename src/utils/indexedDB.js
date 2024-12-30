@@ -501,7 +501,11 @@ export const getChampionshipById = async (id) => {
 };
 
 export const saveGameDate = async (date) => {
-  const request = store.put({ key: "gameDate", value: date }); // Save as YYYY-MM-DD
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readwrite");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.put({ key: "gameDate", value: date }); // Save as YYYY-MM-DD
 
     request.onsuccess = () => {
       console.log("Game date saved successfully:", date);
@@ -526,6 +530,31 @@ export const getGameDate = async () => {
     request.onsuccess = () =>
       resolve(request.result?.value || new Date().toISOString());
     request.onerror = (event) => reject(event.target.error);
+  });
+};
+
+// Functions to manage settings
+export const updateSettings = async (key, value) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readwrite");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.put({ key, value });
+
+    request.onsuccess = () => resolve(value);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+export const getSettings = async (key) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(settingsStoreName, "readonly");
+    const store = transaction.objectStore(settingsStoreName);
+    const request = store.get(key);
+
+    request.onsuccess = () => resolve(request.result?.value);
+    request.onerror = () => reject(request.error);
   });
 };
 
