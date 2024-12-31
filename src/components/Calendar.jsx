@@ -126,11 +126,15 @@ const Calendar = () => {
 
   const handleSkipDay = () => {
     const eventsToday = getEventsForDate(gameDate);
-    if (eventsToday.length > 0) {
-      setEventsOnGameDate(eventsToday);
+    if (eventsToday.some((event) => event.status === "in progress")) {
+      setEventsOnGameDate(
+        eventsToday.filter((e) => e.status === "in progress")
+      );
       setIsModalOpen(true);
-    } else {
+    } else if (eventsToday.every((event) => event.status === "completed")) {
       proceedToSkipDay();
+    } else {
+      console.error("Unexpected event status");
     }
   };
 

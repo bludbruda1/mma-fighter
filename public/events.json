@@ -3,18 +3,21 @@
       "id": 1,
       "name": "UFC 311",
       "date": "2025-01-18",
-      "fights": [2,3]
+      "fights": [2,3],
+      "status": "completed"
     },
     {
       "id": 2,
       "name": "UFC 315",
       "date": "2025-04-20",
-      "fights": [4]
+      "fights": [4],
+      "status": "completed"
     },
     {
       "id": 3,
       "name": "UFC 302",
       "date": "2024-06-01",
-      "fights": [9]
+      "fights": [9],
+      "status": "completed"
     }
   ]

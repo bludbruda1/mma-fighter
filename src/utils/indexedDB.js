@@ -9,7 +9,7 @@ const settingsStoreName = "settings";
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = () => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 3); // Increment version to trigger upgrade if needed
+    const request = indexedDB.open(dbName, 4); // Incremented version for upgrade
 
     request.onerror = () => {
       console.error("Error opening database");
@@ -24,6 +24,16 @@ export const openDB = () => {
     request.onupgradeneeded = (event) => {
       console.log("Upgrading database...");
       const db = event.target.result;
+
+      // Create or update the "events" store if necessary
+      if (!db.objectStoreNames.contains(eventStoreName)) {
+        console.log(`Creating object store: ${eventStoreName}`);
+        db.createObjectStore(eventStoreName, { keyPath: "id" });
+      }
+
+      // If the 'status' field does not exist, we can add it now
+      const store = event.target.transaction.objectStore(eventStoreName);
+      store.createIndex("statusIndex", "status", { unique: false }); // Create index for status, if necessary
 
       // Create the "fighters" store if it doesn't exist
       if (!db.objectStoreNames.contains(fighterStoreName)) {
@@ -125,6 +135,12 @@ export const addEventToDB = async (event) => {
     // Validate that fight IDs are numeric
     if (!event.fights.every((id) => Number.isInteger(id))) {
       reject(new Error("All fight IDs must be integers"));
+      return;
+    }
+
+    // Ensure status is included in the event
+    if (!event.status) {
+      reject(new Error("Event status must be provided"));
       return;
     }
 
@@ -559,5 +575,50 @@ export const updateGameDate = async (newDate) => {
   } catch (error) {
     console.error("Database error while updating game date:", error);
     return Promise.reject(error);
+  }
+};
+
+export const updateEventStatus = async (eventId, newStatus) => {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(eventStoreName, "readwrite");
+    const store = tx.objectStore(eventStoreName);
+    const numericId = Number(eventId);
+
+    // Make sure the 'id' field is defined as keyPath or in the data structure
+    const eventRequest = store.get(numericId);
+
+    // Wait for the request to complete and get the event object
+    const event = await new Promise((resolve, reject) => {
+      eventRequest.onsuccess = () => resolve(eventRequest.result); // Resolve with the result
+      eventRequest.onerror = () => reject(new Error("Failed to fetch event"));
+    });
+
+    console.log("Fetched event:", event); // Now this should log the actual event object
+
+    if (!event) {
+      throw new Error(`Event with ID ${eventId} not found.`);
+    }
+
+    // Check if the event contains the 'id' field
+    if (!event.hasOwnProperty("id")) {
+      throw new Error(
+        "Event object does not contain the required key path 'id'."
+      );
+    }
+
+    // Update the event's status
+    const updatedEvent = { ...event, status: newStatus };
+
+    // Save the updated event back to the store
+    store.put(updatedEvent);
+
+    // Wait for the transaction to be completed
+    await tx.done;
+
+    console.log("Event updated successfully:", updatedEvent);
+  } catch (error) {
+    console.error("Error updating event status:", error);
+    throw new Error("Failed to update event status: " + error.message);
   }
 };

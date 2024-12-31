@@ -67,8 +67,8 @@
       "id": 4,
       "fighter1": {
         "personid": 1,
-        "firstname": "Conor McGregor",
-        "lastname": "Dariush"
+        "firstname": "Conor",
+        "lastname": "McGregor"
       },
       "fighter2": {
         "personid": 8,

@@ -274,7 +274,6 @@ const CreateEvent = () => {
     );
   };
 
-  // Save the entire event including all fights
   const handleSaveEvent = async () => {
     try {
       // Validate event name
@@ -315,34 +314,40 @@ const CreateEvent = () => {
           result: null,
           stats: null,
           // Include championship information (either active or vacant)
-          championship: fightsWithChampionship[index] ? {
-            id: fightsWithChampionship[index].id,
-            name: fightsWithChampionship[index].name,
-            currentChampionId: fightsWithChampionship[index].currentChampionId
-          } : fightsWithVacantTitle[index] ? {
-            id: fightsWithVacantTitle[index].id,
-            name: fightsWithVacantTitle[index].name,
-            currentChampionId: null // Explicitly null for vacant titles
-          } : null
+          championship: fightsWithChampionship[index]
+            ? {
+                id: fightsWithChampionship[index].id,
+                name: fightsWithChampionship[index].name,
+                currentChampionId:
+                  fightsWithChampionship[index].currentChampionId,
+              }
+            : fightsWithVacantTitle[index]
+            ? {
+                id: fightsWithVacantTitle[index].id,
+                name: fightsWithVacantTitle[index].name,
+                currentChampionId: null, // Explicitly null for vacant titles
+              }
+            : null,
         };
 
         await addFightToDB(fightData);
         fightIds.push(nextFightId);
       }
 
-      // Create the event with all fight IDs
+      // Create the event with all fight IDs and set status to "in progress"
       const nextEventId = await getNextEventId();
       const eventData = {
         id: nextEventId,
         name: eventName,
         date: selectedDate,
         fights: fightIds,
+        status: "in progress",
       };
 
       if (fightIds.length > 0) {
         await addEventToDB(eventData);
         console.log("Event saved successfully:", eventData);
-        setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
+        setEventIds((prevEventIds) => [...prevEventIds, eventData.id]);
         navigate(`/event/${eventData.id}`);
       } else {
         console.log("No valid fights to save");
