@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   getAllEvents,
   getGameDate,
-  updateGameDate, // New function to update gameDate in IndexedDB
+  updateGameDate,
+  updateEventStatus, // Assuming this function will be used for updating event status
 } from "../utils/indexedDB";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -27,7 +28,7 @@ const Calendar = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [gameDate, setGameDate] = useState(new Date()); // Store gameDate from IndexedDB
+  const [gameDate, setGameDate] = useState(new Date());
   const [isDateInputVisible, setIsDateInputVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -40,11 +41,11 @@ const Calendar = () => {
   useEffect(() => {
     const initializeCalendar = async () => {
       try {
-        const fetchedGameDate = await getGameDate(); // Fetch game date from IndexedDB
-        const initialGameDate = new Date(fetchedGameDate); // Convert to Date object
-        setGameDate(initialGameDate); // Set gameDate state
-        setCurrentDate(initialGameDate); // Set currentDate
-        setSelectedDate(initialGameDate.toISOString().split("T")[0]); // Set selectedDate for input
+        const fetchedGameDate = await getGameDate();
+        const initialGameDate = new Date(fetchedGameDate);
+        setGameDate(initialGameDate);
+        setCurrentDate(initialGameDate);
+        setSelectedDate(initialGameDate.toISOString().split("T")[0]);
       } catch (error) {
         console.error("Error fetching game date:", error);
       }
@@ -80,10 +81,22 @@ const Calendar = () => {
     }
   };
 
-  const handleSimulateEvent = () => {
-    // Simulate the event
+  const handleSimulateEvent = async () => {
     console.log("Simulating event:", eventsOnGameDate);
-    proceedToSkipDay();
+
+    try {
+      // Simulate all fights in the event
+      for (const event of eventsOnGameDate) {
+        // You might have a function to simulate the fight here
+        // For now, we're assuming the event has a "status" field that will be updated
+        await updateEventStatus(event.id, "completed");
+      }
+
+      // After simulating all fights, skip the day
+      await proceedToSkipDay();
+    } catch (error) {
+      console.error("Error simulating event:", error);
+    }
   };
 
   const handlePlayEvent = () => {
@@ -121,7 +134,7 @@ const Calendar = () => {
     const newDate = new Date(selected);
     setCurrentDate(newDate);
 
-    setIsDateInputVisible(false); // Close dropdown after selection
+    setIsDateInputVisible(false);
   };
 
   const handleSkipDay = () => {
@@ -150,7 +163,7 @@ const Calendar = () => {
       1
     ).getDay();
 
-    const today = new Date(gameDate); // Use gameDate as "today"
+    const today = new Date(gameDate);
     today.setHours(0, 0, 0, 0);
 
     const calendarDays = [];
