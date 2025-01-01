@@ -72,11 +72,18 @@
       }
     ]
   },
-    {
-      "id": 2,
-      "name": "Lightweight Interim Championship",
-      "weightClass": "Lightweight",
-      "currentChampionId": null,
-      "description": "UFC Interim Lightweight Championship"
-    }
+  {
+    "id": 2,
+    "name": "Lightweight Interim Championship",
+    "weightClass": "Lightweight",
+    "currentChampionId": null,
+    "description": "UFC Interim Lightweight Championship"
+  },
+  {
+    "id": 3,
+    "name": "Featherweight Championship",
+    "weightClass": "Featherweight",
+    "currentChampionId": 21,
+    "description": "UFC Featherweight Championship"
+  }
   ]
