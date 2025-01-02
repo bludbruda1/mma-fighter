@@ -16,27 +16,7 @@
         "winMethod": "Submission",
         "winRound": 2,
         "winTime": "3:16",
-        "eventId": null,
-        "defenses": [
-          {
-            "date": "2023-02-12",
-            "opponentId": null,
-            "opponentName": "Alexander Volkanovski",
-            "method": "Decision",
-            "round": 5,
-            "time": "5:00",
-            "eventId": null
-          },
-          {
-            "date": "2023-02-12",
-            "opponentId": 2,
-            "opponentName": "Dustin Poirier",
-            "method": "Submission",
-            "round": 5,
-            "time": "2:42",
-            "eventId": 3
-          }
-        ]
+        "eventId": null
       },
       {
         "championId": 5,
@@ -48,35 +28,48 @@
         "winMethod": "Knockout",
         "winRound": 2,
         "winTime": "0:19",
-        "eventId": null,
-        "defenses": [
-          {
-            "date": "2022-07-15",
-            "opponentId": 6,
-            "opponentName": "Justin Gaethje",
-            "method": "Submission",
-            "round": 2,
-            "time": "3:22",
-            "eventId": null
-          },
-          {
-            "date": "2021-12-11",
-            "opponentId": 2,
-            "opponentName": "Dustin Poirier",
-            "method": "Submission",
-            "round": 4,
-            "time": "2:17",
-            "eventId": null
-          }
-        ]
+        "eventId": null
       }
     ]
   },
-    {
-      "id": 2,
-      "name": "Lightweight Interim Championship",
-      "weightClass": "Lightweight",
-      "currentChampionId": null,
-      "description": "UFC Interim Lightweight Championship"
-    }
-  ]
+  {
+    "id": 2,
+    "name": "Lightweight Interim Championship",
+    "weightClass": "Lightweight",
+    "currentChampionId": null,
+    "description": "UFC Interim Lightweight Championship"
+  },
+  {
+    "id": 3,
+    "name": "Featherweight Championship",
+    "weightClass": "Featherweight",
+    "currentChampionId": 21,
+    "description": "UFC Featherweight Championship",
+    "reigns": [
+      {
+        "championId": 21,
+        "name": "Ilia Topuria",
+        "startDate": "2024-02-17",
+        "endDate": null,
+        "wonFromId": 22,
+        "wonFromName": "Alex Volkanovski",
+        "winMethod": "Knockout",
+        "winRound": 2,
+        "winTime": "3:32",
+        "eventId": null
+      },
+      {
+        "championId": 22,
+        "name": "Alex Volkanovski",
+        "startDate": "2019-12-14",
+        "endDate": "2024-02-17",
+        "wonFromId": null,
+        "wonFromName": "Jose Aldo",
+        "winMethod": "Decision",
+        "winRound": 5,
+        "winTime": "5:00",
+        "eventId": null
+      }
+    ]
+  }   
+]

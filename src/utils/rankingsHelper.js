@@ -9,8 +9,18 @@ const DEFAULT_RANKING_SLOTS = 15;
  * @returns {Array} Array of fighters that need their rankings updated
  */
 export const updateRankingsAfterFight = (winner, loser, allFighters, championships, maxRankings = DEFAULT_RANKING_SLOTS) => {
-  // Don't update rankings if either fighter is a champion
-  const isChampion = (fighter) => championships.some(c => c.currentChampionId === fighter.personid);
+  // Ensure both fighters are in the same weight class
+  if (winner.weightClass !== loser.weightClass) {
+    console.warn('Fighters are in different weight classes');
+    return [];
+  }
+  
+  // Don't update rankings if either fighter is a champion in their weight class
+  const isChampion = (fighter) => championships.some(c => 
+    c.currentChampionId === fighter.personid && 
+    c.weightClass === fighter.weightClass
+  );
+
   if (isChampion(winner) || isChampion(loser)) {
     return [];
   }
@@ -33,53 +43,44 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
     }))
     .sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
 
-  let updatedFighters = [];
+  let updatedFighters = new Map();
 
   // Handle case where winner moves up in rankings
   if (winnerRank > loserRank || winnerRank === 999) {
     // Place winner at loser's rank
     if (loserRank <= maxRankings) {
-      updatedFighters.push({
+      // Winner takes loser's spot
+      updatedFighters.set(winner.personid, {
         ...winner,
         ranking: loserRank
       });
 
-      // Move loser and everyone below down one rank
+      // Loser moves to loserRank + 1
+      updatedFighters.set(loser.personid, {
+        ...loser,
+        ranking: loserRank + 1
+      });
+
+      // Everyone else between loser and winner shifts down one
       weightClassFighters
         .filter(f => 
-          (f.ranking && f.ranking >= loserRank && f.personid !== winner.personid) || 
-          f.personid === loser.personid
+          f.ranking && 
+          f.ranking > loserRank && 
+          f.ranking <= winnerRank &&
+          f.personid !== winner.personid &&
+          f.personid !== loser.personid
         )
         .forEach(fighter => {
-          const newRank = fighter.ranking + 1;
-          if (newRank <= maxRankings) {
-            updatedFighters.push({
-              ...fighter,
-              ranking: newRank
-            });
-          } else {
-            // Fighter falls out of rankings
-            updatedFighters.push({
-              ...fighter,
-              ranking: null
-            });
-          }
+          updatedFighters.set(fighter.personid, {
+            ...fighter,
+            ranking: fighter.ranking + 1
+          });
         });
     }
-  } else {
-    // Keep existing rankings
-    weightClassFighters
-      .filter(f => f.ranking && f.ranking <= maxRankings)
-      .forEach(fighter => {
-        updatedFighters.push({
-          ...fighter,
-          ranking: fighter.ranking
-        });
-      });
   }
 
-  // Filter out unchanged rankings and ensure no duplicates
-  const changedFighters = updatedFighters
+  // Convert map to array and filter out unchanged rankings
+  const changedFighters = Array.from(updatedFighters.values())
     .filter(newFighter => {
       const originalFighter = allFighters.find(f => f.personid === newFighter.personid);
       return originalFighter.ranking !== newFighter.ranking;
@@ -92,6 +93,7 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
 
   // Log changes for debugging
   console.log('Ranking Changes:', {
+    weightClass: winner.weightClass,
     maxRankings,
     winner: {
       name: `${winner.firstname} ${winner.lastname}`,
@@ -121,8 +123,13 @@ export const updateRankingsAfterFight = (winner, loser, allFighters, championshi
  */
 export const getRankingDisplay = (fighter, championships, maxRankings = DEFAULT_RANKING_SLOTS) => {
   if (!fighter) return '';
+
+  // Check if fighter is champion in their weight class
+  const isChampion = championships.some(c => 
+    c.currentChampionId === fighter.personid && 
+    c.weightClass === fighter.weightClass
+  );
   
-  const isChampion = championships.some(c => c.currentChampionId === fighter.personid);
   if (isChampion) return 'C';
   
   if (fighter.ranking && fighter.ranking > 0 && fighter.ranking <= maxRankings) {

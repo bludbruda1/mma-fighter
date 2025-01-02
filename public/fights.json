@@ -135,7 +135,7 @@
         "lastname": "Makhachev"
       },
       "fighter2": {
-        "personid": null,
+        "personid": 22,
         "firstname": "Alexander",
         "lastname": "Volkanovski"
       },
@@ -162,7 +162,7 @@
         "lastname": "Makhachev"
       },
       "fighter2": {
-        "personid": null,
+        "personid": 22,
         "firstname": "Alexander",
         "lastname": "Volkanovski"
       },
@@ -200,6 +200,33 @@
         "method": "Submission",
         "roundEnded": 5,
         "timeEnded": "2:42"
+      },
+      "stats": null  
+    },
+    {
+      "id": 10,
+      "championship": {
+        "currentChampionId": 22,
+        "id": 3,
+        "name": "Featherweigh Championship"
+      },
+      "fighter1": {
+        "personid": 21,
+        "firstname": "Ilia",
+        "lastname": "Topuria"
+      },
+      "fighter2": {
+        "personid": 22,
+        "firstname": "Alex",
+        "lastname": "Volkanovski"
+      },
+      "weightClass": "Featherweight",
+      "date": "2024-12-27",
+      "result": {
+        "winner": 0,
+        "method": "Knockout",
+        "roundEnded": 2,
+        "timeEnded": "3:32"
       },
       "stats": null  
     }
