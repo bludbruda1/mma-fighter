@@ -12,6 +12,8 @@ import {
   Select,
   Typography,
   Chip,
+  Avatar,
+  ListItemAvatar,
 } from "@mui/material";
 import { formatFightingStyle } from "../utils/uiHelpers";
 
@@ -46,6 +48,7 @@ const BasicSelect = ({
                 (!selectedItem || selectedItem.personid !== info.personid);
               const isUnavailable = isBooked || isSelectedInOtherFight;
 
+              // Enhanced MenuItem with profile picture and more fighter details
               return (
                 <MenuItem
                   key={info.personid}
@@ -55,25 +58,57 @@ const BasicSelect = ({
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    py: 1, // Add padding for better spacing
                   }}
                 >
-                  <span>
-                    {info.firstname} {info.lastname}
-                  </span>
-                  {isUnavailable && (
-                    <Chip
-                      label={isBooked ? "Booked in Event" : "Already Selected"}
-                      size="small"
-                      color={isBooked ? "error" : "warning"}
-                      sx={{ ml: 1 }}
-                    />
-                  )}
+                  {/* Fighter info section with profile picture */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <ListItemAvatar>
+                      <Avatar
+                        src={info.profile || info.image}
+                        alt={`${info.firstname} ${info.lastname}`}
+                        sx={{ width: 40, height: 40 }}
+                      />
+                    </ListItemAvatar>
+                    <Box>
+                      <Typography variant="body1">
+                        {info.firstname} {info.lastname}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block" }}
+                      >
+                        {info.weightClass} • {info.wins}W-{info.losses}L
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Status chips section */}
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    {info.ranking && (
+                      <Chip
+                        label={`#${info.ranking}`}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    )}
+                    {isUnavailable && (
+                      <Chip
+                        label={isBooked ? "Booked" : "Selected"}
+                        size="small"
+                        color={isBooked ? "error" : "warning"}
+                      />
+                    )}
+                  </Box>
                 </MenuItem>
               );
             })}
           </Select>
         </FormControl>
       </Box>
+
       {selectedItem && (
         <div className="box" key={selectedItem.personid}>
           <Paper elevation={3}>

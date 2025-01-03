@@ -16,6 +16,10 @@ import {
   Checkbox,
   FormControlLabel,
   Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import Select from "../components/Select";
 import {
@@ -29,6 +33,14 @@ import {
 } from "../utils/indexedDB";
 import { EventContext } from "../contexts/EventContext";
 
+// Default event settings
+const DEFAULT_EVENT_SETTINGS = {
+  mainCardFights: 5,
+  prelimFights: 4,
+  date: new Date().toISOString().split("T")[0],
+  location: "",
+};
+
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
@@ -36,74 +48,69 @@ const CreateEvent = () => {
 
   // Core state management
   const [fighters, setFighters] = useState([]);
-  const [numFights, setNumFights] = useState(1);
-  const [fights, setFights] = useState(
-    Array(1).fill({ fighter1: null, fighter2: null })
-  );
+  const [fights, setFights] = useState([]);
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
 
+  // Event settings state
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [eventSettings, setEventSettings] = useState(DEFAULT_EVENT_SETTINGS);
+  const [selectedWeightClass, setSelectedWeightClass] = useState("");
+  const [selectedDate, setSelectedDate] = useState(DEFAULT_EVENT_SETTINGS.date); // Add this line
+  
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
-  const [selectedFightersInEvent, setSelectedFightersInEvent] = useState(
-    new Set()
-  );
-
+  const [selectedFightersInEvent, setSelectedFightersInEvent] = useState(new Set());
+  
   // Error tracking
   const [selectionErrors, setSelectionErrors] = useState({});
-
+  
   // Championship tracking
   const [championships, setChampionships] = useState([]);
   const [vacantChampionships, setVacantChampionships] = useState([]);
   const [fightsWithChampionship, setFightsWithChampionship] = useState({});
   const [fightsWithVacantTitle, setFightsWithVacantTitle] = useState({});
 
-  // Initialize number of fights when it changes
+  // Initialize fights when settings change
   useEffect(() => {
+    const totalFights = eventSettings.mainCardFights + eventSettings.prelimFights;
     setFights(
-      Array(numFights)
+      Array(totalFights)
         .fill(null)
         .map(() => ({
           fighter1: null,
           fighter2: null,
+          isPrelim: false // Will be set based on fight position
         }))
     );
-  }, [numFights]);
+  }, [eventSettings.mainCardFights, eventSettings.prelimFights]);
 
-  // Load initial data: fighters, championships, and check bookings
+  // Load initial data
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Fetch fighters, fights, and championships data
-        const [fetchedFighters, allFights, fetchedChampionships] =
-          await Promise.all([
-            getAllFighters(),
-            getAllFights(),
-            getAllChampionships(),
-          ]);
+        const [fetchedFighters, allFights, fetchedChampionships] = await Promise.all([
+          getAllFighters(),
+          getAllFights(),
+          getAllChampionships(),
+        ]);
 
-        // Create set of fighter IDs that are already booked in other events
+        // Create set of booked fighter IDs
         const bookedFighterIds = new Set();
         allFights.forEach((fight) => {
           if (!fight.result) {
-            // Only consider unfinished fights
-            if (fight.fighter1?.personid)
-              bookedFighterIds.add(fight.fighter1.personid);
-            if (fight.fighter2?.personid)
-              bookedFighterIds.add(fight.fighter2.personid);
+            if (fight.fighter1?.personid) bookedFighterIds.add(fight.fighter1.personid);
+            if (fight.fighter2?.personid) bookedFighterIds.add(fight.fighter2.personid);
           }
         });
 
         // Identify vacant championships
         const vacant = fetchedChampionships.filter((c) => !c.currentChampionId);
-        setVacantChampionships(vacant);
-
+        
         setFighters(fetchedFighters);
         setBookedFighters(bookedFighterIds);
         setChampionships(fetchedChampionships);
+        setVacantChampionships(vacant);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -113,55 +120,138 @@ const CreateEvent = () => {
   }, []);
 
   // Helper function to determine if a fighter can be selected
-  const isFighterAvailable = (fighterId, fightIndex, fighterPosition) => {
-    // Check if fighter is already booked in another event
-    if (bookedFighters.has(fighterId)) {
-      return {
-        available: false,
-        error: "Fighter is already booked in another event",
-      };
-    }
+const isFighterAvailable = (fighterId, fightIndex, fighterPosition) => {
+  // Check if fighter is already booked in another event
+  if (bookedFighters.has(fighterId)) {
+    return {
+      available: false,
+      error: "Fighter is already booked in another event",
+    };
+  }
 
-    // Check if fighter is already selected in current event
-    if (selectedFightersInEvent.has(fighterId)) {
-      return {
-        available: false,
-        error: "Fighter is already scheduled in this event",
-      };
-    }
+  // Check if fighter is already selected in current event
+  if (selectedFightersInEvent.has(fighterId)) {
+    return {
+      available: false,
+      error: "Fighter is already scheduled in this event",
+    };
+  }
 
-    return { available: true };
-  };
+  return { available: true };
+};
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const dateFromQuery = params.get("date");
-    if (dateFromQuery) {
-      setSelectedDate(dateFromQuery); // Set the selected date if available
-    }
-  }, [location.search]);
+// Helper function to get championship info for a fighter
+const getChampionship = (fighterId) => {
+  if (!fighterId) return null;
+  
+  // Handle both string and number IDs
+  const fighterIdNum = Number(fighterId);
+  return championships.find(c => c.currentChampionId === fighterIdNum);
+};
 
-  // Helper function for date changes
-  const handleDateChange = (e) => {
-    const dateString = e.target.value;
-    setSelectedDate(dateString);
-  };
-
-  // Helper function to check if a fighter is a champion
-  const getChampionship = (fighterId) => {
-    // Convert fighterId to string for safety if needed
-    const fighterIdStr = String(fighterId);
-    const fighterIdNum = Number(fighterId);
-
-    const championship = championships.find((c) => {
-      return (
-        c.currentChampionId === fighterIdNum ||
-        c.currentChampionId === fighterIdStr
-      );
+// Filter fighters by weight class
+  const getAvailableFighters = (currentFightIndex, fighterPosition) => {
+    const currentFight = fights[currentFightIndex];
+    const otherFighter = fighterPosition === 'fighter1' ? currentFight?.fighter2 : currentFight?.fighter1;
+    
+    return fighters.filter(fighter => {
+      // If other fighter is selected, only show fighters in same weight class
+      if (otherFighter && fighter.weightClass !== otherFighter.weightClass) {
+        return false;
+      }
+      
+      // Check if fighter is already booked or selected
+      const isBooked = bookedFighters.has(fighter.personid);
+      const isSelected = selectedFightersInEvent.has(fighter.personid);
+      
+      return !isBooked && !isSelected;
     });
-
-    return championship;
   };
+
+  // Event settings handlers
+  const handleSettingsOpen = () => setSettingsOpen(true);
+  const handleSettingsClose = () => setSettingsOpen(false);
+
+  const handleSettingsSave = () => {
+    setSettingsOpen(false);
+    setSelectedDate(eventSettings.date); // Sync the date
+    // Fights will be updated via useEffect
+  };
+
+  // Event settings dialog component
+  const EventSettingsDialog = () => (
+    <Dialog open={settingsOpen} onClose={handleSettingsClose}>
+      <DialogTitle>Event Settings</DialogTitle>
+      <DialogContent>
+        <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+          <TextField
+            label="Main Card Fights"
+            type="number"
+            value={eventSettings.mainCardFights}
+            onChange={(e) => setEventSettings(prev => ({
+              ...prev,
+              mainCardFights: parseInt(e.target.value)
+            }))}
+            InputProps={{ inputProps: { min: 1, max: 10 } }}
+          />
+        </FormControl>
+        
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <TextField
+            label="Preliminary Fights"
+            type="number"
+            value={eventSettings.prelimFights}
+            onChange={(e) => setEventSettings(prev => ({
+              ...prev,
+              prelimFights: parseInt(e.target.value)
+            }))}
+            InputProps={{ inputProps: { min: 0, max: 10 } }}
+          />
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <TextField
+            label="Event Date"
+            type="date"
+            value={eventSettings.date}
+            onChange={(e) => setEventSettings(prev => ({
+              ...prev,
+              date: e.target.value
+            }))}
+            InputLabelProps={{ shrink: true }}
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <TextField
+            label="Event Location"
+            value={eventSettings.location}
+            onChange={(e) => setEventSettings(prev => ({
+              ...prev,
+              location: e.target.value
+            }))}
+            placeholder="e.g., T-Mobile Arena, Las Vegas"
+          />
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleSettingsClose}>Cancel</Button>
+        <Button 
+          onClick={handleSettingsSave}
+          variant="contained"
+          sx={{
+            backgroundColor: "rgba(33, 33, 33, 0.9)",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "rgba(33, 33, 33, 0.7)",
+            },
+          }}
+        >
+          Save Settings
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   // Handle fighter selection for a fight
   const handleSelectChange = (fightIndex, fighterKey, event) => {
@@ -507,66 +597,86 @@ const CreateEvent = () => {
   // Main component render
   return (
     <main>
-      <Container
-        maxWidth="md"
-        style={{ marginTop: "50px", marginBottom: "20px" }}
-      >
-        <Typography
-          variant="h2"
-          align="center"
-          color="textPrimary"
-          gutterBottom
-        >
-          Create Event
-        </Typography>
+      <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
+        {/* Header with Settings Button */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4 
+        }}>
+          <Typography variant="h4" component="h1">
+            Create Event
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={handleSettingsOpen}
+            sx={{
+              backgroundColor: "rgba(33, 33, 33, 0.9)",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "rgba(33, 33, 33, 0.7)",
+              },
+            }}
+          >
+            EVENT SETTINGS
+          </Button>
+        </Box>
 
         {/* Event Name Input */}
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+        <FormControl fullWidth sx={{ marginBottom: "40px" }}>
           <TextField
             label="Event Name"
             value={eventName}
             onChange={(e) => setEventName(e.target.value)}
             required
-            placeholder="e.g., UFC 285"
+            placeholder="UFC 285: MAKHACHEV vs TSARUKYAN"
           />
         </FormControl>
 
-        {/* Event Date Input */}
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
-          <TextField
-            label="Event Date"
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            required
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </FormControl>
+        {/* Fight Cards Container */}
+        <Box sx={{ mb: 4 }}>
+          {/* Main Card Section */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h5" gutterBottom sx={{ 
+              mb: 2, 
+              borderBottom: '2px solid #333',
+              pb: 1
+            }}>
+              Main Card
+            </Typography>
+            <Grid container spacing={2}>
+              {fights.slice(0, eventSettings.mainCardFights).map((fight, index) => (
+                <Grid item xs={12} md={6} key={index}>
+                  {renderFightCard(fight, index, false)}
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
 
-        {/* Number of Fights Selector */}
-        <FormControl fullWidth sx={{ marginBottom: "20px" }}>
-          <InputLabel id="num-fights-label">Number of Fights</InputLabel>
-          <MuiSelect
-            labelId="num-fights-label"
-            value={numFights}
-            label="Number of Fights"
-            onChange={(e) => setNumFights(Number(e.target.value))}
-          >
-            {[1, 2, 3, 4, 5].map((num) => (
-              <MenuItem key={num} value={num}>
-                {num}
-              </MenuItem>
-            ))}
-          </MuiSelect>
-        </FormControl>
-
-        {/* Render Fight Cards */}
-        {fights.map((fight, index) => renderFightCard(fight, index))}
+          {/* Preliminary Card Section */}
+          {eventSettings.prelimFights > 0 && (
+            <Box>
+              <Typography variant="h5" gutterBottom sx={{ 
+                mb: 2, 
+                borderBottom: '2px solid #333',
+                pb: 1
+              }}>
+                Preliminary Card
+              </Typography>
+              <Grid container spacing={2}>
+                {fights.slice(eventSettings.mainCardFights).map((fight, index) => (
+                  <Grid item xs={12} md={6} key={index}>
+                    {renderFightCard(fight, index + eventSettings.mainCardFights, true)}
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+        </Box>
 
         {/* Save Button */}
-        <Grid container spacing={2} sx={{ justifyContent: "center" }}>
+        <Grid container spacing={2} sx={{ justifyContent: "center", mt: 4 }}>
           <Grid item>
             <Button
               variant="contained"
@@ -589,6 +699,9 @@ const CreateEvent = () => {
             </Button>
           </Grid>
         </Grid>
+
+        {/* Settings Dialog */}
+        <EventSettingsDialog />
       </Container>
     </main>
   );
