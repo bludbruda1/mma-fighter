@@ -23,6 +23,10 @@ import {
 } from "@mui/material";
 import { green } from "@mui/material/colors";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { getFightsByIds, updateFightResults } from "../utils/indexedDB";
+import { simulateFight } from "../engine/FightSim";
+import { calculateFightStats } from "../engine/FightStatistics";
+import fightPlayByPlayLogger from "../engine/fightPlayByPlayLogger";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -85,14 +89,81 @@ const Calendar = () => {
     console.log("Simulating event:", eventsOnGameDate);
 
     try {
-      // Simulate all fights in the event
       for (const event of eventsOnGameDate) {
-        // You might have a function to simulate the fight here
-        // For now, we're assuming the event has a "status" field that will be updated
+        console.log(`Processing event: ${event.name}, ID: ${event.id}`);
+
+        const fights = await getFightsByIds(event.fights);
+        console.log(`Fetched fights for event ${event.id}:`, fights);
+
+        for (const [index, fight] of fights.entries()) {
+          if (!fight.result) {
+            if (!fight.fighter1 || !fight.fighter2) {
+              console.error(`Missing fighter data for fight ID ${fight.id}`);
+              continue; // Skip this fight
+            }
+
+            console.log(`Simulating fight ID: ${fight.id}`);
+
+            const logger = new fightPlayByPlayLogger(true);
+
+            // Defensive try-catch around simulateFight
+            try {
+              const result = simulateFight(
+                [fight.fighter1, fight.fighter2],
+                logger
+              );
+
+              if (!result) {
+                console.error(`Simulation failed for fight ID ${fight.id}`);
+                continue;
+              }
+
+              const fightEvents = logger.getFightPlayByPlay();
+              const fightStats = calculateFightStats(
+                {
+                  stats: result.fighterStats?.[0] || {},
+                  health: result.fighterHealth?.[0] || {},
+                  maxHealth: result.fighterMaxHealth?.[0] || {},
+                },
+                {
+                  stats: result.fighterStats?.[1] || {},
+                  health: result.fighterHealth?.[1] || {},
+                  maxHealth: result.fighterMaxHealth?.[1] || {},
+                }
+              );
+
+              const fightResult = {
+                winner: result.winner,
+                method: result.method,
+                roundEnded: result.roundEnded,
+                timeEnded: result.endTime,
+                submissionType: result.submissionType,
+              };
+
+              await updateFightResults(fight.id, {
+                result: fightResult,
+                stats: fightStats,
+                fightEvents,
+              });
+
+              console.log(`Fight ID ${fight.id} marked as complete.`);
+            } catch (fightError) {
+              console.error(
+                `Error simulating fight ID ${fight.id}:`,
+                fightError
+              );
+            }
+          } else {
+            console.log(`Fight ID ${fight.id} already has a result, skipping.`);
+          }
+        }
+
+        // Update event status after simulating all fights
         await updateEventStatus(event.id, "completed");
+        console.log(`Event ID ${event.id} marked as completed.`);
       }
 
-      // After simulating all fights, skip the day
+      console.log("Skipping the day.");
       await proceedToSkipDay();
     } catch (error) {
       console.error("Error simulating event:", error);
