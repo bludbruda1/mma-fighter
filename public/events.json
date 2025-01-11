@@ -1,20 +1,20 @@
 [
-    {
-      "id": 1,
-      "name": "UFC 311",
-      "date": "2025-01-18",
-      "fights": [2,3]
-    },
-    {
-      "id": 2,
-      "name": "UFC 315",
-      "date": "2025-04-20",
-      "fights": [4]
-    },
-    {
-      "id": 3,
-      "name": "UFC 302",
-      "date": "2024-06-01",
-      "fights": [9]
-    }
-  ]
+  {
+    "id": 1,
+    "name": "UFC 311",
+    "date": "2025-01-18",
+    "fights": [2,3]
+  },
+  {
+    "id": 2,
+    "name": "UFC Fight Night: Dern vs. Ribas 2",
+    "date": "2025-01-11",
+    "fights": [4, 12, 13, 14, 15, 16]
+  },
+  {
+    "id": 3,
+    "name": "UFC 302",
+    "date": "2024-06-01",
+    "fights": [9]
+  }
+]

@@ -1,233 +1,334 @@
 [
-    {
+  {
+    "id": 1,
+    "championship": {
+      "currentChampionId": 5,
       "id": 1,
-      "championship": {
-        "currentChampionId": 5,
-        "id": 1,
-        "name": "Lightweight Championship"
-      },
-      "fighter1": {
-        "personid": 3,
-        "firstname": "Islam",
-        "lastname": "Makhachev"
-      },
-      "fighter2": {
-        "personid": 5,
-        "firstname": "Charles",
-        "lastname": "Oliveira"
-      },
-      "weightClass": "Lightweight",
-      "date": "2022-10-22",
-      "result": {
-        "winner": 0,
-        "method": "Submission",
-        "roundEnded": 2,
-        "timeEnded": "3:16"
-      },
-      "stats": null  
+      "name": "Lightweight Championship"
     },
-    {
-      "id": 2,
-      "championship": {
-        "currentChampionId": 3,
-        "id": 1,
-        "name": "Lightweight Championship"
-      },
-      "fighter1": {
-        "personid": 3,
-        "firstname": "Islam",
-        "lastname": "Makhachev"
-      },
-      "fighter2": {
-        "personid": 4,
-        "firstname": "Arman",
-        "lastname": "Tsarukyan"
-      },
-      "date": "2025-01-18",
-      "result": null,
-      "stats": null
+    "fighter1": {
+      "personid": 3,
+      "firstname": "Islam",
+      "lastname": "Makhachev"
     },
-    {
+    "fighter2": {
+      "personid": 5,
+      "firstname": "Charles",
+      "lastname": "Oliveira"
+    },
+    "weightClass": "Lightweight",
+    "date": "2022-10-22",
+    "result": {
+      "winner": 0,
+      "method": "Submission",
+      "roundEnded": 2,
+      "timeEnded": "3:16"
+    },
+    "stats": null  
+  },
+  {
+    "id": 2,
+    "championship": {
+      "currentChampionId": 3,
+      "id": 1,
+      "name": "Lightweight Championship"
+    },
+    "fighter1": {
+      "personid": 3,
+      "firstname": "Islam",
+      "lastname": "Makhachev"
+    },
+    "fighter2": {
+      "personid": 4,
+      "firstname": "Arman",
+      "lastname": "Tsarukyan"
+    },
+    "date": "2025-01-18",
+    "result": null,
+    "stats": null
+  },
+  {
+    "id": 3,
+    "fighter1": {
+      "personid": 9,
+      "firstname": "Beneil",
+      "lastname": "Dariush"
+    },
+    "fighter2": {
+      "personid": 12,
+      "firstname": "Renato",
+      "lastname": "Moicano"
+    },
+    "date": "2025-01-18",
+    "result": null,
+    "stats": null  
+  },
+  {
+    "id": 4,
+    "fighter1": {
+      "personid": 23,
+      "firstname": "Mackenzie",
+      "lastname": "Dern"
+    },
+    "fighter2": {
+      "personid": 24,
+      "firstname": "Amanda",
+      "lastname": "Ribas"
+    },
+    "result": null,
+    "stats": null
+  },
+  {
+    "id": 5,
+    "fighter1": {
+      "personid": 1,
+      "firstname": "Conor",
+      "lastname": "McGregor"
+    },
+    "fighter2": {
+      "personid": 2,
+      "firstname": "Dustin",
+      "lastname": "Poirier"
+    },
+    "weightClass": "Lightweight",
+    "date": "2021-07-10",
+    "result": {
+      "winner": 1,
+      "method": "Knockout",
+      "roundEnded": 1,
+      "timeEnded": "2:32"
+    },
+    "stats": null
+  },
+  {
+    "id": 6,
+    "fighter1": {
+      "personid": 1,
+      "firstname": "Conor",
+      "lastname": "McGregor"
+    },
+    "fighter2": {
+      "personid": null,
+      "firstname": "Donald",
+      "lastname": "Cerrone"
+    },
+    "weightClass": "Lightweight",
+    "date": "2020-01-18",
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 1,
+      "timeEnded": "0:40"
+    },
+    "stats": null
+  },
+  {
+    "id": 7,
+    "championship": {
+      "currentChampionId": 3,
+      "id": 1,
+      "name": "Lightweight Championship"
+    },
+    "fighter1": {
+      "personid": 3,
+      "firstname": "Islam",
+      "lastname": "Makhachev"
+    },
+    "fighter2": {
+      "personid": 22,
+      "firstname": "Alexander",
+      "lastname": "Volkanovski"
+    },
+    "weightClass": "Lightweight",
+    "date": "2023-02-12",
+    "result": {
+      "winner": 0,
+      "method": "Decision",
+      "roundEnded": 5,
+      "timeEnded": "5:00"
+    },
+    "stats": null  
+  },
+  {
+    "id": 8,
+    "championship": {
+      "currentChampionId": 3,
+      "id": 1,
+      "name": "Lightweight Championship"
+    },
+    "fighter1": {
+      "personid": 3,
+      "firstname": "Islam",
+      "lastname": "Makhachev"
+    },
+    "fighter2": {
+      "personid": 22,
+      "firstname": "Alexander",
+      "lastname": "Volkanovski"
+    },
+    "weightClass": "Lightweight",
+    "date": "2023-10-21",
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 1,
+      "timeEnded": "3:06"
+    },
+    "stats": null  
+  },
+  {
+    "id": 9,
+    "championship": {
+      "currentChampionId": 3,
+      "id": 1,
+      "name": "Lightweight Championship"
+    },
+    "fighter1": {
+      "personid": 3,
+      "firstname": "Islam",
+      "lastname": "Makhachev"
+    },
+    "fighter2": {
+      "personid": 2,
+      "firstname": "Dustin",
+      "lastname": "Poirier"
+    },
+    "weightClass": "Lightweight",
+    "date": "2024-06-01",
+    "result": {
+      "winner": 0,
+      "method": "Submission",
+      "roundEnded": 5,
+      "timeEnded": "2:42"
+    },
+    "stats": null  
+  },
+  {
+    "id": 10,
+    "championship": {
+      "currentChampionId": 22,
       "id": 3,
-      "fighter1": {
-        "personid": 9,
-        "firstname": "Beneil",
-        "lastname": "Dariush"
-      },
-      "fighter2": {
-        "personid": 12,
-        "firstname": "Renato",
-        "lastname": "Moicano"
-      },
-      "date": "2025-01-18",
-      "result": null,
-      "stats": null  
+      "name": "Featherweigh Championship"
     },
-    {
-      "id": 4,
-      "fighter1": {
-        "personid": 1,
-        "firstname": "Conor",
-        "lastname": "McGregor"
-      },
-      "fighter2": {
-        "personid": 8,
-        "firstname": "Michael",
-        "lastname": "Chandler"
-      },
-      "result": null,
-      "stats": null
+    "fighter1": {
+      "personid": 21,
+      "firstname": "Ilia",
+      "lastname": "Topuria"
     },
-    {
-      "id": 5,
-      "fighter1": {
-        "personid": 1,
-        "firstname": "Conor",
-        "lastname": "McGregor"
-      },
-      "fighter2": {
-        "personid": 2,
-        "firstname": "Dustin",
-        "lastname": "Poirier"
-      },
-      "weightClass": "Lightweight",
-      "date": "2021-07-10",
-      "result": {
-        "winner": 1,
-        "method": "Knockout",
-        "roundEnded": 1,
-        "timeEnded": "2:32"
-      },
-      "stats": null
+    "fighter2": {
+      "personid": 22,
+      "firstname": "Alex",
+      "lastname": "Volkanovski"
     },
-    {
-      "id": 6,
-      "fighter1": {
-        "personid": 1,
-        "firstname": "Conor",
-        "lastname": "McGregor"
-      },
-      "fighter2": {
-        "personid": null,
-        "firstname": "Donald",
-        "lastname": "Cerrone"
-      },
-      "weightClass": "Lightweight",
-      "date": "2020-01-18",
-      "result": {
-        "winner": 0,
-        "method": "Knockout",
-        "roundEnded": 1,
-        "timeEnded": "0:40"
-      },
-      "stats": null
+    "weightClass": "Featherweight",
+    "date": "2024-12-27",
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 2,
+      "timeEnded": "3:32"
     },
-    {
-      "id": 7,
-      "championship": {
-        "currentChampionId": 3,
-        "id": 1,
-        "name": "Lightweight Championship"
-      },
-      "fighter1": {
-        "personid": 3,
-        "firstname": "Islam",
-        "lastname": "Makhachev"
-      },
-      "fighter2": {
-        "personid": 22,
-        "firstname": "Alexander",
-        "lastname": "Volkanovski"
-      },
-      "weightClass": "Lightweight",
-      "date": "2023-02-12",
-      "result": {
-        "winner": 0,
-        "method": "Decision",
-        "roundEnded": 5,
-        "timeEnded": "5:00"
-      },
-      "stats": null  
+    "stats": null  
+  },
+  {
+    "id": 11,
+    "fighter1": {
+      "personid": 23,
+      "firstname": "Mackenzie",
+      "lastname": "Dern"
     },
-    {
-      "id": 8,
-      "championship": {
-        "currentChampionId": 3,
-        "id": 1,
-        "name": "Lightweight Championship"
-      },
-      "fighter1": {
-        "personid": 3,
-        "firstname": "Islam",
-        "lastname": "Makhachev"
-      },
-      "fighter2": {
-        "personid": 22,
-        "firstname": "Alexander",
-        "lastname": "Volkanovski"
-      },
-      "weightClass": "Lightweight",
-      "date": "2023-10-21",
-      "result": {
-        "winner": 0,
-        "method": "Knockout",
-        "roundEnded": 1,
-        "timeEnded": "3:06"
-      },
-      "stats": null  
+    "fighter2": {
+      "personid": 24,
+      "firstname": "Amanda",
+      "lastname": "Ribas"
     },
-    {
-      "id": 9,
-      "championship": {
-        "currentChampionId": 3,
-        "id": 1,
-        "name": "Lightweight Championship"
-      },
-      "fighter1": {
-        "personid": 3,
-        "firstname": "Islam",
-        "lastname": "Makhachev"
-      },
-      "fighter2": {
-        "personid": 2,
-        "firstname": "Dustin",
-        "lastname": "Poirier"
-      },
-      "weightClass": "Lightweight",
-      "date": "2024-06-01",
-      "result": {
-        "winner": 0,
-        "method": "Submission",
-        "roundEnded": 5,
-        "timeEnded": "2:42"
-      },
-      "stats": null  
+    "weightClass": "Strawweight",
+    "date": "2019-10-12",
+    "result": {
+      "winner": 1,
+      "method": "Decision",
+      "roundEnded": 3,
+      "timeEnded": "5:00"
+    },      "stats": null
+  },
+  {
+    "id": 12,
+    "fighter1": {
+      "personid": 25,
+      "firstname": "Santiago",
+      "lastname": "Ponzinibbio"
     },
-    {
-      "id": 10,
-      "championship": {
-        "currentChampionId": 22,
-        "id": 3,
-        "name": "Featherweigh Championship"
-      },
-      "fighter1": {
-        "personid": 21,
-        "firstname": "Ilia",
-        "lastname": "Topuria"
-      },
-      "fighter2": {
-        "personid": 22,
-        "firstname": "Alex",
-        "lastname": "Volkanovski"
-      },
-      "weightClass": "Featherweight",
-      "date": "2024-12-27",
-      "result": {
-        "winner": 0,
-        "method": "Knockout",
-        "roundEnded": 2,
-        "timeEnded": "3:32"
-      },
-      "stats": null  
-    }
-  ]
+    "fighter2": {
+      "personid": 26,
+      "firstname": "Carlston",
+      "lastname": "Harris"
+    },
+    "weightClass": "Welterweight",
+    "result": null,
+    "stats": null
+  },
+  {
+    "id": 13,
+    "fighter1": {
+      "personid": 27,
+      "firstname": "Abdul",
+      "lastname": "Razak Alhassan"
+    },
+    "fighter2": {
+      "personid": 28,
+      "firstname": "Cesar",
+      "lastname": "Almeida"
+    },
+    "weightClass": "Welterweight",
+    "result": null,
+    "stats": null
+  },
+  {
+    "id": 14,
+    "fighter1": {
+      "personid": 29,
+      "firstname": "Chris",
+      "lastname": "Curtis"
+    },
+    "fighter2": {
+      "personid": 30,
+      "firstname": "Roman",
+      "lastname": "Kopylov"
+    },
+    "weightClass": "Middleweight",
+    "result": null,
+    "stats": null
+  },
+  {
+    "id": 15,
+    "fighter1": {
+      "personid": 31,
+      "firstname": "Austin",
+      "lastname": "Bashi"
+    },
+    "fighter2": {
+      "personid": 32,
+      "firstname": "Christian",
+      "lastname": "Rodriguez"
+    },
+    "weightClass": "Featherweight",
+    "result": null,
+    "stats": null
+  },
+  {
+    "id": 16,
+    "fighter1": {
+      "personid": 33,
+      "firstname": "Punahele",
+      "lastname": "Soriano"
+    },
+    "fighter2": {
+      "personid": 34,
+      "firstname": "Uros",
+      "lastname": "Medic"
+    },
+    "weightClass": "Welterweight",
+    "result": null,
+    "stats": null
+  }
+]

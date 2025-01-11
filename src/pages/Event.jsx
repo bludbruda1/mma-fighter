@@ -28,7 +28,7 @@ import {
   CardMedia,
   Chip,
 } from "@mui/material";
-import FightCard from "../components/FightCard";
+import CompactFightCard from "../components/CompactFightCard"; // Add this import
 import StatBar from "../components/StatBar";
 import Tab from "../components/Tab";
 import ResultCard from "../components/ResultCard";
@@ -594,125 +594,66 @@ const Event = () => {
   }
 
   return (
-    <Container
-      maxWidth="md"
-      style={{ marginTop: "50px", marginBottom: "20px" }}
-    >
-      <Typography variant="h4" align="center" gutterBottom>
-        {eventData?.name || "Main Card"}
-      </Typography>
-
-      {/* Fight Cards */}
-      {eventData.fights.map((fight, index) => {
-        const fightResult = fightResults[index];
-        const winnerIndex = fightResult?.winnerIndex;
-        const isFightCompleted = completedFights.has(fight.id);
-        const shouldShowWinner =
-          viewedFights.has(fight.id) ||
-          (simulatedFights.has(fight.id) && !viewerOpen);
-
-        // Determine if each fighter is a champion
-        const fighter1IsChamp = championships.some(
-          (c) => c.currentChampionId === fight.fighter1.personid
-        );
-        const fighter2IsChamp = championships.some(
-          (c) => c.currentChampionId === fight.fighter2.personid
-        );
-
-        return (
-          <Grid
-            container
-            spacing={3}
-            key={index}
-            style={{ marginBottom: "40px" }}
-          >
-            <Grid item xs={12}>
-              <FightCard
-                selectedItem1={fight.fighter1}
-                selectedItem2={fight.fighter2}
-                winnerIndex={shouldShowWinner ? winnerIndex : undefined}
-                championship={fight.championship}
+    <main>
+      <Container maxWidth="lg" style={{ marginTop: "50px", marginBottom: "20px" }}>
+        {/* Event Title and Date */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            {eventData?.name || "Main Card"}
+          </Typography>
+          {eventData?.date && (
+            <Typography variant="subtitle1" align="center" color="text.secondary">
+              {new Date(eventData.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Typography>
+          )}
+        </Box>
+  
+        {/* Fight Cards Section */}
+        <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
+          {eventData.fights.map((fight, index) => {
+            const isFightCompleted = completedFights.has(fight.id);
+            const shouldShowWinner = viewedFights.has(fight.id) || 
+              (simulatedFights.has(fight.id) && !viewerOpen);
+  
+            // Determine if each fighter is a champion
+            const fighter1IsChamp = championships.some(
+              (c) => c.currentChampionId === fight.fighter1.personid
+            );
+            const fighter2IsChamp = championships.some(
+              (c) => c.currentChampionId === fight.fighter2.personid
+            );
+  
+            return (
+              <CompactFightCard
+                key={index}
+                fight={fight}
+                result={shouldShowWinner ? fightResults[index] : undefined}
+                isComplete={isFightCompleted}
+                isViewed={viewedFights.has(fight.id)}
+                isSimulated={simulatedFights.has(fight.id)}
+                onWatch={() => handleWatchFight(index)}
+                onSimulate={() => handleSimulateFight(index, fight.fighter1, fight.fighter2)}
+                onViewSummary={() => handleViewSummary(index)}
                 fighter1IsChamp={fighter1IsChamp}
                 fighter2IsChamp={fighter2IsChamp}
+                fightIndex={index}
               />
-              <Grid
-                container
-                spacing={2}
-                justifyContent="center"
-                style={{ marginTop: "10px" }}
-              >
-                {/* Watch Fight button */}
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleWatchFight(index)}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                      "&:disabled": {
-                        backgroundColor: "rgba(33, 33, 33, 0.4)",
-                      },
-                    }}
-                    // Disable if fight has been viewed or simulated without vieweing
-                    disabled={
-                      viewedFights.has(fight.id) ||
-                      (simulatedFights.has(fight.id) &&
-                        !viewedFights.has(fight.id))
-                    }
-                  >
-                    {viewedFights.has(fight.id)
-                      ? "Already Viewed"
-                      : "Watch Fight"}
-                  </Button>
-                </Grid>
-
-                {/* Simulate Fight button */}
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      handleSimulateFight(index, fight.fighter1, fight.fighter2)
-                    }
-                    disabled={isFightCompleted}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                      "&:disabled": {
-                        backgroundColor: "rgba(33, 33, 33, 0.4)",
-                      },
-                    }}
-                  >
-                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}
-                  </Button>
-                </Grid>
-
-                {/* View Summary button */}
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleViewSummary(index)}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                    }}
-                    disabled={!fightResult}
-                  >
-                    View Fight Summary
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        );
-      })}
-
-      {/* Fight Summary Dialog */}
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        fullWidth
-        maxWidth="lg"
-      >
+            );
+          })}
+        </Box>
+  
+        {/* Fight Summary Dialog */}
+        <Dialog
+          open={dialogOpen}
+          onClose={handleCloseDialog}
+          fullWidth
+          maxWidth="lg"
+        >
         <DialogTitle>Fight Summary</DialogTitle>
         <DialogContent>
           {currentFightIndex !== null && fightResults[currentFightIndex] && (
@@ -904,6 +845,7 @@ const Event = () => {
         </Box>
       </Dialog>
     </Container>
+    </main>
   );
 };
 
