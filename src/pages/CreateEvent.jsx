@@ -42,9 +42,7 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [selectedDate, setSelectedDate] = useState('');
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
