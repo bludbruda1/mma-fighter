@@ -3,18 +3,24 @@
     "id": 1,
     "name": "UFC 311",
     "date": "2025-01-18",
+    "location": "Los Angeles, California",
+    "venue": "Intuit Dome",
     "fights": [2,3]
   },
   {
     "id": 2,
     "name": "UFC Fight Night: Dern vs. Ribas 2",
     "date": "2025-01-11",
+    "location": "Las Vegas, Nevada",
+    "venue": "UFC Apex",
     "fights": [4, 12, 13, 14, 15, 16]
   },
   {
     "id": 3,
     "name": "UFC 302",
     "date": "2024-06-01",
+    "location": "Newark, New Jersey",
+    "venue": "Prudential Center",
     "fights": [9]
   }
 ]

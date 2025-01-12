@@ -601,6 +601,9 @@ const Event = () => {
           <Typography variant="h4" align="center" gutterBottom>
             {eventData?.name || "Main Card"}
           </Typography>
+          <Typography variant="subtitle1" align="center" gutterBottom>
+            {eventData?.venue || "UFC Apex"} • {eventData?.location || "Las Vegas, Nevada"} 
+          </Typography>
           {eventData?.date && (
             <Typography variant="subtitle1" align="center" color="text.secondary">
               {new Date(eventData.date).toLocaleDateString('en-US', {
