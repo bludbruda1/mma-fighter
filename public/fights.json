@@ -75,7 +75,13 @@
       "firstname": "Amanda",
       "lastname": "Ribas"
     },
-    "result": null,
+    "date": "2025-01-18",
+    "result": {
+      "winner": 0,
+      "method": "Submission",
+      "roundEnded": 3,
+      "timeEnded": "4:56"
+    },    
     "stats": null
   },
   {
@@ -264,7 +270,12 @@
       "lastname": "Harris"
     },
     "weightClass": "Welterweight",
-    "result": null,
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 3,
+      "timeEnded": "3:13"
+    },
     "stats": null
   },
   {
@@ -280,8 +291,13 @@
       "lastname": "Almeida"
     },
     "weightClass": "Welterweight",
-    "result": null,
-    "stats": null
+    "result": {
+      "winner": 1,
+      "method": "Knockout",
+      "roundEnded": 1,
+      "timeEnded": "4:16"
+    },
+      "stats": null
   },
   {
     "id": 14,
@@ -296,7 +312,12 @@
       "lastname": "Kopylov"
     },
     "weightClass": "Middleweight",
-    "result": null,
+    "result": {
+      "winner": 1,
+      "method": "Knockout",
+      "roundEnded": 3,
+      "timeEnded": "4:59"
+    },
     "stats": null
   },
   {
@@ -312,8 +333,13 @@
       "lastname": "Rodriguez"
     },
     "weightClass": "Featherweight",
-    "result": null,
-    "stats": null
+    "result": {
+      "winner": 1,
+      "method": "Decision",
+      "roundEnded": 3,
+      "timeEnded": "5:00"
+    },
+      "stats": null
   },
   {
     "id": 16,
@@ -328,7 +354,12 @@
       "lastname": "Medic"
     },
     "weightClass": "Welterweight",
-    "result": null,
+    "result": {
+      "winner": 1,
+      "method": "Decision",
+      "roundEnded": 3,
+      "timeEnded": "5:00"
+    },
     "stats": null
   }
 ]
