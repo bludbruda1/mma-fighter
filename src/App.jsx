@@ -13,13 +13,18 @@ import EventsList from "./pages/EventsList";
 import Calendar from "./components/Calendar";
 import Rankings from "./pages/Rankings";
 import SelectDate from "./pages/SelectDate";
+import Landing from "./pages/Landing";
+import LoadGame from "./pages/LoadGame";
+import MainGame from "./pages/MainGame";
 
 const App = () => {
   return (
     <>
       <HamburgerMenu />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/loadgame" element={<LoadGame />} />
         <Route path="/fight" element={<FightScreen />} />
         <Route path="/selectdate" element={<SelectDate />} />
         <Route path="/roster" element={<Roster />} />
@@ -30,6 +35,7 @@ const App = () => {
         <Route path="/events" element={<EventsList />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/rankings" element={<Rankings />} />
+        <Route path="/main" element={<MainGame />} />
       </Routes>
     </>
   );

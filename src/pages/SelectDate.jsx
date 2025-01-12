@@ -1,18 +1,28 @@
 import React, { useState } from "react";
-import { Grid, Typography, Button, Container } from "@mui/material";
-import GameDateSetter from "../components/GameDateSetter";
-import { getGameDate } from "../utils/indexedDB";
+import { Container, Typography, TextField, Button, Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { saveGame } from "../utils/indexedDB";
 
 const SelectDate = () => {
-  const [displayDate, setDisplayDate] = useState(null);
+  const navigate = useNavigate();
+  const [gameDate, setGameDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [managerName, setManagerName] = useState("");
 
-  const handleFetchDate = async () => {
+  const handleSaveGame = async () => {
     try {
-      const gameDate = await getGameDate(); // Fetch the game date from IndexedDB
-      setDisplayDate(`The in-game date is ${gameDate.split("T")[0]}`);
+      if (!managerName.trim()) {
+        alert("Please enter a manager name.");
+        return;
+      }
+
+      await saveGame({ gameDate, managerName });
+      alert("Game saved successfully!");
+      navigate("/calendar"); // Redirect to the main game screen
     } catch (error) {
-      console.error("Error fetching game date:", error);
-      setDisplayDate("Error fetching in-game date.");
+      console.error("Error saving game:", error);
+      alert("Failed to save game.");
     }
   };
 
@@ -21,56 +31,46 @@ const SelectDate = () => {
       maxWidth="sm"
       sx={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        flexDirection: "column",
-        marginTop: 2,
+        marginTop: 4,
       }}
     >
-      <Typography
-        variant="h4"
-        align="center"
-        gutterBottom
-        sx={{ fontWeight: "bold" }}
-      >
-        Set Game Date
+      <Typography variant="h4" align="center" gutterBottom>
+        Select Game Start Date
       </Typography>
-
-      <GameDateSetter />
-
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 2,
-        }}
-      >
-        <Grid item>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            type="date"
+            label="Start Date"
+            value={gameDate}
+            onChange={(e) => setGameDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Manager Name"
+            value={managerName}
+            onChange={(e) => setManagerName(e.target.value)}
+            placeholder="Enter your name"
+          />
+        </Grid>
+        <Grid item xs={12}>
           <Button
+            fullWidth
             variant="contained"
-            onClick={handleFetchDate}
-            sx={{
-              backgroundColor: "rgba(33, 33, 33, 0.9)",
-              color: "#fff",
-              "&:hover": { backgroundColor: "rgba(33, 33, 33, 0.7)" },
-            }}
+            onClick={handleSaveGame}
+            sx={{ backgroundColor: "rgba(33, 33, 33, 0.9)", color: "#fff" }}
           >
-            Fetch Game Date
+            Start Game
           </Button>
         </Grid>
       </Grid>
-
-      {displayDate && (
-        <Typography
-          variant="body1"
-          align="center"
-          sx={{ marginTop: 2, color: "#333" }}
-        >
-          {displayDate}
-        </Typography>
-      )}
     </Container>
   );
 };

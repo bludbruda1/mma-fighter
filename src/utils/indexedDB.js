@@ -5,6 +5,7 @@ const eventStoreName = "events";
 const fightsStoreName = "fights";
 const championshipStoreName = "championships";
 const settingsStoreName = "settings";
+const gamesStoreName = "games";
 
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = () => {
@@ -53,6 +54,12 @@ export const openDB = () => {
       if (!db.objectStoreNames.contains(settingsStoreName)) {
         console.log(`Creating object store: ${settingsStoreName}`);
         db.createObjectStore(settingsStoreName, { keyPath: "key" });
+      }
+
+      // Create the "games" store if it doesn't exist
+      if (!db.objectStoreNames.contains(gamesStoreName)) {
+        console.log(`Creating object store: ${gamesStoreName}`);
+        db.createObjectStore(gamesStoreName, { keyPath: "id" });
       }
     };
   });
@@ -556,4 +563,47 @@ export const getSettings = async (key) => {
     request.onsuccess = () => resolve(request.result?.value);
     request.onerror = () => reject(request.error);
   });
+};
+
+export const saveGame = async (game) => {
+  const db = await openDB();
+  const transaction = db.transaction(gamesStoreName, "readwrite");
+  const store = transaction.objectStore(gamesStoreName);
+
+  const gameData = {
+    id: Date.now(), // Unique ID for the game
+    gameDate: game.gameDate,
+    managerName: game.managerName,
+  };
+
+  await store.add(gameData);
+  await transaction.done;
+  console.log("Game saved:", gameData);
+};
+
+export const loadGames = async () => {
+  try {
+    const db = await openDB(); // Ensure the DB is opened correctly
+    const transaction = db.transaction(gamesStoreName, "readonly");
+    const store = transaction.objectStore(gamesStoreName);
+
+    // Use a promise wrapper to handle the async nature of IDBRequest
+    const games = await new Promise((resolve, reject) => {
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        console.log("Games loaded:", request.result);
+        resolve(request.result); // This is the array of games
+      };
+
+      request.onerror = (err) => {
+        reject(new Error("Failed to load saved games: " + err));
+      };
+    });
+
+    return games; // Return the array of games
+  } catch (err) {
+    console.error("Error loading games from IndexedDB:", err);
+    throw new Error("Failed to load saved games.");
+  }
 };
