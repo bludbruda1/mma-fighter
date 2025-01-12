@@ -56,6 +56,7 @@ const Championships = () => {
   const [newChampionship, setNewChampionship] = useState({
     name: '',
     weightClass: '',
+    gender: 'Male', // Male is the default
     currentChampionId: '',
     description: '',
   });
@@ -253,6 +254,15 @@ const Championships = () => {
         createdAt: new Date().toISOString(),
       };
 
+      // Validate that selected champion (if any) matches gender
+      if (championship.currentChampionId) {
+        const champion = fighters.find(f => f.personid === championship.currentChampionId);
+        if (champion && champion.gender !== championship.gender) {
+          console.error("Champion gender does not match championship division");
+          return;
+        }
+      }
+
       await addChampionship(championship);
       setChampionships(prev => [...prev, championship]);
       setOpenDialog(false);
@@ -260,6 +270,7 @@ const Championships = () => {
       setNewChampionship({
         name: '',
         weightClass: '',
+        gender: 'Male',
         currentChampionId: '',
         description: '',
       });
@@ -521,8 +532,8 @@ const Championships = () => {
                   <Typography variant="h6" gutterBottom>
                     {championship.name}
                   </Typography>
-                  <Typography color="textSecondary" gutterBottom>
-                    {championship.weightClass}
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {championship.gender}'s {championship.weightClass} Division
                   </Typography>
                   <Typography variant="body1" gutterBottom>
                     Champion:{' '}
@@ -568,6 +579,21 @@ const Championships = () => {
               onChange={(e) => setNewChampionship(prev => ({ ...prev, name: e.target.value }))}
               sx={{ mb: 2 }}
             />
+
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Gender Division</InputLabel>
+              <Select
+                value={newChampionship.gender}
+                label="Gender Division"
+                onChange={(e) => setNewChampionship(prev => ({ 
+                  ...prev, 
+                  gender: e.target.value 
+                }))}
+              >
+                <MenuItem value="Male">Men's Division</MenuItem>
+                <MenuItem value="Female">Women's Division</MenuItem>
+              </Select>
+            </FormControl>
             
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Weight Class</InputLabel>

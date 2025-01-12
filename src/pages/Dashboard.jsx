@@ -19,6 +19,7 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllFighters, getAllFights, getAllChampionships } from "../utils/indexedDB";
+import { calculateAge } from '../utils/dateUtils';
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 
 const Dashboard = () => {
@@ -29,6 +30,7 @@ const Dashboard = () => {
   const [allFighterIds, setAllFighterIds] = useState([]);
   const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
+  const [fighterAge, setFighterAge] = useState("N/A");
 
   //  Helper function to sort fights
   const sortFights = (fights) => {
@@ -50,6 +52,18 @@ const Dashboard = () => {
 
     return [...upcoming, ...completed];
   };
+
+  // Effect for age calculation
+  useEffect(() => {
+    const loadAge = async () => {
+      if (fighter?.dob) {
+        const age = await calculateAge(fighter.dob);
+        setFighterAge(age);
+      }
+    };
+
+    loadAge();
+  }, [fighter?.dob]);
 
   // Effect to fetch all fighter IDs when the component mounts
   useEffect(() => {
@@ -132,23 +146,6 @@ const Dashboard = () => {
       roundEnded: fight.result.roundEnded,
       timeEnded: fight.result.timeEnded
     };
-  };
-
-  // function to calculate the fighters age - this will eventually be needed in alot of places or to changes fighters.json
-  const calculateAge = (dob) => {
-    if (!dob) return "N/A";
-    
-    const birthDate = new Date(dob);
-    const today = new Date();
-    
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return `${age} years old`;
   };
 
   // Helper function to format the method
@@ -418,6 +415,10 @@ const Dashboard = () => {
                     Basic Information
                   </Typography>
                   <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                    <Typography variant="body1">Gender:</Typography>
+                    <Typography variant="body1">{fighter.gender}</Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                     <Typography variant="body1">Date of Birth:</Typography>
                     <Box sx={{ textAlign: 'right' }}>
                       <Typography variant="body1">
@@ -430,7 +431,7 @@ const Dashboard = () => {
                           mt: 0.5 
                         }}
                       >
-                        {calculateAge(fighter.dob)}
+                        {fighterAge} years old
                       </Typography>
                     </Box>
                   </Box>

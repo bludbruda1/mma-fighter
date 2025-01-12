@@ -42,9 +42,7 @@ const CreateEvent = () => {
   );
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [selectedDate, setSelectedDate] = useState('');
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
@@ -267,10 +265,12 @@ const CreateEvent = () => {
   const canCompeteForVacantTitle = (fight, championship) => {
     if (!fight.fighter1 || !fight.fighter2) return false;
 
-    // Check if both fighters are in the correct weight class
+    // Check if both fighters are in the correct weight class and gender
     return (
       fight.fighter1.weightClass === championship.weightClass &&
-      fight.fighter2.weightClass === championship.weightClass
+      fight.fighter2.weightClass === championship.weightClass &&
+      fight.fighter1.gender === championship.gender &&
+      fight.fighter2.gender === championship.gender
     );
   };
 

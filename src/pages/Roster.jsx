@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react"; // Added useMemo for performance
 import { Link } from "react-router-dom";
 import {
   Container,
@@ -12,30 +12,81 @@ import {
   TableSortLabel,
   Paper,
   Tooltip,
+  Box,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import FilterPanel from "../components/FilterPanel";
 import { getAllFighters, getAllChampionships } from "../utils/indexedDB";
-import { formatFightingStyle, formatBirthdayWithAge } from "../utils/uiHelpers";
+import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
+import { calculateAge } from '../utils/dateUtils';
+
 
 const Roster = () => {
+  // Core state management
   const [fighters, setFighters] = useState([]);
   const [championships, setChampionships] = useState([]);
 
-  // Add sorting state
+  // Sorting state management
   const [orderBy, setOrderBy] = useState('firstname'); // Default sort by first name
   const [order, setOrder] = useState('asc'); // Default ascending order
 
-  // Fetch all fighters and champions from indexDB
+  // Add state for fighter ages
+  const [fighterAges, setFighterAges] = useState({});
+
+  // Filter state management
+  const [filters, setFilters] = useState({
+    weightClass: 'all',
+    fightingStyle: 'all',
+    nationality: 'all',
+    championStatus: 'all',
+    rankingStatus: 'all',
+    gender: 'all',
+  });
+
+  // Filter options state - populated from fighter data
+  const [filterOptions, setFilterOptions] = useState({
+    weightClasses: [],
+    fightingStyles: [],
+    nationalities: [],
+  });
+
+  // Effect to calculate ages for all fighters
+  useEffect(() => {
+    const loadAges = async () => {
+      const ages = {};
+      for (const fighter of fighters) {
+        if (fighter.dob) {
+          ages[fighter.personid] = await calculateAge(fighter.dob);
+        }
+      }
+      setFighterAges(ages);
+    };
+
+    loadAges();
+  }, [fighters]);
+
+  // Fetch initial data and populate filter options
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch both fighters and championships in parallel
         const [fetchedFighters, fetchedChampionships] = await Promise.all([
           getAllFighters(),
           getAllChampionships()
         ]);
+        
+        // Update main data state
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
+  
+        // Extract and set unique values for filter options
+        // Using Set to ensure uniqueness and filter(Boolean) to remove any null/undefined values
+        setFilterOptions({
+          weightClasses: [...new Set(fetchedFighters.map(f => f.weightClass))].filter(Boolean).sort(),
+          fightingStyles: [...new Set(fetchedFighters.map(f => formatFightingStyle(f.fightingStyle)))].filter(Boolean).sort(),
+          nationalities: [...new Set(fetchedFighters.map(f => f.nationality))].filter(Boolean).sort(),
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -44,12 +95,12 @@ const Roster = () => {
   }, []);
 
   // Helper function to get championship info for a fighter
-  const getChampionshipInfo = (fighterId) => {
+  const getChampionshipInfo = useCallback((fighterId) => {
     return championships.filter(c => c.currentChampionId === fighterId);
-  };
+  }, [championships]);
 
-  // Helper function to get age for sorting purposes
-  const getAge = (dob) => {
+  // Helper function to calculate age for sorting
+  const getAge = useCallback((dob) => {
     if (!dob) return 0;
     
     const birthDate = new Date(dob);
@@ -63,17 +114,58 @@ const Roster = () => {
     }
     
     return age;
-  };
+  }, []);
 
-  // Handle sort request for a column
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
+  // Filter application logic
+  const applyFilters = useCallback((fightersToFilter) => {
+    return fightersToFilter.filter(fighter => {
+      // Weight Class filter
+      if (filters.weightClass !== 'all' && fighter.weightClass !== filters.weightClass) {
+        return false;
+      }
 
-  // Sorting function for different data types
-  const compareValues = (a, b, property) => {
+      // Fighting Style filter
+      if (filters.fightingStyle !== 'all' && 
+          formatFightingStyle(fighter.fightingStyle) !== filters.fightingStyle) {
+        return false;
+      }
+
+      // Nationality filter
+      if (filters.nationality !== 'all' && fighter.nationality !== filters.nationality) {
+        return false;
+      }
+
+      // Get champion status once since we use it multiple times
+      const isChampion = getChampionshipInfo(fighter.personid).length > 0;
+
+      // Champion Status filter
+      if (filters.championStatus === 'champion' && !isChampion) {
+        return false;
+      }
+      if (filters.championStatus === 'non-champion' && isChampion) {
+        return false;
+      }
+
+      // Ranking Status filter - consider champions as ranked
+      const isRanked = fighter.ranking != null || isChampion;
+      if (filters.rankingStatus === 'ranked' && !isRanked) {
+        return false;
+      }
+      if (filters.rankingStatus === 'unranked' && isRanked) {
+        return false;
+      }
+
+      // Gender filter
+      if (filters.gender !== 'all' && fighter.gender !== filters.gender) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [filters, getChampionshipInfo]); // Include filters and getChampionshipInfo as dependencies
+
+  // Sorting comparison logic
+  const compareValues = useCallback((a, b, property) => {
     if (property === 'ranking') {
       const aIsChamp = getChampionshipInfo(a.personid).length > 0;
       const bIsChamp = getChampionshipInfo(b.personid).length > 0;
@@ -88,16 +180,10 @@ const Roster = () => {
       const bRank = b.ranking || 999;
       return aRank - bRank;
     }
-    
-    if (property === 'isChampion') {
-      const champCountA = getChampionshipInfo(a.personid).length;
-      const champCountB = getChampionshipInfo(b.personid).length;
-      return champCountB - champCountA; // Sort by number of championships
-    }
 
     // Special handling for record comparison
     if (property === 'record') {
-      return (b.wins - a.wins) || (a.losses - b.losses); // Sort by wins desc, then losses asc
+      return (b.wins - a.wins) || (a.losses - b.losses);
     }
 
     // Special handling for full name
@@ -107,7 +193,7 @@ const Roster = () => {
       return nameA.localeCompare(nameB);
     }
 
-    // For DOB sorting, we'll sort by actual age
+    // For DOB sorting, sort by actual age
     if (property === 'dob') {
       return getAge(a.dob) - getAge(b.dob);
     }
@@ -119,29 +205,54 @@ const Roster = () => {
 
     // Handle numeric properties
     return a[property] - b[property];
-  };
-  
-  // Sort fighters based on current sorting state
-  const sortedFighters = [...fighters].sort((a, b) => {
-    const comparator = compareValues(a, b, orderBy);
-    return order === 'asc' ? comparator : -comparator;
-  });
+  }, [getChampionshipInfo, getAge]);
 
-  // Helper function to create sort handler for a property
+  // Sort request handler
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  // Create sort handler for a property
   const createSortHandler = (property) => () => {
     handleRequestSort(property);
   };
+
+  // Memoized filtered and sorted fighters
+  const filteredAndSortedFighters = useMemo(() => {
+    // First sort the fighters
+    const sortedFighters = [...fighters].sort((a, b) => {
+      const comparator = compareValues(a, b, orderBy);
+      return order === 'asc' ? comparator : -comparator;
+    });
+    
+    // Then apply filters
+    return applyFilters(sortedFighters);
+  }, [fighters, order, orderBy, compareValues, applyFilters]);
 
   return (
     <Container maxWidth="lg" style={{ marginTop: "50px", marginBottom: "50px" }}>
       <Typography variant="h2" align="center" gutterBottom>
         Planet Fighter Roster
       </Typography>
+
+      {/* Filter Panel */}
+      <FilterPanel
+        filters={filters}
+        setFilters={setFilters}
+        filterOptions={filterOptions}
+        totalFighters={fighters.length}
+        filteredCount={filteredAndSortedFighters.length}
+      />
+
+      {/* Fighter Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-            <TableCell>
+              {/* Table headers with sort labels */}
+              <TableCell>
                 <TableSortLabel
                   active={orderBy === 'ranking'}
                   direction={orderBy === 'ranking' ? order : 'asc'}
@@ -159,6 +270,15 @@ const Roster = () => {
                   Name
                 </TableSortLabel>
               </TableCell>
+              <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'gender'}
+                    direction={orderBy === 'gender' ? order : 'asc'}
+                    onClick={createSortHandler('gender')}
+                  >
+                    Gender
+                  </TableSortLabel>
+                </TableCell>
               <TableCell>
                 <TableSortLabel
                   active={orderBy === 'dob'}
@@ -213,19 +333,10 @@ const Roster = () => {
                   Record
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'isChampion'}
-                  direction={orderBy === 'isChampion' ? order : 'asc'}
-                  onClick={createSortHandler('isChampion')}
-                >
-                  Champion
-                </TableSortLabel>
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedFighters.map((fighter) => (
+            {filteredAndSortedFighters.map((fighter) => (
               <TableRow
                 key={fighter.personid}
                 style={{
@@ -240,7 +351,19 @@ const Roster = () => {
                 }}
               >
                 <TableCell>
-                  {getRankingDisplay(fighter, championships)}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {getChampionshipInfo(fighter.personid).map((championship, index) => (
+                      <Tooltip key={championship.id} title={championship.name} arrow>
+                        <EmojiEventsIcon 
+                          sx={{ 
+                            color: 'gold',
+                            marginRight: index < getChampionshipInfo(fighter.personid).length - 1 ? 1 : 0 
+                          }} 
+                        />
+                      </Tooltip>
+                    ))}
+                    {!getChampionshipInfo(fighter.personid).length && getRankingDisplay(fighter, championships)}
+                  </Box>
                 </TableCell>
                 <TableCell>
                   <Link
@@ -259,25 +382,22 @@ const Roster = () => {
                     {`${fighter.firstname} ${fighter.lastname}`}
                   </Link>
                 </TableCell>
-                <TableCell>{formatBirthdayWithAge(fighter.dob)}</TableCell>
+                <TableCell>{fighter.gender}</TableCell>
+                <TableCell>
+                  {formatBirthday(fighter.dob)}
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                  >
+                    {fighterAges[fighter.personid] || "N/A"} years old
+                  </Typography>
+                </TableCell>
                 <TableCell>{fighter.weightClass}</TableCell>
                 <TableCell>{formatFightingStyle(fighter.fightingStyle)}</TableCell>
                 <TableCell>{fighter.nationality}</TableCell>
                 <TableCell>{fighter.hometown}</TableCell>
                 <TableCell>
                   {fighter.wins}W-{fighter.losses}L
-                </TableCell>
-                <TableCell>
-                  {getChampionshipInfo(fighter.personid).map((championship, index) => (
-                    <Tooltip key={championship.id} title={championship.name} arrow>
-                      <EmojiEventsIcon 
-                        sx={{ 
-                          color: 'gold',
-                          marginRight: index < getChampionshipInfo(fighter.personid).length - 1 ? 1 : 0 
-                        }} 
-                      />
-                    </Tooltip>
-                  ))}
                 </TableCell>
               </TableRow>
             ))}

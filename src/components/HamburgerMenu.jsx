@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   CssBaseline,
   Drawer,
@@ -12,47 +12,152 @@ import {
   Toolbar,
   Typography,
   Divider,
+  Button,
+  Tooltip,
   Box,
 } from "@mui/material";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
-import { getGameDate } from "../utils/indexedDB";
+import { saveGameDate, getGameDate, getAllEvents, getAllFights } from "../utils/indexedDB";
 
-const formatDate = (isoDate) => {
-  const date = new Date(isoDate);
-  const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "long" });
-  const year = date.getFullYear();
-
-  return `${day} ${month} ${year}`;
-};
-
+// HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [gameDate, setGameDate] = useState("");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [events, setEvents] = useState([]);
+  const [fights, setFights] = useState([]);
+  const [isAdvanceDisabled, setIsAdvanceDisabled] = useState(false);
 
   const handleDrawerToggle = () => {
     setOpen(!open);
   };
 
+  // Helper function to format date for comparison
+  const formatDateForComparison = (date) => {
+    return new Date(date).toISOString().split('T')[0];
+  };
+
+  // Check if an event exists for a given date and if all its fights are complete
+  const checkCurrentDateEvent = React.useCallback((date, currentEvents, currentFights) => {
+    const formattedDate = formatDateForComparison(date);
+    const eventOnDate = currentEvents.find(event => 
+      formatDateForComparison(event.date) === formattedDate
+    );
+
+    if (eventOnDate) {
+      // Check if all fights in the event are completed
+      const eventFights = currentFights.filter(fight => 
+        eventOnDate.fights.includes(fight.id)
+      );
+      
+      const allFightsComplete = eventFights.every(fight => fight.result !== null);
+      setIsAdvanceDisabled(!allFightsComplete);
+
+      return {
+        hasEvent: true,
+        eventId: eventOnDate.id
+      };
+    }
+
+    setIsAdvanceDisabled(false);
+    return {
+      hasEvent: false,
+      eventId: null
+    };
+  }, []);
+
+  // Function to refresh fights
+  const refreshFightsData = React.useCallback(async () => {
+    try {
+      const fetchedFights = await getAllFights();
+      setFights(fetchedFights);
+      // Recheck current date event with new fights data
+      checkCurrentDateEvent(currentDate, events, fetchedFights);
+    } catch (error) {
+      console.error("Error refreshing fights data:", error);
+    }
+  }, [currentDate, events, checkCurrentDateEvent]);
+
+  // Load initial data when component mounts
   useEffect(() => {
-    // Fetch the game date from IndexedDB
-    const fetchGameDate = async () => {
+    const loadData = async () => {
       try {
-        const date = await getGameDate();
-        setGameDate(date);
+        // Load game date, events, and fights
+        const [date, fetchedEvents, fetchedFights] = await Promise.all([
+          getGameDate(),
+          getAllEvents(),
+          getAllFights()
+        ]);
+        
+        setCurrentDate(new Date(date));
+        setEvents(fetchedEvents);
+        setFights(fetchedFights);
+        
+        // Check if current date has event with incomplete fights
+        checkCurrentDateEvent(new Date(date), fetchedEvents, fetchedFights);
       } catch (error) {
-        console.error("Error fetching game date:", error);
+        console.error("Error loading data:", error);
       }
     };
-    fetchGameDate();
-  }, []);
+    loadData();
+  }, [checkCurrentDateEvent]);
+
+  // Need to update this function so that it is implemented in a smarter way but for now is ok
+  useEffect(() => {
+    let interval;
+    if (isAdvanceDisabled) {
+      interval = setInterval(refreshFightsData, 5000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isAdvanceDisabled, refreshFightsData]);
+
+  // Handle advancing the date
+  const handleAdvanceDate = async () => {
+    try {
+      const newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() + 1);
+
+      // Check if there's an event on the new date
+      const { hasEvent, eventId } = checkCurrentDateEvent(newDate, events, fights);
+
+      if (hasEvent) {
+        // Navigate to event page
+        navigate(`/event/${eventId}`);
+      }
+
+      // Save and set new date
+      await saveGameDate(newDate.toISOString());
+      setCurrentDate(newDate);
+
+    } catch (error) {
+      console.error("Error advancing date:", error);
+    }
+  };
+
+  // Get tooltip message based on current state
+  const getTooltipMessage = () => {
+    const formattedDate = formatDateForComparison(currentDate);
+    const eventOnDate = events.find(event => 
+      formatDateForComparison(event.date) === formattedDate
+    );
+
+    if (eventOnDate) {
+      return "Complete all fights in the current event to advance";
+    }
+    return "Advance to next day";
+  };
 
   return (
     <>
@@ -60,8 +165,8 @@ const HamburgerMenu = () => {
       <AppBar
         position="sticky"
         sx={{
-          backgroundColor: "rgba(0, 0, 0, 0.8)", // Dark background with transparency
-          color: "#fff", // White text color for contrast
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          color: "#fff",
         }}
       >
         <Toolbar>
@@ -79,9 +184,31 @@ const HamburgerMenu = () => {
             <Typography variant="h6">Planet Fighter</Typography>
           </Link>
           <Box sx={{ flexGrow: 1 }} />
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {gameDate ? formatDate(gameDate) : "Loading..."}
+          <Typography variant="body1" sx={{ mr: 2 }}>
+            {currentDate.toLocaleDateString()}
           </Typography>
+          <Tooltip title={getTooltipMessage()}>
+            <span>
+              <Button
+                variant="contained"
+                onClick={handleAdvanceDate}
+                disabled={isAdvanceDisabled}
+                sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  },
+                  "&.Mui-disabled": {
+                    backgroundColor: "rgba(128, 128, 128, 0.1)",
+                    color: "rgba(255, 255, 255, 0.3)",
+                  }
+                }}
+              >
+                Advance
+              </Button>
+            </span>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -90,8 +217,8 @@ const HamburgerMenu = () => {
         onClose={handleDrawerToggle}
         sx={{
           "& .MuiPaper-root": {
-            backgroundColor: "rgba(0, 0, 0, 0.9)", // Dark background with transparency
-            color: "#fff", // White text color for contrast
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            color: "#fff",
           },
         }}
       >
@@ -102,7 +229,7 @@ const HamburgerMenu = () => {
             </ListItemIcon>
             <ListItemText primary="Home" sx={{ color: "#fff" }} />
           </ListItem>
-          <Divider sx={{ backgroundColor: "#444" }} /> {/* Dark divider */}
+          <Divider sx={{ backgroundColor: "#444" }} />
           <ListItem
             button
             component={Link}
@@ -124,6 +251,17 @@ const HamburgerMenu = () => {
               <EditCalendarIcon />
             </ListItemIcon>
             <ListItemText primary="Create Event" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/fight"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <EventSeatIcon />
+            </ListItemIcon>
+            <ListItemText primary="Fight Screen" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem
             button
@@ -152,11 +290,11 @@ const HamburgerMenu = () => {
             component={Link}
             to="/championships"
             onClick={handleDrawerToggle}
-          >
+            >
             <ListItemIcon sx={{ color: "#fff" }}>
               <EmojiEventsIcon />
             </ListItemIcon>
-            <ListItemText primary="Champions" sx={{ color: "#fff" }} />
+            <ListItemText primary="Champions" sx={{ color: '#fff'}} />
           </ListItem>
           <ListItem
             button
