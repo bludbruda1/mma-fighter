@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllEvents, getGameDate } from "../utils/indexedDB"; // Import getGameDate
+import { getAllEvents, getGameDate, getAllFights } from "../utils/indexedDB"; // Import getGameDate
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import "./Calendar.css";
@@ -16,37 +16,58 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [fights, setFights] = useState([]);
+
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; // Array of day names
 
   useEffect(() => {
     const initializeCalendar = async () => {
       try {
-        const gameDate = await getGameDate(); // Fetch game date from IndexedDB
-        const initialDate = new Date(gameDate); // Convert to Date object
-        setCurrentDate(initialDate); // Set as currentDate
-        setSelectedDate(initialDate.toISOString().split("T")[0]); // Set selectedDate for input
-      } catch (error) {
-        console.error("Error fetching game date:", error);
-      }
-
-      try {
-        const eventData = await getAllEvents();
+        const gameDate = await getGameDate();
+        const initialDate = new Date(gameDate);
+        setCurrentDate(initialDate);
+        setSelectedDate(initialDate.toISOString().split("T")[0]);
+  
+        // Fetch both events and fights
+        const [eventData, fightData] = await Promise.all([
+          getAllEvents(),
+          getAllFights()
+        ]);
         setEvents(eventData);
+        setFights(fightData);
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching data:", error);
       }
     };
-
+  
     initializeCalendar();
   }, []);
+
+    // function to check if an event is completed
+    const isEventCompleted = (event) => {
+      // If there are no fights, event is not complete
+      if (!event.fights || event.fights.length === 0) return false;
+      
+      // Check if all fights have results
+      return event.fights.every(fightId => {
+        const fight = fights.find(f => f.id === fightId);
+        return fight && fight.result;
+      });
+    };
 
   const getEventsForDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     const formattedDate = `${year}-${month}-${day}`;
-    return events.filter((event) => event.date === formattedDate);
+    
+    // Get events and check completion status
+    const dateEvents = events.filter((event) => event.date === formattedDate);
+    return dateEvents.map(event => ({
+      ...event,
+      isCompleted: isEventCompleted(event)
+    }));
   };
 
   const handleEventDateClick = (eventId) => {
@@ -119,8 +140,8 @@ const Calendar = () => {
             <button
               key={event.id}
               onClick={() => handleEventDateClick(event.id)}
-              className="event-button"
-            >
+              className={`event-button ${event.isCompleted ? 'completed' : ''}`}
+              >
               {event.name}
             </button>
           ))}
