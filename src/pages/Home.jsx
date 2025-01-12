@@ -82,16 +82,16 @@ const mockUpcomingEvents = [
     id: 1,
     name: "UFC 311",
     date: "Jan 18, 2025",
-    location: "T-Mobile Arena, Las Vegas",
+    location: "Los Angeles, California, United States",
     mainEvent: "Makhachev vs. Tsarukyan",
   },
   {
     id: 2,
-    name: "UFC 315",
-    date: "Apr 20, 2025",
-    location: "Madison Square Garden, New York",
-    mainEvent: "McGregor vs. Chandler",
-  },
+    name: "UFC Fight Night: Adesanya vs. Imavov",
+    date: "Feb 01, 2025",
+    location: "Riyadh, Saudi Arabia",
+    mainEvent: "Adesanya vs. Imavov",
+  }
 ];
 
 const mockNews = [
