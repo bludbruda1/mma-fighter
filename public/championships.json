@@ -35,11 +35,11 @@
   },
   {
     "id": 2,
-    "name": "Lightweight Interim Championship",
-    "weightClass": "Lightweight",
+    "name": "Middleweight Championship",
+    "weightClass": "Middleweight",
     "gender": "Male",
     "currentChampionId": null,
-    "description": "UFC Interim Lightweight Championship"
+    "description": "UFC Middleweight Championship"
   },
   {
     "id": 3,

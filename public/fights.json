@@ -402,5 +402,22 @@
     "weightClass": "Light Heavyweight",
     "result": null,
     "stats": null  
+  },
+  {
+    "id": 19,
+    "championship": null,
+    "fighter1": {
+      "personid": 39,
+      "firstname": "Kevin",
+      "lastname": "Holland"
+    },
+    "fighter2": {
+      "personid": 40,
+      "firstname": "Reinier",
+      "lastname": "de Ridder"
+    },
+    "weightClass": "Middleweight",
+    "result": null,
+    "stats": null  
   }
 ]
