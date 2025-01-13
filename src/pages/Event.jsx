@@ -108,6 +108,10 @@ const Event = () => {
             championshipData = allChampionships.find(
               (c) => c.id === fight.championship.id
             );
+            
+            // Store the original champion status in the fight object
+            const originalChampionId = fight.championship.currentChampionId;
+            fight.originalChampionId = originalChampionId; // Add this line
           }
 
           return {
@@ -124,7 +128,7 @@ const Event = () => {
                   ...fight.fighter2,
                 }
               : fight.fighter2,
-            championship: championshipData, // Replace with full championship data
+            championship: championshipData,
           };
         });
 
@@ -623,14 +627,10 @@ const Event = () => {
             const shouldShowWinner = viewedFights.has(fight.id) || 
               (simulatedFights.has(fight.id) && !viewerOpen);
   
-            // Determine if each fighter is a champion
-            const fighter1IsChamp = championships.some(
-              (c) => c.currentChampionId === fight.fighter1.personid
-            );
-            const fighter2IsChamp = championships.some(
-              (c) => c.currentChampionId === fight.fighter2.personid
-            );
-  
+            // Determine original champion status when the fight was made
+            const fighter1IsChamp = fight.originalChampionId === fight.fighter1.personid;
+            const fighter2IsChamp = fight.originalChampionId === fight.fighter2.personid;
+
             return (
               <CompactFightCard
                 key={index}
