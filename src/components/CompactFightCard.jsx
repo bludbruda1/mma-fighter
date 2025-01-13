@@ -50,6 +50,9 @@ return "Preliminary Card";
  * @param {Function} props.onWatch - Watch fight handler
  * @param {Function} props.onSimulate - Simulate fight handler
  * @param {Function} props.onViewSummary - View summary handler
+ * @param {boolean} props.fighter1IsChamp - Whether fighter 1 was champion entering the fight
+ * @param {boolean} props.fighter2IsChamp - Whether fighter 2 was champion entering the fight
+ * @param {number} props.fightIndex - Index of the fight in the event
  */
 const CompactFightCard = ({
   fight,
@@ -101,7 +104,47 @@ const CompactFightCard = ({
       position: 'relative',
       flexDirection: alignment === 'right' ? 'row-reverse' : 'row',
       justifyContent: alignment === 'right' ? 'flex-start' : 'flex-start',
+      mt: 2,
     }}>
+      {/* Enhanced champion indicator styling */}
+      {isChampion && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            [alignment === 'right' ? 'left' : 'right']: -12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            zIndex: 1,
+          }}
+        >
+          <EmojiEventsIcon 
+            sx={{ 
+              color: 'gold',
+              fontSize: '1.2rem',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
+            }} 
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'rgb(175, 145, 0)',
+              fontWeight: 'bold',
+              fontSize: '0.75rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}
+          >
+            Champion
+          </Typography>
+        </Box>
+      )}
       <Avatar
         src={fighter.profile}
         alt={`${fighter.firstname} ${fighter.lastname}`}
@@ -116,23 +159,12 @@ const CompactFightCard = ({
           {fighter.firstname} {fighter.lastname}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-            {age} years old
+          {age} years old
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-            {fighter.wins}W-{fighter.losses}L
-            {fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
+          {fighter.wins}W-{fighter.losses}L
+          {fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
         </Typography>
-        {isChampion && (
-          <EmojiEventsIcon 
-            sx={{ 
-              color: 'gold',
-              position: 'absolute',
-              top: -8,
-              [alignment === 'right' ? 'left' : 'right']: -8,
-              fontSize: '1.2rem'
-            }} 
-          />
-        )}
       </Box>
     </Box>
   );
