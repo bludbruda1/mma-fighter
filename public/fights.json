@@ -43,6 +43,7 @@
       "firstname": "Arman",
       "lastname": "Tsarukyan"
     },
+    "weightClass": "Lightweight",
     "date": "2025-01-18",
     "result": null,
     "stats": null
@@ -59,6 +60,7 @@
       "firstname": "Renato",
       "lastname": "Moicano"
     },
+    "weightClass": "Lightweight",
     "date": "2025-01-18",
     "result": null,
     "stats": null  
@@ -75,6 +77,7 @@
       "firstname": "Amanda",
       "lastname": "Ribas"
     },
+    "weightClass": "Straweight",
     "date": "2025-01-18",
     "result": {
       "winner": 0,

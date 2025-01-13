@@ -216,6 +216,7 @@ const CompactFightCard = ({
       elevation={2}
       sx={{ 
         mb: 2,
+        mt:3,
         position: 'relative',
         '&:hover': {
           boxShadow: 4
@@ -229,7 +230,7 @@ const CompactFightCard = ({
         <Box
           sx={{
             position: 'absolute',
-            top: 0,
+            top: -10,
             left: 0,
             right: 0,
             display: 'flex',
@@ -239,8 +240,7 @@ const CompactFightCard = ({
             background: 'linear-gradient(90deg, rgba(255,215,0,0.95) 0%, rgba(255,215,0,0.85) 100%)',
             color: 'rgba(0, 0, 0, 0.87)',
             padding: '8px',
-            borderTopLeftRadius: '4px',
-            borderTopRightRadius: '4px',
+            borderRadius: '4px',
             boxShadow: '0 2px 8px rgba(255,215,0,0.3)',
             textAlign: 'center',
             fontWeight: 'bold',
