@@ -361,5 +361,26 @@
       "timeEnded": "5:00"
     },
     "stats": null
+  },
+  {
+    "id": 17,
+    "championship": {
+      "currentChampionId": 35,
+      "id": 4,
+      "name": "Bantamweight Championship"
+    },
+    "fighter1": {
+      "personid": 35,
+      "firstname": "Merab",
+      "lastname": "Dvalishvili"
+    },
+    "fighter2": {
+      "personid": 36,
+      "firstname": "Umar",
+      "lastname": "Nurmagomedov"
+    },
+    "weightClass": "Bantamweight",
+    "result": null,
+    "stats": null  
   }
 ]
