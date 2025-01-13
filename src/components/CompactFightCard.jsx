@@ -219,7 +219,9 @@ const CompactFightCard = ({
         position: 'relative',
         '&:hover': {
           boxShadow: 4
-        }
+        },
+        borderRadius: fight.championship ? '4px' : '4px',
+        overflow: 'visible'
       }}
     >
       {/* Championship Banner */}
@@ -230,15 +232,53 @@ const CompactFightCard = ({
             top: 0,
             left: 0,
             right: 0,
-            backgroundColor: 'gold',
-            color: 'black',
-            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            background: 'linear-gradient(90deg, rgba(255,215,0,0.95) 0%, rgba(255,215,0,0.85) 100%)',
+            color: 'rgba(0, 0, 0, 0.87)',
+            padding: '8px',
+            borderTopLeftRadius: '4px',
+            borderTopRightRadius: '4px',
+            boxShadow: '0 2px 8px rgba(255,215,0,0.3)',
             textAlign: 'center',
             fontWeight: 'bold',
             fontSize: '0.875rem',
+            zIndex: 2,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(45deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)',
+              zIndex: -1,
+            },
           }}
         >
-          {fight.championship.name}
+          <EmojiEventsIcon 
+            sx={{ 
+              fontSize: '1.2rem',
+              color: 'rgba(0, 0, 0, 0.87)',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
+            }} 
+          />
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            {fight.championship.name}
+          </Typography>
         </Box>
       )}
 
