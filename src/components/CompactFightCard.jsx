@@ -50,6 +50,9 @@ return "Preliminary Card";
  * @param {Function} props.onWatch - Watch fight handler
  * @param {Function} props.onSimulate - Simulate fight handler
  * @param {Function} props.onViewSummary - View summary handler
+ * @param {boolean} props.fighter1IsChamp - Whether fighter 1 was champion entering the fight
+ * @param {boolean} props.fighter2IsChamp - Whether fighter 2 was champion entering the fight
+ * @param {number} props.fightIndex - Index of the fight in the event
  */
 const CompactFightCard = ({
   fight,
@@ -101,7 +104,47 @@ const CompactFightCard = ({
       position: 'relative',
       flexDirection: alignment === 'right' ? 'row-reverse' : 'row',
       justifyContent: alignment === 'right' ? 'flex-start' : 'flex-start',
+      mt: 2,
     }}>
+      {/* Enhanced champion indicator styling */}
+      {isChampion && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            [alignment === 'right' ? 'left' : 'right']: -12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            zIndex: 1,
+          }}
+        >
+          <EmojiEventsIcon 
+            sx={{ 
+              color: 'gold',
+              fontSize: '1.2rem',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
+            }} 
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'rgb(175, 145, 0)',
+              fontWeight: 'bold',
+              fontSize: '0.75rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}
+          >
+            Champion
+          </Typography>
+        </Box>
+      )}
       <Avatar
         src={fighter.profile}
         alt={`${fighter.firstname} ${fighter.lastname}`}
@@ -116,23 +159,12 @@ const CompactFightCard = ({
           {fighter.firstname} {fighter.lastname}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-            {age} years old
+          {age} years old
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-            {fighter.wins}W-{fighter.losses}L
-            {fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
+          {fighter.wins}W-{fighter.losses}L
+          {fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
         </Typography>
-        {isChampion && (
-          <EmojiEventsIcon 
-            sx={{ 
-              color: 'gold',
-              position: 'absolute',
-              top: -8,
-              [alignment === 'right' ? 'left' : 'right']: -8,
-              fontSize: '1.2rem'
-            }} 
-          />
-        )}
       </Box>
     </Box>
   );
@@ -184,10 +216,13 @@ const CompactFightCard = ({
       elevation={2}
       sx={{ 
         mb: 2,
+        mt:3,
         position: 'relative',
         '&:hover': {
           boxShadow: 4
-        }
+        },
+        borderRadius: fight.championship ? '4px' : '4px',
+        overflow: 'visible'
       }}
     >
       {/* Championship Banner */}
@@ -195,18 +230,55 @@ const CompactFightCard = ({
         <Box
           sx={{
             position: 'absolute',
-            top: 0,
+            top: -10,
             left: 0,
             right: 0,
-            backgroundColor: 'gold',
-            color: 'black',
-            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            background: 'linear-gradient(90deg, rgba(255,215,0,0.95) 0%, rgba(255,215,0,0.85) 100%)',
+            color: 'rgba(0, 0, 0, 0.87)',
+            padding: '8px',
+            borderRadius: '4px',
+            boxShadow: '0 2px 8px rgba(255,215,0,0.3)',
             textAlign: 'center',
             fontWeight: 'bold',
             fontSize: '0.875rem',
+            zIndex: 2,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(45deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)',
+              zIndex: -1,
+            },
           }}
         >
-          {fight.championship.name}
+          <EmojiEventsIcon 
+            sx={{ 
+              fontSize: '1.2rem',
+              color: 'rgba(0, 0, 0, 0.87)',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
+            }} 
+          />
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            {fight.championship.name}
+          </Typography>
         </Box>
       )}
 

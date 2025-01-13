@@ -43,6 +43,7 @@
       "firstname": "Arman",
       "lastname": "Tsarukyan"
     },
+    "weightClass": "Lightweight",
     "date": "2025-01-18",
     "result": null,
     "stats": null
@@ -59,6 +60,7 @@
       "firstname": "Renato",
       "lastname": "Moicano"
     },
+    "weightClass": "Lightweight",
     "date": "2025-01-18",
     "result": null,
     "stats": null  
@@ -75,6 +77,7 @@
       "firstname": "Amanda",
       "lastname": "Ribas"
     },
+    "weightClass": "Strawweight",
     "date": "2025-01-18",
     "result": {
       "winner": 0,
@@ -361,5 +364,60 @@
       "timeEnded": "5:00"
     },
     "stats": null
+  },
+  {
+    "id": 17,
+    "championship": {
+      "currentChampionId": 35,
+      "id": 4,
+      "name": "Bantamweight Championship"
+    },
+    "fighter1": {
+      "personid": 35,
+      "firstname": "Merab",
+      "lastname": "Dvalishvili"
+    },
+    "fighter2": {
+      "personid": 36,
+      "firstname": "Umar",
+      "lastname": "Nurmagomedov"
+    },
+    "weightClass": "Bantamweight",
+    "result": null,
+    "stats": null  
+  },
+  {
+    "id": 18,
+    "championship": null,
+    "fighter1": {
+      "personid": 37,
+      "firstname": "Jiří",
+      "lastname": "Procházka"
+    },
+    "fighter2": {
+      "personid": 38,
+      "firstname": "Jamahal",
+      "lastname": "Hill"
+    },
+    "weightClass": "Light Heavyweight",
+    "result": null,
+    "stats": null  
+  },
+  {
+    "id": 19,
+    "championship": null,
+    "fighter1": {
+      "personid": 39,
+      "firstname": "Kevin",
+      "lastname": "Holland"
+    },
+    "fighter2": {
+      "personid": 40,
+      "firstname": "Reinier",
+      "lastname": "de Ridder"
+    },
+    "weightClass": "Middleweight",
+    "result": null,
+    "stats": null  
   }
 ]

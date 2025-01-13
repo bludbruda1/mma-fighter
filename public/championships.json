@@ -35,11 +35,11 @@
   },
   {
     "id": 2,
-    "name": "Lightweight Interim Championship",
-    "weightClass": "Lightweight",
+    "name": "Middleweight Championship",
+    "weightClass": "Middleweight",
     "gender": "Male",
     "currentChampionId": null,
-    "description": "UFC Interim Lightweight Championship"
+    "description": "UFC Middleweight Championship"
   },
   {
     "id": 3,
@@ -68,6 +68,28 @@
         "endDate": "2024-02-17",
         "wonFromId": null,
         "wonFromName": "Jose Aldo",
+        "winMethod": "Decision",
+        "winRound": 5,
+        "winTime": "5:00",
+        "eventId": null
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Bantamweight Championship",
+    "weightClass": "Bantamweight",
+    "gender": "Male",
+    "currentChampionId": 35,
+    "description": "UFC Bantamweight Championship",
+    "reigns": [
+      {
+        "championId": 35,
+        "name": "Merab Dvalishvili",
+        "startDate": "2024-09-15",
+        "endDate": null,
+        "wonFromId": null,
+        "wonFromName": "Sean O'Malley",
         "winMethod": "Decision",
         "winRound": 5,
         "winTime": "5:00",
