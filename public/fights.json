@@ -385,5 +385,22 @@
     "weightClass": "Bantamweight",
     "result": null,
     "stats": null  
+  },
+  {
+    "id": 18,
+    "championship": null,
+    "fighter1": {
+      "personid": 37,
+      "firstname": "Jiří",
+      "lastname": "Procházka"
+    },
+    "fighter2": {
+      "personid": 38,
+      "firstname": "Jamahal",
+      "lastname": "Hill"
+    },
+    "weightClass": "Light Heavyweight",
+    "result": null,
+    "stats": null  
   }
 ]
