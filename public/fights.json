@@ -419,5 +419,22 @@
     "weightClass": "Middleweight",
     "result": null,
     "stats": null  
+  },
+  {
+    "id": 20,
+    "championship": null,
+    "fighter1": {
+      "personid": 41,
+      "firstname": "Johnny",
+      "lastname": "Walker"
+    },
+    "fighter2": {
+      "personid": 42,
+      "firstname": "Bogdan",
+      "lastname": "Guskov"
+    },
+    "weightClass": "Light Heavyweight",
+    "result": null,
+    "stats": null  
   }
 ]

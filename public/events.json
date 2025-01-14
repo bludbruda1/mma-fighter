@@ -5,7 +5,11 @@
     "date": "2025-01-18",
     "location": "Los Angeles, California",
     "venue": "Intuit Dome",
-    "fights": [2,17,18,3,19]
+    "fights": {
+      "mainCard": [2, 17, 18, 3, 19],
+      "prelims": [20],
+      "earlyPrelims": []
+    }
   },
   {
     "id": 2,
@@ -13,7 +17,11 @@
     "date": "2025-01-11",
     "location": "Las Vegas, Nevada",
     "venue": "UFC Apex",
-    "fights": [4, 12, 13, 14, 15, 16]
+    "fights": {
+      "mainCard": [4, 12, 13, 14, 15, 16],
+      "prelims": [],
+      "earlyPrelims": []
+    }
   },
   {
     "id": 3,
@@ -21,6 +29,10 @@
     "date": "2024-06-01",
     "location": "Newark, New Jersey",
     "venue": "Prudential Center",
-    "fights": [9]
+    "fights": {
+      "mainCard": [9],
+      "prelims": [],
+      "earlyPrelims": []
+    }
   }
 ]

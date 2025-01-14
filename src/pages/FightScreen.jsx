@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import Select from "../components/Select";
 import StatBar from "../components/StatBar";
-import Tab from "../components/Tab";
+import BasicTabs from "../components/BasicTabs";
 import ResultCard from "../components/ResultCard";
 import FightViewer from "../components/FightViewer";
 import { simulateFight } from "../engine/FightSim";
@@ -357,7 +357,7 @@ const FightScreen = () => {
                           marginTop: "20px", // Space between ResultCard and Tabs
                         }}
                       >
-                        <Tab tabs={prepareTabs()} />
+                        <BasicTabs tabs={prepareTabs()} />
                       </Grid>
                     </Grid>
                   </Grid>
@@ -592,7 +592,7 @@ const FightScreen = () => {
       >
         <DialogTitle>Fight Summary</DialogTitle>
         <DialogContent>
-          <Tab tabs={fightSummaryTabs} />
+          <BasicTabs tabs={fightSummaryTabs} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
