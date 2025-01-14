@@ -43,6 +43,9 @@ const CreateEvent = () => {
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
+  const [cardAssignments, setCardAssignments] = useState(
+    Array(1).fill('mainCard')  // Default all fights to main card
+  );
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
@@ -69,7 +72,25 @@ const CreateEvent = () => {
           fighter2: null,
         }))
     );
+
+     // Update card assignments to match new number of fights
+     setCardAssignments(prev => {
+      const newAssignments = [...prev];
+      while (newAssignments.length < numFights) {
+        newAssignments.push('mainCard');
+      }
+      return newAssignments.slice(0, numFights);
+    });
   }, [numFights]);
+
+  // Handler for card assignment changes
+  const handleCardAssignmentChange = (index, card) => {
+    setCardAssignments(prev => {
+      const newAssignments = [...prev];
+      newAssignments[index] = card;
+      return newAssignments;
+    });
+  };
 
   // Load initial data: fighters, championships, and check bookings
   useEffect(() => {
@@ -277,7 +298,6 @@ const CreateEvent = () => {
   // Save the entire event including all fights
   const handleSaveEvent = async () => {
     try {
-      // Validate event name
       if (!eventName.trim()) {
         console.log("Please enter an event name.");
         return;
@@ -285,7 +305,7 @@ const CreateEvent = () => {
 
       setIsSaving(true);
 
-      // Validate all fights have both fighters selected
+      // Validate all fights have both fighters
       const invalidFights = fights.some(
         (fight) => !fight.fighter1 || !fight.fighter2
       );
@@ -296,7 +316,7 @@ const CreateEvent = () => {
         return;
       }
 
-      // Create all fights sequentially and collect their IDs
+      // Create fights with proper structure
       const fightIds = [];
       for (const [index, fight] of fights.entries()) {
         const nextFightId = await getNextFightId();
@@ -314,7 +334,6 @@ const CreateEvent = () => {
           },
           result: null,
           stats: null,
-          // Include championship information (either active or vacant)
           championship: fightsWithChampionship[index] ? {
             id: fightsWithChampionship[index].id,
             name: fightsWithChampionship[index].name,
@@ -322,7 +341,7 @@ const CreateEvent = () => {
           } : fightsWithVacantTitle[index] ? {
             id: fightsWithVacantTitle[index].id,
             name: fightsWithVacantTitle[index].name,
-            currentChampionId: null // Explicitly null for vacant titles
+            currentChampionId: null
           } : null
         };
 
@@ -330,23 +349,26 @@ const CreateEvent = () => {
         fightIds.push(nextFightId);
       }
 
-      // Create the event with all fight IDs
+      // Group fights by card
+      const groupedFights = {
+        mainCard: fightIds.filter((_, index) => cardAssignments[index] === 'mainCard'),
+        prelims: fightIds.filter((_, index) => cardAssignments[index] === 'prelims'),
+        earlyPrelims: fightIds.filter((_, index) => cardAssignments[index] === 'earlyPrelims')
+      };
+
+      // Create event with new fight structure
       const nextEventId = await getNextEventId();
       const eventData = {
         id: nextEventId,
         name: eventName,
         date: selectedDate,
-        fights: fightIds,
+        fights: groupedFights
       };
 
-      if (fightIds.length > 0) {
-        await addEventToDB(eventData);
-        console.log("Event saved successfully:", eventData);
-        setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
-        navigate(`/event/${eventData.id}`);
-      } else {
-        console.log("No valid fights to save");
-      }
+      await addEventToDB(eventData);
+      console.log("Event saved successfully:", eventData);
+      setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
+      navigate(`/event/${eventData.id}`);
     } catch (error) {
       console.error("Error saving event:", error);
     } finally {
@@ -387,6 +409,20 @@ const CreateEvent = () => {
             ? "Opening Fight"
             : `Fight ${fights.length - index}`}
         </Typography>
+
+        {/* Add card selection */}
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Card Assignment</InputLabel>
+          <MuiSelect
+            value={cardAssignments[index]}
+            label="Card Assignment"
+            onChange={(e) => handleCardAssignmentChange(index, e.target.value)}
+          >
+            <MenuItem value="mainCard">Main Card</MenuItem>
+            <MenuItem value="prelims">Prelims</MenuItem>
+            <MenuItem value="earlyPrelims">Early Prelims</MenuItem>
+          </MuiSelect>
+        </FormControl>
         <Grid container spacing={3} justifyContent="space-between">
           {/* Fighter 1 Selection */}
           <Grid item xs={12} md={5}>
