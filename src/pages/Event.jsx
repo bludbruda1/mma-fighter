@@ -505,14 +505,23 @@ const Event = () => {
    * @param {number} index - Index of the fight to view
    */
   const handleViewSummary = (fightId) => {
-    const fight = getFightById(eventData.fights, fightId);
-    if (!fight) return;
-    
     const allFights = getAllFightsFlat(eventData.fights);
     const fightIndex = allFights.findIndex(f => f.id === fightId);
     
+    // Store both the fight ID and index
     setCurrentFightIndex(fightIndex);
     setDialogOpen(true);
+  };
+
+  // Update the fight summary dialog content rendering
+  const getFightResultByIndex = (index) => {
+    if (index === null || !eventData) return null;
+    
+    const allFights = getAllFightsFlat(eventData.fights);
+    const fight = allFights[index];
+    if (!fight) return null;
+    
+    return fightResults[fight.id];
   };
 
   /**
@@ -797,152 +806,150 @@ const Event = () => {
           fullWidth
           maxWidth="lg"
         >
-        <DialogTitle>Fight Summary</DialogTitle>
-        <DialogContent>
-          {currentFightIndex !== null && fightResults[currentFightIndex] && (
-            <>
-              <Grid
-                container
-                spacing={4}
-                justifyContent="center"
-                style={{ marginTop: "20px" }}
-              >
-                {/* Left: Fighter 1 Details */}
+          <DialogTitle>Fight Summary</DialogTitle>
+          <DialogContent>
+            {currentFightIndex !== null && getFightResultByIndex(currentFightIndex) && (
+              <>
                 <Grid
-                  item
-                  xs={12}
-                  md={3}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
+                  container
+                  spacing={4}
+                  justifyContent="center"
+                  style={{ marginTop: "20px" }}
                 >
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    sx={{ fontWeight: "bold" }}
+                  {/* Left: Fighter 1 Details */}
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
                   >
-                    {fightResults[currentFightIndex].fighters[0].name}
-                    {fightResults[currentFightIndex].winnerIndex === 0 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {getFightResultByIndex(currentFightIndex).fighters[0].firstname} {getFightResultByIndex(currentFightIndex).fighters[0].lastname}
+                      {getFightResultByIndex(currentFightIndex).winnerIndex === 0 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Chip
+                            label="Winner"
+                            size="small"
+                            color="success"
+                            sx={{ marginTop: "8px" }}
+                          />
+                        </Box>
+                      )}
+                    </Typography>
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={getFightResultByIndex(currentFightIndex).fighters[0].image}
+                      />
+                    </Card>
+                  </Grid>
+
+                  {/* Center: Result Card and Stats */}
+                  <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ResultCard
+                      round={getFightResultByIndex(currentFightIndex).fightResult.roundEnded}
+                      time={getFightResultByIndex(currentFightIndex).formattedEndTime}
+                      method={getFightResultByIndex(currentFightIndex).fightResult.method}
+                    />
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ maxWidth: "600px", margin: "0 auto" }}
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          justifyContent: "center",
+                          marginTop: "20px",
                         }}
                       >
-                        <Chip
-                          label="Winner"
-                          size="small"
-                          color="success"
-                          sx={{ marginTop: "8px" }}
+                        <BasicTabs
+                          tabs={prepareTabs(getFightResultByIndex(currentFightIndex))}
                         />
-                      </Box>
-                    )}
-                  </Typography>
-                  <Card style={{ border: "none", boxShadow: "none" }}>
-                    <CardMedia
-                      component="img"
-                      style={{ objectFit: "contain" }}
-                      height="250"
-                      image={fightResults[currentFightIndex].fighters[0].image}
-                    />
-                  </Card>
-                </Grid>
-
-                {/* Center: Result Card and Stats */}
-                <Grid
-                  item
-                  xs={12}
-                  md={6}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <ResultCard
-                    round={
-                      fightResults[currentFightIndex].fightResult.roundEnded
-                    }
-                    time={fightResults[currentFightIndex].formattedEndTime}
-                    method={fightResults[currentFightIndex].fightResult.method}
-                  />
-                  <Grid
-                    container
-                    spacing={2}
-                    sx={{ maxWidth: "600px", margin: "0 auto" }}
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      style={{
-                        justifyContent: "center",
-                        marginTop: "20px",
-                      }}
-                    >
-                      <BasicTabs
-                        tabs={prepareTabs(fightResults[currentFightIndex])}
-                      />
+                      </Grid>
                     </Grid>
                   </Grid>
-                </Grid>
 
-                {/* Right: Fighter 2 Details */}
-                <Grid
-                  item
-                  xs={12}
-                  md={3}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    sx={{ fontWeight: "bold" }}
+                  {/* Right: Fighter 2 Details */}
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
                   >
-                    {fightResults[currentFightIndex].fighters[1].name}
-                    {fightResults[currentFightIndex].winnerIndex === 1 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Chip
-                          label="Winner"
-                          size="small"
-                          color="success"
-                          sx={{ marginTop: "8px" }}
-                        />
-                      </Box>
-                    )}
-                  </Typography>
-                  <Card style={{ border: "none", boxShadow: "none" }}>
-                    <CardMedia
-                      component="img"
-                      style={{ objectFit: "contain" }}
-                      height="250"
-                      image={fightResults[currentFightIndex].fighters[1].image}
-                    />
-                  </Card>
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {getFightResultByIndex(currentFightIndex).fighters[1].firstname} {getFightResultByIndex(currentFightIndex).fighters[1].lastname}
+                      {getFightResultByIndex(currentFightIndex).winnerIndex === 1 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Chip
+                            label="Winner"
+                            size="small"
+                            color="success"
+                            sx={{ marginTop: "8px" }}
+                          />
+                        </Box>
+                      )}
+                    </Typography>
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={getFightResultByIndex(currentFightIndex).fighters[1].image}
+                      />
+                    </Card>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+              </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
 
       {/* Fight Viewer Dialog */}
       <Dialog open={viewerOpen} onClose={handleCloseViewer} fullScreen>
