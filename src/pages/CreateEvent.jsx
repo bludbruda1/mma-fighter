@@ -34,7 +34,7 @@ import { EventContext } from "../contexts/EventContext";
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
-  const locationHook = useLocation(); 
+  const routerLocation = useLocation(); 
 
   // Core state management
   const [fighters, setFighters] = useState([]);
@@ -49,7 +49,8 @@ const CreateEvent = () => {
     Array(1).fill('mainCard')  // Default all fights to main card
   );
   const [region, setRegion] = useState('');
-  const [eventLocation, setEventLocation] = useState('');  const [venue, setVenue] = useState('');
+  const [eventLocation, setEventLocation] = useState('');  
+  const [venue, setVenue] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
 
   // Fighter availability tracking
@@ -172,12 +173,12 @@ const CreateEvent = () => {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(locationHook.search);
+    const params = new URLSearchParams(routerLocation.search);
     const dateFromQuery = params.get("date");
     if (dateFromQuery) {
       setSelectedDate(dateFromQuery); // Set the selected date if available
     }
-  }, [locationHook.search]);
+  }, [routerLocation.search]);
 
   // Helper function for date changes
   const handleDateChange = (e) => {
