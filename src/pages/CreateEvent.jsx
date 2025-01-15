@@ -27,6 +27,7 @@ import {
   addFightToDB,
   getAllFights,
   getAllChampionships,
+  getGameDate,
 } from "../utils/indexedDB";
 import { getRegions, getLocationsByRegion, getVenuesByLocation } from '../data/locations';
 import { EventContext } from "../contexts/EventContext";
@@ -37,6 +38,7 @@ const CreateEvent = () => {
   const routerLocation = useLocation(); 
 
   // Core state management
+  const [gameDate, setGameDate] = useState(null);
   const [fighters, setFighters] = useState([]);
   const [numFights, setNumFights] = useState(1);
   const [fights, setFights] = useState(
@@ -117,12 +119,16 @@ const CreateEvent = () => {
     const loadData = async () => {
       try {
         // Fetch fighters, fights, and championships data
-        const [fetchedFighters, allFights, fetchedChampionships] =
+        const [fetchedFighters, allFights, fetchedChampionships, currentGameDate] =
           await Promise.all([
             getAllFighters(),
             getAllFights(),
             getAllChampionships(),
+            getGameDate(),
           ]);
+
+        // Set the game date
+        setGameDate(new Date(currentGameDate));
 
         // Create set of fighter IDs that are already booked in other events
         const bookedFighterIds = new Set();
@@ -182,8 +188,29 @@ const CreateEvent = () => {
 
   // Helper function for date changes
   const handleDateChange = (e) => {
-    const dateString = e.target.value;
-    setSelectedDate(dateString);
+    const selectedDateStr = e.target.value;
+    const selectedDateObj = new Date(selectedDateStr);
+    const gameDateObj = new Date(gameDate);
+  
+    // Reset time components for accurate date comparison
+    selectedDateObj.setHours(0, 0, 0, 0);
+    gameDateObj.setHours(0, 0, 0, 0);
+  
+    if (selectedDateObj < gameDateObj) {
+      setValidationErrors(prev => ({
+        ...prev,
+        date: "Event date cannot be earlier than the current game date"
+      }));
+    } else {
+      // Clear the date error if valid
+      setValidationErrors(prev => {
+        const updated = { ...prev };
+        delete updated.date;
+        return updated;
+      });
+    }
+    
+    setSelectedDate(selectedDateStr);
   };
 
   // Helper function to check if a fighter is a champion
@@ -320,6 +347,22 @@ const CreateEvent = () => {
     try {
       // Reset validation errors
       const errors = {};
+
+      // Add date validation
+      if (!selectedDate) {
+        errors.date = "Please select an event date";
+      } else {
+        const selectedDateObj = new Date(selectedDate);
+        const gameDateObj = new Date(gameDate);
+        
+        // Reset time components for accurate date comparison
+        selectedDateObj.setHours(0, 0, 0, 0);
+        gameDateObj.setHours(0, 0, 0, 0);
+
+        if (selectedDateObj < gameDateObj) {
+          errors.date = "Event date cannot be earlier than the current date";
+        }
+      }
   
       if (!eventName.trim()) {
         errors.eventName = "Please enter an event name";
@@ -633,6 +676,9 @@ const CreateEvent = () => {
             required
             InputLabelProps={{
               shrink: true,
+            }}
+            inputProps={{
+              min: gameDate ? gameDate.toISOString().split('T')[0] : undefined,
             }}
             error={!!validationErrors.date}
             helperText={validationErrors.date}
