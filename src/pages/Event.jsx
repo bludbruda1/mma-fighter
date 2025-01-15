@@ -145,7 +145,7 @@ const Event = () => {
         const initialResults = {};
         completeFights.forEach((fight, index) => {
           if (fight.result) {
-            initialResults[index] = {
+            initialResults[fight.id] = {
               winnerIndex: fight.result.winner,
               fightResult: fight.result,
               fightStats: fight.stats,
@@ -195,6 +195,28 @@ const Event = () => {
     setCurrentCard(newValue);
   };
 
+  // Function to get fight by ID
+  const getFightById = (fights, fightId) => {
+    const cards = ['mainCard', 'prelims', 'earlyPrelims'];
+    for (const card of cards) {
+      const fight = fights[card]?.find(f => f.id === fightId);
+      if (fight) return fight;
+    }
+    return null;
+  };
+
+  // Function to get all fights as flat array
+  const getAllFightsFlat = (fights) => {
+    if (!fights) return [];
+    if (Array.isArray(fights)) return fights;
+    
+    return [
+      ...(fights.mainCard || []),
+      ...(fights.prelims || []),
+      ...(fights.earlyPrelims || [])
+    ];
+  };
+
   // Function to group fights by card type
   const getFightsByCard = () => {
     if (!eventData || !eventData.fights) return { mainCard: [], prelims: [], earlyPrelims: [] };
@@ -235,17 +257,20 @@ const Event = () => {
       const fighter1IsChamp = fight.originalChampionId === fight.fighter1.personid;
       const fighter2IsChamp = fight.originalChampionId === fight.fighter2.personid;
 
+      // Get fight result using fight.id
+      const fightResult = fightResults[fight.id];
+
       return (
         <CompactFightCard
           key={fight.id}
           fight={fight}
-          result={shouldShowWinner ? fightResults[index] : undefined}
+          result={shouldShowWinner ? fightResults[fight.id] : undefined}
           isComplete={isFightCompleted}
           isViewed={viewedFights.has(fight.id)}
           isSimulated={simulatedFights.has(fight.id)}
-          onWatch={() => handleWatchFight(index)}
-          onSimulate={() => handleSimulateFight(index, fight.fighter1, fight.fighter2)}
-          onViewSummary={() => handleViewSummary(index)}
+          onWatch={() => handleWatchFight(fight)}
+          onSimulate={() => handleSimulateFight(fight)}
+          onViewSummary={() => handleViewSummary(fight.id)}
           fighter1IsChamp={fighter1IsChamp}
           fighter2IsChamp={fighter2IsChamp}
           fightIndex={index}
@@ -269,21 +294,21 @@ const Event = () => {
    * Handles fight simulation and stores results
    * Now returns a promise to support watch-first functionality
    */
-  const handleGenerateFight = async (index, fighter1, fighter2) => {
+  const handleGenerateFight = async (fightId, fighter1, fighter2) => {
     try {
       // Set initial fight logger and run simulation
       const logger = new fightPlayByPlayLogger(true);
       const result = simulateFight([fighter1, fighter2], logger);
-
+  
       if (!result || typeof result.winner === "undefined") {
         console.error("simulateFight did not return a valid winner:", result);
         return null;
       }
-
+  
       // Capture fight events for playback
       const fightEvents = logger.getFightPlayByPlay();
       setCurrentFightEvents(fightEvents);
-
+  
       const winnerIndex = result.winner;
       const fightStats = calculateFightStats(
         {
@@ -297,7 +322,7 @@ const Event = () => {
           maxHealth: result.fighterMaxHealth?.[1] || {},
         }
       );
-
+  
       // Format fight result data
       const fightResult = {
         winner: winnerIndex,
@@ -306,22 +331,21 @@ const Event = () => {
         timeEnded: formatTime(result.endTime),
         submissionType: result.submissionType,
       };
-
+  
       // Update fight results in database including fight events
-      const fightId = eventData.fights[index].id;
       await updateFightResults(fightId, {
         result: fightResult,
         stats: fightStats,
         fightEvents: fightEvents,
       });
-
-      //  Mark fight as completed
+  
+      // Mark fight as completed
       setCompletedFights((prev) => new Set([...prev, fightId]));
-
+  
       // Update state with fight results
       setFightResults((prevResults) => ({
         ...prevResults,
-        [index]: {
+        [fightId]: {
           winnerIndex,
           fightResult,
           fightStats,
@@ -331,14 +355,14 @@ const Event = () => {
           fighters: [fighter1, fighter2],
         },
       }));
-
-      // Update fighter records
-      await updateFighterRecords([fighter1, fighter2], result);
-
+  
       // Store fighters for fight viewer
       setSelectedFighters([fighter1, fighter2]);
-
-      return { winnerIndex, fightResult }; // Return both the winner index and fight result
+  
+      // Update fighter records
+      await updateFighterRecords([fighter1, fighter2], result);
+  
+      return { winnerIndex, fightResult }; 
     } catch (error) {
       console.error("Error simulating fight:", error);
       return null;
@@ -346,18 +370,16 @@ const Event = () => {
   };
 
   // Function specifically for direct simulation
-  const handleSimulateFight = async (index, fighter1, fighter2) => {
-    const result = await handleGenerateFight(index, fighter1, fighter2);
+  const handleSimulateFight = async (fight) => {
+    const result = await handleGenerateFight(fight.id, fight.fighter1, fight.fighter2);
     if (result && typeof result.winnerIndex !== "undefined") {
-      const fightId = eventData.fights[index].id;
-      setSimulatedFights((prev) => new Set([...prev, fightId]));
-
+      setSimulatedFights((prev) => new Set([...prev, fight.id]));
+  
       // Handle championship changes if this was a title fight
-      const fight = eventData.fights[index];
       if (fight.championship) {
-        const winnerFighter = result.winnerIndex === 0 ? fighter1 : fighter2;
-        const loserFighter = result.winnerIndex === 0 ? fighter2 : fighter1;
-
+        const winnerFighter = result.winnerIndex === 0 ? fight.fighter1 : fight.fighter2;
+        const loserFighter = result.winnerIndex === 0 ? fight.fighter2 : fight.fighter1;
+  
         try {
           // Get current championship data
           const championship = await getChampionshipById(fight.championship.id);
@@ -420,9 +442,7 @@ const Event = () => {
    * Can be triggered before simulation to watch fight in real-time
    * @param {number} index - Index of the fight to watch
    */
-  const handleWatchFight = async (index) => {
-    const fight = eventData.fights[index];
-
+  const handleWatchFight = async (fight) => {
     // Prevent watching if already viewed or simulated without viewing
     if (
       viewedFights.has(fight.id) ||
@@ -430,18 +450,17 @@ const Event = () => {
     ) {
       return;
     }
-
+  
     // If fight is already completed and hasn't been viewed, show it
-    if (fightResults[index] && fightResults[index].fightEvents) {
-      setCurrentFightEvents(fightResults[index].fightEvents);
-      setSelectedFighters(fightResults[index].fighters);
+    if (fightResults[fight.id] && fightResults[fight.id].fightEvents) {
+      setCurrentFightEvents(fightResults[fight.id].fightEvents);
+      setSelectedFighters(fightResults[fight.id].fighters);
       setViewerOpen(true);
       return;
     }
-
+  
     // If fight needs to be simulated, do that first
     try {
-      // Only remove from simulatedFights if this fight hasn't been simulated yet
       if (!completedFights.has(fight.id)) {
         setSimulatedFights((prev) => {
           const newSet = new Set(prev);
@@ -449,9 +468,8 @@ const Event = () => {
           return newSet;
         });
       }
-
-      await handleGenerateFight(index, fight.fighter1, fight.fighter2);
-      // Need to wait briefly for fight events to be processed
+  
+      await handleGenerateFight(fight.id, fight.fighter1, fight.fighter2);
       setTimeout(() => {
         setViewerOpen(true);
       }, 100);
@@ -464,15 +482,16 @@ const Event = () => {
    * Closes the fight viewer dialog and marks fight as viewed
    */
   const handleCloseViewer = () => {
-    // If there's a fight result, find its ID and mark as viewed
     if (currentFightEvents && currentFightEvents.length > 0) {
-      const fightIndex = eventData.fights.findIndex(
+      const allFights = getAllFightsFlat(eventData.fights);
+      const fight = allFights.find(
         (fight) =>
           fight.fighter1.personid === selectedFighters[0].personid &&
           fight.fighter2.personid === selectedFighters[1].personid
       );
-      if (fightIndex !== -1) {
-        const fightId = eventData.fights[fightIndex].id;
+      
+      if (fight) {
+        const fightId = fight.id;
         setViewedFights((prev) => new Set([...prev, fightId]));
         setSimulatedFights((prev) => new Set([...prev, fightId]));
       }
@@ -485,8 +504,14 @@ const Event = () => {
    * Opens the fight summary dialog
    * @param {number} index - Index of the fight to view
    */
-  const handleViewSummary = (index) => {
-    setCurrentFightIndex(index);
+  const handleViewSummary = (fightId) => {
+    const fight = getFightById(eventData.fights, fightId);
+    if (!fight) return;
+    
+    const allFights = getAllFightsFlat(eventData.fights);
+    const fightIndex = allFights.findIndex(f => f.id === fightId);
+    
+    setCurrentFightIndex(fightIndex);
     setDialogOpen(true);
   };
 
