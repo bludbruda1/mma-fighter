@@ -328,6 +328,10 @@ const CreateEvent = () => {
       if (!selectedDate) {
         errors.date = "Please select an event date";
       }
+
+      if (!region) {
+        errors.region = "Please select a region";
+      }
   
       if (!eventLocation) {
         errors.location = "Please select a location";
@@ -338,13 +342,16 @@ const CreateEvent = () => {
       }
   
       // Check for fighter selection errors
-      const invalidFights = fights.some(
-        (fight) => !fight.fighter1 || !fight.fighter2
-      );
-  
-      if (invalidFights) {
-        errors.fights = "Please select fighters for all fights";
-      }
+      fights.forEach((fight, index) => {
+        if (!fight.fighter1 || !fight.fighter2) {
+          if (!fight.fighter1) {
+            errors[`fighter1-${index}`] = "Please select Fighter 1";
+          }
+          if (!fight.fighter2) {
+            errors[`fighter2-${index}`] = "Please select Fighter 2";
+          }
+        }
+      });
   
       // If there are any errors, display them and stop
       if (Object.keys(errors).length > 0) {
@@ -495,6 +502,12 @@ const CreateEvent = () => {
               currentFightIndex={index}
               fightPosition="fighter1"
             />
+            {/* Validation error message */}
+            {validationErrors[`fighter1-${index}`] && (
+              <FormHelperText error>
+                {validationErrors[`fighter1-${index}`]}
+              </FormHelperText>
+            )}
           </Grid>
 
           {/* Fighter 2 Selection */}
@@ -525,6 +538,12 @@ const CreateEvent = () => {
               currentFightIndex={index}
               fightPosition="fighter2"
             />
+            {/* Validation error message */}
+            {validationErrors[`fighter2-${index}`] && (
+              <FormHelperText error>
+                {validationErrors[`fighter2-${index}`]}
+              </FormHelperText>
+            )}
           </Grid>
 
           {/* Championship options */}
