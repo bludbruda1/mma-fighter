@@ -303,6 +303,12 @@ const CreateEvent = () => {
         return;
       }
 
+      // Add validation for date
+      if (!selectedDate) {
+        console.log("Please select a valid date.");
+        return;
+      }
+
       setIsSaving(true);
 
       // Validate all fights have both fighters
@@ -332,6 +338,8 @@ const CreateEvent = () => {
             firstname: fight.fighter2.firstname,
             lastname: fight.fighter2.lastname,
           },
+          weightClass: fight.fighter1.weightClass,
+          date: selectedDate,
           result: null,
           stats: null,
           championship: fightsWithChampionship[index] ? {
@@ -362,6 +370,8 @@ const CreateEvent = () => {
         id: nextEventId,
         name: eventName,
         date: selectedDate,
+        location: "TBD",
+        venue: "TBD",
         fights: groupedFights
       };
 
