@@ -15,6 +15,7 @@ import {
   Alert,
   Checkbox,
   FormControlLabel,
+  FormHelperText,
   Box,
 } from "@mui/material";
 import Select from "../components/Select";
@@ -27,12 +28,13 @@ import {
   getAllFights,
   getAllChampionships,
 } from "../utils/indexedDB";
+import { getRegions, getLocationsByRegion, getVenuesByLocation } from '../data/locations';
 import { EventContext } from "../contexts/EventContext";
 
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
-  const location = useLocation();
+  const locationHook = useLocation(); 
 
   // Core state management
   const [fighters, setFighters] = useState([]);
@@ -46,6 +48,9 @@ const CreateEvent = () => {
   const [cardAssignments, setCardAssignments] = useState(
     Array(1).fill('mainCard')  // Default all fights to main card
   );
+  const [region, setRegion] = useState('');
+  const [eventLocation, setEventLocation] = useState('');  const [venue, setVenue] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
@@ -90,6 +95,20 @@ const CreateEvent = () => {
       newAssignments[index] = card;
       return newAssignments;
     });
+  };
+
+  // Function to handle location changes
+  const handleLocationChange = (newLocation) => {
+    setEventLocation(newLocation);
+    setVenue(''); // Reset venue when location changes
+    
+    // Clear venue error if location is selected
+    if (newLocation) {
+      setValidationErrors(prev => ({
+        ...prev,
+        location: undefined
+      }));
+    }
   };
 
   // Load initial data: fighters, championships, and check bookings
@@ -153,12 +172,12 @@ const CreateEvent = () => {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(locationHook.search);
     const dateFromQuery = params.get("date");
     if (dateFromQuery) {
       setSelectedDate(dateFromQuery); // Set the selected date if available
     }
-  }, [location.search]);
+  }, [locationHook.search]);
 
   // Helper function for date changes
   const handleDateChange = (e) => {
@@ -298,29 +317,41 @@ const CreateEvent = () => {
   // Save the entire event including all fights
   const handleSaveEvent = async () => {
     try {
+      // Reset validation errors
+      const errors = {};
+  
       if (!eventName.trim()) {
-        console.log("Please enter an event name.");
-        return;
+        errors.eventName = "Please enter an event name";
       }
-
-      // Add validation for date
+  
       if (!selectedDate) {
-        console.log("Please select a valid date.");
-        return;
+        errors.date = "Please select an event date";
       }
-
-      setIsSaving(true);
-
-      // Validate all fights have both fighters
+  
+      if (!eventLocation) {
+        errors.location = "Please select a location";
+      }
+  
+      if (!venue) {
+        errors.venue = "Please select a venue";
+      }
+  
+      // Check for fighter selection errors
       const invalidFights = fights.some(
         (fight) => !fight.fighter1 || !fight.fighter2
       );
-
+  
       if (invalidFights) {
-        console.log("Please select fighters for all fights");
-        setIsSaving(false);
+        errors.fights = "Please select fighters for all fights";
+      }
+  
+      // If there are any errors, display them and stop
+      if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors);
         return;
       }
+  
+      setIsSaving(true);
 
       // Create fights with proper structure
       const fightIds = [];
@@ -370,8 +401,9 @@ const CreateEvent = () => {
         id: nextEventId,
         name: eventName,
         date: selectedDate,
-        location: "TBD",
-        venue: "TBD",
+        region: region,
+        location: eventLocation,
+        venue: venue,
         fights: groupedFights
       };
 
@@ -553,19 +585,11 @@ const CreateEvent = () => {
   // Main component render
   return (
     <main>
-      <Container
-        maxWidth="md"
-        style={{ marginTop: "50px", marginBottom: "20px" }}
-      >
-        <Typography
-          variant="h2"
-          align="center"
-          color="textPrimary"
-          gutterBottom
-        >
+      <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
+        <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
           Create Event
         </Typography>
-
+  
         {/* Event Name Input */}
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
           <TextField
@@ -574,9 +598,11 @@ const CreateEvent = () => {
             onChange={(e) => setEventName(e.target.value)}
             required
             placeholder="e.g., UFC 285"
+            error={!!validationErrors.eventName}
+            helperText={validationErrors.eventName}
           />
         </FormControl>
-
+  
         {/* Event Date Input */}
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
           <TextField
@@ -588,9 +614,83 @@ const CreateEvent = () => {
             InputLabelProps={{
               shrink: true,
             }}
+            error={!!validationErrors.date}
+            helperText={validationErrors.date}
           />
         </FormControl>
-
+  
+        {/* Region Selection */}
+        <FormControl fullWidth sx={{ marginBottom: "20px" }} error={!!validationErrors.region}>
+          <InputLabel id="region-label">Region</InputLabel>
+          <MuiSelect
+            labelId="region-label"
+            value={region}
+            label="Region"
+            onChange={(e) => {
+              setRegion(e.target.value);
+              setEventLocation('');
+              setVenue('');
+              setValidationErrors(prev => ({...prev, region: undefined}));
+            }}
+          >
+            {Object.keys(getRegions()).map((reg) => (
+              <MenuItem key={reg} value={reg}>
+                {reg}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+          {validationErrors.region && (
+            <FormHelperText>{validationErrors.region}</FormHelperText>
+          )}
+        </FormControl>
+  
+        {/* Location Selection */}
+        {region && (
+          <FormControl fullWidth sx={{ marginBottom: "20px" }} error={!!validationErrors.location}>
+            <InputLabel id="location-label">Location</InputLabel>
+            <MuiSelect
+              labelId="location-label"
+              value={eventLocation}
+              label="Location"
+              onChange={(e) => handleLocationChange(e.target.value)}
+            >
+              {getLocationsByRegion(region).map((loc) => (
+                <MenuItem key={loc} value={loc}>
+                  {loc}
+                </MenuItem>
+              ))}
+            </MuiSelect>
+            {validationErrors.location && (
+              <FormHelperText>{validationErrors.location}</FormHelperText>
+            )}
+          </FormControl>
+        )}
+  
+        {/* Venue Selection */}
+        {eventLocation && (
+          <FormControl fullWidth sx={{ marginBottom: "20px" }} error={!!validationErrors.venue}>
+          <InputLabel id="venue-label">Venue</InputLabel>
+          <MuiSelect
+            labelId="venue-label"
+            value={venue}
+            label="Venue"
+            onChange={(e) => {
+              setVenue(e.target.value);
+              setValidationErrors(prev => ({...prev, venue: undefined}));
+            }}
+          >
+            {getVenuesByLocation(eventLocation).map((ven) => (
+              <MenuItem key={ven} value={ven}>
+                {ven}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+          {validationErrors.venue && (
+            <FormHelperText>{validationErrors.venue}</FormHelperText>
+          )}
+        </FormControl>
+      )}
+  
         {/* Number of Fights Selector */}
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
           <InputLabel id="num-fights-label">Number of Fights</InputLabel>
@@ -607,10 +707,10 @@ const CreateEvent = () => {
             ))}
           </MuiSelect>
         </FormControl>
-
-        {/* Render Fight Cards */}
+  
+        {/* Fight Cards */}
         {fights.map((fight, index) => renderFightCard(fight, index))}
-
+  
         {/* Save Button */}
         <Grid container spacing={2} sx={{ justifyContent: "center" }}>
           <Grid item>
@@ -627,11 +727,7 @@ const CreateEvent = () => {
                 minWidth: 100,
               }}
             >
-              {isSaving ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Save Event"
-              )}
+              {isSaving ? <CircularProgress size={24} color="inherit" /> : "Save Event"}
             </Button>
           </Grid>
         </Grid>
