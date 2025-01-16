@@ -122,10 +122,29 @@ export const addEventToDB = async (event) => {
       return;
     }
 
-    // Validate that fight IDs are numeric
-    if (!event.fights.every((id) => Number.isInteger(id))) {
-      reject(new Error("All fight IDs must be integers"));
-      return;
+    // Validate fight IDs structure
+    const validateFightIds = (ids) => {
+      if (!Array.isArray(ids)) return false;
+      return ids.every(id => Number.isInteger(id));
+    };
+
+    // Validate fight structure (either array or object with card properties)
+    if (Array.isArray(event.fights)) {
+      // Old format validation
+      if (!validateFightIds(event.fights)) {
+        reject(new Error("All fight IDs must be integers"));
+        return;
+      }
+    } else {
+      // New format validation
+      const mainCardValid = event.fights.mainCard && validateFightIds(event.fights.mainCard);
+      const prelimsValid = !event.fights.prelims || validateFightIds(event.fights.prelims);
+      const earlyPrelimsValid = !event.fights.earlyPrelims || validateFightIds(event.fights.earlyPrelims);
+
+      if (!mainCardValid || !prelimsValid || !earlyPrelimsValid) {
+        reject(new Error("Invalid fight card structure. All fight IDs must be integers."));
+        return;
+      }
     }
 
     const addRequest = store.add(event);
@@ -292,6 +311,10 @@ export const getFightsByIds = async (fightIds) => {
     return Promise.reject("fightIds must be an array of numbers");
   }
 
+  if (!fightIds.every(id => Number.isInteger(Number(id)))) {
+    return Promise.reject("All fight IDs must be integers");
+  }
+
   const db = await openDB();
   return Promise.all(
     fightIds.map(
@@ -299,7 +322,7 @@ export const getFightsByIds = async (fightIds) => {
         new Promise((resolve, reject) => {
           const transaction = db.transaction(fightsStoreName, "readonly");
           const store = transaction.objectStore(fightsStoreName);
-          const request = store.get(id);
+          const request = store.get(Number(id));
 
           request.onsuccess = () => {
             resolve(request.result || null);

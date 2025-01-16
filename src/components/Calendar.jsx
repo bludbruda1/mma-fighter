@@ -46,29 +46,46 @@ const Calendar = () => {
 
     // function to check if an event is completed
     const isEventCompleted = (event) => {
-      // If there are no fights, event is not complete
-      if (!event.fights || event.fights.length === 0) return false;
-      
-      // Check if all fights have results
-      return event.fights.every(fightId => {
-        const fight = fights.find(f => f.id === fightId);
-        return fight && fight.result;
-      });
+      if (!event || !event.fights) return false;
+    
+      // Helper function to check if all fights in a card are completed
+      const areAllFightsCompleted = (fightIds) => {
+        if (!Array.isArray(fightIds)) return true; // If card doesn't exist, consider it complete
+        return fightIds.every(fightId => {
+          const fight = fights.find(f => f.id === fightId);
+          return fight && fight.result;
+        });
+      };
+    
+      // Check if event.fights is the old format (array)
+      if (Array.isArray(event.fights)) {
+        return event.fights.every(fightId => {
+          const fight = fights.find(f => f.id === fightId);
+          return fight && fight.result;
+        });
+      }
+    
+      // Check new format (object with card properties)
+      return areAllFightsCompleted(event.fights.mainCard) &&
+             areAllFightsCompleted(event.fights.prelims) &&
+             areAllFightsCompleted(event.fights.earlyPrelims);
     };
 
-  const getEventsForDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const formattedDate = `${year}-${month}-${day}`;
-    
-    // Get events and check completion status
-    const dateEvents = events.filter((event) => event.date === formattedDate);
-    return dateEvents.map(event => ({
-      ...event,
-      isCompleted: isEventCompleted(event)
-    }));
-  };
+    const formatDateForComparison = (date) => {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const getEventsForDate = (date) => {
+      const formattedDate = formatDateForComparison(date);
+      return events.filter(event => {
+        const eventDate = formatDateForComparison(new Date(event.date));
+        return eventDate === formattedDate;
+      }).map(event => ({
+        ...event,
+        isCompleted: isEventCompleted(event)
+      }));
+    };
 
   const handleEventDateClick = (eventId) => {
     navigate(`/event/${eventId}`);

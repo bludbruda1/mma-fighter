@@ -15,6 +15,7 @@ import {
   Alert,
   Checkbox,
   FormControlLabel,
+  FormHelperText,
   Box,
 } from "@mui/material";
 import Select from "../components/Select";
@@ -26,15 +27,18 @@ import {
   addFightToDB,
   getAllFights,
   getAllChampionships,
+  getGameDate,
 } from "../utils/indexedDB";
+import { getRegions, getLocationsByRegion, getVenuesByLocation } from '../data/locations';
 import { EventContext } from "../contexts/EventContext";
 
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
-  const location = useLocation();
+  const routerLocation = useLocation(); 
 
   // Core state management
+  const [gameDate, setGameDate] = useState(null);
   const [fighters, setFighters] = useState([]);
   const [numFights, setNumFights] = useState(1);
   const [fights, setFights] = useState(
@@ -43,6 +47,13 @@ const CreateEvent = () => {
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
+  const [cardAssignments, setCardAssignments] = useState(
+    Array(1).fill('mainCard')  // Default all fights to main card
+  );
+  const [region, setRegion] = useState('');
+  const [eventLocation, setEventLocation] = useState('');  
+  const [venue, setVenue] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Fighter availability tracking
   const [bookedFighters, setBookedFighters] = useState(new Set());
@@ -69,19 +80,55 @@ const CreateEvent = () => {
           fighter2: null,
         }))
     );
+
+     // Update card assignments to match new number of fights
+     setCardAssignments(prev => {
+      const newAssignments = [...prev];
+      while (newAssignments.length < numFights) {
+        newAssignments.push('mainCard');
+      }
+      return newAssignments.slice(0, numFights);
+    });
   }, [numFights]);
+
+  // Handler for card assignment changes
+  const handleCardAssignmentChange = (index, card) => {
+    setCardAssignments(prev => {
+      const newAssignments = [...prev];
+      newAssignments[index] = card;
+      return newAssignments;
+    });
+  };
+
+  // Function to handle location changes
+  const handleLocationChange = (newLocation) => {
+    setEventLocation(newLocation);
+    setVenue(''); // Reset venue when location changes
+    
+    // Clear venue error if location is selected
+    if (newLocation) {
+      setValidationErrors(prev => ({
+        ...prev,
+        location: undefined
+      }));
+    }
+  };
 
   // Load initial data: fighters, championships, and check bookings
   useEffect(() => {
     const loadData = async () => {
       try {
         // Fetch fighters, fights, and championships data
-        const [fetchedFighters, allFights, fetchedChampionships] =
+        const [fetchedFighters, allFights, fetchedChampionships, currentGameDate] =
           await Promise.all([
             getAllFighters(),
             getAllFights(),
             getAllChampionships(),
+            getGameDate(),
           ]);
+
+        // Set the game date
+        setGameDate(new Date(currentGameDate));
 
         // Create set of fighter IDs that are already booked in other events
         const bookedFighterIds = new Set();
@@ -132,17 +179,38 @@ const CreateEvent = () => {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(routerLocation.search);
     const dateFromQuery = params.get("date");
     if (dateFromQuery) {
       setSelectedDate(dateFromQuery); // Set the selected date if available
     }
-  }, [location.search]);
+  }, [routerLocation.search]);
 
   // Helper function for date changes
   const handleDateChange = (e) => {
-    const dateString = e.target.value;
-    setSelectedDate(dateString);
+    const selectedDateStr = e.target.value;
+    const selectedDateObj = new Date(selectedDateStr);
+    const gameDateObj = new Date(gameDate);
+  
+    // Reset time components for accurate date comparison
+    selectedDateObj.setHours(0, 0, 0, 0);
+    gameDateObj.setHours(0, 0, 0, 0);
+  
+    if (selectedDateObj < gameDateObj) {
+      setValidationErrors(prev => ({
+        ...prev,
+        date: "Event date cannot be earlier than the current game date"
+      }));
+    } else {
+      // Clear the date error if valid
+      setValidationErrors(prev => {
+        const updated = { ...prev };
+        delete updated.date;
+        return updated;
+      });
+    }
+    
+    setSelectedDate(selectedDateStr);
   };
 
   // Helper function to check if a fighter is a champion
@@ -277,26 +345,66 @@ const CreateEvent = () => {
   // Save the entire event including all fights
   const handleSaveEvent = async () => {
     try {
-      // Validate event name
+      // Reset validation errors
+      const errors = {};
+
+      // Add date validation
+      if (!selectedDate) {
+        errors.date = "Please select an event date";
+      } else {
+        const selectedDateObj = new Date(selectedDate);
+        const gameDateObj = new Date(gameDate);
+        
+        // Reset time components for accurate date comparison
+        selectedDateObj.setHours(0, 0, 0, 0);
+        gameDateObj.setHours(0, 0, 0, 0);
+
+        if (selectedDateObj < gameDateObj) {
+          errors.date = "Event date cannot be earlier than the current date";
+        }
+      }
+  
       if (!eventName.trim()) {
-        console.log("Please enter an event name.");
-        return;
+        errors.eventName = "Please enter an event name";
+      }
+  
+      if (!selectedDate) {
+        errors.date = "Please select an event date";
       }
 
+      if (!region) {
+        errors.region = "Please select a region";
+      }
+  
+      if (!eventLocation) {
+        errors.location = "Please select a location";
+      }
+  
+      if (!venue) {
+        errors.venue = "Please select a venue";
+      }
+  
+      // Check for fighter selection errors
+      fights.forEach((fight, index) => {
+        if (!fight.fighter1 || !fight.fighter2) {
+          if (!fight.fighter1) {
+            errors[`fighter1-${index}`] = "Please select Fighter 1";
+          }
+          if (!fight.fighter2) {
+            errors[`fighter2-${index}`] = "Please select Fighter 2";
+          }
+        }
+      });
+  
+      // If there are any errors, display them and stop
+      if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors);
+        return;
+      }
+  
       setIsSaving(true);
 
-      // Validate all fights have both fighters selected
-      const invalidFights = fights.some(
-        (fight) => !fight.fighter1 || !fight.fighter2
-      );
-
-      if (invalidFights) {
-        console.log("Please select fighters for all fights");
-        setIsSaving(false);
-        return;
-      }
-
-      // Create all fights sequentially and collect their IDs
+      // Create fights with proper structure
       const fightIds = [];
       for (const [index, fight] of fights.entries()) {
         const nextFightId = await getNextFightId();
@@ -312,9 +420,10 @@ const CreateEvent = () => {
             firstname: fight.fighter2.firstname,
             lastname: fight.fighter2.lastname,
           },
+          weightClass: fight.fighter1.weightClass,
+          date: selectedDate,
           result: null,
           stats: null,
-          // Include championship information (either active or vacant)
           championship: fightsWithChampionship[index] ? {
             id: fightsWithChampionship[index].id,
             name: fightsWithChampionship[index].name,
@@ -322,7 +431,7 @@ const CreateEvent = () => {
           } : fightsWithVacantTitle[index] ? {
             id: fightsWithVacantTitle[index].id,
             name: fightsWithVacantTitle[index].name,
-            currentChampionId: null // Explicitly null for vacant titles
+            currentChampionId: null
           } : null
         };
 
@@ -330,23 +439,29 @@ const CreateEvent = () => {
         fightIds.push(nextFightId);
       }
 
-      // Create the event with all fight IDs
+      // Group fights by card
+      const groupedFights = {
+        mainCard: fightIds.filter((_, index) => cardAssignments[index] === 'mainCard'),
+        prelims: fightIds.filter((_, index) => cardAssignments[index] === 'prelims'),
+        earlyPrelims: fightIds.filter((_, index) => cardAssignments[index] === 'earlyPrelims')
+      };
+
+      // Create event with new fight structure
       const nextEventId = await getNextEventId();
       const eventData = {
         id: nextEventId,
         name: eventName,
         date: selectedDate,
-        fights: fightIds,
+        region: region,
+        location: eventLocation,
+        venue: venue,
+        fights: groupedFights
       };
 
-      if (fightIds.length > 0) {
-        await addEventToDB(eventData);
-        console.log("Event saved successfully:", eventData);
-        setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
-        navigate(`/event/${eventData.id}`);
-      } else {
-        console.log("No valid fights to save");
-      }
+      await addEventToDB(eventData);
+      console.log("Event saved successfully:", eventData);
+      setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
+      navigate(`/event/${eventData.id}`);
     } catch (error) {
       console.error("Error saving event:", error);
     } finally {
@@ -387,6 +502,20 @@ const CreateEvent = () => {
             ? "Opening Fight"
             : `Fight ${fights.length - index}`}
         </Typography>
+
+        {/* Add card selection */}
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Card Assignment</InputLabel>
+          <MuiSelect
+            value={cardAssignments[index]}
+            label="Card Assignment"
+            onChange={(e) => handleCardAssignmentChange(index, e.target.value)}
+          >
+            <MenuItem value="mainCard">Main Card</MenuItem>
+            <MenuItem value="prelims">Prelims</MenuItem>
+            <MenuItem value="earlyPrelims">Early Prelims</MenuItem>
+          </MuiSelect>
+        </FormControl>
         <Grid container spacing={3} justifyContent="space-between">
           {/* Fighter 1 Selection */}
           <Grid item xs={12} md={5}>
@@ -416,6 +545,12 @@ const CreateEvent = () => {
               currentFightIndex={index}
               fightPosition="fighter1"
             />
+            {/* Validation error message */}
+            {validationErrors[`fighter1-${index}`] && (
+              <FormHelperText error>
+                {validationErrors[`fighter1-${index}`]}
+              </FormHelperText>
+            )}
           </Grid>
 
           {/* Fighter 2 Selection */}
@@ -446,6 +581,12 @@ const CreateEvent = () => {
               currentFightIndex={index}
               fightPosition="fighter2"
             />
+            {/* Validation error message */}
+            {validationErrors[`fighter2-${index}`] && (
+              <FormHelperText error>
+                {validationErrors[`fighter2-${index}`]}
+              </FormHelperText>
+            )}
           </Grid>
 
           {/* Championship options */}
@@ -507,19 +648,11 @@ const CreateEvent = () => {
   // Main component render
   return (
     <main>
-      <Container
-        maxWidth="md"
-        style={{ marginTop: "50px", marginBottom: "20px" }}
-      >
-        <Typography
-          variant="h2"
-          align="center"
-          color="textPrimary"
-          gutterBottom
-        >
+      <Container maxWidth="md" style={{ marginTop: "50px", marginBottom: "20px" }}>
+        <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
           Create Event
         </Typography>
-
+  
         {/* Event Name Input */}
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
           <TextField
@@ -528,9 +661,11 @@ const CreateEvent = () => {
             onChange={(e) => setEventName(e.target.value)}
             required
             placeholder="e.g., UFC 285"
+            error={!!validationErrors.eventName}
+            helperText={validationErrors.eventName}
           />
         </FormControl>
-
+  
         {/* Event Date Input */}
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
           <TextField
@@ -542,9 +677,86 @@ const CreateEvent = () => {
             InputLabelProps={{
               shrink: true,
             }}
+            inputProps={{
+              min: gameDate ? gameDate.toISOString().split('T')[0] : undefined,
+            }}
+            error={!!validationErrors.date}
+            helperText={validationErrors.date}
           />
         </FormControl>
-
+  
+        {/* Region Selection */}
+        <FormControl fullWidth sx={{ marginBottom: "20px" }} error={!!validationErrors.region}>
+          <InputLabel id="region-label">Region</InputLabel>
+          <MuiSelect
+            labelId="region-label"
+            value={region}
+            label="Region"
+            onChange={(e) => {
+              setRegion(e.target.value);
+              setEventLocation('');
+              setVenue('');
+              setValidationErrors(prev => ({...prev, region: undefined}));
+            }}
+          >
+            {Object.keys(getRegions()).map((reg) => (
+              <MenuItem key={reg} value={reg}>
+                {reg}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+          {validationErrors.region && (
+            <FormHelperText>{validationErrors.region}</FormHelperText>
+          )}
+        </FormControl>
+  
+        {/* Location Selection */}
+        {region && (
+          <FormControl fullWidth sx={{ marginBottom: "20px" }} error={!!validationErrors.location}>
+            <InputLabel id="location-label">Location</InputLabel>
+            <MuiSelect
+              labelId="location-label"
+              value={eventLocation}
+              label="Location"
+              onChange={(e) => handleLocationChange(e.target.value)}
+            >
+              {getLocationsByRegion(region).map((loc) => (
+                <MenuItem key={loc} value={loc}>
+                  {loc}
+                </MenuItem>
+              ))}
+            </MuiSelect>
+            {validationErrors.location && (
+              <FormHelperText>{validationErrors.location}</FormHelperText>
+            )}
+          </FormControl>
+        )}
+  
+        {/* Venue Selection */}
+        {eventLocation && (
+          <FormControl fullWidth sx={{ marginBottom: "20px" }} error={!!validationErrors.venue}>
+          <InputLabel id="venue-label">Venue</InputLabel>
+          <MuiSelect
+            labelId="venue-label"
+            value={venue}
+            label="Venue"
+            onChange={(e) => {
+              setVenue(e.target.value);
+              setValidationErrors(prev => ({...prev, venue: undefined}));
+            }}
+          >
+            {getVenuesByLocation(eventLocation).map((ven) => (
+              <MenuItem key={ven} value={ven}>
+                {ven}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+          {validationErrors.venue && (
+            <FormHelperText>{validationErrors.venue}</FormHelperText>
+          )}
+        </FormControl>
+      )}
+  
         {/* Number of Fights Selector */}
         <FormControl fullWidth sx={{ marginBottom: "20px" }}>
           <InputLabel id="num-fights-label">Number of Fights</InputLabel>
@@ -561,10 +773,10 @@ const CreateEvent = () => {
             ))}
           </MuiSelect>
         </FormControl>
-
-        {/* Render Fight Cards */}
+  
+        {/* Fight Cards */}
         {fights.map((fight, index) => renderFightCard(fight, index))}
-
+  
         {/* Save Button */}
         <Grid container spacing={2} sx={{ justifyContent: "center" }}>
           <Grid item>
@@ -581,11 +793,7 @@ const CreateEvent = () => {
                 minWidth: 100,
               }}
             >
-              {isSaving ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Save Event"
-              )}
+              {isSaving ? <CircularProgress size={24} color="inherit" /> : "Save Event"}
             </Button>
           </Grid>
         </Grid>
