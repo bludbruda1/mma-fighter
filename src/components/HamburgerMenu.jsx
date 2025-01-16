@@ -50,22 +50,28 @@ const HamburgerMenu = () => {
     const eventOnDate = currentEvents.find(event => 
       formatDateForComparison(event.date) === formattedDate
     );
-
+  
     if (eventOnDate) {
-      // Check if all fights in the event are completed
-      const eventFights = currentFights.filter(fight => 
-        eventOnDate.fights.includes(fight.id)
-      );
-      
-      const allFightsComplete = eventFights.every(fight => fight.result !== null);
+      // Get all fight IDs from all cards
+      const allFightIds = [
+        ...(eventOnDate.fights.mainCard || []),
+        ...(eventOnDate.fights.prelims || []),
+        ...(eventOnDate.fights.earlyPrelims || [])
+      ];
+  
+      // Check if all fights are complete
+      const eventFights = currentFights.filter(fight => allFightIds.includes(fight.id));
+      const allFightsComplete = eventFights.length > 0 && 
+                               eventFights.every(fight => fight.result !== null);
+  
       setIsAdvanceDisabled(!allFightsComplete);
-
+  
       return {
         hasEvent: true,
         eventId: eventOnDate.id
       };
     }
-
+  
     setIsAdvanceDisabled(false);
     return {
       hasEvent: false,
