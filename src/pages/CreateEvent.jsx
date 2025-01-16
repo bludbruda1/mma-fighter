@@ -842,6 +842,12 @@ const CreateEvent = () => {
                           setFighterSelectModalOpen(true);
                         }}
                         fullWidth
+                        sx={{
+                          backgroundColor: 'red',
+                          '&:hover': {
+                            backgroundColor: 'darkred',
+                          },
+                        }}
                       >
                         {fight.fighter1 ? 
                           `${fight.fighter1.firstname} ${fight.fighter1.lastname}` : 
@@ -861,6 +867,12 @@ const CreateEvent = () => {
                           setFighterSelectModalOpen(true);
                         }}
                         fullWidth
+                        sx={{
+                          backgroundColor: 'blue',
+                          '&:hover': {
+                            backgroundColor: 'darkblue',
+                          },
+                        }}
                       >
                         {fight.fighter2 ? 
                           `${fight.fighter2.firstname} ${fight.fighter2.lastname}` : 
