@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
 import {
@@ -281,7 +281,7 @@ const CreateEvent = () => {
   };
 
   // Function to handle filtering of fighters
-  const handleFilterFighters = (newFilters) => {
+  const handleFilterFighters = useCallback((newFilters) => {
     let filtered = [...fighters];
   
     // If weight class is locked to a specific class (not 'Open Weight' or 'all'), 
@@ -330,12 +330,12 @@ const CreateEvent = () => {
     }
   
     setFilteredFighters(filtered);
-  };
+  }, [fighters, currentSelectionContext, fightWeightClasses, championships]); 
 
   // Efect to trigger filtering
   useEffect(() => {
     handleFilterFighters(filters);
-  }, [filters, fighters, currentSelectionContext, fightWeightClasses]);
+  }, [filters, handleFilterFighters]);
 
   // Load initial data: fighters, championships, and check bookings
   useEffect(() => {
