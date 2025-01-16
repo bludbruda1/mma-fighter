@@ -21,7 +21,6 @@ import {
   Divider,
   CardContent,
 } from "@mui/material";
-import Select from "../components/Select";
 import {
   getAllFighters,
   addEventToDB,
@@ -34,6 +33,8 @@ import {
 } from "../utils/indexedDB";
 import { getRegions, getLocationsByRegion, getVenuesByLocation } from '../data/locations';
 import { EventContext } from "../contexts/EventContext";
+import FighterSelectionModal from '../components/FighterSelectionModal';
+import { formatFightingStyle } from "../utils/uiHelpers";
 
 // Styles object for consistent theming
 const styles = {
@@ -140,6 +141,22 @@ const CreateEvent = () => {
   const [selectedFightersInEvent, setSelectedFightersInEvent] = useState(
     new Set()
   );
+  const [fighterSelectModalOpen, setFighterSelectModalOpen] = useState(false);
+  const [currentSelectionContext, setCurrentSelectionContext] = useState(null);
+  const [filters, setFilters] = useState({
+    weightClass: 'all',
+    fightingStyle: 'all',
+    nationality: 'all',
+    championStatus: 'all',
+    rankingStatus: 'all',
+    gender: 'all',
+  });
+  const [filterOptions, setFilterOptions] = useState({
+    weightClasses: [],
+    fightingStyles: [],
+    nationalities: [],
+  });
+  const [filteredFighters, setFilteredFighters] = useState(fighters);
 
   // Error tracking
   const [selectionErrors, setSelectionErrors] = useState({});
@@ -194,6 +211,66 @@ const CreateEvent = () => {
     }
   };
 
+  // Function to create filter options 
+  const initializeFilterOptions = (fighters) => {
+    setFilterOptions({
+      weightClasses: [...new Set(fighters.map(f => f.weightClass))].filter(Boolean).sort(),
+      fightingStyles: [...new Set(fighters.map(f => formatFightingStyle(f.fightingStyle)))].filter(Boolean).sort(),
+      nationalities: [...new Set(fighters.map(f => f.nationality))].filter(Boolean).sort(),
+    });
+    setFilteredFighters(fighters);
+  };
+
+  // Function to handle filtering of fighters
+  const handleFilterFighters = (newFilters) => {
+    let filtered = [...fighters];
+
+    // Filter by weight class
+    if (newFilters.weightClass !== 'all') {
+      filtered = filtered.filter(fighter => fighter.weightClass === newFilters.weightClass);
+    }
+
+    // Filter by fighting style
+    if (newFilters.fightingStyle !== 'all') {
+      filtered = filtered.filter(fighter => 
+        formatFightingStyle(fighter.fightingStyle) === newFilters.fightingStyle
+      );
+    }
+
+    // Filter by nationality
+    if (newFilters.nationality !== 'all') {
+      filtered = filtered.filter(fighter => fighter.nationality === newFilters.nationality);
+    }
+
+    // Filter by champion status
+    if (newFilters.championStatus !== 'all') {
+      filtered = filtered.filter(fighter => {
+        const isChampion = championships.some(c => c.currentChampionId === fighter.personid);
+        return newFilters.championStatus === 'champion' ? isChampion : !isChampion;
+      });
+    }
+
+    // Filter by ranking status
+    if (newFilters.rankingStatus !== 'all') {
+      filtered = filtered.filter(fighter => {
+        const isRanked = fighter.ranking !== null && fighter.ranking !== undefined;
+        return newFilters.rankingStatus === 'ranked' ? isRanked : !isRanked;
+      });
+    }
+
+    // Filter by gender
+    if (newFilters.gender !== 'all') {
+      filtered = filtered.filter(fighter => fighter.gender === newFilters.gender);
+    }
+
+    setFilteredFighters(filtered);
+  };
+
+  // Efect to trigger filtering
+  useEffect(() => {
+    handleFilterFighters(filters);
+  }, [filters, fighters]);
+
   // Load initial data: fighters, championships, and check bookings
   useEffect(() => {
     const loadData = async () => {
@@ -209,6 +286,12 @@ const CreateEvent = () => {
 
         // Set the game date
         setGameDate(new Date(currentGameDate));
+        setFighters(fetchedFighters);
+        setFilteredFighters(fetchedFighters);
+        setChampionships(fetchedChampionships);
+
+        // Initialize filter options with fetched fighters
+        initializeFilterOptions(fetchedFighters);
 
         // Create set of fighter IDs that are already booked in other events
         const bookedFighterIds = new Set();
@@ -752,20 +835,18 @@ const CreateEvent = () => {
                           {selectionErrors[`${index}-fighter1`]}
                         </Alert>
                       )}
-                      <Select
-                        fighters={fighters}
-                        selectedItem={fight.fighter1}
-                        onSelectChange={(event) => handleSelectChange(index, "fighter1", event)}
-                        bookedFighters={bookedFighters}
-                        selectedFightersInEvent={new Set(
-                          fights
-                            .filter((_, fightIndex) => fightIndex !== index)
-                            .flatMap((f) => [f.fighter1?.personid, f.fighter2?.personid])
-                            .filter(Boolean)
-                        )}
-                        currentFightIndex={index}
-                        fightPosition="fighter1"
-                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => {
+                          setCurrentSelectionContext({ fightIndex: index, fighterKey: "fighter1" });
+                          setFighterSelectModalOpen(true);
+                        }}
+                        fullWidth
+                      >
+                        {fight.fighter1 ? 
+                          `${fight.fighter1.firstname} ${fight.fighter1.lastname}` : 
+                          "Select Red Corner"}
+                      </Button>
                     </Grid>
                     <Grid item xs={12} md={6}>
                       {selectionErrors[`${index}-fighter2`] && (
@@ -773,20 +854,18 @@ const CreateEvent = () => {
                           {selectionErrors[`${index}-fighter2`]}
                         </Alert>
                       )}
-                      <Select
-                        fighters={fighters}
-                        selectedItem={fight.fighter2}
-                        onSelectChange={(event) => handleSelectChange(index, "fighter2", event)}
-                        bookedFighters={bookedFighters}
-                        selectedFightersInEvent={new Set(
-                          fights
-                            .filter((_, fightIndex) => fightIndex !== index)
-                            .flatMap((f) => [f.fighter1?.personid, f.fighter2?.personid])
-                            .filter(Boolean)
-                        )}
-                        currentFightIndex={index}
-                        fightPosition="fighter2"
-                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => {
+                          setCurrentSelectionContext({ fightIndex: index, fighterKey: "fighter2" });
+                          setFighterSelectModalOpen(true);
+                        }}
+                        fullWidth
+                      >
+                        {fight.fighter2 ? 
+                          `${fight.fighter2.firstname} ${fight.fighter2.lastname}` : 
+                          "Select Blue Corner"}
+                      </Button>
                     </Grid>
                   </Grid>
 
@@ -840,9 +919,32 @@ const CreateEvent = () => {
             {isSaving ? <CircularProgress size={24} color="inherit" /> : "Save Event"}
           </Button>
         </Box>
-      </Container>
-    </Box>
-  );
+        {/* Fighter Selection Modal */}
+        {fighterSelectModalOpen && currentSelectionContext && (
+                <FighterSelectionModal
+                open={fighterSelectModalOpen}
+                onClose={() => setFighterSelectModalOpen(false)}
+                fighters={filteredFighters} // Use filtered fighters here
+                filterOptions={filterOptions}
+                filters={filters}
+                setFilters={setFilters}
+                onFighterSelect={(fighter) => {
+                  const event = { target: { value: fighter.personid } };
+                  handleSelectChange(
+                    currentSelectionContext.fightIndex,
+                    currentSelectionContext.fighterKey,
+                    event
+                  );
+                  setFighterSelectModalOpen(false);
+                }}
+                bookedFighters={bookedFighters}
+                selectedFightersInEvent={selectedFightersInEvent}
+                championships={championships}
+              />              
+              )}
+            </Container>
+          </Box>
+        );
 };
 
 export default CreateEvent;
