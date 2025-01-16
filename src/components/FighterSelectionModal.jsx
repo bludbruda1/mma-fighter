@@ -167,6 +167,12 @@ const FighterSelectionModal = ({
                           size="small" 
                           variant="outlined" 
                         />
+                        <Chip 
+                          label={fighter.ranking ? `Rank #${fighter.ranking}` : 'Unranked'}
+                          size="small" 
+                          color="secondary" 
+                          variant="outlined" 
+                        />
                       </Box>
 
                       {!availability.available && (
