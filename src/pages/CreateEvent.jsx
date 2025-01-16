@@ -113,6 +113,19 @@ const styles = {
   },
 };
 
+// Weight class options (including Open Weight)
+const WEIGHT_CLASS_OPTIONS = [
+  'Open Weight',
+  'Flyweight',
+  'Bantamweight',
+  'Featherweight',
+  'Lightweight',
+  'Welterweight',
+  'Middleweight',
+  'Light Heavyweight',
+  'Heavyweight'
+];
+
 const CreateEvent = () => {
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
@@ -131,6 +144,10 @@ const CreateEvent = () => {
   const [cardAssignments, setCardAssignments] = useState(
     Array(1).fill('mainCard')  // Default all fights to main card
   );
+  const [fightWeightClasses, setFightWeightClasses] = useState(
+    Array(1).fill('Open Weight')  // Default all fights to Open Weight
+  );
+
   const [region, setRegion] = useState('');
   const [eventLocation, setEventLocation] = useState('');  
   const [venue, setVenue] = useState('');
@@ -169,24 +186,33 @@ const CreateEvent = () => {
 
   // Initialize number of fights when it changes
   useEffect(() => {
-    setFights(
-      Array(numFights)
-        .fill(null)
-        .map(() => ({
-          fighter1: null,
-          fighter2: null,
-        }))
-    );
+  setFights(
+    Array(numFights)
+      .fill(null)
+      .map(() => ({
+        fighter1: null,
+        fighter2: null,
+      }))
+  );
 
-     // Update card assignments to match new number of fights
-     setCardAssignments(prev => {
-      const newAssignments = [...prev];
-      while (newAssignments.length < numFights) {
-        newAssignments.push('mainCard');
-      }
-      return newAssignments.slice(0, numFights);
-    });
-  }, [numFights]);
+  // Update card assignments to match new number of fights
+  setCardAssignments(prev => {
+    const newAssignments = [...prev];
+    while (newAssignments.length < numFights) {
+      newAssignments.push('mainCard');
+    }
+    return newAssignments.slice(0, numFights);
+  });
+
+  // Add weight class assignments for new fights
+  setFightWeightClasses(prev => {
+    const newWeightClasses = [...prev];
+    while (newWeightClasses.length < numFights) {
+      newWeightClasses.push('Open Weight');
+    }
+    return newWeightClasses.slice(0, numFights);
+  });
+}, [numFights]);
 
   // Handler for card assignment changes
   const handleCardAssignmentChange = (index, card) => {
@@ -211,6 +237,39 @@ const CreateEvent = () => {
     }
   };
 
+  // Handler for weight class changes
+  const handleWeightClassChange = (index, weightClass) => {
+    setFightWeightClasses(prev => {
+      const newWeightClasses = [...prev];
+      newWeightClasses[index] = weightClass;
+      // Reset fighter selections if weight class changes
+      if (fights[index].fighter1 || fights[index].fighter2) {
+        setFights(prev => {
+          const newFights = [...prev];
+          newFights[index] = { fighter1: null, fighter2: null };
+          return newFights;
+        });
+        // Remove fighters from selected tracking
+        if (fights[index].fighter1?.personid) {
+          setSelectedFightersInEvent(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(fights[index].fighter1.personid);
+            return newSet;
+          });
+        }
+        if (fights[index].fighter2?.personid) {
+          setSelectedFightersInEvent(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(fights[index].fighter2.personid);
+            return newSet;
+          });
+        }
+      }
+      return newWeightClasses;
+    });
+  };
+  
+
   // Function to create filter options 
   const initializeFilterOptions = (fighters) => {
     setFilterOptions({
@@ -224,24 +283,31 @@ const CreateEvent = () => {
   // Function to handle filtering of fighters
   const handleFilterFighters = (newFilters) => {
     let filtered = [...fighters];
-
-    // Filter by weight class
-    if (newFilters.weightClass !== 'all') {
+  
+    // If weight class is locked to a specific class (not 'Open Weight' or 'all'), 
+    // filter by that weight class regardless of other filters
+    if (currentSelectionContext && fightWeightClasses[currentSelectionContext.fightIndex] !== 'Open Weight') {
+      filtered = filtered.filter(fighter => 
+        fighter.weightClass === fightWeightClasses[currentSelectionContext.fightIndex]
+      );
+    }
+    // Otherwise, apply normal weight class filter
+    else if (newFilters.weightClass !== 'all') {
       filtered = filtered.filter(fighter => fighter.weightClass === newFilters.weightClass);
     }
-
+  
     // Filter by fighting style
     if (newFilters.fightingStyle !== 'all') {
       filtered = filtered.filter(fighter => 
         formatFightingStyle(fighter.fightingStyle) === newFilters.fightingStyle
       );
     }
-
+  
     // Filter by nationality
     if (newFilters.nationality !== 'all') {
       filtered = filtered.filter(fighter => fighter.nationality === newFilters.nationality);
     }
-
+  
     // Filter by champion status
     if (newFilters.championStatus !== 'all') {
       filtered = filtered.filter(fighter => {
@@ -249,7 +315,7 @@ const CreateEvent = () => {
         return newFilters.championStatus === 'champion' ? isChampion : !isChampion;
       });
     }
-
+  
     // Filter by ranking status
     if (newFilters.rankingStatus !== 'all') {
       filtered = filtered.filter(fighter => {
@@ -257,19 +323,19 @@ const CreateEvent = () => {
         return newFilters.rankingStatus === 'ranked' ? isRanked : !isRanked;
       });
     }
-
+  
     // Filter by gender
     if (newFilters.gender !== 'all') {
       filtered = filtered.filter(fighter => fighter.gender === newFilters.gender);
     }
-
+  
     setFilteredFighters(filtered);
   };
 
   // Efect to trigger filtering
   useEffect(() => {
     handleFilterFighters(filters);
-  }, [filters, fighters]);
+  }, [filters, fighters, currentSelectionContext, fightWeightClasses]);
 
   // Load initial data: fighters, championships, and check bookings
   useEffect(() => {
@@ -322,6 +388,12 @@ const CreateEvent = () => {
 
   // Helper function to determine if a fighter can be selected
   const isFighterAvailable = (fighterId, fightIndex, fighterPosition) => {
+    const fighter = fighters.find(f => f.personid === fighterId);
+    const selectedWeightClass = fightWeightClasses[fightIndex];
+    const otherFighter = fighterPosition === 'fighter1' ? 
+      fights[fightIndex]?.fighter2 : 
+      fights[fightIndex]?.fighter1;
+  
     // Check if fighter is already booked in another event
     if (bookedFighters.has(fighterId)) {
       return {
@@ -329,7 +401,7 @@ const CreateEvent = () => {
         error: "Fighter is already booked in another event",
       };
     }
-
+  
     // Check if fighter is already selected in current event
     if (selectedFightersInEvent.has(fighterId)) {
       return {
@@ -337,7 +409,23 @@ const CreateEvent = () => {
         error: "Fighter is already scheduled in this event",
       };
     }
-
+  
+    // Check weight class match if not Open Weight
+    if (selectedWeightClass !== 'Open Weight' && fighter.weightClass !== selectedWeightClass) {
+      return {
+        available: false,
+        error: `Fighter must be in ${selectedWeightClass} weight class`,
+      };
+    }
+  
+    // Check gender match if other fighter is selected
+    if (otherFighter && fighter.gender !== otherFighter.gender) {
+      return {
+        available: false,
+        error: "Fighters must be of the same gender",
+      };
+    }
+  
     return { available: true };
   };
 
@@ -813,19 +901,42 @@ const CreateEvent = () => {
                 
                 {/* Fight Card Content */}
                 <CardContent>
+                  {/* Card Assignment and Weight Class Row */}
+                  <Grid container spacing={3} sx={{ mb: 3 }}>
                   {/* Card Assignment */}
-                  <FormControl fullWidth sx={{ mb: 3 }}>
-                    <InputLabel>Card Assignment</InputLabel>
-                    <MuiSelect
-                      value={cardAssignments[index]}
-                      label="Card Assignment"
-                      onChange={(e) => handleCardAssignmentChange(index, e.target.value)}
-                    >
-                      <MenuItem value="mainCard">Main Card</MenuItem>
-                      <MenuItem value="prelims">Prelims</MenuItem>
-                      <MenuItem value="earlyPrelims">Early Prelims</MenuItem>
-                    </MuiSelect>
-                  </FormControl>
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Card Assignment</InputLabel>
+                      <MuiSelect
+                        value={cardAssignments[index]}
+                        label="Card Assignment"
+                        onChange={(e) => handleCardAssignmentChange(index, e.target.value)}
+                      >
+                        <MenuItem value="mainCard">Main Card</MenuItem>
+                        <MenuItem value="prelims">Prelims</MenuItem>
+                        <MenuItem value="earlyPrelims">Early Prelims</MenuItem>
+                      </MuiSelect>
+                    </FormControl>
+                    </Grid>
+
+                  {/* Weight Class option */}
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Weight Class</InputLabel>
+                      <MuiSelect
+                        value={fightWeightClasses[index]}
+                        label="Weight Class"
+                        onChange={(e) => handleWeightClassChange(index, e.target.value)}
+                      >
+                        {WEIGHT_CLASS_OPTIONS.map((weightClass) => (
+                          <MenuItem key={weightClass} value={weightClass}>
+                            {weightClass}
+                          </MenuItem>
+                        ))}
+                      </MuiSelect>
+                    </FormControl>
+                    </Grid>
+                  </Grid>
 
                   {/* Fighter Selection Grid */}
                   <Grid container spacing={3}>
@@ -936,9 +1047,15 @@ const CreateEvent = () => {
                 <FighterSelectionModal
                 open={fighterSelectModalOpen}
                 onClose={() => setFighterSelectModalOpen(false)}
-                fighters={filteredFighters} // Use filtered fighters here
+                fighters={filteredFighters}
                 filterOptions={filterOptions}
-                filters={filters}
+                filters={{
+                  ...filters,
+                // Lock the weight class filter to the selected fight's weight class
+                weightClass: fightWeightClasses[currentSelectionContext.fightIndex] === 'Open Weight'
+                ? 'all' 
+                : fightWeightClasses[currentSelectionContext.fightIndex]
+                }}
                 setFilters={setFilters}
                 onFighterSelect={(fighter) => {
                   const event = { target: { value: fighter.personid } };
@@ -952,6 +1069,7 @@ const CreateEvent = () => {
                 bookedFighters={bookedFighters}
                 selectedFightersInEvent={selectedFightersInEvent}
                 championships={championships}
+                weightClassLocked={fightWeightClasses[currentSelectionContext.fightIndex] !== 'Open Weight'}
               />              
               )}
             </Container>

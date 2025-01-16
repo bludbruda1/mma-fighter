@@ -11,6 +11,7 @@ import {
   Chip,
   Typography,
   Button,
+  FormHelperText,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -21,6 +22,7 @@ const FilterPanel = ({
   filterOptions,
   totalFighters,
   filteredCount,
+  weightClassLocked,
 }) => {
   // State for panel expansion
   const [expanded, setExpanded] = React.useState(true);
@@ -88,18 +90,27 @@ const FilterPanel = ({
           gap: 2 
         }}>
           {/* Weight Class Filter */}
+          {/* Weight Class Filter */}
           <FormControl size="small">
             <InputLabel>Weight Class</InputLabel>
             <Select
               value={filters.weightClass}
               label="Weight Class"
               onChange={(e) => handleFilterChange('weightClass', e.target.value)}
+              disabled={weightClassLocked} // Disable when locked
+              sx={{
+                // Add visual indication that it's locked
+                backgroundColor: weightClassLocked ? 'action.selected' : 'inherit',
+              }}
             >
               <MenuItem value="all">All Weight Classes</MenuItem>
               {filterOptions.weightClasses.map((wc) => (
                 <MenuItem key={wc} value={wc}>{wc}</MenuItem>
               ))}
             </Select>
+            {weightClassLocked && (
+              <FormHelperText>Weight class locked for this fight</FormHelperText>
+            )}
           </FormControl>
 
           {/* Fighting Style Filter */}

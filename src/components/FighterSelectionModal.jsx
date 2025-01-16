@@ -46,6 +46,7 @@ const FighterSelectionModal = ({
   bookedFighters,
   selectedFightersInEvent,
   championships,
+  weightClassLocked,
 }) => {
   // Helper function to check if a fighter is a champion
   const getChampionship = (fighterId) => {
@@ -88,7 +89,7 @@ const FighterSelectionModal = ({
     >
       <DialogTitle>
         <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
-          Select Fighter
+        Select Fighter {weightClassLocked && `(${filters.weightClass})`}
         </Typography>
       </DialogTitle>
 
@@ -101,6 +102,7 @@ const FighterSelectionModal = ({
             filterOptions={filterOptions}
             totalFighters={fighters.length}
             filteredCount={fighters.length}
+            weightClassLocked={weightClassLocked}
           />
         </Box>
 
