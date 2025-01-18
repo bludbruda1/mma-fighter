@@ -460,6 +460,18 @@ const formatFighterNameWithNickname = (fighter) => {
                 <Typography variant="body1">{fighter.hometown}</Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography variant="body1">Height:</Typography>
+                <Typography variant="body1">
+                  {fighter.height}cm
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography variant="body1">Reach:</Typography>
+                <Typography variant="body1">
+                  {fighter.reach}cm
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="body1">Record:</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {fighter.wins}W-{fighter.losses}L
