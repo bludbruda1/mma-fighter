@@ -39,9 +39,9 @@
       "lastname": "Makhachev"
     },
     "fighter2": {
-      "personid": 4,
-      "firstname": "Arman",
-      "lastname": "Tsarukyan"
+      "personid": 12,
+      "firstname": "Renato",
+      "lastname": "Moicano"
     },
     "weightClass": "Lightweight",
     "date": "2025-01-18",
@@ -51,18 +51,23 @@
   {
     "id": 3,
     "fighter1": {
-      "personid": 9,
-      "firstname": "Beneil",
-      "lastname": "Dariush"
-    },
-    "fighter2": {
       "personid": 12,
       "firstname": "Renato",
       "lastname": "Moicano"
     },
+    "fighter2": {
+      "personid": 14,
+      "firstname": "Benoît",
+      "lastname": "Saint Denis"
+    },
     "weightClass": "Lightweight",
-    "date": "2025-01-18",
-    "result": null,
+    "date": "2024-09-29",
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 2,
+      "timeEnded": "5:00"
+    },    
     "stats": null  
   },
   {
@@ -424,16 +429,16 @@
     "id": 20,
     "championship": null,
     "fighter1": {
-      "personid": 41,
-      "firstname": "Johnny",
-      "lastname": "Walker"
+      "personid": 43,
+      "firstname": "Jailton",
+      "lastname": "Almeida"
     },
     "fighter2": {
-      "personid": 42,
-      "firstname": "Bogdan",
-      "lastname": "Guskov"
+      "personid": 44,
+      "firstname": "Serghei",
+      "lastname": "Spivac"
     },
-    "weightClass": "Light Heavyweight",
+    "weightClass": "Heavyweight",
     "result": null,
     "stats": null  
   }
