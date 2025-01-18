@@ -1,3 +1,5 @@
+import { formatAnnouncerName } from '../utils/nameUtils';
+
 /**
  * Utility functions for formatting fight events into readable text
  */
@@ -101,82 +103,69 @@ const formatFightEvent = (event) => {
  * @returns {Object[]} Array of formatted introduction lines
  */
 const formatFightIntroduction = (fighter1, fighter2) => {
-    const ROUNDS = 3; // Can make this dynamic if needed
-    const ANNOUNCER = "Bruce Buffer"; // set announcer for now
-    const REFEREE = "Herb Dean"; // set referee for now
-    
-    // Helper to format fighting style from enum to display text
-    const formatStyle = (style) => {
-      if (!style) return 'mixed martial artist';
-      return style.replace('FIGHTING_STYLES.', '').toLowerCase()
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    };
-  
-    return [
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Ladies and gentlemen, we... are... LIVE!`
-      },
-      {
-        type: "introduction", 
-        text: `${ANNOUNCER}: And now... IIIIIIIIT'S TIME!`
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: For ${ROUNDS} rounds in the UFC ${fighter1.weightClass} division!`
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Introducing first, FIGHTING out of the BLUE corner...`
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: This man is a ${formatStyle(fighter2.fightingStyle)}...`
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: With a professional record of ${fighter2.wins} wins, ${fighter2.losses} losses...`,
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Fighting out of ${fighter2.hometown}...`,
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Presenting... ${fighter2.firstname.toUpperCase()}... ${fighter2.lastname.toUpperCase()}!`,
-      },
-      {
-        type: "introduction", 
-        text: `${ANNOUNCER}: AND NOW introducing the fighter FIGHTING out of the RED corner...`
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: This man is a ${formatStyle(fighter1.fightingStyle)}...`
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: With a professional record of ${fighter1.wins} wins, ${fighter1.losses} losses...`,
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Fighting out of ${fighter1.hometown}...`,
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Presenting... ${fighter1.firstname.toUpperCase()}... ${fighter1.lastname.toUpperCase()}!`,
-      },
-      {
-        type: "introduction",
-        text: `${ANNOUNCER}: Our referee in charge, ${REFEREE}.`
-      },
-      {
-        type: "introduction",
-        text: `${REFEREE}: We've gone over the rules in the dressing room, I want you to protect yourself at all times, follow my instructions - we'll have a clean fight. Touch gloves now if you want, good luck.`
-      }
-    ];
-  };  
+  const ANNOUNCER = "Bruce Buffer";
+  const REFEREE = "Herb Dean";
+  const ROUNDS = 3;
+
+  // Format style remains the same
+  const formatStyle = (style) => {
+    if (!style) return 'mixed martial artist';
+    return style.replace('FIGHTING_STYLES.', '').toLowerCase()
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Create structured introduction template
+  const createFighterIntro = (fighter, corner) => [
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: Introducing${corner === 'red' ? ' the fighter' : ' first'}, FIGHTING out of the ${corner.toUpperCase()} corner...`
+    },
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: This man is a ${formatStyle(fighter.fightingStyle)}...`
+    },
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: With a professional record of ${fighter.wins} wins, ${fighter.losses} losses...`,
+    },
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: Fighting out of ${fighter.hometown}...`,
+    },
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: Presenting... ${formatAnnouncerName(fighter)}!`,
+    },
+  ];
+
+  // Build the complete introduction sequence
+  return [
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: Ladies and gentlemen, we... are... LIVE!`
+    },
+    {
+      type: "introduction", 
+      text: `${ANNOUNCER}: And now... IIIIIIIIT'S TIME!`
+    },
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: For ${ROUNDS} rounds in the UFC ${fighter1.weightClass} division!`
+    },
+    ...createFighterIntro(fighter2, 'blue'),
+    ...createFighterIntro(fighter1, 'red'),
+    {
+      type: "introduction",
+      text: `${ANNOUNCER}: Our referee in charge, ${REFEREE}.`
+    },
+    {
+      type: "introduction",
+      text: `${REFEREE}: We've gone over the rules in the dressing room, I want you to protect yourself at all times, follow my instructions - we'll have a clean fight. Touch gloves now if you want, good luck.`
+    }
+  ];
+};  
   
 /**
  * Format a submission event into readable text

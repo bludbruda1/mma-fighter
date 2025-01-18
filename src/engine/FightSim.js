@@ -1838,6 +1838,8 @@ const simulateFight = (fighters, logger) => {
       id: fighter.personid,
       firstname: fighter.firstname,
       lastname: fighter.lastname,
+      nickname: fighter.nickname,
+      nicknamePlacement: fighter.nicknamePlacement,
       name: `${fighter.firstname} ${fighter.lastname}`,
       fightingStyle: fighter.fightingStyle,
       weightClass: fighter.weightClass,
