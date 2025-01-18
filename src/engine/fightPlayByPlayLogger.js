@@ -89,6 +89,7 @@ class fightPlayByPlayLogger {
       losses: fighter.losses,
       hometown: fighter.hometown,
       fightingStyle: fighter.fightingStyle,
+      gender: fighter.gender,
       personid: fighter.personid || fighter.id
     };
   }

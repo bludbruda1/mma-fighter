@@ -124,7 +124,7 @@ const formatFightIntroduction = (fighter1, fighter2) => {
     },
     {
       type: "introduction",
-      text: `${ANNOUNCER}: This man is a ${formatStyle(fighter.fightingStyle)}...`
+      text: `${ANNOUNCER}: This ${fighter.gender.toLowerCase() === 'female' ? 'woman' : 'man'} is a ${formatStyle(fighter.fightingStyle)}...`
     },
     {
       type: "introduction",
