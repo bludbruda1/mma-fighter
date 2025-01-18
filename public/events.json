@@ -7,7 +7,7 @@
     "venue": "Intuit Dome",
     "fights": {
       "mainCard": [2, 17, 18, 20, 19],
-      "prelims": [],
+      "prelims": [21],
       "earlyPrelims": []
     }
   },
