@@ -132,6 +132,22 @@ const Dashboard = () => {
     navigate(`/dashboard/${allFighterIds[newIndex]}`);
   };
 
+  // Helper function to format fighter name with nickname
+const formatFighterNameWithNickname = (fighter) => {
+  if (!fighter.nickname) return `${fighter.firstname} ${fighter.lastname}`;
+
+  switch (fighter.nicknamePlacement) {
+    case 'pre':
+      return `"${fighter.nickname}" ${fighter.firstname} ${fighter.lastname}`;
+    case 'mid':
+      return `${fighter.firstname} "${fighter.nickname}" ${fighter.lastname}`;
+    case 'post':
+      return `${fighter.firstname} ${fighter.lastname} "${fighter.nickname}"`;
+    default:
+      return `${fighter.firstname} ${fighter.lastname}`;
+  }
+};
+
   // Helper function to determine fight result
   const getFightResult = (fight) => {
     if (!fight.result) return null;
@@ -384,8 +400,8 @@ const Dashboard = () => {
         >
           <ArrowBackOutlinedIcon />
         </Button>
-        <Typography variant="h3" align="center">
-          {`${fighter.firstname} ${fighter.lastname}`}
+        <Typography variant="h4" align="center" gutterBottom>
+         {formatFighterNameWithNickname(fighter)}
         </Typography>
         <Button
           onClick={() => navigateToFighter("next")}
