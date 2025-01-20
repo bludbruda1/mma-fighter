@@ -313,6 +313,17 @@ const HamburgerMenu = () => {
             </ListItemIcon>
             <ListItemText primary="Rankings" sx={{ color: '#fff'}} />
           </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/finances"
+            onClick={handleDrawerToggle}
+            >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <EmojiEventsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Finances" sx={{ color: '#fff'}} />
+          </ListItem>
         </List>
       </Drawer>
     </>

@@ -661,7 +661,7 @@ const formatFighterNameWithNickname = (fighter) => {
                       Current Organisation:
                     </Typography>
                     <Typography>
-                      Coming Soon
+                      {fighter.contract?.company || "No Active Contract"}
                     </Typography>
                   </Grid>
 
@@ -670,16 +670,19 @@ const formatFighterNameWithNickname = (fighter) => {
                       Contract Type:
                     </Typography>
                     <Typography>
-                      Coming Soon
+                    {fighter.contract?.type ? 
+                      fighter.contract.type.charAt(0).toUpperCase() + 
+                      fighter.contract.type.slice(1) : 
+                      "N/A"}
                     </Typography>
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
-                      Contract Length:
+                      Fights Remaining:
                     </Typography>
                     <Typography>
-                      Coming Soon
+                      {fighter.contract?.fightsRem ?? "N/A"}
                     </Typography>
                   </Grid>
 
@@ -688,7 +691,9 @@ const formatFighterNameWithNickname = (fighter) => {
                       Contract Amount:
                     </Typography>
                     <Typography>
-                      Coming Soon
+                    {fighter.contract?.amount ? 
+                      `$${fighter.contract.amount.toLocaleString()}` : 
+                      "N/A"}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -829,7 +834,7 @@ const formatFighterNameWithNickname = (fighter) => {
                 </Typography>
                 
                 <Grid container spacing={3}>
-                  {/* Organize ratings into categories */}
+                  {/* Organise ratings into categories */}
                   {[
                     {
                       title: "Core Attributes",

@@ -390,7 +390,7 @@
     "contract": {
       "company": "UFC",
       "amount": 100000,
-      "fightsRem": 4,
+      "fightsRem": 1,
       "type": "exclusive"
     },
     "wins": 25,
