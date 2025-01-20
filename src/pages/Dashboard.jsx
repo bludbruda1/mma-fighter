@@ -22,7 +22,6 @@ import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
-import SportsMmaIcon from '@mui/icons-material/SportsMma';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { getAllFighters, getAllFights, getAllChampionships } from "../utils/indexedDB";
 import { calculateAge } from '../utils/dateUtils';
@@ -465,7 +464,7 @@ const formatFighterNameWithNickname = (fighter) => {
 
   return (
     <Box sx={styles.container}>
-      <Container maxWidth="lg">
+      <Container maxWidth="xl">
         {/* Header with Navigation */}
         <Paper sx={styles.headerCard}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -485,22 +484,6 @@ const formatFighterNameWithNickname = (fighter) => {
               }}>
                 {formatFighterNameWithNickname(fighter)}
               </Typography>
-              {fighter.gym && (
-                <Typography 
-                  variant="subtitle1" 
-                  color="text.secondary"
-                  sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    gap: 1,
-                    mt: 1 
-                  }}
-                >
-                  <SportsMmaIcon fontSize="small" />
-                  {fighter.gym}
-                </Typography>
-              )}
             </Box>
 
             <Button
@@ -513,10 +496,10 @@ const formatFighterNameWithNickname = (fighter) => {
         </Paper>
 
         <Grid container spacing={4}>
-          {/* Left Column: Profile and History */}
+          {/* Left Column: Personal Details and Fighter Status */}
           <Grid item xs={12} md={4}>
-            {/* Fighter Profile Card */}
-            <Card sx={styles.profileCard}>
+            {/* Personal Details Card */}
+            <Card sx={{ ...styles.profileCard, mb: 4 }}>
               <CardMedia
                 component="img"
                 sx={{
@@ -530,32 +513,10 @@ const formatFighterNameWithNickname = (fighter) => {
               
               <CardContent>
                 <Typography variant="h6" sx={styles.sectionTitle}>
-                  Fighter Profile
+                  Personal Details
                 </Typography>
 
                 <Grid container spacing={2} sx={styles.infoGrid}>
-                  {/* Basic Info Grid */}
-                  <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip 
-                        label={fighter.weightClass} 
-                        color="primary" 
-                        variant="outlined"
-                      />
-                      <Chip 
-                        label={formatFightingStyle(fighter.fightingStyle)} 
-                        color="secondary" 
-                        variant="outlined"
-                      />
-                      <Chip 
-                        label={`${fighter.wins}W-${fighter.losses}L`}
-                        color="default"
-                        variant="outlined"
-                      />
-                    </Box>
-                  </Grid>
-
-                  {/* Personal Details */}
                   <Grid item xs={12}>
                     <AccessTimeIcon color="action" />
                     <Box>
@@ -592,7 +553,6 @@ const formatFighterNameWithNickname = (fighter) => {
                     </Box>
                   </Grid>
 
-                  {/* Physical Stats */}
                   <Grid item xs={6}>
                     <Typography variant="body2" color="text.secondary">
                       Height:
@@ -608,6 +568,183 @@ const formatFighterNameWithNickname = (fighter) => {
                     </Typography>
                     <Typography>
                       {fighter.reach}cm
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Gender:
+                    </Typography>
+                    <Typography>
+                      {fighter.gender}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Fighter Status Card */}
+            <Card sx={{ ...styles.profileCard, mb: 4 }}>
+              <CardContent>
+                <Typography variant="h6" sx={styles.sectionTitle}>
+                  Fighter Status
+                </Typography>
+
+                <Grid container spacing={2} sx={styles.infoGrid}>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Professional Record:
+                    </Typography>
+                    <Typography>
+                      {`${fighter.wins}W-${fighter.losses}L${fighter.draws > 0 ? `-${fighter.draws}D` : ''}${fighter.ncs > 0 ? ` (${fighter.ncs} NC)` : ''}`}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Current Ranking:
+                    </Typography>
+                    <Typography>
+                      {fighter.ranking ? `#${fighter.ranking}` : 'Unranked'} ({fighter.weightClass})
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Available Weight Classes:
+                    </Typography>
+                    <Typography>
+                      {fighter.weightClass} {/* TODO: Add multiple weight classes when available */}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Fighting Style:
+                    </Typography>
+                    <Typography>
+                      {formatFightingStyle(fighter.fightingStyle)}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Gym Affiliation:
+                    </Typography>
+                    <Typography>
+                      {fighter.gym || "None"}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Fighting Out Of:
+                    </Typography>
+                    <Typography>
+                      {fighter.fightsOutOf}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Contract Card */}
+            <Card sx={{ ...styles.profileCard, mb: 4 }}>
+              <CardContent>
+                <Typography variant="h6" sx={styles.sectionTitle}>
+                  Contract Details
+                </Typography>
+
+                <Grid container spacing={2} sx={styles.infoGrid}>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Current Organisation:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Contract Type:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Contract Length:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Contract Amount:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Career Statistics Card */}
+            <Card sx={{ ...styles.profileCard, mb: 4 }}>
+              <CardContent>
+                <Typography variant="h6" sx={styles.sectionTitle}>
+                  Career Statistics
+                </Typography>
+
+                <Grid container spacing={2} sx={styles.infoGrid}>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Win Methods:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Average Fight Time:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Striking Accuracy:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Takedown Success Rate:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Performance Bonuses:
+                    </Typography>
+                    <Typography>
+                      Coming Soon
                     </Typography>
                   </Grid>
                 </Grid>
@@ -626,7 +763,7 @@ const formatFighterNameWithNickname = (fighter) => {
               <Card sx={{ mb: 4, ...styles.profileCard }}>
                 <CardContent>
                   <Typography variant="h6" sx={styles.sectionTitle}>
-                    Championships
+                    Accolades
                   </Typography>
                   
                   {/* Current Championships */}
