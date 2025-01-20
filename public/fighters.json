@@ -387,6 +387,12 @@
     "gym": "Fightspirit Team",
     "height": 178,
     "reach": 179,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 4,
+      "type": "exclusive"
+    },
     "wins": 25,
     "losses": 1,
     "draws": 0,
