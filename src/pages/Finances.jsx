@@ -26,6 +26,13 @@ import {
   Grid,
 } from '@mui/material';
 import { getAllFighters, updateFighter, getAllChampionships } from "../utils/indexedDB";
+import {
+    calculateNegotiationPower,
+    generateCounterOffer,
+    validateContractValues,
+    willFighterAcceptOffer,
+    createInitialOffer
+  } from '../utils/contractNegotiation';
 
 // Styles object for consistent theming
 const styles = {
@@ -89,7 +96,6 @@ const Finances = () => {
   const [negotiationRound, setNegotiationRound] = useState(0);
   const [negotiationPower, setNegotiationPower] = useState(0);
 
-
   // Load fighters data
   useEffect(() => {
     const loadFighters = async () => {
@@ -108,29 +114,10 @@ const Finances = () => {
     loadFighters();
   }, []);
 
-  // Helper function to validate and normalize contract values
-  const validateContractValues = (contract) => {
-    return {
-    ...contract,
-    company: 'UFC', // Force UFC as company for now
-    amount: Math.max(0, contract.amount),
-    fightsOffered: Math.max(1, contract.fightsOffered), // Minimum 1 fight
-    signingBonus: Math.max(0, contract.signingBonus),
-    bonuses: {
-        winBonus: contract.amount >= 25000 ? 
-        Math.max(0, contract.bonuses.winBonus) : 
-        Math.max(12000, contract.bonuses.winBonus),
-        finishBonus: Math.max(0, contract.bonuses.finishBonus),
-        performanceBonus: Math.max(0, contract.bonuses.performanceBonus)
-    }
-    };
-  };
-
   // Handler for starting contract negotiation
   const handleContractUpdate = (field, value) => {
     let updatedContract = { ...newContract };
   
-    // Handle nested bonus fields
     if (field.startsWith('bonus.')) {
       const bonusField = field.split('.')[1];
       updatedContract.bonuses = {
@@ -141,30 +128,15 @@ const Finances = () => {
       updatedContract[field] = value;
     }
   
-    // Validate and set the contract
     setNewContract(validateContractValues(updatedContract));
   };
 
   const handleNegotiateContract = (fighter) => {
-    const power = calculateNegotiationPower(fighter);
+    const power = calculateNegotiationPower(fighter, championships);
     setNegotiationPower(power);
     setSelectedFighter(fighter);
     
-    // Set initial offer based on fighter's current contract or minimum values
-    const initialOffer = validateContractValues({
-      company: 'UFC',
-      amount: fighter.contract?.amount || 12000,
-      fightsOffered: 4,
-      type: fighter.contract?.type || 'exclusive',
-      signingBonus: 0,
-      bonuses: {
-        winBonus: fighter.contract?.amount >= 25000 ? 
-          (fighter.contract?.bonuses?.winBonus || 0) : 12000,
-        finishBonus: fighter.contract?.bonuses?.finishBonus || 0,
-        performanceBonus: fighter.contract?.bonuses?.performanceBonus || 0
-      }
-    });
-    
+    const initialOffer = createInitialOffer(fighter);
     setNewContract(initialOffer);
     setNegotiationRound(1);
     setCounterOffer(null);
@@ -176,55 +148,13 @@ const Finances = () => {
     const power = negotiationPower;
     const counter = generateCounterOffer(newContract, power);
     
-    // Fighter is more likely to accept if the offer is good relative to their power
-    const offerQuality = (newContract.amount / counter.amount) * 100;
-    const acceptanceThreshold = 90 - (power / 2); // Higher power fighters are harder to please
-    
-    if (offerQuality >= acceptanceThreshold) {
+    if (willFighterAcceptOffer(newContract, counter, power)) {
       handleSaveContract();
     } else {
       setCounterOffer(counter);
       setNegotiationRound(prev => prev + 1);
     }
   };
-
-  // Helper function to calculate fighter's negotiation power (0-100)
-    const calculateNegotiationPower = (fighter) => {
-        // Base power from ranking
-        let power = fighter.ranking ? (100 - fighter.ranking) : 30;
-        
-        // Bonus for champions
-        if (championships.some(c => c.currentChampionId === fighter.personid)) {
-        power += 30;
-        }
-        
-        // Bonus for win streak and record
-        const winPercentage = (fighter.wins / (fighter.wins + fighter.losses)) * 100;
-        power += (winPercentage / 5); // Up to 20 points for 100% win rate
-        
-        // Clamp between 0-100
-        return Math.min(100, Math.max(0, power));
-    };
-    
-    // Helper to generate counter offer based on negotiation power
-    const generateCounterOffer = (originalOffer, negotiationPower) => {
-        const increasePercentage = (negotiationPower / 100) * 50; // Up to 50% increase
-        const baseAmount = Math.max(12000, originalOffer.amount);
-        const counterAmount = Math.round(baseAmount * (1 + (increasePercentage / 100)));
-        
-        return validateContractValues({
-          ...originalOffer,
-          amount: counterAmount,
-          signingBonus: negotiationPower > 70 ? Math.round(counterAmount * 0.1) : 0,
-          bonuses: {
-            winBonus: counterAmount >= 25000 ? Math.round(counterAmount * 0.2) : 12000,
-            finishBonus: Math.round(counterAmount * 0.3),
-            performanceBonus: Math.round(counterAmount * 0.25)
-          },
-          fightsRequested: negotiationPower > 50 ? Math.max(1, Math.min(3, originalOffer.fightsOffered)) : 
-                                                  Math.max(1, Math.min(4, originalOffer.fightsOffered))
-        });
-      };
 
   // Handler for saving new contract
   const handleSaveContract = async () => {
