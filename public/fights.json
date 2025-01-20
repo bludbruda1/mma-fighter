@@ -45,7 +45,12 @@
     },
     "weightClass": "Lightweight",
     "date": "2025-01-18",
-    "result": null,
+    "result": {
+      "winner": 0,
+      "method": "Submission",
+      "roundEnded": 1,
+      "timeEnded": "4:05"
+    },
     "stats": null
   },
   {
@@ -222,7 +227,7 @@
     "championship": {
       "currentChampionId": 22,
       "id": 3,
-      "name": "Featherweigh Championship"
+      "name": "Featherweight Championship"
     },
     "fighter1": {
       "personid": 21,
@@ -388,7 +393,12 @@
       "lastname": "Nurmagomedov"
     },
     "weightClass": "Bantamweight",
-    "result": null,
+    "result": {
+      "winner": 0,
+      "method": "Decision",
+      "roundEnded": 5,
+      "timeEnded": "5:00"
+    },
     "stats": null  
   },
   {
@@ -405,7 +415,12 @@
       "lastname": "Hill"
     },
     "weightClass": "Light Heavyweight",
-    "result": null,
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 3,
+      "timeEnded": "3:01"
+    },
     "stats": null  
   },
   {
@@ -422,7 +437,12 @@
       "lastname": "de Ridder"
     },
     "weightClass": "Middleweight",
-    "result": null,
+    "result": {
+      "winner": 1,
+      "method": "Submission",
+      "roundEnded": 1,
+      "timeEnded": "3:31"
+    },    
     "stats": null  
   },
   {
@@ -439,7 +459,12 @@
       "lastname": "Spivac"
     },
     "weightClass": "Heavyweight",
-    "result": null,
+    "result": {
+      "winner": 0,
+      "method": "Knockout",
+      "roundEnded": 1,
+      "timeEnded": "4:53"
+    },
     "stats": null  
   },
   {
@@ -456,8 +481,12 @@
       "lastname": "Barcelos"
     },
     "weightClass": "Bantamweight",
-    "result": null,
+    "result": {
+      "winner": 1,
+      "method": "Decision",
+      "roundEnded": 3,
+      "timeEnded": "5:00"
+    },
     "stats": null  
   }
-
 ]
