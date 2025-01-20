@@ -16,6 +16,11 @@
     "contract": {
       "company": "UFC",
       "amount": 100000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 100000
+      },
       "fightsRem": 3,
       "type": "exclusive"
     },
@@ -401,7 +406,7 @@
     "reach": 179,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
+      "amount": 200000,
       "fightsRem": 1,
       "type": "exclusive"
     },
@@ -6578,8 +6583,8 @@
     "reach": 173,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 500000,
+      "fightsRem": 3,
       "type": "exclusive"
     },
     "wins": 19,
@@ -6963,7 +6968,12 @@
     "reach": 203,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
+      "amount": 200000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 50000
+      },
       "fightsRem": 1,
       "type": "exclusive"
     },
@@ -7156,7 +7166,7 @@
     "reach": 201,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
+      "amount": 200000,
       "fightsRem": 1,
       "type": "exclusive"
     },
@@ -7349,8 +7359,8 @@
     "reach": 206,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 250000,
+      "fightsRem": 5,
       "type": "exclusive"
     },
     "wins": 26,
@@ -7541,8 +7551,13 @@
     "reach": 198,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 105000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 105000
+      },
+      "fightsRem": 2,
       "type": "exclusive"
     },
     "wins": 19,
@@ -7927,8 +7942,8 @@
     "reach": 193,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 86000,
+      "fightsRem": 3,
       "type": "exclusive"
     },
     "wins": 17,
@@ -8120,8 +8135,13 @@
     "reach": 201,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 110000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 110000
+      },
+      "fightsRem": 3,
       "type": "exclusive"
     },
     "wins": 22,
@@ -8314,7 +8334,7 @@
     "contract": {
       "company": "UFC",
       "amount": 100000,
-      "fightsRem": 1,
+      "fightsRem": 4,
       "type": "exclusive"
     },
     "wins": 17,
@@ -8506,8 +8526,8 @@
     "reach": 178,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 43000,
+      "fightsRem": 4,
       "type": "exclusive"
     },
     "wins": 9,
@@ -8699,8 +8719,8 @@
     "reach": 170,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 1,
+      "amount": 48000,
+      "fightsRem": 2,
       "type": "exclusive"
     },
     "wins": 19,

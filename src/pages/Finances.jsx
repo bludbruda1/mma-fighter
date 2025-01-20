@@ -23,8 +23,9 @@ import {
   TableRow,
   Paper,
   Chip,
+  Grid,
 } from '@mui/material';
-import { getAllFighters, updateFighter } from "../utils/indexedDB";
+import { getAllFighters, updateFighter, getAllChampionships } from "../utils/indexedDB";
 
 // Styles object for consistent theming
 const styles = {
@@ -67,21 +68,39 @@ const styles = {
 const Finances = () => {
   // State management
   const [fighters, setFighters] = useState([]);
+  const [championships, setChampionships] = useState([]);
   const [negotiationOpen, setNegotiationOpen] = useState(false);
   const [selectedFighter, setSelectedFighter] = useState(null);
   const [newContract, setNewContract] = useState({
     company: 'UFC',
-    amount: 100000,
-    fightsRem: 4,
-    type: 'exclusive'
+    amount: 12000,
+    fightsOffered: 1,
+    type: 'exclusive',
+    signingBonus: 0,
+    bonuses: {
+      winBonus: 12000,
+      finishBonus: 0,
+      performanceBonus: 0
+    }
   });
+
+  // Add states for negotiation
+  const [counterOffer, setCounterOffer] = useState(null);
+  const [negotiationRound, setNegotiationRound] = useState(0);
+  const [negotiationPower, setNegotiationPower] = useState(0);
+
 
   // Load fighters data
   useEffect(() => {
     const loadFighters = async () => {
       try {
-        const fetchedFighters = await getAllFighters();
+        // Fetch both fighters and championships data
+        const [fetchedFighters, fetchedChampionships] = await Promise.all([
+          getAllFighters(),
+          getAllChampionships()
+        ]);
         setFighters(fetchedFighters);
+        setChampionships(fetchedChampionships);
       } catch (error) {
         console.error('Error loading fighters:', error);
       }
@@ -89,28 +108,140 @@ const Finances = () => {
     loadFighters();
   }, []);
 
+  // Helper function to validate and normalize contract values
+  const validateContractValues = (contract) => {
+    return {
+    ...contract,
+    company: 'UFC', // Force UFC as company for now
+    amount: Math.max(0, contract.amount),
+    fightsOffered: Math.max(1, contract.fightsOffered), // Minimum 1 fight
+    signingBonus: Math.max(0, contract.signingBonus),
+    bonuses: {
+        winBonus: contract.amount >= 25000 ? 
+        Math.max(0, contract.bonuses.winBonus) : 
+        Math.max(12000, contract.bonuses.winBonus),
+        finishBonus: Math.max(0, contract.bonuses.finishBonus),
+        performanceBonus: Math.max(0, contract.bonuses.performanceBonus)
+    }
+    };
+  };
+
   // Handler for starting contract negotiation
+  const handleContractUpdate = (field, value) => {
+    let updatedContract = { ...newContract };
+  
+    // Handle nested bonus fields
+    if (field.startsWith('bonus.')) {
+      const bonusField = field.split('.')[1];
+      updatedContract.bonuses = {
+        ...updatedContract.bonuses,
+        [bonusField]: value
+      };
+    } else {
+      updatedContract[field] = value;
+    }
+  
+    // Validate and set the contract
+    setNewContract(validateContractValues(updatedContract));
+  };
+
   const handleNegotiateContract = (fighter) => {
+    const power = calculateNegotiationPower(fighter);
+    setNegotiationPower(power);
     setSelectedFighter(fighter);
-    setNewContract({
-      company: fighter.contract?.company || 'UFC',
-      amount: fighter.contract?.amount || 100000,
-      fightsRem: 4, // Always offer 4 fight contracts
-      type: fighter.contract?.type || 'exclusive'
+    
+    // Set initial offer based on fighter's current contract or minimum values
+    const initialOffer = validateContractValues({
+      company: 'UFC',
+      amount: fighter.contract?.amount || 12000,
+      fightsOffered: 4,
+      type: fighter.contract?.type || 'exclusive',
+      signingBonus: 0,
+      bonuses: {
+        winBonus: fighter.contract?.amount >= 25000 ? 
+          (fighter.contract?.bonuses?.winBonus || 0) : 12000,
+        finishBonus: fighter.contract?.bonuses?.finishBonus || 0,
+        performanceBonus: fighter.contract?.bonuses?.performanceBonus || 0
+      }
     });
+    
+    setNewContract(initialOffer);
+    setNegotiationRound(1);
+    setCounterOffer(null);
     setNegotiationOpen(true);
   };
+
+  // Handler for sending offer
+  const handleSendOffer = () => {
+    const power = negotiationPower;
+    const counter = generateCounterOffer(newContract, power);
+    
+    // Fighter is more likely to accept if the offer is good relative to their power
+    const offerQuality = (newContract.amount / counter.amount) * 100;
+    const acceptanceThreshold = 90 - (power / 2); // Higher power fighters are harder to please
+    
+    if (offerQuality >= acceptanceThreshold) {
+      handleSaveContract();
+    } else {
+      setCounterOffer(counter);
+      setNegotiationRound(prev => prev + 1);
+    }
+  };
+
+  // Helper function to calculate fighter's negotiation power (0-100)
+    const calculateNegotiationPower = (fighter) => {
+        // Base power from ranking
+        let power = fighter.ranking ? (100 - fighter.ranking) : 30;
+        
+        // Bonus for champions
+        if (championships.some(c => c.currentChampionId === fighter.personid)) {
+        power += 30;
+        }
+        
+        // Bonus for win streak and record
+        const winPercentage = (fighter.wins / (fighter.wins + fighter.losses)) * 100;
+        power += (winPercentage / 5); // Up to 20 points for 100% win rate
+        
+        // Clamp between 0-100
+        return Math.min(100, Math.max(0, power));
+    };
+    
+    // Helper to generate counter offer based on negotiation power
+    const generateCounterOffer = (originalOffer, negotiationPower) => {
+        const increasePercentage = (negotiationPower / 100) * 50; // Up to 50% increase
+        const baseAmount = Math.max(12000, originalOffer.amount);
+        const counterAmount = Math.round(baseAmount * (1 + (increasePercentage / 100)));
+        
+        return validateContractValues({
+          ...originalOffer,
+          amount: counterAmount,
+          signingBonus: negotiationPower > 70 ? Math.round(counterAmount * 0.1) : 0,
+          bonuses: {
+            winBonus: counterAmount >= 25000 ? Math.round(counterAmount * 0.2) : 12000,
+            finishBonus: Math.round(counterAmount * 0.3),
+            performanceBonus: Math.round(counterAmount * 0.25)
+          },
+          fightsRequested: negotiationPower > 50 ? Math.max(1, Math.min(3, originalOffer.fightsOffered)) : 
+                                                  Math.max(1, Math.min(4, originalOffer.fightsOffered))
+        });
+      };
 
   // Handler for saving new contract
   const handleSaveContract = async () => {
     try {
       if (!selectedFighter) return;
-
+  
+      // Create contract object with fightsRem set to fightsOffered
+      const contract = {
+        ...newContract,
+        fightsRem: newContract.fightsOffered // Add this line to set initial fights remaining
+      };
+  
       const updatedFighter = {
         ...selectedFighter,
-        contract: newContract
+        contract: contract  // Use the new contract object with fightsRem
       };
-
+  
       await updateFighter(updatedFighter);
       
       // Update local state
@@ -251,74 +382,187 @@ const Finances = () => {
 
         {/* Contract Negotiation Dialog */}
         <Dialog 
-          open={negotiationOpen} 
-          onClose={() => setNegotiationOpen(false)}
+        open={negotiationOpen} 
+        onClose={() => setNegotiationOpen(false)}
         >
-          <DialogTitle>
+        <DialogTitle>
             {selectedFighter ? 
-              `Negotiate Contract: ${selectedFighter.firstname} ${selectedFighter.lastname}` :
-              'Negotiate Contract'
+            `Negotiate Contract: ${selectedFighter.firstname} ${selectedFighter.lastname}` :
+            'Negotiate Contract'
             }
-          </DialogTitle>
-          <DialogContent>
+        </DialogTitle>
+        <DialogContent>
             <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <FormControl fullWidth>
+            <FormControl fullWidth>
                 <InputLabel>Organisation</InputLabel>
                 <Select
-                  value={newContract.company}
-                  label="Organisation"
-                  onChange={(e) => setNewContract({...newContract, company: e.target.value})}
+                value="UFC"
+                label="Organisation"
                 >
-                  <MenuItem value="UFC">UFC</MenuItem>
+                <MenuItem value="UFC">UFC</MenuItem>
                 </Select>
-              </FormControl>
+            </FormControl>
 
-              <FormControl fullWidth>
+            <FormControl fullWidth>
                 <InputLabel>Contract Type</InputLabel>
                 <Select
-                  value={newContract.type}
-                  label="Contract Type"
-                  onChange={(e) => setNewContract({...newContract, type: e.target.value})}
+                value={newContract.type}
+                label="Contract Type"
+                onChange={(e) => setNewContract({...newContract, type: e.target.value})}
                 >
-                  <MenuItem value="exclusive">Exclusive</MenuItem>
-                  <MenuItem value="non-exclusive">Non-Exclusive</MenuItem>
+                <MenuItem value="exclusive">Exclusive</MenuItem>
+                <MenuItem value="standard">Standard</MenuItem>
                 </Select>
-              </FormControl>
+            </FormControl>
 
-              <TextField
-                label="Fight Purse"
-                type="number"
-                value={newContract.amount}
-                onChange={(e) => setNewContract({
-                  ...newContract, 
-                  amount: parseInt(e.target.value)
-                })}
-                InputProps={{
-                  startAdornment: <Typography>$</Typography>
-                }}
-              />
+            {/* Fight purse and contract length */}
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                <TextField
+                    fullWidth
+                    label="Fight Purse"
+                    type="number"
+                    value={newContract.amount}
+                    onChange={(e) => handleContractUpdate('amount', parseInt(e.target.value) || 0)}
+                    inputProps={{
+                        step: 1000,
+                        min: 12000 // Minimum fight purse
+                    }}
+                    InputProps={{
+                        startAdornment: <Typography>$</Typography>
+                    }}
+                />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                <TextField
+                    fullWidth
+                    label="Number of Fights"
+                    type="number"
+                    value={newContract.fightsOffered}
+                    onChange={(e) => handleContractUpdate('fightsOffered', parseInt(e.target.value) || 1)}
+                    inputProps={{
+                        step: 1,
+                        min: 1,
+                        max: 8
+                    }}
+                />
+                </Grid>
+            </Grid>
 
-              <Typography variant="body2" color="text.secondary">
-                Contract Length: 4 Fights
-              </Typography>
+            {/* Bonuses section */}
+            <Typography variant="h6">Bonuses & Incentives</Typography>
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                <TextField
+                    fullWidth
+                    label="Signing Bonus"
+                    type="number"
+                    value={newContract.signingBonus}
+                    onChange={(e) => setNewContract({
+                    ...newContract,
+                    signingBonus: parseInt(e.target.value)
+                    })}
+                    InputProps={{
+                        step: 1000,
+                        startAdornment: <Typography>$</Typography>
+                    }}
+                />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                <TextField
+                    fullWidth
+                    label="Win Bonus"
+                    type="number"
+                    value={newContract.bonuses.winBonus}
+                    onChange={(e) => handleContractUpdate('bonus.winBonus', parseInt(e.target.value) || 0)}
+                    inputProps={{
+                      step: 1000,
+                      min: newContract.amount >= 25000 ? 0 : 12000
+                    }}
+                    InputProps={{
+                      startAdornment: <Typography>$</Typography>
+                    }}
+                />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                <TextField
+                    fullWidth
+                    label="Finish Bonus"
+                    type="number"
+                    value={newContract.bonuses.finishBonus}
+                    onChange={(e) => handleContractUpdate('bonus.finishBonus', parseInt(e.target.value) || 0)}
+                    inputProps={{
+                      step: 1000,
+                      min: 0
+                    }}
+                    InputProps={{
+                      startAdornment: <Typography>$</Typography>
+                    }}                  
+                />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                <TextField
+                    fullWidth
+                    label="Performance Bonus"
+                    type="number"
+                    value={newContract.bonuses.performanceBonus}
+                    onChange={(e) => handleContractUpdate('bonus.performanceBonus', parseInt(e.target.value) || 0)}
+                    inputProps={{
+                      step: 1000,
+                      min: 0
+                    }}
+                    InputProps={{
+                      startAdornment: <Typography>$</Typography>
+                    }}
+                />
+                </Grid>
+            </Grid>
+
+            {/* Counter offer display */}
+            {counterOffer && (
+                <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                    Fighter Counter-Offer
+                </Typography>
+                <Typography>Fight Purse: ${counterOffer.amount.toLocaleString()}</Typography>
+                <Typography>Fights Requested: {counterOffer.fightsRequested}</Typography>
+                <Typography>Signing Bonus: ${counterOffer.signingBonus.toLocaleString()}</Typography>
+                <Typography>Win Bonus: ${counterOffer.bonuses.winBonus.toLocaleString()}</Typography>
+                <Typography>Finish Bonus: ${counterOffer.bonuses.finishBonus.toLocaleString()}</Typography>
+                <Typography>Performance Bonus: ${counterOffer.bonuses.performanceBonus.toLocaleString()}</Typography>
+                </Box>
+            )}
+
+            {/* Negotiation status */}
+            <Typography variant="body2" color="text.secondary">
+                Negotiation Round: {negotiationRound}
+            </Typography>
             </Box>
-          </DialogContent>
-          <DialogActions>
+        </DialogContent>
+        <DialogActions>
             <Button onClick={() => setNegotiationOpen(false)}>Cancel</Button>
+            {counterOffer ? (
             <Button 
-              onClick={handleSaveContract}
-              variant="contained"
-              sx={{
+                onClick={() => setNewContract(counterOffer)}
+                color="primary"
+            >
+                Accept Counter
+            </Button>
+            ) : null}
+            <Button 
+            onClick={handleSendOffer}
+            variant="contained"
+            sx={{
                 backgroundColor: "rgba(33, 33, 33, 0.9)",
                 color: "#fff",
                 "&:hover": {
-                  backgroundColor: "rgba(33, 33, 33, 0.7)",
+                backgroundColor: "rgba(33, 33, 33, 0.7)",
                 },
-              }}
+            }}
             >
-              Offer Contract
+            {counterOffer ? 'Make New Offer' : 'Send Offer'}
             </Button>
-          </DialogActions>
+        </DialogActions>
         </Dialog>
       </Container>
     </Box>
