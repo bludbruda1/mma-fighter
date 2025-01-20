@@ -424,12 +424,12 @@ const Finances = () => {
                     type="number"
                     value={newContract.amount}
                     onChange={(e) => handleContractUpdate('amount', parseInt(e.target.value) || 0)}
-                    inputProps={{
+                    InputProps={{
+                      startAdornment: <Typography>$</Typography>,
+                      inputProps: {  // Nest inputProps inside InputProps
                         step: 1000,
                         min: 12000 // Minimum fight purse
-                    }}
-                    InputProps={{
-                        startAdornment: <Typography>$</Typography>
+                      }
                     }}
                 />
                 </Grid>
@@ -459,12 +459,14 @@ const Finances = () => {
                     type="number"
                     value={newContract.signingBonus}
                     onChange={(e) => setNewContract({
-                    ...newContract,
-                    signingBonus: parseInt(e.target.value)
+                      ...newContract,
+                      signingBonus: parseInt(e.target.value)
                     })}
                     InputProps={{
-                        step: 1000,
-                        startAdornment: <Typography>$</Typography>
+                      startAdornment: <Typography>$</Typography>,
+                      inputProps: {
+                        step: 1000
+                      }
                     }}
                 />
                 </Grid>
@@ -475,12 +477,12 @@ const Finances = () => {
                     type="number"
                     value={newContract.bonuses.winBonus}
                     onChange={(e) => handleContractUpdate('bonus.winBonus', parseInt(e.target.value) || 0)}
-                    inputProps={{
-                      step: 1000,
-                      min: newContract.amount >= 25000 ? 0 : 12000
-                    }}
                     InputProps={{
-                      startAdornment: <Typography>$</Typography>
+                      startAdornment: <Typography>$</Typography>,
+                      inputProps: {
+                        step: 1000,
+                        min: newContract.amount >= 25000 ? 0 : 12000
+                      }
                     }}
                 />
                 </Grid>
@@ -491,13 +493,13 @@ const Finances = () => {
                     type="number"
                     value={newContract.bonuses.finishBonus}
                     onChange={(e) => handleContractUpdate('bonus.finishBonus', parseInt(e.target.value) || 0)}
-                    inputProps={{
-                      step: 1000,
-                      min: 0
-                    }}
                     InputProps={{
-                      startAdornment: <Typography>$</Typography>
-                    }}                  
+                      startAdornment: <Typography>$</Typography>,
+                      inputProps: {
+                        step: 1000,
+                        min: 0
+                      }
+                    }}              
                 />
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -507,12 +509,12 @@ const Finances = () => {
                     type="number"
                     value={newContract.bonuses.performanceBonus}
                     onChange={(e) => handleContractUpdate('bonus.performanceBonus', parseInt(e.target.value) || 0)}
-                    inputProps={{
-                      step: 1000,
-                      min: 0
-                    }}
                     InputProps={{
-                      startAdornment: <Typography>$</Typography>
+                      startAdornment: <Typography>$</Typography>,
+                      inputProps: {
+                        step: 1000,
+                        min: 0
+                      }
                     }}
                 />
                 </Grid>
