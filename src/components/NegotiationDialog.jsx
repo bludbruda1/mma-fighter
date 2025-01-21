@@ -63,12 +63,12 @@ const NegotiationDialog = React.memo(({
               type="number"
               value={newContract.amount}
               onChange={(e) => onContractUpdate('amount', parseInt(e.target.value) || 0)}
-              inputProps={{
-                step: 1000,
-                min: 12000
-              }}
               InputProps={{
-                startAdornment: <Typography>$</Typography>
+                startAdornment: <Typography>$</Typography>,
+                inputProps: {  // Nested inside InputProps
+                  step: 1000,
+                  min: 12000
+                }
               }}
             />
           </FormControl>
@@ -113,11 +113,11 @@ const NegotiationDialog = React.memo(({
                 type="number"
                 value={newContract.bonuses.winBonus}
                 onChange={(e) => onContractUpdate('bonus.winBonus', parseInt(e.target.value) || 0)}
-                inputProps={{
-                  min: newContract.amount >= 25000 ? 0 : 12000
-                }}
                 InputProps={{
-                  startAdornment: <Typography>$</Typography>
+                    startAdornment: <Typography>$</Typography>,
+                    inputProps: {  // Nested inside InputProps
+                      min: newContract.amount >= 25000 ? 0 : 12000
+                    }
                 }}
               />
             </Grid>
