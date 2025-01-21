@@ -3,18 +3,11 @@ import { Link } from "react-router-dom";
 import {
   Container,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  Paper,
   Tooltip,
   Box,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import SortableTable from "../components/SortableTable";
 import FilterPanel from "../components/FilterPanel";
 import { getAllFighters, getAllChampionships } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
@@ -93,6 +86,19 @@ const Roster = () => {
     };
     fetchData();
   }, []);
+
+  // Define columns configuration
+  const columns = [
+    { id: 'ranking', label: 'Ranking' },
+    { id: 'fullname', label: 'Name' },
+    { id: 'gender', label: 'Gender' },
+    { id: 'dob', label: 'Date of Birth (Age)' },
+    { id: 'weightClass', label: 'Weight Class' },
+    { id: 'fightingStyle', label: 'Fighting Style' },
+    { id: 'nationality', label: 'Nationality' },
+    { id: 'hometown', label: 'Hometown' },
+    { id: 'record', label: 'Record' },
+  ];
 
   // Helper function to get championship info for a fighter
   const getChampionshipInfo = useCallback((fighterId) => {
@@ -214,11 +220,6 @@ const Roster = () => {
     setOrderBy(property);
   };
 
-  // Create sort handler for a property
-  const createSortHandler = (property) => () => {
-    handleRequestSort(property);
-  };
-
   // Memoized filtered and sorted fighters
   const filteredAndSortedFighters = useMemo(() => {
     // First sort the fighters
@@ -230,6 +231,61 @@ const Roster = () => {
     // Then apply filters
     return applyFilters(sortedFighters);
   }, [fighters, order, orderBy, compareValues, applyFilters]);
+
+  // Custom cell renderer
+  const renderCell = (fighter, columnId) => {
+    switch (columnId) {
+      case 'ranking':
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {getChampionshipInfo(fighter.personid).map((championship, index) => (
+              <Tooltip key={championship.id} title={championship.name} arrow>
+                <EmojiEventsIcon 
+                  sx={{ 
+                    color: 'gold',
+                    marginRight: index < getChampionshipInfo(fighter.personid).length - 1 ? 1 : 0 
+                  }} 
+                />
+              </Tooltip>
+            ))}
+            {!getChampionshipInfo(fighter.personid).length && getRankingDisplay(fighter, championships)}
+          </Box>
+        );
+      case 'fullname':
+        return (
+          <Link
+            to={`/dashboard/${fighter.personid}`}
+            style={{
+              textDecoration: "none",
+              color: "#0000EE",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.textDecoration = "underline";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.textDecoration = "none";
+            }}
+          >
+            {`${fighter.firstname} ${fighter.lastname}`}
+          </Link>
+        );
+      case 'dob':
+        return (
+          <>
+            {formatBirthday(fighter.dob)}
+            <Typography variant="body2" color="text.secondary">
+              {fighterAges[fighter.personid] || "N/A"} years old
+            </Typography>
+          </>
+        );
+      case 'fightingStyle':
+        return formatFightingStyle(fighter.fightingStyle);
+      case 'record':
+        return `${fighter.wins}W-${fighter.losses}L`;
+      default:
+        return fighter[columnId];
+    }
+  };
 
   return (
     <Container maxWidth="lg" style={{ marginTop: "50px", marginBottom: "50px" }}>
@@ -246,164 +302,15 @@ const Roster = () => {
         filteredCount={filteredAndSortedFighters.length}
       />
 
-      {/* Fighter Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {/* Table headers with sort labels */}
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'ranking'}
-                  direction={orderBy === 'ranking' ? order : 'asc'}
-                  onClick={createSortHandler('ranking')}
-                >
-                  Ranking
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'fullname'}
-                  direction={orderBy === 'fullname' ? order : 'asc'}
-                  onClick={createSortHandler('fullname')}
-                >
-                  Name
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                  <TableSortLabel
-                    active={orderBy === 'gender'}
-                    direction={orderBy === 'gender' ? order : 'asc'}
-                    onClick={createSortHandler('gender')}
-                  >
-                    Gender
-                  </TableSortLabel>
-                </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'dob'}
-                  direction={orderBy === 'dob' ? order : 'asc'}
-                  onClick={createSortHandler('dob')}
-                >
-                  Date of Birth (Age)
-                </TableSortLabel>
-              </TableCell>          
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'weightClass'}
-                  direction={orderBy === 'weightClass' ? order : 'asc'}
-                  onClick={createSortHandler('weightClass')}
-                >
-                  Weight Class
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'fightingStyle'}
-                  direction={orderBy === 'fightingStyle' ? order : 'asc'}
-                  onClick={createSortHandler('fightingStyle')}
-                >
-                  Fighting Style
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'nationality'}
-                  direction={orderBy === 'nationality' ? order : 'asc'}
-                  onClick={createSortHandler('nationality')}
-                >
-                  Nationality
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'hometown'}
-                  direction={orderBy === 'hometown' ? order : 'asc'}
-                  onClick={createSortHandler('hometown')}
-                >
-                  Hometown
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'record'}
-                  direction={orderBy === 'record' ? order : 'asc'}
-                  onClick={createSortHandler('record')}
-                >
-                  Record
-                </TableSortLabel>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredAndSortedFighters.map((fighter) => (
-              <TableRow
-                key={fighter.personid}
-                style={{
-                  cursor: "pointer",
-                  transition: "background-color 0.3s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f0f0f0";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                }}
-              >
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {getChampionshipInfo(fighter.personid).map((championship, index) => (
-                      <Tooltip key={championship.id} title={championship.name} arrow>
-                        <EmojiEventsIcon 
-                          sx={{ 
-                            color: 'gold',
-                            marginRight: index < getChampionshipInfo(fighter.personid).length - 1 ? 1 : 0 
-                          }} 
-                        />
-                      </Tooltip>
-                    ))}
-                    {!getChampionshipInfo(fighter.personid).length && getRankingDisplay(fighter, championships)}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    to={`/dashboard/${fighter.personid}`}
-                    style={{
-                      textDecoration: "none",
-                      color: "#0000EE",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.textDecoration = "underline";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.textDecoration = "none";
-                    }}
-                  >
-                    {`${fighter.firstname} ${fighter.lastname}`}
-                  </Link>
-                </TableCell>
-                <TableCell>{fighter.gender}</TableCell>
-                <TableCell>
-                  {formatBirthday(fighter.dob)}
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary"
-                  >
-                    {fighterAges[fighter.personid] || "N/A"} years old
-                  </Typography>
-                </TableCell>
-                <TableCell>{fighter.weightClass}</TableCell>
-                <TableCell>{formatFightingStyle(fighter.fightingStyle)}</TableCell>
-                <TableCell>{fighter.nationality}</TableCell>
-                <TableCell>{fighter.hometown}</TableCell>
-                <TableCell>
-                  {fighter.wins}W-{fighter.losses}L
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <SortableTable
+        columns={columns}
+        data={filteredAndSortedFighters}
+        orderBy={orderBy}
+        order={order}
+        onRequestSort={handleRequestSort}
+        renderCell={renderCell}
+      />
+
     </Container>
   );
 };  
