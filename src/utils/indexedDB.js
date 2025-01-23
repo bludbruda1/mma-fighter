@@ -600,24 +600,50 @@ export const checkAndUpdateFighterStatus = async (fighter) => {
 
   const currentGameDate = await getGameDate();
   const gameDateTime = new Date(currentGameDate);
+  let needsUpdate = false;
+  
+  // Create a copy of fighter with injuries to modify
+  const updatedFighter = {
+    ...fighter,
+    injuries: fighter.injuries.map(injury => {
+      // Skip if already healed
+      if (injury.isHealed) return injury;
+
+      // Check if injury has healed
+      const injuryEnd = new Date(injury.dateIncurred);
+      injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+      
+      if (injuryEnd <= gameDateTime && !injury.isHealed) {
+        needsUpdate = true;
+        return { ...injury, isHealed: true };
+      }
+      return injury;
+    })
+  };
 
   // Check if any injuries are still active
-  const hasActiveInjury = fighter.injuries.some(injury => {
+  const hasActiveInjury = updatedFighter.injuries.some(injury => {
     if (injury.isHealed) return false;
     const injuryEnd = new Date(injury.dateIncurred);
     injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
     return injuryEnd > gameDateTime;
   });
 
-  // Update status if it doesn't match injury status
-  if (hasActiveInjury !== !fighter.isActive) {
-    const updatedFighter = { ...fighter, isActive: !hasActiveInjury };
+  // Update active status if needed
+  if (hasActiveInjury !== !updatedFighter.isActive) {
+    updatedFighter.isActive = !hasActiveInjury;
+    needsUpdate = true;
+  }
+
+  // Only update database if changes were made
+  if (needsUpdate) {
     await updateFighter(updatedFighter);
     return updatedFighter;
   }
 
   return null;
 };
+
 
 // Function to check all fighters
 export const updateAllFighterStatuses = async () => {
