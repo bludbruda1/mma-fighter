@@ -179,6 +179,35 @@ const Roster = () => {
 
   // Sorting comparison logic
   const compareValues = useCallback((a, b, property) => {
+    if (property === 'status') {
+      // Check active status first
+      if (a.isActive !== b.isActive) {
+        return a.isActive ? -1 : 1;  // Active fighters first
+      }
+      
+      // If both are inactive, check if it's due to injury
+      const aInjured = a.injuries?.some(injury => {
+        if (injury.isHealed) return false;
+        const injuryEnd = new Date(injury.dateIncurred);
+        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+        return injuryEnd > gameDate;
+      }) || false;
+  
+      const bInjured = b.injuries?.some(injury => {
+        if (injury.isHealed) return false;
+        const injuryEnd = new Date(injury.dateIncurred);
+        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+        return injuryEnd > gameDate;
+      }) || false;
+  
+      if (aInjured !== bInjured) {
+        return aInjured ? 1 : -1;  // Injured fighters last
+      }
+  
+      // If both have same status, sort alphabetically by name
+      return (a.firstname + a.lastname).localeCompare(b.firstname + b.lastname);
+    }
+  
     if (property === 'ranking') {
       const aIsChamp = getChampionshipInfo(a.personid).length > 0;
       const bIsChamp = getChampionshipInfo(b.personid).length > 0;
@@ -218,7 +247,7 @@ const Roster = () => {
 
     // Handle numeric properties
     return a[property] - b[property];
-  }, [getChampionshipInfo, getAge]);
+  }, [getChampionshipInfo, getAge, gameDate]);
 
   // Sort request handler
   const handleRequestSort = (property) => {
