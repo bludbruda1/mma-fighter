@@ -23,7 +23,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { getAllFighters, getAllFights, getAllChampionships } from "../utils/indexedDB";
+import { getAllFighters, getAllFights, getAllChampionships, getGameDate } from "../utils/indexedDB";
 import { calculateAge } from '../utils/dateUtils';
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 
@@ -110,6 +110,7 @@ const Dashboard = () => {
   const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
   const [fighterAge, setFighterAge] = useState("N/A");
+  const [gameDate, setGameDate] = useState(null);
 
   //  Helper function to sort fights
   const sortFights = (fights) => {
@@ -165,10 +166,13 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         // Get the fighter data
-        const [fighters, fetchedChampionships] = await Promise.all([
+        const [fighters, fetchedChampionships, currentGameDate] = await Promise.all([
           getAllFighters(),
-          getAllChampionships()
+          getAllChampionships(),
+          getGameDate()
         ]);
+
+        setGameDate(new Date(currentGameDate))
         
         const selectedFighter = fighters.find(
           (f) => f.personid === parseInt(id)
@@ -713,7 +717,7 @@ const formatFighterNameWithNickname = (fighter) => {
                       injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
                       const isActive = !injury.isHealed && injuryEnd > new Date();
                       const daysRemaining = isActive ? 
-                        Math.ceil((injuryEnd - new Date()) / (1000 * 60 * 60 * 24)) : 0;
+                        Math.ceil((injuryEnd - gameDate) / (1000 * 60 * 60 * 24)) : 0;
 
                       return (
                         <ListItem key={index}>
