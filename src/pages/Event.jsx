@@ -615,6 +615,27 @@ const Event = () => {
         ],
       });
 
+      // Update contract fights remaining
+      if (winnerFighter.contract?.fightsRem > 0) {
+        fighterUpdates.set(winnerFighter.personid, {
+          ...fighterUpdates.get(winnerFighter.personid),
+          contract: {
+            ...winnerFighter.contract,
+            fightsRem: winnerFighter.contract.fightsRem - 1
+          }
+        });
+      }
+
+      if (loserFighter.contract?.fightsRem > 0) {
+        fighterUpdates.set(loserFighter.personid, {
+          ...fighterUpdates.get(loserFighter.personid),
+          contract: {
+            ...loserFighter.contract,
+            fightsRem: loserFighter.contract.fightsRem - 1
+          }
+        });
+      }
+
       // Handle additional ranking updates
       rankingUpdates.forEach((fighter) => {
         if (!fighterUpdates.has(fighter.personid)) {

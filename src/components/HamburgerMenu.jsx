@@ -24,6 +24,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import HandshakeIcon from '@mui/icons-material/Handshake';
 import { saveGameDate, getGameDate, getAllEvents, getAllFights } from "../utils/indexedDB";
 
 // HamburgerMenu component that handles navigation on the left side of the page.
@@ -312,6 +313,17 @@ const HamburgerMenu = () => {
               <EmojiEventsIcon />
             </ListItemIcon>
             <ListItemText primary="Rankings" sx={{ color: '#fff'}} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="/contracts"
+            onClick={handleDrawerToggle}
+            >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <HandshakeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Contracts" sx={{ color: '#fff'}} />
           </ListItem>
         </List>
       </Drawer>

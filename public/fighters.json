@@ -13,6 +13,15 @@
     "gym": "SBG Ireland", 
     "height": 175,
     "reach": 188,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "bonuses": {
+        "winBonus": 100000
+      },
+      "fightsRem": 3,
+      "type": "exclusive"
+    },
     "wins": 22,
     "losses": 6,
     "draws": 0,
@@ -200,6 +209,12 @@
     "gym": "American Top Team",
     "height": 175,
     "reach": 185,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 2,
+      "type": "exclusive"
+    },
     "wins": 29,
     "losses": 7,
     "draws": 0,
@@ -389,8 +404,8 @@
     "reach": 179,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
-      "fightsRem": 4,
+      "amount": 200000,
+      "fightsRem": 1,
       "type": "exclusive"
     },
     "wins": 25,
@@ -580,6 +595,12 @@
     "gym": "Khabarovsk MMA",
     "height": 170,
     "reach": 184,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 3,
+      "type": "exclusive"
+    },
     "wins": 20,
     "losses": 3,
     "draws": 0,
@@ -768,6 +789,12 @@
     "gym": "Chute Boxe Diego Lima",
     "height": 178,
     "reach": 188,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 4,
+      "type": "exclusive"
+    },
     "wins": 34,
     "losses": 9,
     "draws": 0,
@@ -955,6 +982,12 @@
     "gym": null,
     "height": 181,
     "reach": 178,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 25,
     "losses": 4,
     "draws":0,
@@ -1142,6 +1175,12 @@
     "gym": "Czerwony Smok",
     "height": 177,
     "reach": 179,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 22,
     "losses": 2,
     "draws": 0,
@@ -1329,6 +1368,12 @@
     "gym": "Kill Cliff FC",
     "height": 173,
     "reach": 182,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 23,
     "losses": 8,
     "draws":0,
@@ -1516,6 +1561,12 @@
     "gym": "Kings MMA",
     "height": 178,
     "reach": 183,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 22,
     "losses": 5,
     "draws": 1,
@@ -1703,6 +1754,12 @@
     "gym": "Tiger Muay Thai",
     "height": 173,
     "reach": 182,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 12,
     "losses": 2,
     "draws": 0,
@@ -1890,6 +1947,12 @@
     "gym":"Gracie Technics",
     "height":180,
     "reach":175,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 24,
     "losses": 7,
     "draws":0,
@@ -2077,6 +2140,15 @@
     "gym":"American Top Team",
     "height":181,
     "reach":183,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "bonuses": {
+        "winBonus": 100000
+      },
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 17,
     "losses": 6,
     "draws":1,
@@ -2264,6 +2336,12 @@
     "gym": "City Kickboxing",
     "height": 183,
     "reach": 192,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 22,
     "losses": 12,
     "draws":0,
@@ -2451,6 +2529,12 @@
     "gym": "CYFIT",
     "height": 180,
     "reach": 185,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 11,
     "losses": 1,
     "draws":0,
@@ -2638,6 +2722,12 @@
     "gym": "Carlson Gracie Riverside",
     "height": 191,
     "reach": 192,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 13,
     "losses": 7,
     "draws":0,
@@ -2825,6 +2915,12 @@
     "gym": "Next Generation MMA Liverpool",
     "height": 178,
     "reach": 185,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 20,
     "losses": 3,
     "draws": 0,
@@ -3012,6 +3108,12 @@
     "gym": "Kings MMA",
     "height":163,
     "reach":178,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 32,
     "losses": 17,
     "draws":0,
@@ -3199,6 +3301,12 @@
     "gym": "Combat Sport & Fitness",
     "height": 185,
     "reach": 188,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 15,
     "losses": 3,
     "draws":1,
@@ -3386,6 +3494,12 @@
     "gym": null,
     "height": 171,
     "reach": 178,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 38,
     "losses": 25,
     "draws":0,
@@ -3573,6 +3687,12 @@
     "gym": null,
     "height":191,
     "reach":196,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 22,
     "losses": 3,
     "draws":0,
@@ -3760,6 +3880,12 @@
     "gym": "Climent CLub",
     "height":170,
     "reach":175,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 16,
     "losses": 0,
     "draws":0,
@@ -3947,6 +4073,12 @@
     "gym": null,
     "height": 168,
     "reach":182,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 26,
     "losses": 4,
     "draws":0,
@@ -4134,6 +4266,12 @@
     "gym": "Black House MMA",
     "height": 163,
     "reach": 160,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 15,
     "losses": 5,
     "draws": 0,
@@ -4321,6 +4459,12 @@
     "gym": "Ribas Family",
     "height": 160,
     "reach": 168,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 13,
     "losses": 6,
     "draws": 0,
@@ -4508,6 +4652,12 @@
     "gym":"American Top Team",
     "height":183,
     "reach":185,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 30,
     "losses": 8,
     "draws":0,
@@ -4695,6 +4845,12 @@
     "gym": "Renovacao Fight Team",
     "height": 183,
     "reach": 193,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 19,
     "losses": 7,
     "draws": 0,
@@ -4882,6 +5038,12 @@
     "gym": "Fortis MMA",
     "height": 178,
     "reach": 185,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 12,
     "losses": 7,
     "draws": 0,
@@ -5069,6 +5231,12 @@
     "gym": null,
     "height": 185,
     "reach":188,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 7,
     "losses": 1,
     "draws": 0,
@@ -5256,6 +5424,12 @@
     "gym": "Xtreme Couture",
     "height": 178,
     "reach": 192,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 31,
     "losses": 12,
     "draws": 0,
@@ -5443,6 +5617,12 @@
     "gym": null,
     "height":183,
     "reach":191,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 14,
     "losses": 3,
     "draws": 0,
@@ -5630,6 +5810,12 @@
     "gym": "Warrior Way Martial Arts",
     "height":168,
     "reach":178,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 13,
     "losses": 1,
     "draws": 0,
@@ -5817,6 +6003,12 @@
     "gym": "Roufusport MMA Academy",
     "height":170,
     "reach":182,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 12,
     "losses": 2,
     "draws": 0,
@@ -6004,6 +6196,12 @@
     "gym":"Xtreme Couture",
     "height": 180,
     "reach": 184,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 11,
     "losses": 4,
     "draws": 0,
@@ -6190,6 +6388,12 @@
     "fightsOutOf": "Alaska, United States",
     "height":185,
     "reach":180,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "gym": null,
     "wins": 10,
     "losses": 3,
@@ -6378,6 +6582,12 @@
     "gym": "Syndicate MMA",
     "height": 168,
     "reach": 173,
+    "contract": {
+      "company": "UFC",
+      "amount": 500000,
+      "fightsRem": 3,
+      "type": "exclusive"
+    },
     "wins": 19,
     "losses": 4,
     "draws": 0,
@@ -6565,6 +6775,12 @@
     "gym": null,
     "height": 172,
     "reach": 175,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 18,
     "losses": 1,
     "draws": 0,
@@ -6751,6 +6967,15 @@
     "fightsOutOf": "Brno, Czechia",
     "height": 191,
     "reach": 203,
+    "contract": {
+      "company": "UFC",
+      "amount": 200000,
+      "bonuses": {
+        "winBonus": 50000
+      },
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 31,
     "losses": 5,
     "draws": 1,
@@ -6938,6 +7163,15 @@
     "gym": "Black Lion Jiu Jitsu Academy",
     "height": 193,
     "reach": 201,
+    "contract": {
+      "company": "UFC",
+      "amount": 200000,
+      "bonuses": {
+        "winBonus": 200000
+      },
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 12,
     "losses": 3,
     "draws": 0,
@@ -7125,6 +7359,15 @@
     "gym": "Travis Lutter MMA",
     "height": 191,
     "reach": 206,
+    "contract": {
+      "company": "UFC",
+      "amount": 250000,
+      "bonuses": {
+        "winBonus": 250000
+      },
+      "fightsRem": 5,
+      "type": "exclusive"
+    },
     "wins": 26,
     "losses": 13,
     "draws": 0,
@@ -7311,6 +7554,15 @@
     "fightsOutOf": "Breda, Netherlands",
     "height": 193,
     "reach": 198,
+    "contract": {
+      "company": "UFC",
+      "amount": 105000,
+      "bonuses": {
+        "winBonus": 105000
+      },
+      "fightsRem": 2,
+      "type": "exclusive"
+    },
     "wins": 19,
     "losses": 2,
     "draws": 0,
@@ -7498,6 +7750,12 @@
     "gym": "SBG Ireland",
     "height": 198,
     "reach": 209,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "fightsRem": 1,
+      "type": "exclusive"
+    },
     "wins": 21,
     "losses": 9,
     "draws": 0,
@@ -7685,6 +7943,15 @@
     "gym": "GOR MMA",
     "height": 190,
     "reach": 193,
+    "contract": {
+      "company": "UFC",
+      "amount": 43000,
+      "bonuses": {
+        "winBonus": 43000
+      },
+      "fightsRem": 3,
+      "type": "exclusive"
+    },
     "wins": 17,
     "losses": 3,
     "draws": 0,
@@ -7872,6 +8139,15 @@
     "gym": "Galpao da Luta",
     "height": 191,
     "reach": 201,
+    "contract": {
+      "company": "UFC",
+      "amount": 110000,
+      "bonuses": {
+        "winBonus": 110000
+      },
+      "fightsRem": 3,
+      "type": "exclusive"
+    },
     "wins": 22,
     "losses": 3,
     "draws": 0,
@@ -8059,6 +8335,15 @@
     "gym": null,
     "height": 190,
     "reach": 198,
+    "contract": {
+      "company": "UFC",
+      "amount": 100000,
+      "bonuses": {
+        "winBonus": 100000
+      },
+      "fightsRem": 4,
+      "type": "exclusive"
+    },
     "wins": 17,
     "losses": 5,
     "draws": 0,
@@ -8234,7 +8519,7 @@
   },
   {
     "personid": 45,
-    "firstname": "Peyton",
+    "firstname": "Payton",
     "lastname": "Talbott",
     "nickname": null,
     "nicknamePlacement": null,
@@ -8246,6 +8531,15 @@
     "gym": "Reno Academy of Combat",
     "height": 178,
     "reach": 178,
+    "contract": {
+      "company": "UFC",
+      "amount": 43000,
+      "bonuses": {
+        "winBonus": 43000
+      },
+      "fightsRem": 4,
+      "type": "exclusive"
+    },
     "wins": 9,
     "losses": 1,
     "draws": 0,
@@ -8433,6 +8727,15 @@
     "gym": "Refit Pro Fighters",
     "height": 170,
     "reach": 170,
+    "contract": {
+      "company": "UFC",
+      "amount": 48000,
+      "bonuses": {
+        "winBonus": 48000
+      },
+      "fightsRem": 2,
+      "type": "exclusive"
+    },
     "wins": 19,
     "losses": 5,
     "draws": 0,
