@@ -2145,6 +2145,11 @@
     "contract": {
       "company": "UFC",
       "amount": 100000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 100000
+      },
       "fightsRem": 1,
       "type": "exclusive"
     },
@@ -7167,6 +7172,11 @@
     "contract": {
       "company": "UFC",
       "amount": 200000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 200000
+      },
       "fightsRem": 1,
       "type": "exclusive"
     },
@@ -7360,6 +7370,11 @@
     "contract": {
       "company": "UFC",
       "amount": 250000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 250000
+      },
       "fightsRem": 5,
       "type": "exclusive"
     },
@@ -7942,7 +7957,12 @@
     "reach": 193,
     "contract": {
       "company": "UFC",
-      "amount": 86000,
+      "amount": 43000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 43000
+      },
       "fightsRem": 3,
       "type": "exclusive"
     },
@@ -8334,6 +8354,11 @@
     "contract": {
       "company": "UFC",
       "amount": 100000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 100000
+      },
       "fightsRem": 4,
       "type": "exclusive"
     },
@@ -8512,7 +8537,7 @@
   },
   {
     "personid": 45,
-    "firstname": "Peyton",
+    "firstname": "Payton",
     "lastname": "Talbott",
     "nickname": null,
     "nicknamePlacement": null,
@@ -8527,6 +8552,11 @@
     "contract": {
       "company": "UFC",
       "amount": 43000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 43000
+      },
       "fightsRem": 4,
       "type": "exclusive"
     },
@@ -8720,6 +8750,11 @@
     "contract": {
       "company": "UFC",
       "amount": 48000,
+      "bonuses": {
+        "finishBonus": null,
+        "performanceBonus": null,
+        "winBonus": 48000
+      },
       "fightsRem": 2,
       "type": "exclusive"
     },
