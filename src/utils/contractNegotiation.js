@@ -1,4 +1,3 @@
-// Minimum contract values based on UFC's real minimums as of 2024 
 const CONTRACT_MINIMUMS = {
     BASE_PURSE: 12000,
     WIN_BONUS: 12000,
@@ -6,81 +5,110 @@ const CONTRACT_MINIMUMS = {
     CHAMP_BASE: 500000,    // Minimum for champions
     EX_CHAMP_BASE: 150000  // Minimum for former champions
   };
-  
+
 /**
- * Calculate a fighter's negotiation power on a scale of 0-100
- * Uses existing fighter attributes to determine their leverage
+ * Calculate a fighter's minimum acceptable contract value
  * @param {Object} fighter - Fighter object
  * @param {Array} championships - Array of championship objects
- * @returns {number} Negotiation power (0-100)
+ * @param {Array} fights - Array of all fights (for checking recent performance)
+ * @returns {Object} Minimum contract values and multipliers
  */
-export const calculateNegotiationPower = (fighter, championships) => {
-    let power = 0;
+export const calculateMinimumContract = (fighter, championships, fights) => {
+    // Base minimum contract values
+    const BASE_MINIMUMS = {
+      champion: { base: 250000, win: 250000 },
+      topFive: { base: 100000, win: 100000 },
+      topTen: { base: 50000, win: 50000 },
+      ranked: { base: 25000, win: 25000 },
+      unranked: { base: 12000, win: 12000 }
+    };
   
-    // Base power from ranking (0-30 points)
-    if (fighter.ranking) {
-      power += Math.max(0, 30 - ((fighter.ranking - 1) * 2));
+    // Determine fighter's status
+    const isChampion = championships.some(c => c.currentChampionId === fighter.personid);
+    const ranking = fighter.ranking || 999;
+  
+    // Get base minimum contract based on status
+    let minContract;
+    if (isChampion) {
+      minContract = BASE_MINIMUMS.champion;
+    } else if (ranking <= 5) {
+      minContract = BASE_MINIMUMS.topFive;
+    } else if (ranking <= 10) {
+      minContract = BASE_MINIMUMS.topTen;
+    } else if (ranking <= 15) {
+      minContract = BASE_MINIMUMS.ranked;
     } else {
-      power += 5; // Unranked baseline
+      minContract = BASE_MINIMUMS.unranked;
     }
   
-    // Championship status (0-35 points)
-    const isCurrentChamp = championships.some(c => c.currentChampionId === fighter.personid);
-    const isFormerChamp = championships.some(c => 
-      c.reigns?.some(reign => reign.championId === fighter.personid && reign.endDate)
-    );
+    // Calculate performance multiplier based on recent fights
+    const recentFights = fights
+      .filter(f => 
+        (f.fighter1.personid === fighter.personid || f.fighter2.personid === fighter.personid) &&
+        f.result // Only include completed fights
+      )
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 3); // Get last 3 fights
   
-    if (isCurrentChamp) {
-      power += 35;
-    } else if (isFormerChamp) {
-      power += 25;
+    let performanceMultiplier = 1;
+    
+    if (recentFights.length > 0) {
+      // Calculate win and finish rates
+      let wins = 0;
+      let finishes = 0;
+  
+      recentFights.forEach(fight => {
+        const isFighter1 = fight.fighter1.personid === fighter.personid;
+        const isWinner = fight.result.winner === (isFighter1 ? 0 : 1);
+        
+        if (isWinner) {
+          wins++;
+          if (fight.result.method === 'Knockout' || fight.result.method === 'Submission') {
+            finishes++;
+          }
+        }
+      });
+  
+      // Increase multiplier based on performance
+      if (wins === 3) performanceMultiplier += 0.5; // Win streak bonus
+      if (finishes >= 2) performanceMultiplier += 0.3; // Finishing bonus
+      else if (finishes === 1) performanceMultiplier += 0.15;
     }
   
-    // Win record impact (0-20 points)
-    const totalFights = fighter.wins + fighter.losses;
-    const winRate = totalFights > 0 ? (fighter.wins / totalFights) * 100 : 0;
-    power += Math.min(20, winRate / 5);
-  
-    // Fighting skill impact (0-15 points)
-    const avgRating = (
-      fighter.Rating.output +
-      fighter.Rating.strength +
-      fighter.Rating.speed +
-      fighter.Rating.striking +
-      fighter.Rating.takedownOffence
-    ) / 5;
-    power += Math.min(15, avgRating / 10);
-  
-    // Clamp between 0-100
-    return Math.min(100, Math.max(0, power));
+    return {
+      minBase: minContract.base * performanceMultiplier,
+      minWin: minContract.win * performanceMultiplier,
+    };
   };
   
-  /**
- * Generate a counter offer based on the fighter's negotiation power
- * @param {Object} originalOffer - Initial contract offer
- * @param {number} negotiationPower - Fighter's calculated negotiation power
+ /**
+ * Generate a counter offer based on fighter's status and performance
+ * @param {Object} originalOffer - Original contract offer
+ * @param {Object} fighter - Fighter object
+ * @param {Array} championships - Array of championship objects
+ * @param {Array} fights - Array of fights
  * @returns {Object} Counter offer contract
  */
-export const generateCounterOffer = (originalOffer, negotiationPower) => {
-    // Calculate increase percentage based on negotiation power
-    const increasePercentage = (negotiationPower / 100) * 50; // Up to 50% increase
-    
-    // Ensure minimum base amount
-    const baseAmount = Math.max(CONTRACT_MINIMUMS.BASE_PURSE, originalOffer.amount);
-    const counterAmount = Math.round(baseAmount * (1 + (increasePercentage / 100)));
+export const generateCounterOffer = (originalOffer, fighter, championships, fights) => {
+    const { minBase, minWin } = calculateMinimumContract(fighter, championships, fights);
   
-    // Generate counter offer
+    // Add 20% to minimum values for counter offer
+    const counterBase = Math.round(minBase * 1.2);
+    const counterWin = Math.round(minWin * 1.2);
+  
+    // Generate finish and performance bonuses based on status
+    const finishBonus = fighter.ranking ? Math.round(counterBase * 0.5) : 0;
+    const performanceBonus = fighter.ranking ? Math.round(counterBase * 0.25) : 0;
+  
     return validateContractValues({
       ...originalOffer,
-      amount: counterAmount,
-      signingBonus: negotiationPower > 70 ? Math.round(counterAmount * 0.2) : 0,
-      fightsRequested: negotiationPower > 80 ? 2 : 
-                       negotiationPower > 60 ? 3 : 
-                       Math.min(4, originalOffer.fightsOffered),
+      amount: counterBase,
+      fightsRequested: Math.min(4, originalOffer.fightsOffered), // Champions and top fighters prefer shorter contracts
+      signingBonus: fighter.ranking <= 5 ? Math.round(counterBase * 0.2) : 0,
       bonuses: {
-        winBonus: Math.max(CONTRACT_MINIMUMS.WIN_BONUS, Math.round(counterAmount * 0.8)),
-        finishBonus: Math.round(counterAmount * 0.25),
-        performanceBonus: Math.round(counterAmount * 0.2)
+        winBonus: counterWin,
+        finishBonus: finishBonus,
+        performanceBonus: performanceBonus
       }
     });
   };
@@ -111,33 +139,29 @@ export const validateContractValues = (contract) => {
   };
   
   
-  /**
- * Determines whether a fighter will accept an offer based on their negotiation power
- * @param {Object} offer - Proposed contract
- * @param {Object} counterOffer - Fighter's counter offer
- * @param {number} negotiationPower - Fighter's negotiation power
- * @returns {boolean} Whether the fighter accepts the offer
+ /**
+ * Determines whether a fighter will accept an offer
+ * @param {Object} offer - Contract offer
+ * @param {Object} fighter - Fighter object
+ * @param {Array} championships - Array of championship objects
+ * @param {Array} fights - Array of fights
+ * @returns {boolean} Whether the offer is acceptable
  */
-export const willFighterAcceptOffer = (offer, counterOffer, negotiationPower) => {
-    // Calculate total potential earnings per fight
-    const offerTotal = offer.amount + 
-      (offer.bonuses?.winBonus || 0) + 
-      (offer.bonuses?.finishBonus || 0) + 
-      (offer.bonuses?.performanceBonus || 0);
-      
-    const counterTotal = counterOffer.amount + 
-      (counterOffer.bonuses?.winBonus || 0) + 
-      (counterOffer.bonuses?.finishBonus || 0) + 
-      (counterOffer.bonuses?.performanceBonus || 0);
+export const willFighterAcceptOffer = (offer, fighter, championships, fights) => {
+    const { minBase, minWin } = calculateMinimumContract(fighter, championships, fights);
   
-    // Higher negotiation power means fighter is pickier
-    const acceptanceThreshold = 90 - (negotiationPower / 2);
-    
-    // Calculate how close the offer is to the counter offer as a percentage
-    const offerQuality = (offerTotal / counterTotal) * 100;
+    // Allow either pure base pay or base+win bonus structure
+    if (offer.amount >= (minBase + minWin)) {
+      return true; // Accept if total base pay meets minimum total
+    }
   
-    return offerQuality >= acceptanceThreshold;
+    if (offer.amount >= minBase && offer.bonuses.winBonus >= minWin) {
+      return true; // Accept if base and win bonus each meet minimums
+    }
+  
+    return false;
   };
+  
   
   
   /**
@@ -146,24 +170,24 @@ export const willFighterAcceptOffer = (offer, counterOffer, negotiationPower) =>
  * @returns {Object} Initial contract offer
  */
 export const createInitialOffer = (fighter) => {
-    // Determine base amount considering ranking and championship status
-    let baseAmount = fighter.contract?.amount || CONTRACT_MINIMUMS.BASE_PURSE;
-    
-    if (fighter.ranking) {
-      baseAmount = Math.max(CONTRACT_MINIMUMS.RANKED_BASE, baseAmount);
-    }
+  // Determine base amount considering ranking and championship status
+  let baseAmount = fighter.contract?.amount || CONTRACT_MINIMUMS.BASE_PURSE;
   
-    return validateContractValues({
-      amount: baseAmount,
-      fightsOffered: 4,
-      type: 'exclusive',
-      signingBonus: 0,
-      bonuses: {
-        winBonus: fighter.contract?.amount >= 25000 ? 
-          (fighter.contract?.bonuses?.winBonus || baseAmount) : 
-          CONTRACT_MINIMUMS.WIN_BONUS,
-        finishBonus: fighter.contract?.bonuses?.finishBonus || Math.round(baseAmount * 0.2),
-        performanceBonus: fighter.contract?.bonuses?.performanceBonus || Math.round(baseAmount * 0.15)
-      }
-    });
-  };
+  if (fighter.ranking) {
+    baseAmount = Math.max(CONTRACT_MINIMUMS.RANKED_BASE, baseAmount);
+  }
+
+  return validateContractValues({
+    amount: baseAmount,
+    fightsOffered: 4,
+    type: 'exclusive',
+    signingBonus: 0,
+    bonuses: {
+      winBonus: fighter.contract?.amount >= 25000 ? 
+        (fighter.contract?.bonuses?.winBonus || baseAmount) : 
+        CONTRACT_MINIMUMS.WIN_BONUS,
+      finishBonus: fighter.contract?.bonuses?.finishBonus || Math.round(baseAmount * 0.2),
+      performanceBonus: fighter.contract?.bonuses?.performanceBonus || Math.round(baseAmount * 0.15)
+    }
+  });
+};

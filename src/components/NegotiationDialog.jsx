@@ -1,4 +1,3 @@
-// src/components/NegotiationDialog.jsx
 import React from 'react';
 import {
   Dialog,
@@ -12,6 +11,7 @@ import {
   Box,
   Grid,
 } from '@mui/material';
+import { calculateMinimumContract } from '../utils/contractNegotiation';
 
 /**
  * NegotiationDialog Component
@@ -39,8 +39,40 @@ const NegotiationDialog = React.memo(({
   onAcceptCounter,
   counterOffer,
   negotiationRound,
-  formatCurrency
+  formatCurrency,
+  championships,
+  fights
 }) => {
+
+    const renderMinimumRequirements = () => {
+        if (!selectedFighter) return null;
+      
+        const { minBase, minWin } = calculateMinimumContract(selectedFighter, championships, fights);
+      
+        return (
+          <Box sx={{ 
+            mt: 2, 
+            p: 2, 
+            bgcolor: 'info.light', 
+            borderRadius: 1,
+            color: 'info.contrastText'
+          }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Minimum Contract Requirements:
+            </Typography>
+            <Typography variant="body2">
+              Base Pay: {formatCurrency(minBase)}
+            </Typography>
+            <Typography variant="body2">
+              Win Bonus: {formatCurrency(minWin)}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Or total base pay of {formatCurrency(minBase + minWin)}
+            </Typography>
+          </Box>
+        );
+      };
+
   return (
     <Dialog 
       open={open} 
@@ -56,6 +88,7 @@ const NegotiationDialog = React.memo(({
       </DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {renderMinimumRequirements()}
           {/* Fight Purse Field */}
           <FormControl fullWidth>
             <TextField
@@ -66,8 +99,7 @@ const NegotiationDialog = React.memo(({
               InputProps={{
                 startAdornment: <Typography>$</Typography>,
                 inputProps: {  // Nested inside InputProps
-                  step: 1000,
-                  min: 12000
+                  step: 1000
                 }
               }}
             />

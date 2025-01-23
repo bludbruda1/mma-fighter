@@ -13,11 +13,10 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FilterPanel from "../components/FilterPanel";
 import SortableTable from "../components/SortableTable";
 import NegotiationDialog from '../components/NegotiationDialog';
-import { getAllFighters, getAllChampionships,updateFighter } from "../utils/indexedDB";
+import { getAllFighters, getAllChampionships,updateFighter, getAllFights } from "../utils/indexedDB";
 import { formatFightingStyle } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
 import { 
-    calculateNegotiationPower,
     generateCounterOffer,
     validateContractValues,
     willFighterAcceptOffer,
@@ -27,6 +26,7 @@ import {
 const Finances = () => {
   // Core state management
   const [fighters, setFighters] = useState([]);
+  const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
 
   // Sorting state management
@@ -54,7 +54,6 @@ const Finances = () => {
 const [negotiationOpen, setNegotiationOpen] = useState(false);
 const [selectedFighter, setSelectedFighter] = useState(null);
 const [negotiationRound, setNegotiationRound] = useState(0);
-const [negotiationPower, setNegotiationPower] = useState(0);
 const [counterOffer, setCounterOffer] = useState(null);
 const [newContract, setNewContract] = useState({
   amount: 12000,
@@ -83,13 +82,16 @@ const [newContract, setNewContract] = useState({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [fetchedFighters, fetchedChampionships] = await Promise.all([
+        // Add fights to the parallel fetch
+        const [fetchedFighters, fetchedChampionships, fetchedFights] = await Promise.all([
           getAllFighters(),
-          getAllChampionships()
+          getAllChampionships(),
+          getAllFights()
         ]);
         
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
+        setFights(fetchedFights);
   
         setFilterOptions({
           weightClasses: [...new Set(fetchedFighters.map(f => f.weightClass))].filter(Boolean).sort(),
@@ -117,12 +119,12 @@ const [newContract, setNewContract] = useState({
     }).format(amount || 0);
   };
 
-const handleNegotiateContract = (fighter) => {
-    const power = calculateNegotiationPower(fighter, championships);
-    setNegotiationPower(power);
-    setSelectedFighter(fighter);
-    
+  const handleNegotiateContract = (fighter) => {
+    // Create initial offer based on fighter's status
     const initialOffer = createInitialOffer(fighter);
+    
+    // Set up negotiation state
+    setSelectedFighter(fighter);
     setNewContract(initialOffer);
     setNegotiationRound(1);
     setCounterOffer(null);
@@ -131,12 +133,16 @@ const handleNegotiateContract = (fighter) => {
   
   // Handler for sending offers
   const handleSendOffer = () => {
+    if (!selectedFighter) return;
+  
     const validatedOffer = validateContractValues(newContract);
-    const counter = generateCounterOffer(validatedOffer, negotiationPower);
     
-    if (willFighterAcceptOffer(validatedOffer, counter, negotiationPower)) {
+    // Check if the offer is acceptable
+    if (willFighterAcceptOffer(validatedOffer, selectedFighter, championships, fights)) {
       handleSaveContract(validatedOffer);
     } else {
+      // Generate counter offer based on fighter's status and performance
+      const counter = generateCounterOffer(validatedOffer, selectedFighter, championships, fights);
       setCounterOffer(counter);
       setNegotiationRound(prev => prev + 1);
     }
@@ -147,24 +153,36 @@ const handleNegotiateContract = (fighter) => {
     try {
       if (!selectedFighter) return;
   
-      const updatedFighter = {
-        ...selectedFighter,
-        contract: contract
-      };
+      // Validate one final time before saving
+      const validatedContract = validateContractValues(contract);
+      
+      // Only save if the contract meets minimum requirements
+      if (willFighterAcceptOffer(validatedContract, selectedFighter, championships, fights)) {
+        const updatedFighter = {
+          ...selectedFighter,
+          contract: validatedContract
+        };
   
-      await updateFighter(updatedFighter);
-      
-      // Update local state
-      setFighters(prevFighters => 
-        prevFighters.map(f => 
-          f.personid === updatedFighter.personid ? updatedFighter : f
-        )
-      );
-      
-      setNegotiationOpen(false);
-      setSelectedFighter(null);
+        await updateFighter(updatedFighter);
+        
+        // Update local state
+        setFighters(prevFighters => 
+          prevFighters.map(f => 
+            f.personid === updatedFighter.personid ? updatedFighter : f
+          )
+        );
+        
+        setNegotiationOpen(false);
+        setSelectedFighter(null);
+        
+        // Could add success message here
+      } else {
+        // Could add error message here about invalid contract
+        console.error("Contract does not meet minimum requirements");
+      }
     } catch (error) {
       console.error("Error updating contract:", error);
+      // Could add error message here
     }
   };
   
@@ -428,6 +446,8 @@ const handleNegotiateContract = (fighter) => {
         counterOffer={counterOffer}
         negotiationRound={negotiationRound}
         formatCurrency={formatCurrency}
+        championships={championships}
+        fights={fights}
       />
     </Container>
   );
