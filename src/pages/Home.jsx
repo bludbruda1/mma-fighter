@@ -197,8 +197,7 @@ const Home = () => {
     const handleViewRoster = () => navigate("/roster");
     const handleSelectDate = () => navigate("/selectdate");
     const handleCreateEvent = () => navigate("/createevent");
-    const handleViewEvents = () => navigate("/events");
-    
+        
     const handleResetGame = async () => {
       setLoading(true);
       try {
