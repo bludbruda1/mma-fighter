@@ -13,22 +13,6 @@ import {
 } from '@mui/material';
 import { calculateMinimumContract } from '../utils/contractNegotiation';
 
-/**
- * NegotiationDialog Component
- * Handles contract negotiations with fighters
- * 
- * @param {Object} props
- * @param {boolean} props.open - Controls dialog visibility
- * @param {Function} props.onClose - Handler for closing dialog
- * @param {Object} props.selectedFighter - Currently selected fighter
- * @param {Object} props.newContract - Current contract offer
- * @param {Function} props.onContractUpdate - Handler for contract updates
- * @param {Function} props.onSendOffer - Handler for sending offers
- * @param {Function} props.onAcceptCounter - Handler for accepting counter offers
- * @param {Object} props.counterOffer - Current counter offer if any
- * @param {number} props.negotiationRound - Current negotiation round
- * @param {Function} props.formatCurrency - Currency formatting helper
- */
 const NegotiationDialog = React.memo(({ 
   open,
   onClose,
@@ -43,35 +27,35 @@ const NegotiationDialog = React.memo(({
   championships,
   fights
 }) => {
+  // Keep the render function for minimum requirements
+  const renderMinimumRequirements = () => {
+    if (!selectedFighter) return null;
 
-    const renderMinimumRequirements = () => {
-        if (!selectedFighter) return null;
-      
-        const { minBase, minWin } = calculateMinimumContract(selectedFighter, championships, fights);
-      
-        return (
-          <Box sx={{ 
-            mt: 2, 
-            p: 2, 
-            bgcolor: 'info.light', 
-            borderRadius: 1,
-            color: 'info.contrastText'
-          }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Minimum Contract Requirements:
-            </Typography>
-            <Typography variant="body2">
-              Base Pay: {formatCurrency(minBase)}
-            </Typography>
-            <Typography variant="body2">
-              Win Bonus: {formatCurrency(minWin)}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Or total base pay of {formatCurrency(minBase + minWin)}
-            </Typography>
-          </Box>
-        );
-      };
+    const { minBase, minWin } = calculateMinimumContract(selectedFighter, championships, fights);
+
+    return (
+      <Box sx={{ 
+        mt: 2, 
+        p: 2, 
+        bgcolor: 'info.light', 
+        borderRadius: 1,
+        color: 'info.contrastText'
+      }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Minimum Contract Requirements:
+        </Typography>
+        <Typography variant="body2">
+          Base Pay: {formatCurrency(minBase)}
+        </Typography>
+        <Typography variant="body2">
+          Win Bonus: {formatCurrency(minWin)}
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Or total base pay of {formatCurrency(minBase + minWin)}
+        </Typography>
+      </Box>
+    );
+  };
 
   return (
     <Dialog 
@@ -88,18 +72,20 @@ const NegotiationDialog = React.memo(({
       </DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {renderMinimumRequirements()}
-          {/* Fight Purse Field */}
+          {renderMinimumRequirements()}
+
+          {/* Base Pay Field */}
           <FormControl fullWidth>
             <TextField
-              label="Fight Purse"
+              label="Base Pay"
               type="number"
               value={newContract.amount}
               onChange={(e) => onContractUpdate('amount', parseInt(e.target.value) || 0)}
               InputProps={{
                 startAdornment: <Typography>$</Typography>,
-                inputProps: {  // Nested inside InputProps
-                  step: 1000
+                inputProps: {
+                  step: 1000,
+                  min: 0
                 }
               }}
             />
@@ -121,24 +107,10 @@ const NegotiationDialog = React.memo(({
           </FormControl>
 
           {/* Bonuses Section */}
-          <Typography variant="h6">Bonuses & Incentives</Typography>
+          <Typography variant="h6">Bonuses</Typography>
           <Grid container spacing={2}>
-            {/* Signing Bonus */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Signing Bonus"
-                type="number"
-                value={newContract.signingBonus}
-                onChange={(e) => onContractUpdate('signingBonus', parseInt(e.target.value) || 0)}
-                InputProps={{
-                  startAdornment: <Typography>$</Typography>
-                }}
-              />
-            </Grid>
-
             {/* Win Bonus */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Win Bonus"
@@ -146,38 +118,10 @@ const NegotiationDialog = React.memo(({
                 value={newContract.bonuses.winBonus}
                 onChange={(e) => onContractUpdate('bonus.winBonus', parseInt(e.target.value) || 0)}
                 InputProps={{
-                    startAdornment: <Typography>$</Typography>,
-                    inputProps: {  // Nested inside InputProps
-                      min: newContract.amount >= 25000 ? 0 : 12000
-                    }
-                }}
-              />
-            </Grid>
-
-            {/* Finish Bonus */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Finish Bonus"
-                type="number"
-                value={newContract.bonuses.finishBonus}
-                onChange={(e) => onContractUpdate('bonus.finishBonus', parseInt(e.target.value) || 0)}
-                InputProps={{
-                  startAdornment: <Typography>$</Typography>
-                }}
-              />
-            </Grid>
-
-            {/* Performance Bonus */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Performance Bonus"
-                type="number"
-                value={newContract.bonuses.performanceBonus}
-                onChange={(e) => onContractUpdate('bonus.performanceBonus', parseInt(e.target.value) || 0)}
-                InputProps={{
-                  startAdornment: <Typography>$</Typography>
+                  startAdornment: <Typography>$</Typography>,
+                  inputProps: {
+                    min: 0
+                  }
                 }}
               />
             </Grid>
@@ -195,16 +139,12 @@ const NegotiationDialog = React.memo(({
               <Typography variant="h6" gutterBottom>
                 Fighter Counter-Offer
               </Typography>
-              <Typography>Fight Purse: {formatCurrency(counterOffer.amount)}</Typography>
+              <Typography>Base Pay: {formatCurrency(counterOffer.amount)}</Typography>
               <Typography>Fights Requested: {counterOffer.fightsOffered}</Typography>
-              <Typography>Signing Bonus: {formatCurrency(counterOffer.signingBonus)}</Typography>
               <Typography>Win Bonus: {formatCurrency(counterOffer.bonuses.winBonus)}</Typography>
-              <Typography>Finish Bonus: {formatCurrency(counterOffer.bonuses.finishBonus)}</Typography>
-              <Typography>Performance Bonus: {formatCurrency(counterOffer.bonuses.performanceBonus)}</Typography>
             </Box>
           )}
 
-          {/* Negotiation Round Display */}
           <Typography 
             variant="body2" 
             color="text.secondary"
@@ -215,7 +155,6 @@ const NegotiationDialog = React.memo(({
         </Box>
       </DialogContent>
 
-      {/* Dialog Actions */}
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose}>Cancel</Button>
         {counterOffer && (

@@ -1,4 +1,3 @@
-// Finances.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from "react-router-dom";
 import {
@@ -13,21 +12,21 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FilterPanel from "../components/FilterPanel";
 import SortableTable from "../components/SortableTable";
 import NegotiationDialog from '../components/NegotiationDialog';
-import { getAllFighters, getAllChampionships,updateFighter, getAllFights } from "../utils/indexedDB";
+import { getAllFighters, getAllChampionships, getAllFights, updateFighter } from "../utils/indexedDB";
 import { formatFightingStyle } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
 import { 
-    generateCounterOffer,
-    validateContractValues,
-    willFighterAcceptOffer,
-    createInitialOffer
- } from '../utils/contractNegotiation';
+  generateCounterOffer,
+  validateContractValues,
+  willFighterAcceptOffer,
+  createInitialOffer
+} from '../utils/contractNegotiation';
 
 const Finances = () => {
   // Core state management
   const [fighters, setFighters] = useState([]);
-  const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
+  const [fights, setFights] = useState([]);
 
   // Sorting state management
   const [orderBy, setOrderBy] = useState('firstname');
@@ -51,38 +50,35 @@ const Finances = () => {
   });
 
   // Negotiation-related states
-const [negotiationOpen, setNegotiationOpen] = useState(false);
-const [selectedFighter, setSelectedFighter] = useState(null);
-const [negotiationRound, setNegotiationRound] = useState(0);
-const [counterOffer, setCounterOffer] = useState(null);
-const [newContract, setNewContract] = useState({
+  const [negotiationOpen, setNegotiationOpen] = useState(false);
+  const [selectedFighter, setSelectedFighter] = useState(null);
+  const [negotiationRound, setNegotiationRound] = useState(0);
+  const [counterOffer, setCounterOffer] = useState(null);
+  const [newContract, setNewContract] = useState({
     amount: 0,
     fightsOffered: 1,
     type: 'exclusive',
     signingBonus: 0,
     bonuses: {
-      winBonus: 0,
-      finishBonus: 0,
-      performanceBonus: 0
+      winBonus: 0
     }
   });
 
   // Helper function for chip colors
   const getStatusChipColor = (status) => {
     switch (status) {
-    case 'No Contract': return 'error';
-    case 'Expired': return 'error';
-    case 'Near Expiration': return 'warning';
-    case 'Active': return 'success';
-    default: return 'default';
+      case 'No Contract': return 'error';
+      case 'Expired': return 'error';
+      case 'Near Expiration': return 'warning';
+      case 'Active': return 'success';
+      default: return 'default';
     }
   };
 
-  // Fetch initial data and populate filter options
+  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Add fights to the parallel fetch
         const [fetchedFighters, fetchedChampionships, fetchedFights] = await Promise.all([
           getAllFighters(),
           getAllChampionships(),
@@ -119,6 +115,7 @@ const [newContract, setNewContract] = useState({
     }).format(amount || 0);
   };
 
+  // Handler for opening contract negotiations
   const handleNegotiateContract = (fighter) => {
     const initialOffer = createInitialOffer();
     setSelectedFighter(fighter);
@@ -127,42 +124,37 @@ const [newContract, setNewContract] = useState({
     setCounterOffer(null);
     setNegotiationOpen(true);
   };
-  
+
   // Handler for sending offers
   const handleSendOffer = () => {
     if (!selectedFighter) return;
-  
+
     const validatedOffer = validateContractValues(newContract);
     
-    // Check if the offer is acceptable
     if (willFighterAcceptOffer(validatedOffer, selectedFighter, championships, fights)) {
       handleSaveContract(validatedOffer);
     } else {
-      // Generate counter offer based on fighter's status and performance
       const counter = generateCounterOffer(validatedOffer, selectedFighter, championships, fights);
       setCounterOffer(counter);
       setNegotiationRound(prev => prev + 1);
     }
   };
-  
-  // Handler for saving the contract
+
+  // Handler for saving contracts
   const handleSaveContract = async (contract) => {
     try {
       if (!selectedFighter) return;
-  
-      // Validate one final time before saving
+
       const validatedContract = validateContractValues(contract);
       
-      // Only save if the contract meets minimum requirements
       if (willFighterAcceptOffer(validatedContract, selectedFighter, championships, fights)) {
         const updatedFighter = {
           ...selectedFighter,
           contract: validatedContract
         };
-  
+
         await updateFighter(updatedFighter);
         
-        // Update local state
         setFighters(prevFighters => 
           prevFighters.map(f => 
             f.personid === updatedFighter.personid ? updatedFighter : f
@@ -171,35 +163,34 @@ const [newContract, setNewContract] = useState({
         
         setNegotiationOpen(false);
         setSelectedFighter(null);
-        
-        // Could add success message here
-      } else {
-        // Could add error message here about invalid contract
-        console.error("Contract does not meet minimum requirements");
       }
     } catch (error) {
       console.error("Error updating contract:", error);
-      // Could add error message here
     }
   };
-  
+
   // Handler for contract updates
   const handleContractUpdate = (field, value) => {
-    let updatedContract = { ...newContract };
+    const updatedContract = { ...newContract };
     
-    // Handle nested bonus fields
-    if (field.startsWith('bonus.')) {
-      const bonusField = field.split('.')[1];
+    if (field === 'bonus.winBonus') {
       updatedContract.bonuses = {
         ...updatedContract.bonuses,
-        [bonusField]: value
+        winBonus: value
       };
     } else {
       updatedContract[field] = value;
     }
   
-    // Validate and set the contract
     setNewContract(validateContractValues(updatedContract));
+  };
+
+  // Helper function to determine contract status
+  const getContractStatus = (fighter) => {
+    if (!fighter.contract) return 'No Contract';
+    if (fighter.contract.fightsRem === 0) return 'Expired';
+    if (fighter.contract.fightsRem <= 2) return 'Near Expiration';
+    return 'Active';
   };
 
   // Column definitions
@@ -209,21 +200,10 @@ const [newContract, setNewContract] = useState({
     { id: 'weightClass', label: 'Weight Class' },
     { id: 'contractStatus', label: 'Contract Status' },
     { id: 'fightsRemaining', label: 'Fights Remaining' },
-    { id: 'purse', label: 'Fight Purse' },
+    { id: 'basePay', label: 'Base Pay' },
     { id: 'winBonus', label: 'Win Bonus' },
-    { id: 'finishBonus', label: 'Finish Bonus' },
-    { id: 'performanceBonus', label: 'Performance Bonus' },
-    { id: 'signingBonus', label: 'Signing Bonus' },
     { id: 'totalPotential', label: 'Total Potential' },
   ];
-
-  // Helper function to determine contract status
-  const getContractStatus = (fighter) => {
-    if (!fighter.contract) return 'No Contract';
-    if (fighter.contract.fightsRem === 0) return 'Expired';
-    if (fighter.contract.fightsRem <= 2) return 'Near Expiration';
-    return 'Active';
-  };
 
   // Custom cell renderer
   const renderCell = (fighter, columnId) => {
@@ -256,56 +236,48 @@ const [newContract, setNewContract] = useState({
             {`${fighter.firstname} ${fighter.lastname}`}
           </Link>
         );
-        case 'contractStatus':
-            const status = getContractStatus(fighter);
-            return (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Chip 
-                  label={status}
-                  color={getStatusChipColor(status)}
-                  size="small"
-                />
-                {(status === 'No Contract' || 
-                  status === 'Expired' || 
-                  status === 'Near Expiration') && (
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNegotiateContract(fighter);
-                    }}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: "rgba(33, 33, 33, 0.7)",
-                      },
-                    }}
-                  >
-                    {status === 'No Contract' ? 'Offer Contract' : 'Negotiate Extension'}
-                  </Button>
-                )}
-              </Box>
-            );
+      case 'contractStatus':
+        const status = getContractStatus(fighter);
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Chip 
+              label={status}
+              color={getStatusChipColor(status)}
+              size="small"
+            />
+            {(status === 'No Contract' || 
+              status === 'Expired' || 
+              status === 'Near Expiration') && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNegotiateContract(fighter);
+                }}
+                sx={{
+                  backgroundColor: "rgba(33, 33, 33, 0.9)",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "rgba(33, 33, 33, 0.7)",
+                  },
+                }}
+              >
+                {status === 'No Contract' ? 'Offer Contract' : 'Negotiate Extension'}
+              </Button>
+            )}
+          </Box>
+        );
       case 'fightsRemaining':
         return fighter.contract?.fightsRem || 'N/A';
-      case 'purse':
+      case 'basePay':
         return formatCurrency(fighter.contract?.amount);
       case 'winBonus':
         return formatCurrency(fighter.contract?.bonuses?.winBonus);
-      case 'finishBonus':
-        return formatCurrency(fighter.contract?.bonuses?.finishBonus);
-      case 'performanceBonus':
-        return formatCurrency(fighter.contract?.bonuses?.performanceBonus);
-      case 'signingBonus':
-        return formatCurrency(fighter.contract?.signingBonus);
       case 'totalPotential':
         if (!fighter.contract) return 'N/A';
         const total = (fighter.contract.amount || 0) +
-                     (fighter.contract.bonuses?.winBonus || 0) +
-                     (fighter.contract.bonuses?.finishBonus || 0) +
-                     (fighter.contract.bonuses?.performanceBonus || 0);
+                     (fighter.contract.bonuses?.winBonus || 0);
         return formatCurrency(total);
       default:
         return fighter[columnId];
@@ -322,36 +294,19 @@ const [newContract, setNewContract] = useState({
   // Filter application logic
   const applyFilters = useCallback((fightersToFilter) => {
     return fightersToFilter.filter(fighter => {
-      if (filters.weightClass !== 'all' && fighter.weightClass !== filters.weightClass) {
-        return false;
-      }
-      if (filters.fightingStyle !== 'all' && 
-          formatFightingStyle(fighter.fightingStyle) !== filters.fightingStyle) {
-        return false;
-      }
-      if (filters.nationality !== 'all' && fighter.nationality !== filters.nationality) {
-        return false;
-      }
+      if (filters.weightClass !== 'all' && fighter.weightClass !== filters.weightClass) return false;
+      if (filters.fightingStyle !== 'all' && formatFightingStyle(fighter.fightingStyle) !== filters.fightingStyle) return false;
+      if (filters.nationality !== 'all' && fighter.nationality !== filters.nationality) return false;
 
       const isChampion = getChampionshipInfo(fighter.personid).length > 0;
-      if (filters.championStatus === 'champion' && !isChampion) {
-        return false;
-      }
-      if (filters.championStatus === 'non-champion' && isChampion) {
-        return false;
-      }
+      if (filters.championStatus === 'champion' && !isChampion) return false;
+      if (filters.championStatus === 'non-champion' && isChampion) return false;
 
       const isRanked = fighter.ranking != null || isChampion;
-      if (filters.rankingStatus === 'ranked' && !isRanked) {
-        return false;
-      }
-      if (filters.rankingStatus === 'unranked' && isRanked) {
-        return false;
-      }
+      if (filters.rankingStatus === 'ranked' && !isRanked) return false;
+      if (filters.rankingStatus === 'unranked' && isRanked) return false;
 
-      if (filters.gender !== 'all' && fighter.gender !== filters.gender) {
-        return false;
-      }
+      if (filters.gender !== 'all' && fighter.gender !== filters.gender) return false;
 
       return true;
     });
@@ -366,25 +321,19 @@ const [newContract, setNewContract] = useState({
           const bIsChamp = getChampionshipInfo(b.personid).length > 0;
           if (aIsChamp !== bIsChamp) return aIsChamp ? -1 : 1;
           return (a.ranking || 999) - (b.ranking || 999);
-        case 'fullname':
-          return `${a.firstname} ${a.lastname}`.localeCompare(`${b.firstname} ${b.lastname}`);
         case 'contractStatus':
           return getContractStatus(a).localeCompare(getContractStatus(b));
         case 'fightsRemaining':
           return (a.contract?.fightsRem || 0) - (b.contract?.fightsRem || 0);
-        case 'purse':
+        case 'basePay':
           return (a.contract?.amount || 0) - (b.contract?.amount || 0);
+        case 'winBonus':
+          return (a.contract?.bonuses?.winBonus || 0) - (b.contract?.bonuses?.winBonus || 0);
         case 'totalPotential':
           const totalA = a.contract ? 
-            (a.contract.amount || 0) +
-            (a.contract.bonuses?.winBonus || 0) +
-            (a.contract.bonuses?.finishBonus || 0) +
-            (a.contract.bonuses?.performanceBonus || 0) : 0;
+            (a.contract.amount || 0) + (a.contract.bonuses?.winBonus || 0) : 0;
           const totalB = b.contract ? 
-            (b.contract.amount || 0) +
-            (b.contract.bonuses?.winBonus || 0) +
-            (b.contract.bonuses?.finishBonus || 0) +
-            (b.contract.bonuses?.performanceBonus || 0) : 0;
+            (b.contract.amount || 0) + (b.contract.bonuses?.winBonus || 0) : 0;
           return totalA - totalB;
         default:
           if (typeof a[property] === 'string') {
@@ -424,15 +373,16 @@ const [newContract, setNewContract] = useState({
         onRequestSort={handleRequestSort}
         renderCell={renderCell}
         sx={{
-            '& .MuiTableCell-root': {
-              whiteSpace: 'nowrap',
-              '&[data-column-id="contractStatus"]': {
-                minWidth: 250,
-              }
+          '& .MuiTableCell-root': {
+            whiteSpace: 'nowrap',
+            '&[data-column-id="contractStatus"]': {
+              minWidth: 250,
             }
-          }}
+          }
+        }}
       />
-    <NegotiationDialog
+
+      <NegotiationDialog
         open={negotiationOpen}
         onClose={() => setNegotiationOpen(false)}
         selectedFighter={selectedFighter}

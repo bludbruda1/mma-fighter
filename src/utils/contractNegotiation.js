@@ -81,26 +81,20 @@ export const calculateMinimumContract = (fighter, championships, fights) => {
  * @param {Array} fights - Array of fights
  * @returns {Object} Counter offer contract
  */
-export const generateCounterOffer = (originalOffer, fighter, championships, fights) => {
+ export const generateCounterOffer = (originalOffer, fighter, championships, fights) => {
     const { minBase, minWin } = calculateMinimumContract(fighter, championships, fights);
   
     // Add 20% to minimum values for counter offer
     const counterBase = Math.round(minBase * 1.2);
     const counterWin = Math.round(minWin * 1.2);
   
-    // Generate finish and performance bonuses based on status
-    const finishBonus = fighter.ranking ? Math.round(counterBase * 0.5) : 0;
-    const performanceBonus = fighter.ranking ? Math.round(counterBase * 0.25) : 0;
-  
     return validateContractValues({
       ...originalOffer,
       amount: counterBase,
       fightsRequested: Math.min(4, originalOffer.fightsOffered), // Champions and top fighters prefer shorter contracts
-      signingBonus: fighter.ranking <= 5 ? Math.round(counterBase * 0.2) : 0,
+      signingBonus: 0,  // Remove signing bonus for now
       bonuses: {
-        winBonus: counterWin,
-        finishBonus: finishBonus,
-        performanceBonus: performanceBonus
+        winBonus: counterWin
       }
     });
   };
@@ -123,8 +117,6 @@ export const validateContractValues = (contract, isInitialising = false) => {
         signingBonus: 0,
         bonuses: {
           winBonus: 0,
-          finishBonus: 0,
-          performanceBonus: 0
         }
       };
     }
@@ -141,8 +133,6 @@ export const validateContractValues = (contract, isInitialising = false) => {
         winBonus: contract.amount >= 25000 ? 
           Math.max(0, contract.bonuses.winBonus) : 
           Math.max(12000, contract.bonuses.winBonus),
-        finishBonus: Math.max(0, contract.bonuses.finishBonus),
-        performanceBonus: Math.max(0, contract.bonuses.performanceBonus)
       }
     };
   };
@@ -187,8 +177,6 @@ export const willFighterAcceptOffer = (offer, fighter, championships, fights) =>
       signingBonus: 0,
       bonuses: {
         winBonus: 0,
-        finishBonus: 0,
-        performanceBonus: 0
       }
     }, true); // Pass true to indicate initialization
   };
