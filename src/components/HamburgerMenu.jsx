@@ -25,7 +25,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import HandshakeIcon from '@mui/icons-material/Handshake';
-import { saveGameDate, getGameDate, getAllEvents, getAllFights } from "../utils/indexedDB";
+import { saveGameDate, getGameDate, getAllEvents, getAllFights, updateAllFighterStatuses } from "../utils/indexedDB";
 
 // HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
@@ -135,19 +135,26 @@ const HamburgerMenu = () => {
     try {
       const newDate = new Date(currentDate);
       newDate.setDate(newDate.getDate() + 1);
-
+  
+      // Save new date
+      await saveGameDate(newDate.toISOString());
+      
+      // Update fighter statuses
+      const updatedFighters = await updateAllFighterStatuses();
+      if (updatedFighters.length > 0) {
+        console.log(`Updated status for ${updatedFighters.length} fighters`);
+      }
+  
       // Check if there's an event on the new date
       const { hasEvent, eventId } = checkCurrentDateEvent(newDate, events, fights);
-
+  
       if (hasEvent) {
         // Navigate to event page
         navigate(`/event/${eventId}`);
       }
-
-      // Save and set new date
-      await saveGameDate(newDate.toISOString());
+  
       setCurrentDate(newDate);
-
+  
     } catch (error) {
       console.error("Error advancing date:", error);
     }

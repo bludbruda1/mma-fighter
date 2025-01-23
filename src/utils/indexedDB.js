@@ -580,3 +580,51 @@ export const getSettings = async (key) => {
     request.onerror = () => reject(request.error);
   });
 };
+
+/**
+ * Updates fighter active status based on injury recovery
+ * @param {Object} fighter - Fighter to check
+ * @param {Date} gameDate - Current game date
+ * @returns {Object|null} Updated fighter if status changed, null if no change needed
+ */
+export const checkAndUpdateFighterStatus = async (fighter) => {
+  if (!fighter.injuries?.length) {
+    // If no injuries and inactive, activate fighter
+    if (!fighter.isActive) {
+      const updatedFighter = { ...fighter, isActive: true };
+      await updateFighter(updatedFighter);
+      return updatedFighter;
+    }
+    return null;
+  }
+
+  const currentGameDate = await getGameDate();
+  const gameDateTime = new Date(currentGameDate);
+
+  // Check if any injuries are still active
+  const hasActiveInjury = fighter.injuries.some(injury => {
+    if (injury.isHealed) return false;
+    const injuryEnd = new Date(injury.dateIncurred);
+    injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+    return injuryEnd > gameDateTime;
+  });
+
+  // Update status if it doesn't match injury status
+  if (hasActiveInjury !== !fighter.isActive) {
+    const updatedFighter = { ...fighter, isActive: !hasActiveInjury };
+    await updateFighter(updatedFighter);
+    return updatedFighter;
+  }
+
+  return null;
+};
+
+// Function to check all fighters
+export const updateAllFighterStatuses = async () => {
+  const fighters = await getAllFighters();
+  const updates = await Promise.all(
+    fighters.map(fighter => checkAndUpdateFighterStatus(fighter))
+  );
+  
+  return updates.filter(Boolean); // Return only fighters that were updated
+};
