@@ -661,7 +661,7 @@ const formatFighterNameWithNickname = (fighter) => {
                       Current Organisation:
                     </Typography>
                     <Typography>
-                      {fighter.contract?.company || "No Active Contract"}
+                      {fighter.contract?.company || "UFC"}
                     </Typography>
                   </Grid>
 
