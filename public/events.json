@@ -34,5 +34,41 @@
       "prelims": [],
       "earlyPrelims": []
     }
+  },
+  {
+    "id": 4,
+    "name": "UFC Fight Night: Adesanya vs. Imavov",
+    "date": "2025-02-01",
+    "location": "Riyadh, Saudi Arabia",
+    "venue": "anB Arena",
+    "fights": {
+      "mainCard": [],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  },
+  {
+    "id": 5,
+    "name": "UFC 312",
+    "date": "2025-02-08",
+    "location": "Sydney, Australia",
+    "venue": "Qudos Bank Arena",
+    "fights": {
+      "mainCard": [],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  },
+  {
+    "id": 6,
+    "name": "UFC Fight Night: Cannonier vs. Rodrigues",
+    "date": "2025-02-15",
+    "location": "Las Vegas, Nevada",
+    "venue": "UFC Apex",
+    "fights": {
+      "mainCard": [],
+      "prelims": [],
+      "earlyPrelims": []
+    }
   }
 ]
