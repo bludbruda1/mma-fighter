@@ -12,7 +12,7 @@ import EventsList from "./pages/EventsList";
 import Calendar from "./components/Calendar";
 import Rankings from "./pages/Rankings";
 import SelectDate from "./pages/SelectDate";
-import Finances from "./pages/Finances";
+import Contracts from "./pages/Contracts";
 
 const App = () => {
   return (
@@ -30,7 +30,7 @@ const App = () => {
         <Route path="/events" element={<EventsList />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/rankings" element={<Rankings />} />
-        <Route path="/finances" element={<Finances />} />
+        <Route path="/contracts" element={<Contracts />} />
       </Routes>
     </>
   );

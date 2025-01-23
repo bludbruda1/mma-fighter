@@ -22,7 +22,7 @@ import {
   createInitialOffer
 } from '../utils/contractNegotiation';
 
-const Finances = () => {
+const Contracts = () => {
   // Core state management
   const [fighters, setFighters] = useState([]);
   const [championships, setChampionships] = useState([]);
@@ -400,4 +400,4 @@ const Finances = () => {
   );
 };
 
-export default Finances;
+export default Contracts;
