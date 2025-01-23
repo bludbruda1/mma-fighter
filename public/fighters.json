@@ -15,11 +15,11 @@
     "reach": 188,
     "contract": {
       "company": "UFC",
-      "amount": 100000,
+      "amount": 2000000,
       "bonuses": {
-        "winBonus": 100000
+        "winBonus": 0
       },
-      "fightsRem": 3,
+      "fightsRem": 2,
       "type": "exclusive"
     },
     "wins": 22,
@@ -27,8 +27,17 @@
     "draws": 0,
     "ncs": 0,
     "ranking": null,
-    "injuries": null,
-    "isActive": true,
+    "injuries": [
+      {
+      "type": "Broken toe",         
+      "location": "foot",         
+      "severity": "moderate",       
+      "dateIncurred": "2024-06-21",
+      "duration": 230,            
+      "isHealed": false
+      }
+    ],
+    "isActive": false,
     "image": "/assets/images/connormc.png",
     "profile": "/assets/images/conor_mcgregor_mini.png",
     "weightClass": "Lightweight",
@@ -222,8 +231,17 @@
     "draws": 0,
     "ncs": 1,
     "ranking": 4,
-    "injuries": null,
-    "isActive": true,
+    "injuries": [
+      {
+      "type": "Knee injury",         
+      "location": "knee",         
+      "severity": "severe",       
+      "dateIncurred": "2024-06-04",
+      "duration": 1528,            
+      "isHealed": false
+      }
+    ],
+    "isActive": false,
     "image": "/assets/images/dustinpo.png",
     "profile": "/assets/images/dustin_poirier_mini.png",
     "weightClass": "Lightweight",
@@ -616,7 +634,7 @@
       {
       "type": "Back strain",         
       "location": "back",         
-      "severity": "severe",       
+      "severity": "minor",       
       "dateIncurred": "2025-01-17",
       "duration": 90,            
       "isHealed": false
@@ -7850,8 +7868,17 @@
     "draws": 0,
     "ncs": 1,
     "ranking": 10,
-    "injuries": null,
-    "isActive": true,
+    "injuries": [
+      {
+      "type": "Undisclosed",         
+      "location": "undisclosed",         
+      "severity": "minor",       
+      "dateIncurred": "2025-01-14",
+      "duration": 95,            
+      "isHealed": false
+      }
+    ],    
+    "isActive": false,
     "image": "/assets/images/johnny_walker.png",
     "profile": "/assets/images/johnny_walker_mini.png",
     "weightClass": "Light Heavyweight",
