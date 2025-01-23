@@ -35,6 +35,7 @@ import { getRegions, getLocationsByRegion, getVenuesByLocation } from '../data/l
 import { EventContext } from "../contexts/EventContext";
 import FighterSelectionModal from '../components/FighterSelectionModal';
 import { formatFightingStyle } from "../utils/uiHelpers";
+import { checkFighterAvailability } from "../utils/fighterUtils"
 
 // Styles object for consistent theming
 const styles = {
@@ -409,7 +410,17 @@ const CreateEvent = () => {
         error: "Fighter is already scheduled in this event",
       };
     }
-  
+
+
+    // Check fighter availability (injuries and training camp)
+    const availability = checkFighterAvailability(fighter, selectedDate);
+    if (!availability.isAvailable) {
+      return {
+        available: false,
+        error: availability.reason,
+      };
+    }
+    
     // Check weight class match if not Open Weight
     if (selectedWeightClass !== 'Open Weight' && fighter.weightClass !== selectedWeightClass) {
       return {
@@ -1070,6 +1081,7 @@ const CreateEvent = () => {
                 selectedFightersInEvent={selectedFightersInEvent}
                 championships={championships}
                 weightClassLocked={fightWeightClasses[currentSelectionContext.fightIndex] !== 'Open Weight'}
+                gameDate={gameDate}
               />              
               )}
             </Container>

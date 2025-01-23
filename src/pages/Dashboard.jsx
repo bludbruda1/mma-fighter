@@ -23,7 +23,8 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { getAllFighters, getAllFights, getAllChampionships } from "../utils/indexedDB";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import { getAllFighters, getAllFights, getAllChampionships, getGameDate } from "../utils/indexedDB";
 import { calculateAge } from '../utils/dateUtils';
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 
@@ -110,6 +111,7 @@ const Dashboard = () => {
   const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
   const [fighterAge, setFighterAge] = useState("N/A");
+  const [gameDate, setGameDate] = useState(null);
 
   //  Helper function to sort fights
   const sortFights = (fights) => {
@@ -165,10 +167,13 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         // Get the fighter data
-        const [fighters, fetchedChampionships] = await Promise.all([
+        const [fighters, fetchedChampionships, currentGameDate] = await Promise.all([
           getAllFighters(),
-          getAllChampionships()
+          getAllChampionships(),
+          getGameDate()
         ]);
+
+        setGameDate(new Date(currentGameDate))
         
         const selectedFighter = fighters.find(
           (f) => f.personid === parseInt(id)
@@ -481,9 +486,46 @@ const formatFighterNameWithNickname = (fighter) => {
                 background: 'linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                mb: 1
               }}>
                 {formatFighterNameWithNickname(fighter)}
               </Typography>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: 1,
+                mt: 1 
+              }}>
+                <Chip 
+                  label={fighter.isActive ? "Active" : "Inactive"}
+                  color={fighter.isActive ? "success" : "error"}
+                  sx={{ 
+                    fontWeight: 'medium',
+                    px: 2
+                  }}
+                />
+                {!fighter.isActive && fighter.injuries?.some(injury => {
+                  const injuryEnd = new Date(injury.dateIncurred);
+                  injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                  return !injury.isHealed && injuryEnd > gameDate;
+                }) && (
+                  <Chip 
+                    icon={<LocalHospitalIcon />}
+                    label={(() => {
+                      const activeInjury = fighter.injuries.find(injury => {
+                        const injuryEnd = new Date(injury.dateIncurred);
+                        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                        return !injury.isHealed && injuryEnd > gameDate;
+                      });
+                      return `${activeInjury.type} (${activeInjury.location})`;
+                    })()}
+                    color="error"
+                    sx={{ fontWeight: 'medium' }}
+                  />
+                )}
+              </Box>
             </Box>
 
             <Button
@@ -700,6 +742,72 @@ const formatFighterNameWithNickname = (fighter) => {
               </CardContent>
             </Card>
 
+            {/* Injuries Card */}
+            {fighter.injuries && fighter.injuries.length > 0 && (
+              <Card sx={{ ...styles.profileCard, mb: 4 }}>
+                <CardContent>
+                  <Typography variant="h6" sx={styles.sectionTitle}>
+                    Injury History
+                  </Typography>
+                  <List>
+                    {fighter.injuries.map((injury, index) => {
+                      // Calculate injury end date
+                      const injuryStart = new Date(injury.dateIncurred);
+                      const injuryEnd = new Date(injury.dateIncurred);
+                      injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                      
+                      // Check if injury is still active
+                      const isActive = !injury.isHealed && injuryEnd > gameDate;
+                      
+                      // Calculate days remaining only for active injuries
+                      const daysRemaining = isActive ? 
+                        Math.ceil((injuryEnd - gameDate) / (1000 * 60 * 60 * 24)) : 0;
+
+                      return (
+                        <ListItem key={index}>
+                          <ListItemText
+                            primary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="subtitle1">
+                                  {injury.type} ({injury.location})
+                                </Typography>
+                                {isActive && (
+                                  <Chip 
+                                    label={`${daysRemaining} days remaining`}
+                                    color="error"
+                                    size="small"
+                                  />
+                                )}
+                              </Box>
+                            }
+                            secondary={
+                              <>
+                                <Typography variant="body2">
+                                  Severity: {injury.severity}
+                                </Typography>
+                                <Typography variant="body2">
+                                  {isActive ? (
+                                    `Date: ${injuryStart.toLocaleDateString()}`
+                                  ) : (
+                                    `Date: ${injuryStart.toLocaleDateString()} - ${injuryEnd.toLocaleDateString()}`
+                                  )}
+                                </Typography>
+                                {injury.notes && (
+                                  <Typography variant="body2">
+                                    Notes: {injury.notes}
+                                  </Typography>
+                                )}
+                              </>
+                            }
+                          />
+                        </ListItem>
+                      );
+                    })}
+                  </List>
+                </CardContent>
+              </Card>
+            )}
+      
             {/* Career Statistics Card */}
             <Card sx={{ ...styles.profileCard, mb: 4 }}>
               <CardContent>

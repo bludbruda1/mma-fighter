@@ -5,20 +5,24 @@ import {
   Typography,
   Tooltip,
   Box,
+  Chip,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import SortableTable from "../components/SortableTable";
 import FilterPanel from "../components/FilterPanel";
-import { getAllFighters, getAllChampionships } from "../utils/indexedDB";
+import { getAllFighters, getAllChampionships, getGameDate } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
 import { calculateAge } from '../utils/dateUtils';
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+
 
 
 const Roster = () => {
   // Core state management
   const [fighters, setFighters] = useState([]);
   const [championships, setChampionships] = useState([]);
+  const [gameDate, setGameDate] = useState(null);
 
   // Sorting state management
   const [orderBy, setOrderBy] = useState('firstname'); // Default sort by first name
@@ -64,14 +68,16 @@ const Roster = () => {
     const fetchData = async () => {
       try {
         // Fetch both fighters and championships in parallel
-        const [fetchedFighters, fetchedChampionships] = await Promise.all([
+        const [fetchedFighters, fetchedChampionships, currentGameDate] = await Promise.all([
           getAllFighters(),
-          getAllChampionships()
+          getAllChampionships(),
+          getGameDate()
         ]);
         
         // Update main data state
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
+        setGameDate(new Date(currentGameDate))
   
         // Extract and set unique values for filter options
         // Using Set to ensure uniqueness and filter(Boolean) to remove any null/undefined values
@@ -91,6 +97,7 @@ const Roster = () => {
   const columns = [
     { id: 'ranking', label: 'Ranking' },
     { id: 'fullname', label: 'Name' },
+    { id: 'status', label: 'Status' },
     { id: 'gender', label: 'Gender' },
     { id: 'dob', label: 'Date of Birth (Age)' },
     { id: 'weightClass', label: 'Weight Class' },
@@ -172,6 +179,35 @@ const Roster = () => {
 
   // Sorting comparison logic
   const compareValues = useCallback((a, b, property) => {
+    if (property === 'status') {
+      // Check active status first
+      if (a.isActive !== b.isActive) {
+        return a.isActive ? -1 : 1;  // Active fighters first
+      }
+      
+      // If both are inactive, check if it's due to injury
+      const aInjured = a.injuries?.some(injury => {
+        if (injury.isHealed) return false;
+        const injuryEnd = new Date(injury.dateIncurred);
+        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+        return injuryEnd > gameDate;
+      }) || false;
+  
+      const bInjured = b.injuries?.some(injury => {
+        if (injury.isHealed) return false;
+        const injuryEnd = new Date(injury.dateIncurred);
+        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+        return injuryEnd > gameDate;
+      }) || false;
+  
+      if (aInjured !== bInjured) {
+        return aInjured ? 1 : -1;  // Injured fighters last
+      }
+  
+      // If both have same status, sort alphabetically by name
+      return (a.firstname + a.lastname).localeCompare(b.firstname + b.lastname);
+    }
+  
     if (property === 'ranking') {
       const aIsChamp = getChampionshipInfo(a.personid).length > 0;
       const bIsChamp = getChampionshipInfo(b.personid).length > 0;
@@ -211,7 +247,7 @@ const Roster = () => {
 
     // Handle numeric properties
     return a[property] - b[property];
-  }, [getChampionshipInfo, getAge]);
+  }, [getChampionshipInfo, getAge, gameDate]);
 
   // Sort request handler
   const handleRequestSort = (property) => {
@@ -269,6 +305,42 @@ const Roster = () => {
             {`${fighter.firstname} ${fighter.lastname}`}
           </Link>
         );
+        case 'status':
+          // Use isActive as primary status check
+          if (!fighter.isActive) {
+            // Check injuries to provide injury details in tooltip
+            const activeInjuries = fighter.injuries?.filter(injury => {
+              if (injury.isHealed) return false;
+              const injuryEnd = new Date(injury.dateIncurred);
+              injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+              return injuryEnd > gameDate;
+            }) || [];
+
+            if (activeInjuries.length > 0) {
+              return (
+                <Tooltip 
+                  title={activeInjuries.map(i => 
+                    `${i.type} (${i.location}) - ${i.severity}`
+                  ).join(', ')}
+                >
+                  <Chip 
+                    label="Injured"
+                    color="error"
+                    size="small"
+                    icon={<LocalHospitalIcon />}
+                  />
+                </Tooltip>
+              );
+            }
+          }
+          return (
+            <Chip 
+              label="Active"
+              color="success"
+              size="small"
+            />
+          );
+
       case 'dob':
         return (
           <>
