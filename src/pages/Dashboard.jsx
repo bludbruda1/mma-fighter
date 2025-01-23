@@ -705,7 +705,7 @@ const formatFighterNameWithNickname = (fighter) => {
             </Card>
 
             {/* Injuries Card */}
-            {fighter.injuries && fighter.injuries.length && (
+            {fighter.injuries && fighter.injuries.length > 0 && (
               <Card sx={{ ...styles.profileCard, mb: 4 }}>
                 <CardContent>
                   <Typography variant="h6" sx={styles.sectionTitle}>
@@ -713,9 +713,15 @@ const formatFighterNameWithNickname = (fighter) => {
                   </Typography>
                   <List>
                     {fighter.injuries.map((injury, index) => {
+                      // Calculate injury end date
+                      const injuryStart = new Date(injury.dateIncurred);
                       const injuryEnd = new Date(injury.dateIncurred);
                       injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-                      const isActive = !injury.isHealed && injuryEnd > new Date();
+                      
+                      // Check if injury is still active
+                      const isActive = !injury.isHealed && injuryEnd > gameDate;
+                      
+                      // Calculate days remaining only for active injuries
                       const daysRemaining = isActive ? 
                         Math.ceil((injuryEnd - gameDate) / (1000 * 60 * 60 * 24)) : 0;
 
@@ -734,13 +740,6 @@ const formatFighterNameWithNickname = (fighter) => {
                                     size="small"
                                   />
                                 )}
-                                {injury.isHealed && (
-                                  <Chip 
-                                    label="Healed"
-                                    color="success"
-                                    size="small"
-                                  />
-                                )}
                               </Box>
                             }
                             secondary={
@@ -749,7 +748,11 @@ const formatFighterNameWithNickname = (fighter) => {
                                   Severity: {injury.severity}
                                 </Typography>
                                 <Typography variant="body2">
-                                  Date: {new Date(injury.dateIncurred).toLocaleDateString()}
+                                  {isActive ? (
+                                    `Date: ${injuryStart.toLocaleDateString()}`
+                                  ) : (
+                                    `Date: ${injuryStart.toLocaleDateString()} - ${injuryEnd.toLocaleDateString()}`
+                                  )}
                                 </Typography>
                                 {injury.notes && (
                                   <Typography variant="body2">
