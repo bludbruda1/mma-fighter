@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -231,6 +231,11 @@ const formatFighterNameWithNickname = (fighter) => {
       return `${fighter.firstname} ${fighter.lastname}`;
   }
 };
+
+// Helper function to get championship info for a fighter
+const getChampionshipInfo = useCallback((fighterId) => {
+  return championships.filter(c => c.currentChampionId === fighterId);
+}, [championships]);
 
   // Helper function to determine fight result
   const getFightResult = (fight) => {
@@ -647,7 +652,11 @@ const formatFighterNameWithNickname = (fighter) => {
                       Current Ranking:
                     </Typography>
                     <Typography>
-                      {fighter.ranking ? `#${fighter.ranking}` : 'Unranked'} ({fighter.weightClass})
+                      {getChampionshipInfo(fighter.personid).length > 0 
+                        ? 'Champion'
+                        : fighter.ranking 
+                          ? `#${fighter.ranking}` 
+                          : 'Unranked'} ({fighter.weightClass})
                     </Typography>
                   </Grid>
 
