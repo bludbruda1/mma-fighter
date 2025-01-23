@@ -700,6 +700,69 @@ const formatFighterNameWithNickname = (fighter) => {
               </CardContent>
             </Card>
 
+            {/* Injuries Card */}
+            {fighter.injuries && fighter.injuries.length && (
+              <Card sx={{ ...styles.profileCard, mb: 4 }}>
+                <CardContent>
+                  <Typography variant="h6" sx={styles.sectionTitle}>
+                    Injury History
+                  </Typography>
+                  <List>
+                    {fighter.injuries.map((injury, index) => {
+                      const injuryEnd = new Date(injury.dateIncurred);
+                      injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                      const isActive = !injury.isHealed && injuryEnd > new Date();
+                      const daysRemaining = isActive ? 
+                        Math.ceil((injuryEnd - new Date()) / (1000 * 60 * 60 * 24)) : 0;
+
+                      return (
+                        <ListItem key={index}>
+                          <ListItemText
+                            primary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="subtitle1">
+                                  {injury.type} ({injury.location})
+                                </Typography>
+                                {isActive && (
+                                  <Chip 
+                                    label={`${daysRemaining} days remaining`}
+                                    color="error"
+                                    size="small"
+                                  />
+                                )}
+                                {injury.isHealed && (
+                                  <Chip 
+                                    label="Healed"
+                                    color="success"
+                                    size="small"
+                                  />
+                                )}
+                              </Box>
+                            }
+                            secondary={
+                              <>
+                                <Typography variant="body2">
+                                  Severity: {injury.severity}
+                                </Typography>
+                                <Typography variant="body2">
+                                  Date: {new Date(injury.dateIncurred).toLocaleDateString()}
+                                </Typography>
+                                {injury.notes && (
+                                  <Typography variant="body2">
+                                    Notes: {injury.notes}
+                                  </Typography>
+                                )}
+                              </>
+                            }
+                          />
+                        </ListItem>
+                      );
+                    })}
+                  </List>
+                </CardContent>
+              </Card>
+            )}
+      
             {/* Career Statistics Card */}
             <Card sx={{ ...styles.profileCard, mb: 4 }}>
               <CardContent>

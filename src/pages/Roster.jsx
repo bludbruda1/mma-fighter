@@ -5,6 +5,7 @@ import {
   Typography,
   Tooltip,
   Box,
+  Chip,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import SortableTable from "../components/SortableTable";
@@ -13,6 +14,8 @@ import { getAllFighters, getAllChampionships } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
 import { calculateAge } from '../utils/dateUtils';
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+
 
 
 const Roster = () => {
@@ -91,6 +94,7 @@ const Roster = () => {
   const columns = [
     { id: 'ranking', label: 'Ranking' },
     { id: 'fullname', label: 'Name' },
+    { id: 'status', label: 'Status' },
     { id: 'gender', label: 'Gender' },
     { id: 'dob', label: 'Date of Birth (Age)' },
     { id: 'weightClass', label: 'Weight Class' },
@@ -269,6 +273,39 @@ const Roster = () => {
             {`${fighter.firstname} ${fighter.lastname}`}
           </Link>
         );
+        case 'status':
+        // Check if fighter has active injuries
+        const activeInjuries = fighter.injuries?.filter(injury => {
+          if (injury.isHealed) return false;
+          const injuryEnd = new Date(injury.dateIncurred);
+          injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+          return injuryEnd > new Date();
+        }) || [];
+
+        if (activeInjuries.length > 0) {
+          return (
+            <Tooltip 
+              title={activeInjuries.map(i => 
+                `${i.type} (${i.location}) - ${i.severity}`
+              ).join(', ')}
+            >
+              <Chip 
+                label="Injured"
+                color="error"
+                size="small"
+                icon={<LocalHospitalIcon />}
+              />
+            </Tooltip>
+          );
+        }
+        return (
+          <Chip 
+            label="Active"
+            color="success"
+            size="small"
+          />
+        );
+
       case 'dob':
         return (
           <>

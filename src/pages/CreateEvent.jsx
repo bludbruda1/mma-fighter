@@ -35,6 +35,7 @@ import { getRegions, getLocationsByRegion, getVenuesByLocation } from '../data/l
 import { EventContext } from "../contexts/EventContext";
 import FighterSelectionModal from '../components/FighterSelectionModal';
 import { formatFightingStyle } from "../utils/uiHelpers";
+import { checkFighterAvailability } from "../utils/fighterUtils"
 
 // Styles object for consistent theming
 const styles = {
@@ -407,6 +408,18 @@ const CreateEvent = () => {
       return {
         available: false,
         error: "Fighter is already scheduled in this event",
+      };
+    }
+
+    // Check injury status
+    const { isAvailable, reason } = checkFighterAvailability(
+      fighter, 
+      selectedDate
+    );
+    if (!isAvailable) {
+      return {
+        available: false,
+        error: reason,
       };
     }
   
