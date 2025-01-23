@@ -56,16 +56,16 @@ const [selectedFighter, setSelectedFighter] = useState(null);
 const [negotiationRound, setNegotiationRound] = useState(0);
 const [counterOffer, setCounterOffer] = useState(null);
 const [newContract, setNewContract] = useState({
-  amount: 12000,
-  fightsOffered: 4,
-  type: 'exclusive',
-  signingBonus: 0,
-  bonuses: {
-    winBonus: 12000,
-    finishBonus: 0,
-    performanceBonus: 0
-  }
-});
+    amount: 0,
+    fightsOffered: 1,
+    type: 'exclusive',
+    signingBonus: 0,
+    bonuses: {
+      winBonus: 0,
+      finishBonus: 0,
+      performanceBonus: 0
+    }
+  });
 
   // Helper function for chip colors
   const getStatusChipColor = (status) => {
@@ -120,10 +120,7 @@ const [newContract, setNewContract] = useState({
   };
 
   const handleNegotiateContract = (fighter) => {
-    // Create initial offer based on fighter's status
-    const initialOffer = createInitialOffer(fighter);
-    
-    // Set up negotiation state
+    const initialOffer = createInitialOffer();
     setSelectedFighter(fighter);
     setNewContract(initialOffer);
     setNegotiationRound(1);

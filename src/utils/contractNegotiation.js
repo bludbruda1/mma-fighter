@@ -1,11 +1,3 @@
-const CONTRACT_MINIMUMS = {
-    BASE_PURSE: 12000,
-    WIN_BONUS: 12000,
-    RANKED_BASE: 45000,    // Minimum for ranked fighters
-    CHAMP_BASE: 500000,    // Minimum for champions
-    EX_CHAMP_BASE: 150000  // Minimum for former champions
-  };
-
 /**
  * Calculate a fighter's minimum acceptable contract value
  * @param {Object} fighter - Fighter object
@@ -113,27 +105,44 @@ export const generateCounterOffer = (originalOffer, fighter, championships, figh
     });
   };
   
-  /**
+ /**
  * Validate and normalize contract values to ensure they meet minimum requirements
  * @param {Object} contract - Contract to validate
+ * @param {boolean} isInitialising - Whether this is initial contract creation
  * @returns {Object} Validated contract
  */
-export const validateContractValues = (contract) => {
-    // Ensure win bonus meets minimum for lower-paid fighters
-    const winBonus = contract.amount >= 25000 ? 
-      (contract.bonuses?.winBonus || 0) : 
-      Math.max(CONTRACT_MINIMUMS.WIN_BONUS, contract.bonuses?.winBonus || 0);
+export const validateContractValues = (contract, isInitialising = false) => {
+    // If initializing, don't enforce minimum values
+    if (isInitialising) {
+      return {
+        ...contract,
+        company: 'UFC',
+        amount: 0,
+        fightsOffered: Math.max(1, contract.fightsOffered), // Only enforce minimum fights
+        fightsRem: Math.max(1, contract.fightsOffered),
+        signingBonus: 0,
+        bonuses: {
+          winBonus: 0,
+          finishBonus: 0,
+          performanceBonus: 0
+        }
+      };
+    }
   
+    // Normal validation for actual offers
     return {
       ...contract,
-      amount: Math.max(CONTRACT_MINIMUMS.BASE_PURSE, contract.amount),
-      fightsOffered: Math.max(1, Math.min(8, contract.fightsOffered)),
+      company: 'UFC',
+      amount: Math.max(0, contract.amount),
+      fightsOffered: Math.max(1, contract.fightsOffered),
       fightsRem: Math.max(1, contract.fightsOffered),
-      signingBonus: Math.max(0, contract.signingBonus || 0),
+      signingBonus: Math.max(0, contract.signingBonus),
       bonuses: {
-        winBonus,
-        finishBonus: Math.max(0, contract.bonuses?.finishBonus || 0),
-        performanceBonus: Math.max(0, contract.bonuses?.performanceBonus || 0)
+        winBonus: contract.amount >= 25000 ? 
+          Math.max(0, contract.bonuses.winBonus) : 
+          Math.max(12000, contract.bonuses.winBonus),
+        finishBonus: Math.max(0, contract.bonuses.finishBonus),
+        performanceBonus: Math.max(0, contract.bonuses.performanceBonus)
       }
     };
   };
@@ -169,25 +178,17 @@ export const willFighterAcceptOffer = (offer, fighter, championships, fights) =>
  * @param {Object} fighter - Fighter object
  * @returns {Object} Initial contract offer
  */
-export const createInitialOffer = (fighter) => {
-  // Determine base amount considering ranking and championship status
-  let baseAmount = fighter.contract?.amount || CONTRACT_MINIMUMS.BASE_PURSE;
-  
-  if (fighter.ranking) {
-    baseAmount = Math.max(CONTRACT_MINIMUMS.RANKED_BASE, baseAmount);
-  }
-
-  return validateContractValues({
-    amount: baseAmount,
-    fightsOffered: 4,
-    type: 'exclusive',
-    signingBonus: 0,
-    bonuses: {
-      winBonus: fighter.contract?.amount >= 25000 ? 
-        (fighter.contract?.bonuses?.winBonus || baseAmount) : 
-        CONTRACT_MINIMUMS.WIN_BONUS,
-      finishBonus: fighter.contract?.bonuses?.finishBonus || Math.round(baseAmount * 0.2),
-      performanceBonus: fighter.contract?.bonuses?.performanceBonus || Math.round(baseAmount * 0.15)
-    }
-  });
-};
+  export const createInitialOffer = () => {
+    return validateContractValues({
+      company: 'UFC',
+      amount: 0,
+      fightsOffered: 1,
+      type: 'exclusive',
+      signingBonus: 0,
+      bonuses: {
+        winBonus: 0,
+        finishBonus: 0,
+        performanceBonus: 0
+      }
+    }, true); // Pass true to indicate initialization
+  };
