@@ -505,5 +505,26 @@
     "weightClass": "Middleweight",
     "result": null,
     "stats": null
+  },
+  {
+    "id": 23,
+    "championship": {
+      "currentChampionId": 50,
+      "id": 2,
+      "name": "Middleweight Championship"
+    },
+      "fighter1": {
+      "personid": 50,
+      "firstname": "Dricus",
+      "lastname": "du Plessis"
+    },
+    "fighter2": {
+      "personid": 49,
+      "firstname": "Sean",
+      "lastname": "Strickland"
+    },
+    "weightClass": "Middleweight",
+    "result": null,
+    "stats": null
   }
 ]

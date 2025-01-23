@@ -38,7 +38,7 @@
     "name": "Middleweight Championship",
     "weightClass": "Middleweight",
     "gender": "Male",
-    "currentChampionId": null,
+    "currentChampionId": 50,
     "description": "UFC Middleweight Championship"
   },
   {

@@ -54,7 +54,7 @@
     "location": "Sydney, Australia",
     "venue": "Qudos Bank Arena",
     "fights": {
-      "mainCard": [],
+      "mainCard": [23],
       "prelims": [],
       "earlyPrelims": []
     }
