@@ -23,6 +23,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import { getAllFighters, getAllFights, getAllChampionships, getGameDate } from "../utils/indexedDB";
 import { calculateAge } from '../utils/dateUtils';
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
@@ -485,9 +486,46 @@ const formatFighterNameWithNickname = (fighter) => {
                 background: 'linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                mb: 1
               }}>
                 {formatFighterNameWithNickname(fighter)}
               </Typography>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: 1,
+                mt: 1 
+              }}>
+                <Chip 
+                  label={fighter.isActive ? "Active" : "Inactive"}
+                  color={fighter.isActive ? "success" : "error"}
+                  sx={{ 
+                    fontWeight: 'medium',
+                    px: 2
+                  }}
+                />
+                {!fighter.isActive && fighter.injuries?.some(injury => {
+                  const injuryEnd = new Date(injury.dateIncurred);
+                  injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                  return !injury.isHealed && injuryEnd > gameDate;
+                }) && (
+                  <Chip 
+                    icon={<LocalHospitalIcon />}
+                    label={(() => {
+                      const activeInjury = fighter.injuries.find(injury => {
+                        const injuryEnd = new Date(injury.dateIncurred);
+                        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                        return !injury.isHealed && injuryEnd > gameDate;
+                      });
+                      return `${activeInjury.type} (${activeInjury.location})`;
+                    })()}
+                    color="error"
+                    sx={{ fontWeight: 'medium' }}
+                  />
+                )}
+              </Box>
             </Box>
 
             <Button

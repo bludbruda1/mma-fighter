@@ -10,7 +10,7 @@ import {
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import SortableTable from "../components/SortableTable";
 import FilterPanel from "../components/FilterPanel";
-import { getAllFighters, getAllChampionships } from "../utils/indexedDB";
+import { getAllFighters, getAllChampionships, getGameDate } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
 import { calculateAge } from '../utils/dateUtils';
@@ -22,6 +22,7 @@ const Roster = () => {
   // Core state management
   const [fighters, setFighters] = useState([]);
   const [championships, setChampionships] = useState([]);
+  const [gameDate, setGameDate] = useState(null);
 
   // Sorting state management
   const [orderBy, setOrderBy] = useState('firstname'); // Default sort by first name
@@ -67,14 +68,16 @@ const Roster = () => {
     const fetchData = async () => {
       try {
         // Fetch both fighters and championships in parallel
-        const [fetchedFighters, fetchedChampionships] = await Promise.all([
+        const [fetchedFighters, fetchedChampionships, currentGameDate] = await Promise.all([
           getAllFighters(),
-          getAllChampionships()
+          getAllChampionships(),
+          getGameDate()
         ]);
         
         // Update main data state
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
+        setGameDate(new Date(currentGameDate))
   
         // Extract and set unique values for filter options
         // Using Set to ensure uniqueness and filter(Boolean) to remove any null/undefined values
@@ -274,37 +277,40 @@ const Roster = () => {
           </Link>
         );
         case 'status':
-        // Check if fighter has active injuries
-        const activeInjuries = fighter.injuries?.filter(injury => {
-          if (injury.isHealed) return false;
-          const injuryEnd = new Date(injury.dateIncurred);
-          injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-          return injuryEnd > new Date();
-        }) || [];
+          // Use isActive as primary status check
+          if (!fighter.isActive) {
+            // Check injuries to provide injury details in tooltip
+            const activeInjuries = fighter.injuries?.filter(injury => {
+              if (injury.isHealed) return false;
+              const injuryEnd = new Date(injury.dateIncurred);
+              injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+              return injuryEnd > gameDate;
+            }) || [];
 
-        if (activeInjuries.length > 0) {
+            if (activeInjuries.length > 0) {
+              return (
+                <Tooltip 
+                  title={activeInjuries.map(i => 
+                    `${i.type} (${i.location}) - ${i.severity}`
+                  ).join(', ')}
+                >
+                  <Chip 
+                    label="Injured"
+                    color="error"
+                    size="small"
+                    icon={<LocalHospitalIcon />}
+                  />
+                </Tooltip>
+              );
+            }
+          }
           return (
-            <Tooltip 
-              title={activeInjuries.map(i => 
-                `${i.type} (${i.location}) - ${i.severity}`
-              ).join(', ')}
-            >
-              <Chip 
-                label="Injured"
-                color="error"
-                size="small"
-                icon={<LocalHospitalIcon />}
-              />
-            </Tooltip>
+            <Chip 
+              label="Active"
+              color="success"
+              size="small"
+            />
           );
-        }
-        return (
-          <Chip 
-            label="Active"
-            color="success"
-            size="small"
-          />
-        );
 
       case 'dob':
         return (

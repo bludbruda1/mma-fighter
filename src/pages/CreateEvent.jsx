@@ -411,18 +411,16 @@ const CreateEvent = () => {
       };
     }
 
-    // Check injury status
-    const { isAvailable, reason } = checkFighterAvailability(
-      fighter, 
-      selectedDate
-    );
-    if (!isAvailable) {
+
+    // Check fighter availability (injuries and training camp)
+    const availability = checkFighterAvailability(fighter, selectedDate);
+    if (!availability.isAvailable) {
       return {
         available: false,
-        error: reason,
+        error: availability.reason,
       };
     }
-  
+    
     // Check weight class match if not Open Weight
     if (selectedWeightClass !== 'Open Weight' && fighter.weightClass !== selectedWeightClass) {
       return {
