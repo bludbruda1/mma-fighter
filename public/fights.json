@@ -488,5 +488,22 @@
       "timeEnded": "5:00"
     },
     "stats": null  
+  },
+  {
+    "id": 22,
+    "championship": null,
+    "fighter1": {
+      "personid": 47,
+      "firstname": "Israel",
+      "lastname": "Adesanya"
+    },
+    "fighter2": {
+      "personid": 48,
+      "firstname": "Nassourdine",
+      "lastname": "Imavov"
+    },
+    "weightClass": "Middleweight",
+    "result": null,
+    "stats": null
   }
 ]

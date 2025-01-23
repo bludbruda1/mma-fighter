@@ -42,7 +42,7 @@
     "location": "Riyadh, Saudi Arabia",
     "venue": "anB Arena",
     "fights": {
-      "mainCard": [],
+      "mainCard": [22],
       "prelims": [],
       "earlyPrelims": []
     }
