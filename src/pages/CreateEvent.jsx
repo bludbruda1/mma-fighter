@@ -1083,6 +1083,7 @@ const CreateEvent = () => {
                 selectedFightersInEvent={selectedFightersInEvent}
                 championships={championships}
                 weightClassLocked={fightWeightClasses[currentSelectionContext.fightIndex] !== 'Open Weight'}
+                gameDate={gameDate}
               />              
               )}
             </Container>

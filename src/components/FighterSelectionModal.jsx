@@ -17,6 +17,7 @@ import {
 import FilterPanel from './FilterPanel';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { formatFightingStyle } from "../utils/uiHelpers";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 
 /**
  * FighterSelectionModal Component
@@ -47,6 +48,7 @@ const FighterSelectionModal = ({
   selectedFightersInEvent,
   championships,
   weightClassLocked,
+  gameDate
 }) => {
   // Helper function to check if a fighter is a champion
   const getChampionship = (fighterId) => {
@@ -70,6 +72,32 @@ const FighterSelectionModal = ({
     return {
       available: true
     };
+  };
+
+  // Helper function to check injury status
+  const getFighterInjuryStatus = (fighter) => {
+    if (!fighter.injuries?.length) return null;
+
+    const activeInjury = fighter.injuries.find(injury => {
+      if (injury.isHealed) return false;
+      const injuryEnd = new Date(injury.dateIncurred);
+      injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+      return injuryEnd > gameDate;
+    });
+
+    if (activeInjury) {
+      const injuryEnd = new Date(activeInjury.dateIncurred);
+      injuryEnd.setDate(injuryEnd.getDate() + activeInjury.duration);
+      const daysRemaining = Math.ceil((injuryEnd - gameDate) / (1000 * 60 * 60 * 24));
+      
+      return {
+        type: activeInjury.type,
+        location: activeInjury.location,
+        daysRemaining
+      };
+    }
+
+    return null;
   };
 
   return (
@@ -112,6 +140,7 @@ const FighterSelectionModal = ({
             {fighters.map((fighter) => {
               const availability = isFighterAvailable(fighter);
               const championship = getChampionship(fighter.personid);
+              const injuryStatus = getFighterInjuryStatus(fighter);
 
               return (
                 <Grid item xs={12} sm={6} md={4} key={fighter.personid}>
@@ -184,6 +213,29 @@ const FighterSelectionModal = ({
                           sx={{ mt: 1 }}
                         >
                           {availability.reason}
+                        </Typography>
+                      )}
+                        {injuryStatus && (
+                        <Box sx={{ mt: 1 }}>
+                          <Chip 
+                            icon={<LocalHospitalIcon />}
+                            label={`Recovering from ${injuryStatus.type} (${injuryStatus.daysRemaining} days)`}
+                            color="error"
+                            size="small"
+                            sx={{ width: '100%' }}
+                          />
+                        </Box>
+                      )}
+                      
+                      {!availability.available && (
+                        <Typography 
+                          color="error" 
+                          variant="body2" 
+                          sx={{ mt: 1 }}
+                        >
+                          {injuryStatus ? 
+                            `Recovering from ${injuryStatus.type}` : 
+                            availability.reason}
                         </Typography>
                       )}
                     </CardContent>
