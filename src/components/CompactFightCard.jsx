@@ -96,7 +96,10 @@ const CompactFightCard = ({
   };
 
   // Render corner profile section
-  const renderCorner = (fighter, isChampion, isWinner, alignment = 'left', age) => (
+  const renderCorner = (fighter, isChampion, isWinner, alignment = 'left', age) => {
+    const isChamp = isChampion;
+    
+    return (
     <Box sx={{ 
       display: 'flex', 
       alignItems: 'center', 
@@ -106,6 +109,7 @@ const CompactFightCard = ({
       justifyContent: alignment === 'right' ? 'flex-start' : 'flex-start',
       mt: 2,
     }}>
+
       {/* Enhanced champion indicator styling */}
       {isChampion && (
         <Box
@@ -163,11 +167,12 @@ const CompactFightCard = ({
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.2 }}>
           {fighter.wins}W-{fighter.losses}L
-          {fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
-        </Typography>
+          {isChamp ? ' • Champion' : fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
+          </Typography>
       </Box>
     </Box>
   );
+};
 
   // Render fight status chip
   const renderStatusChip = () => {
@@ -410,7 +415,7 @@ const CompactFightCard = ({
                   Nationality: {fight.fighter1.nationality}
                 </Typography>
                 <Typography variant="subtitle2">
-                  Ranking: {fight.fighter1.ranking || 'Unranked'}
+                  Rank: {fighter1IsChamp ? 'Champion' : (fight.fighter1.ranking ?? "Unranked")}
                 </Typography>
               </Grid>
               <Grid item xs={6} sx={{ textAlign: 'right' }}>
@@ -421,7 +426,7 @@ const CompactFightCard = ({
                   Nationality: {fight.fighter2.nationality}
                 </Typography>
                 <Typography variant="subtitle2">
-                  Ranking: {fight.fighter2.ranking || 'Unranked'}
+                  Rank: {fighter2IsChamp ? 'Champion' : (fight.fighter2.ranking ?? "Unranked")}
                 </Typography>
               </Grid>
             </Grid>

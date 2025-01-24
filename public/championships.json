@@ -5,40 +5,14 @@
     "weightClass": "Lightweight",
     "gender": "Male",
     "currentChampionId": 3,
-    "description": "UFC Lightweight Championship",
-    "reigns": [
-      {
-        "championId": 3,
-        "name": "Islam Makhachev",
-        "startDate": "2022-10-22",
-        "endDate": null,
-        "wonFromId": 5,
-        "wonFromName": "Charles Oliveira",
-        "winMethod": "Submission",
-        "winRound": 2,
-        "winTime": "3:16",
-        "eventId": null
-      },
-      {
-        "championId": 5,
-        "name": "Charles Oliveira",
-        "startDate": "2021-05-15",
-        "endDate": "2022-10-22",
-        "wonFromId": 8,
-        "wonFromName": "Michael Chandler",
-        "winMethod": "Knockout",
-        "winRound": 2,
-        "winTime": "0:19",
-        "eventId": null
-      }
-    ]
+    "description": "UFC Lightweight Championship"
   },
   {
     "id": 2,
     "name": "Middleweight Championship",
     "weightClass": "Middleweight",
     "gender": "Male",
-    "currentChampionId": null,
+    "currentChampionId": 50,
     "description": "UFC Middleweight Championship"
   },
   {
@@ -47,33 +21,7 @@
     "weightClass": "Featherweight",
     "gender": "Male",
     "currentChampionId": 21,
-    "description": "UFC Featherweight Championship",
-    "reigns": [
-      {
-        "championId": 21,
-        "name": "Ilia Topuria",
-        "startDate": "2024-02-17",
-        "endDate": null,
-        "wonFromId": 22,
-        "wonFromName": "Alex Volkanovski",
-        "winMethod": "Knockout",
-        "winRound": 2,
-        "winTime": "3:32",
-        "eventId": null
-      },
-      {
-        "championId": 22,
-        "name": "Alex Volkanovski",
-        "startDate": "2019-12-14",
-        "endDate": "2024-02-17",
-        "wonFromId": null,
-        "wonFromName": "Jose Aldo",
-        "winMethod": "Decision",
-        "winRound": 5,
-        "winTime": "5:00",
-        "eventId": null
-      }
-    ]
+    "description": "UFC Featherweight Championship"
   },
   {
     "id": 4,
@@ -81,20 +29,6 @@
     "weightClass": "Bantamweight",
     "gender": "Male",
     "currentChampionId": 35,
-    "description": "UFC Bantamweight Championship",
-    "reigns": [
-      {
-        "championId": 35,
-        "name": "Merab Dvalishvili",
-        "startDate": "2024-09-15",
-        "endDate": null,
-        "wonFromId": null,
-        "wonFromName": "Sean O'Malley",
-        "winMethod": "Decision",
-        "winRound": 5,
-        "winTime": "5:00",
-        "eventId": null
-      }
-    ]
+    "description": "UFC Bantamweight Championship"
   }   
 ]
