@@ -155,8 +155,8 @@ const HamburgerMenu = () => {
       const { hasEvent, eventId } = checkCurrentDateEvent(newDate, events, fights);
   
       if (hasEvent) {
-        // Navigate to event page
-        navigate(`/event/${eventId}`);
+        // Navigate to event page with absolute path
+        navigate(`/game/${gameId}/event/${eventId}`);
       }
   
       setCurrentDate(newDate);
