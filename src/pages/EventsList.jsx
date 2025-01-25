@@ -162,7 +162,7 @@ const EventsList = () => {
         </Typography>
         <Button 
           variant="contained" 
-          onClick={() => navigate('/game/${gameId}/createevent')}
+          onClick={() => navigate(`/game/${gameId}/createevent`)}
           sx={{
             backgroundColor: "rgba(33, 33, 33, 0.9)",
             color: "#fff",
