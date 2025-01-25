@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"; // Added useMemo for performance
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -19,6 +19,7 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 
 
 const Roster = () => {
+  const { gameId } = useParams();
   // Core state management
   const [fighters, setFighters] = useState([]);
   const [championships, setChampionships] = useState([]);
@@ -69,9 +70,9 @@ const Roster = () => {
       try {
         // Fetch both fighters and championships in parallel
         const [fetchedFighters, fetchedChampionships, currentGameDate] = await Promise.all([
-          getAllFighters(),
-          getAllChampionships(),
-          getGameDate()
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getGameDate(gameId)
         ]);
         
         // Update main data state

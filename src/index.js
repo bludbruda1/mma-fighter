@@ -5,6 +5,7 @@ import App from "./App";
 import initDB from "./utils/initDB";
 import { EventProvider } from "./contexts/EventContext";
 import { GameDateProvider } from "./contexts/GameDateContext";
+import { CurrentGameProvider } from "./contexts/CurrentGameContext";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -14,11 +15,13 @@ initDB()
   .then(() => {
     root.render(
       <Router>
-        <GameDateProvider>
-          <EventProvider>
-            <App />
-          </EventProvider>
-        </GameDateProvider>
+        <CurrentGameProvider>
+          <GameDateProvider>
+            <EventProvider>
+              <App />
+            </EventProvider>
+         </GameDateProvider>
+        </CurrentGameProvider>
       </Router>
     );
   })

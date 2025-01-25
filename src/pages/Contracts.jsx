@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -23,6 +23,7 @@ import {
 } from '../utils/contractNegotiation';
 
 const Contracts = () => {
+  const { gameId } = useParams();
   // Core state management
   const [fighters, setFighters] = useState([]);
   const [championships, setChampionships] = useState([]);
@@ -80,9 +81,9 @@ const Contracts = () => {
     const fetchData = async () => {
       try {
         const [fetchedFighters, fetchedChampionships, fetchedFights] = await Promise.all([
-          getAllFighters(),
-          getAllChampionships(),
-          getAllFights()
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getAllFights(gameId)
         ]);
         
         setFighters(fetchedFighters);
@@ -153,7 +154,7 @@ const Contracts = () => {
           contract: validatedContract
         };
 
-        await updateFighter(updatedFighter);
+        await updateFighter(updatedFighter, gameId);
         
         setFighters(prevFighters => 
           prevFighters.map(f => 

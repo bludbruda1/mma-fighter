@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import "../App.css";
 import {
   Button,
@@ -128,6 +128,7 @@ const WEIGHT_CLASS_OPTIONS = [
 ];
 
 const CreateEvent = () => {
+  const { gameId } = useParams();
   const { setEventIds } = useContext(EventContext);
   const navigate = useNavigate();
   const routerLocation = useLocation(); 
@@ -340,16 +341,14 @@ const CreateEvent = () => {
 
   // Load initial data: fighters, championships, and check bookings
   useEffect(() => {
-    const loadData = async () => {
+    const fetchData = async () => {
       try {
-        // Fetch fighters, fights, and championships data
-        const [fetchedFighters, allFights, fetchedChampionships, currentGameDate] =
-          await Promise.all([
-            getAllFighters(),
-            getAllFights(),
-            getAllChampionships(),
-            getGameDate(),
-          ]);
+        const [fetchedFighters, allFights, fetchedChampionships, currentGameDate] = await Promise.all([
+          getAllFighters(gameId),
+          getAllFights(gameId),
+          getAllChampionships(gameId),
+          getGameDate(gameId)
+        ]);
 
         // Set the game date
         setGameDate(new Date(currentGameDate));
@@ -383,9 +382,8 @@ const CreateEvent = () => {
         console.error("Error fetching data:", error);
       }
     };
-
-    loadData();
-  }, []);
+    fetchData();
+  }, [gameId]);
 
   // Helper function to determine if a fighter can be selected
   const isFighterAvailable = (fighterId, fightIndex, fighterPosition) => {
@@ -669,7 +667,7 @@ const CreateEvent = () => {
       // Create fights with proper structure
       const fightIds = [];
       for (const [index, fight] of fights.entries()) {
-        const nextFightId = await getNextFightId();
+        const nextFightId = await getNextFightId(gameId);
         const fightData = {
           id: nextFightId,
           fighter1: {
@@ -697,7 +695,7 @@ const CreateEvent = () => {
           } : null
         };
 
-        await addFightToDB(fightData);
+        await addFightToDB(fightData, gameId);
         fightIds.push(nextFightId);
       }
 
@@ -709,7 +707,7 @@ const CreateEvent = () => {
       };
 
       // Create event with new fight structure
-      const nextEventId = await getNextEventId();
+      const nextEventId = await getNextEventId(gameId);
       const eventData = {
         id: nextEventId,
         name: eventName,
@@ -720,7 +718,7 @@ const CreateEvent = () => {
         fights: groupedFights
       };
 
-      await addEventToDB(eventData);
+      await addEventToDB(eventData, gameId);
       console.log("Event saved successfully:", eventData);
       setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
       navigate(`/event/${eventData.id}`);

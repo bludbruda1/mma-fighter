@@ -47,6 +47,7 @@ import { updateRankingsAfterFight } from "../utils/rankingsHelper.js";
  * result viewing, and detailed fight playback functionality.
  */
 const Event = () => {
+  const { gameId } = useParams();
   const { eventId } = useParams();
 
   // Core event and fight state
@@ -71,7 +72,7 @@ const Event = () => {
     const fetchData = async () => {
       try {
         // Fetch event data
-        const event = await getEventFromDB(Number(eventId));
+        const event = await getEventFromDB(Number(eventId), gameId);
     
         // Get all fight IDs across all cards
         let allFightIds;
@@ -88,13 +89,13 @@ const Event = () => {
         }
     
         // Fetch fights data
-        const fights = await getFightsByIds(allFightIds);
+        const fights = await getFightsByIds(allFightIds, gameId);
     
         // Fetch all fighters and championships
         const [allFighters, allChampionships, savedMaxRankings] = await Promise.all([
-          getAllFighters(),
-          getAllChampionships(),
-          getSettings("maxRankings")
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getSettings("maxRankings", gameId)
         ]);
     
         setChampionships(allChampionships);
@@ -337,7 +338,7 @@ const Event = () => {
         result: fightResult,
         stats: fightStats,
         fightEvents: fightEvents,
-      });
+      }, gameId);
   
       // Mark fight as completed
       setCompletedFights((prev) => new Set([...prev, fightId]));
@@ -360,7 +361,7 @@ const Event = () => {
       setSelectedFighters([fighter1, fighter2]);
   
       // Update fighter records
-      await updateFighterRecords([fighter1, fighter2], result);
+      await updateFighterRecords([fighter1, fighter2], result, gameId);
   
       return { winnerIndex, fightResult }; 
     } catch (error) {
@@ -382,7 +383,7 @@ const Event = () => {
   
         try {
           // Get current championship data
-          const championship = await getChampionshipById(fight.championship.id);
+          const championship = await getChampionshipById(fight.championship.id, gameId);
 
           if (championship) {
             let updatedChampionship;
@@ -420,7 +421,7 @@ const Event = () => {
 
             // Update championship if there were changes
             if (updatedChampionship) {
-              await updateChampionship(updatedChampionship);
+              await updateChampionship(updatedChampionship, gameId);
 
               // Update local championships state
               setChampionships((prevChampionships) =>
@@ -562,7 +563,7 @@ const Event = () => {
       }
 
       // Get all fighters for ranking updates
-      const allFighters = await getAllFighters();
+      const allFighters = await getAllFighters(gameId);
 
       // Update rankings
       const rankingUpdates = await updateRankingsAfterFight(
@@ -665,7 +666,7 @@ const Event = () => {
       // Update all affected fighters in the database
       await Promise.all(
         Array.from(fighterUpdates.values()).map((fighter) =>
-          updateFighter(fighter)
+          updateFighter(fighter, gameId)
         )
       );
     } catch (error) {

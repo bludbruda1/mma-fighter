@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import { FormControl, TextField, Button, Grid } from "@mui/material";
 import { saveGameDate } from "../utils/indexedDB";
 import { useGameDate } from "../contexts/GameDateContext";
 
 const GameDateSetter = () => {
+  const { gameId } = useParams();
   const { gameDate, setGameDate } = useGameDate();
   const [selectedDate, setSelectedDate] = useState(
     gameDate.split("T")[0] // Extract YYYY-MM-DD from ISO format
@@ -15,7 +17,7 @@ const GameDateSetter = () => {
 
   const handleSaveDate = async () => {
     setGameDate(selectedDate); // Update game date in context as YYYY-MM-DD
-    await saveGameDate(selectedDate); // Save to IndexedDB
+    await saveGameDate(selectedDate, gameId); // Save to IndexedDB
     console.log(`Game date saved: ${selectedDate}`); // Log saved date
   };
 

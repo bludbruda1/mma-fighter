@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -41,6 +41,7 @@ import {
 } from '../utils/indexedDB';
 
 const Championships = () => {
+  const { gameId } = useParams();
   // State management for championships and fighters data
   const [championships, setChampionships] = useState([]);
   const [fighters, setFighters] = useState([]);
@@ -83,9 +84,9 @@ const Championships = () => {
     const loadData = async () => {
       try {
         const [fetchedChampionships, fetchedFighters, fetchedFights] = await Promise.all([
-          getAllChampionships(),
-          getAllFighters(),
-          getAllFights()
+          getAllChampionships(gameId),
+          getAllFighters(gameId),
+          getAllFights(gameId)
         ]);
         setChampionships(fetchedChampionships);
         setFighters(fetchedFighters);
@@ -247,7 +248,7 @@ const Championships = () => {
   // Handle creating a new championship
   const handleCreateChampionship = async () => {
     try {
-      const nextId = await getNextChampionshipId();
+      const nextId = await getNextChampionshipId(gameId);
       const championship = {
         id: nextId,
         ...newChampionship,
@@ -263,7 +264,7 @@ const Championships = () => {
         }
       }
 
-      await addChampionship(championship);
+      await addChampionship(championship, gameId);
       setChampionships(prev => [...prev, championship]);
       setOpenDialog(false);
       // Reset form
@@ -284,7 +285,7 @@ const Championships = () => {
     try {
       if (!selectedChampionship) return;
       
-      await deleteChampionship(selectedChampionship.id);
+      await deleteChampionship(selectedChampionship.id, gameId);
       setChampionships(prev => prev.filter(c => c.id !== selectedChampionship.id));
       setDeleteDialogOpen(false);
       setSelectedChampionship(null);
@@ -303,7 +304,7 @@ const Championships = () => {
         currentChampionId: ''
       };
 
-      await updateChampionship(updatedChampionship);
+      await updateChampionship(updatedChampionship, gameId);
       setChampionships(prev => prev.map(c => 
         c.id === selectedChampionship.id ? updatedChampionship : c
       ));

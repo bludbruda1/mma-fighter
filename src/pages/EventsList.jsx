@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -19,6 +19,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllEvents, getFightsByIds } from "../utils/indexedDB";
 
 const EventsList = () => {
+  const { gameId } = useParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   // Add sorting state
@@ -55,13 +56,13 @@ const EventsList = () => {
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const eventsData = await getAllEvents();
+        const eventsData = await getAllEvents(gameId);
         
         // For each event, fetch its fights
         const eventsWithFights = await Promise.all(eventsData.map(async (event) => {
-          const allFightIds = getAllFightsFromEvent(event);
-          const fights = await getFightsByIds(allFightIds);
-          const mainEvent = await getMainEvent(event, fights);
+          const allFightIds = getAllFightsFromEvent(event, gameId);
+          const fights = await getFightsByIds(allFightIds, gameId);
+          const mainEvent = await getMainEvent(event, fights, gameId);
           
           return {
             ...event,

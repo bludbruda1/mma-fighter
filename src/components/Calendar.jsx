@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getAllEvents, getGameDate, getAllFights } from "../utils/indexedDB"; // Import getGameDate
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -9,6 +9,7 @@ import { green } from "@mui/material/colors";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const Calendar = () => {
+  const { gameId } = useParams();
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -24,15 +25,15 @@ const Calendar = () => {
   useEffect(() => {
     const initializeCalendar = async () => {
       try {
-        const gameDate = await getGameDate();
+        const gameDate = await getGameDate(gameId);
         const initialDate = new Date(gameDate);
         setCurrentDate(initialDate);
         setSelectedDate(initialDate.toISOString().split("T")[0]);
   
         // Fetch both events and fights
         const [eventData, fightData] = await Promise.all([
-          getAllEvents(),
-          getAllFights()
+          getAllEvents(gameId),
+          getAllFights(gameId)
         ]);
         setEvents(eventData);
         setFights(fightData);

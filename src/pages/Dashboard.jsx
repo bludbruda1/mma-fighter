@@ -103,6 +103,7 @@ const styles = {
 };
 
 const Dashboard = () => {
+  const { gameId } = useParams();
   const { id } = useParams();
   const navigate = useNavigate();
   const [fighter, setFighter] = useState(null);
@@ -150,7 +151,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchAllFighterIds = async () => {
       try {
-        const fighters = await getAllFighters();
+        const fighters = await getAllFighters(gameId);
         // Extract and sort fighter IDs
         const ids = fighters.map((f) => f.personid).sort((a, b) => a - b);
         setAllFighterIds(ids);
@@ -168,9 +169,9 @@ const Dashboard = () => {
       try {
         // Get the fighter data
         const [fighters, fetchedChampionships, currentGameDate] = await Promise.all([
-          getAllFighters(),
-          getAllChampionships(),
-          getGameDate()
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getGameDate(gameId)
         ]);
 
         setGameDate(new Date(currentGameDate))
@@ -184,7 +185,7 @@ const Dashboard = () => {
           setChampionships(fetchedChampionships);
           
           // Get all fights
-          const allFights = await getAllFights();
+          const allFights = await getAllFights(gameId);
           
           // Filter fights to only include those with this fighter
           const fighterFights = allFights.filter(fight => 

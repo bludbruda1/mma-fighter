@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import {
   CircularProgress,
   Container,
@@ -32,6 +32,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AddIcon from '@mui/icons-material/Add';
 
 const Home = () => {
+  const { gameId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   // State for events and game date
@@ -43,8 +44,8 @@ const Home = () => {
     const loadEvents = async () => {
       try {
         const [currentGameDate, events] = await Promise.all([
-          getGameDate(),
-          getAllEvents()
+          getGameDate(gameId),
+          getAllEvents(gameId)
         ]);
         
         const gameDateTime = new Date(currentGameDate);
@@ -201,7 +202,7 @@ const Home = () => {
     const handleResetGame = async () => {
       setLoading(true);
       try {
-        await resetDB();
+        await resetDB(gameId);
         console.log("Game reset successfully");
         window.location.reload();
       } catch (error) {
