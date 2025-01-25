@@ -89,14 +89,14 @@ const Calendar = () => {
     };
 
   const handleEventDateClick = (eventId) => {
-    navigate(`/event/${eventId}`);
+    navigate(`/game/${gameId}/event/${eventId}`);
   };
 
   const handleDateClick = (date) => {
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
     const formattedDate = selectedDate.toLocaleDateString("en-CA");
-    navigate(`/createevent?date=${formattedDate}`);
+    navigate(`/game/${gameId}/createevent?date=${formattedDate}`);
   };
 
   const handleMonthChange = (offset) => {
