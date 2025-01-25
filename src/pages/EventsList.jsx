@@ -162,7 +162,7 @@ const EventsList = () => {
         </Typography>
         <Button 
           variant="contained" 
-          onClick={() => navigate('/createevent')}
+          onClick={() => navigate('/game/${gameId}/createevent')}
           sx={{
             backgroundColor: "rgba(33, 33, 33, 0.9)",
             color: "#fff",
@@ -214,7 +214,7 @@ const EventsList = () => {
               <TableRow
                 key={event.id}
                 hover
-                onClick={() => navigate(`/event/${event.id}`)}
+                onClick={() => navigate(`/game/${gameId}/event/${event.id}`)}
                 sx={{ cursor: 'pointer' }}
               >
                 <TableCell>{formatDate(event.date)}</TableCell>

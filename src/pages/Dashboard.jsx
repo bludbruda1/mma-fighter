@@ -214,7 +214,7 @@ const Dashboard = () => {
     } else {
       newIndex = currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
     }
-    navigate(`/dashboard/${allFighterIds[newIndex]}`);
+    navigate(`/game/${gameId}/dashboard/${allFighterIds[newIndex]}`);
   };
 
   // Helper function to format fighter name with nickname

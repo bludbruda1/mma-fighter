@@ -200,7 +200,7 @@ const HamburgerMenu = () => {
             <MenuIcon />
           </IconButton>
           <SportsMmaIcon sx={{ mr: 2 }} />
-          <Link to={`/`} style={{ textDecoration: "none", color: "#fff" }}>
+          <Link to={`/game/${gameId}`} style={{ textDecoration: "none", color: "#fff" }}>
             <Typography variant="h6">Planet Fighter</Typography>
           </Link>
           <Box sx={{ flexGrow: 1 }} />
@@ -243,7 +243,7 @@ const HamburgerMenu = () => {
         }}
       >
         <List>
-          <ListItem button component={Link} to="" onClick={handleDrawerToggle}>
+          <ListItem button component={Link} to={`/game/${gameId}`} onClick={handleDrawerToggle}>
             <ListItemIcon sx={{ color: "#fff" }}>
               <HomeIcon />
             </ListItemIcon>

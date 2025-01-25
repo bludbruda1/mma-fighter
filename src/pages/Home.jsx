@@ -195,9 +195,9 @@ const Home = () => {
   );
 
     // Navigation handlers remain unchanged
-    const handleViewRoster = () => navigate("/roster");
-    const handleSelectDate = () => navigate("/selectdate");
-    const handleCreateEvent = () => navigate("/createevent");
+    const handleViewRoster = () => navigate(`/game/${gameId}/roster`);
+    const handleSelectDate = () => navigate(`/game/${gameId}/selectdate`);
+    const handleCreateEvent = () => navigate(`/game/${gameId}/createevent`);
         
     const handleResetGame = async () => {
       setLoading(true);
@@ -301,7 +301,7 @@ const Home = () => {
             <Button 
               size="small" 
               component={Link}
-              to="/events"
+              to={`/game/${gameId}/events`}
               sx={{ 
                 textTransform: 'none',
                 fontWeight: 'medium',
@@ -332,7 +332,7 @@ const Home = () => {
                 <ListItem 
                   key={event.id}
                   component={Link}
-                  to={`/event/${event.id}`}
+                  to={`/game/${gameId}/event/${event.id}`}
                   sx={{ 
                     textDecoration: 'none',
                     color: 'text.primary',
