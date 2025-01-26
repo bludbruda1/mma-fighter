@@ -14,12 +14,13 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondary,
   IconButton,
+  Box,
+  Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { createNewGame, listGames, deleteGame, setCurrentGameDb } from '../utils/indexedDB';
-import { useCurrentGame } from '../contexts/CurrentGameContext'
+import { useCurrentGame } from '../contexts/CurrentGameContext';
 
 const GameManager = () => {
   const { setCurrentGameId } = useCurrentGame();
@@ -78,44 +79,62 @@ const GameManager = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Planet Fighter
-      </Typography>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      {/* Hero Section */}
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Typography variant="h2" gutterBottom>
+          Welcome to Planet Fighter
+        </Typography>
+        <Typography variant="h5" gutterBottom>
+          The ultimate MMA simulation game
+        </Typography>
+      </Box>
 
-      <Button 
-        variant="contained" 
-        onClick={() => setNewGameDialogOpen(true)}
-        sx={{ mb: 4 }}
-      >
-        Create New Game
-      </Button>
+      {/* Create New Game Button */}
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Button 
+          variant="contained" 
+          size="large"
+          onClick={() => setNewGameDialogOpen(true)}
+        >
+          Create New Game
+        </Button>
+      </Box>
 
-      <List>
+      {/* Game List */}
+      <Grid container spacing={3}>
         {games.map((game) => (
-          <ListItem 
-            key={game.id}
-            secondaryAction={
-              <IconButton 
-                edge="end" 
-                onClick={() => {
-                  setSelectedGame(game);
-                  setDeleteDialogOpen(true);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemText
-              primary={game.name}
-              secondary={`Created: ${new Date(game.createdAt).toLocaleDateString()}`}
-              onClick={() => handleLoadGame(game)}
-              sx={{ cursor: 'pointer' }}
-            />
-          </ListItem>
+          <Grid item xs={12} sm={6} md={4} key={game.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {game.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Created: {new Date(game.createdAt).toLocaleDateString()}
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                  <Button 
+                    variant="contained" 
+                    onClick={() => handleLoadGame(game)}
+                  >
+                    Load Game
+                  </Button>
+                  <IconButton 
+                    edge="end" 
+                    onClick={() => {
+                      setSelectedGame(game);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </List>
+      </Grid>
 
       {/* New Game Dialog */}
       <Dialog open={newGameDialogOpen} onClose={() => setNewGameDialogOpen(false)}>
@@ -147,6 +166,13 @@ const GameManager = () => {
           <Button onClick={handleDeleteGame} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Footer */}
+      <Box sx={{ textAlign: 'center', mt: 4 }}>
+        <Typography variant="body2" color="text.secondary">
+          © 2025 Planet Fighter. All rights reserved.
+        </Typography>
+      </Box>
     </Container>
   );
 };
