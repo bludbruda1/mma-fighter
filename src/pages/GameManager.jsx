@@ -11,9 +11,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
   Box,
   Grid,
@@ -34,10 +31,6 @@ const GameManager = () => {
   // Load saved games on component mount
   useEffect(() => {
     loadGames();
-  }, []);
-
-  useEffect(() => {
-    // Reset to default database when at game selection
     setCurrentGameId(null);
     setCurrentGameDb(null);
   }, [setCurrentGameId]);
