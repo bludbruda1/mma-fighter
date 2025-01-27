@@ -135,17 +135,19 @@ const Dashboard = () => {
     return [...upcoming, ...completed];
   };
 
+  const fighterDob = fighter?.dob;
+
   // Effect for age calculation
   useEffect(() => {
     const loadAge = async () => {
-      if (fighter?.dob) {
-        const age = await calculateAge(fighter.dob);
+      if (fighterDob) {
+        const age = await calculateAge(fighterDob);
         setFighterAge(age);
       }
     };
 
     loadAge();
-  }, [fighter?.dob]);
+  }, [fighterDob]);
 
   // Effect to fetch all fighter IDs when the component mounts
   useEffect(() => {
@@ -161,7 +163,7 @@ const Dashboard = () => {
     };
 
     fetchAllFighterIds();
-  }, []);
+  }, [gameId]);
 
   // Effect to fetch fighter, fights and championships data
   useEffect(() => {
@@ -203,7 +205,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, gameId]);
 
   // Function to navigate between fighters
   const navigateToFighter = (direction) => {
@@ -269,20 +271,6 @@ const getChampionshipInfo = useCallback((fighterId) => {
   const formatTime = (time) => {
     return time || "0:00";
   };
-
-  // Helper function to render rating bars
-  const renderRatingBar = (rating) => (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: "100%", mr: 1 }}>
-        <LinearProgress variant="determinate" value={rating} />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">
-          {`${rating}`}
-        </Typography>
-      </Box>
-    </Box>
-  );
 
   // Helper function to format attribute names
   const formatAttributeName = (attr) => {

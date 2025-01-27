@@ -98,8 +98,8 @@ const Rankings = () => {
       }
     };
     loadData();
-  }, [isInitialized]); // Add isInitialized to dependencies
-
+  }, [isInitialized, gameId]); 
+  
   // Helper function to get sorted fighters for current weight class
   const getWeightClassFighters = () => {
     if (!selectedChampionship) return [];

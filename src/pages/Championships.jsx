@@ -99,7 +99,7 @@ const Championships = () => {
     };
 
     loadData();
-  }, []);
+  }, [gameId]);
 
   // Function to get championship fight history
   const getChampionshipHistory = (championshipId) => {

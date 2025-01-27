@@ -120,7 +120,7 @@ const HamburgerMenu = () => {
       }
     };
     loadData();
-  }, [checkCurrentDateEvent]);
+  }, [checkCurrentDateEvent, gameId]);
 
   // Need to update this function so that it is implemented in a smarter way but for now is ok
   useEffect(() => {

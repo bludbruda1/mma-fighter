@@ -1,5 +1,4 @@
 // Declaring our DB and store names
-const dbName = "FightersDB";
 const fighterStoreName = "fighters";
 const eventStoreName = "events";
 const fightsStoreName = "fights";
@@ -12,12 +11,6 @@ const DB_NAME = "PlanetFighterGames";
 const STORES = {
   GAMES: "games",  // Store game metadata
   GAME_DATA: "gameData"  // Store actual game data for each save
-};
-
-let currentGameDbName = 'FightersDB'; // Default database name
-
-export const setCurrentGameDb = (gameId) => {
-  currentGameDbName = gameId ? `game_${gameId}` : 'FightersDB';
 };
 
 // Function to get the correct database name for a game

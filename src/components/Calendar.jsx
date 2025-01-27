@@ -43,7 +43,7 @@ const Calendar = () => {
     };
   
     initializeCalendar();
-  }, []);
+  }, [gameId]);
 
     // function to check if an event is completed
     const isEventCompleted = (event) => {

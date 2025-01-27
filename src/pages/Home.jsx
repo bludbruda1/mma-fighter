@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import {
-  CircularProgress,
   Container,
   Typography,
   Grid,
@@ -28,13 +27,11 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ArticleIcon from '@mui/icons-material/Article';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AddIcon from '@mui/icons-material/Add';
 
 const Home = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   // State for events and game date
   const [gameDate, setGameDate] = useState(new Date());
   const [eventsList, setEventsList] = useState([]);
@@ -70,7 +67,7 @@ const Home = () => {
     };
 
     loadEvents();
-  }, []);
+  }, [gameId]);
 
   // Helper function to format relative time (unchanged)
   const formatRelativeTime = (date) => {

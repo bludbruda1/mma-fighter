@@ -100,7 +100,7 @@ const Contracts = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [gameId]);
 
   // Helper function to get championship info
   const getChampionshipInfo = useCallback((fighterId) => {

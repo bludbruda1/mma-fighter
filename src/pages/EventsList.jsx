@@ -80,7 +80,7 @@ const EventsList = () => {
     };
 
     loadEvents();
-  }, []);
+  }, [gameId]);
 
   // Handle sort request
   const handleRequestSort = (property) => {

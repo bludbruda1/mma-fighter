@@ -92,7 +92,7 @@ const Roster = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [gameId]);
 
   // Define columns configuration
   const columns = [

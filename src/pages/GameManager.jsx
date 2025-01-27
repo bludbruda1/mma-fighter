@@ -16,7 +16,7 @@ import {
   Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { createNewGame, listGames, deleteGame, setCurrentGameDb } from '../utils/indexedDB';
+import { createNewGame, listGames, deleteGame } from '../utils/indexedDB';
 import { useCurrentGame } from '../contexts/CurrentGameContext';
 
 const GameManager = () => {
@@ -32,7 +32,6 @@ const GameManager = () => {
   useEffect(() => {
     loadGames();
     setCurrentGameId(null);
-    setCurrentGameDb(null);
   }, [setCurrentGameId]);
 
   const loadGames = async () => {

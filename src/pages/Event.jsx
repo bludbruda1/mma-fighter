@@ -189,21 +189,11 @@ const Event = () => {
     };
 
     fetchData();
-  }, [eventId]);
+  }, [eventId, gameId]);
 
   // Function to handle tab changes
   const handleCardChange = (event, newValue) => {
     setCurrentCard(newValue);
-  };
-
-  // Function to get fight by ID
-  const getFightById = (fights, fightId) => {
-    const cards = ['mainCard', 'prelims', 'earlyPrelims'];
-    for (const card of cards) {
-      const fight = fights[card]?.find(f => f.id === fightId);
-      if (fight) return fight;
-    }
-    return null;
   };
 
   // Function to get all fights as flat array
@@ -257,9 +247,6 @@ const Event = () => {
       // Determine champion status
       const fighter1IsChamp = fight.originalChampionId === fight.fighter1.personid;
       const fighter2IsChamp = fight.originalChampionId === fight.fighter2.personid;
-
-      // Get fight result using fight.id
-      const fightResult = fightResults[fight.id];
 
       return (
         <CompactFightCard
