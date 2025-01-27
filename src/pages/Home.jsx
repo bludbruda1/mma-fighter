@@ -203,7 +203,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <EmailIcon color="primary" />
-              <Typography variant="h6">Recent Messages</Typography>
+              <Typography variant="h6" component="span">Recent Messages</Typography>
             </Box>
           }
           action={
@@ -256,6 +256,7 @@ const Home = () => {
                         <Typography 
                           variant="body2" 
                           color="text.secondary"
+                          component="span"
                           sx={{ display: 'block', mt: 0.5 }}
                         >
                           {formatRelativeTime(email.timestamp)}
@@ -278,7 +279,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <EventIcon color="primary" />
-              <Typography variant="h6">Events</Typography>
+              <Typography variant="h6" component="span">Events</Typography>
             </Box>
           }
           action={
@@ -325,14 +326,18 @@ const Home = () => {
                   }}
                 >
                   <ListItemText
-                    primary={event.name}
+                    primary={
+                      <Typography component="span" variant="body1">
+                        {event.name}
+                      </Typography>
+                    }
                     secondary={
-                      <Box sx={{ mt: 0.5 }}>
+                      <Box component="span" sx={{ mt: 0.5 }}>
                         <Typography 
                           component="span" 
                           variant="body2" 
                           color="text.secondary"
-                          sx={{ display: 'block' }}
+                          display="block"
                         >
                           {eventDate.toLocaleDateString('en-US', {
                             weekday: 'long',
@@ -342,6 +347,7 @@ const Home = () => {
                           })}
                         </Typography>
                         <Typography 
+                          component="span" 
                           variant="body2" 
                           color="text.secondary"
                         >
@@ -372,7 +378,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <ArticleIcon color="primary" />
-              <Typography variant="h6">Latest News</Typography>
+              <Typography variant="h6" component="span">Latest News</Typography>
             </Box>
           }
         />
@@ -408,15 +414,16 @@ const Home = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography variant="body1" fontWeight="medium">
+                      <Typography component="span" variant="body1" fontWeight="medium">
                         {item.title}
                       </Typography>
                     }
                     secondary={
                       <Typography 
+                        component="span"
                         variant="body2" 
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
+                        sx={{ display: 'block', mt: 0.5 }}
                       >
                         {formatRelativeTime(item.timestamp)}
                       </Typography>
@@ -437,7 +444,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <NotificationsIcon color="primary" />
-              <Typography variant="h6">Notifications</Typography>
+              <Typography variant="h6" component="span">Notifications</Typography>
             </Box>
           }
         />
@@ -473,11 +480,20 @@ const Home = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography variant="body1" fontWeight="medium">
+                      <Typography component="span" variant="body1" fontWeight="medium">
                         {notification.message}
                       </Typography>
                     }
-                    secondary={formatRelativeTime(notification.timestamp)}
+                    secondary={
+                      <Typography 
+                        component="span"
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ display: 'block', mt: 0.5 }}
+                      >
+                        {formatRelativeTime(notification.timestamp)}
+                      </Typography>
+                    }
                   />
                 </ListItem>
                 <Divider variant="inset" component="li" sx={{ my: 1 }} />
