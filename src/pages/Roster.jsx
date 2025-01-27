@@ -62,7 +62,7 @@ const Roster = () => {
     };
 
     loadAges();
-  }, [fighters]);
+  }, [fighters, gameId]);
 
   // Fetch initial data and populate filter options
   useEffect(() => {
