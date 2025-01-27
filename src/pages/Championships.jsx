@@ -185,7 +185,7 @@ const Championships = () => {
                             <Typography variant="body1" component="span">
                               {winnerFighter.personid ? (
                                 <Link
-                                  to={`/dashboard/${winnerFighter.personid}`}
+                                  to={`/game/${gameId}/dashboard/${winnerFighter.personid}`}
                                   style={{
                                     textDecoration: "none",
                                     color: "#1976d2",
@@ -201,7 +201,7 @@ const Championships = () => {
                               {' def. '}
                               {loserFighter.personid ? (
                                 <Link
-                                  to={`/dashboard/${loserFighter.personid}`}
+                                  to={`/game/${gameId}/dashboard/${loserFighter.personid}`}
                                   style={{
                                     textDecoration: "none",
                                     color: "#1976d2",
@@ -541,7 +541,7 @@ const Championships = () => {
                     Champion:{' '}
                     {champion ? (
                       <Link
-                        to={`/dashboard/${champion.personid}`}
+                        to={`/game/${gameId}/dashboard/${champion.personid}`}
                         style={{
                           textDecoration: 'none',
                           color: '#1976d2',
