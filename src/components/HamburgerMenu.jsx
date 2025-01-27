@@ -275,17 +275,6 @@ const HamburgerMenu = () => {
           <ListItem
             button
             component={Link}
-            to="fight"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <EventSeatIcon />
-            </ListItemIcon>
-            <ListItemText primary="Fight Screen" sx={{ color: "#fff" }} />
-          </ListItem>
-          <ListItem
-            button
-            component={Link}
             to="events"
             onClick={handleDrawerToggle}
           >
