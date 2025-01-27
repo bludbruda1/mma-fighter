@@ -21,7 +21,7 @@ import {
   Paper,
   Chip,
 } from "@mui/material";
-import { resetDB, getAllEvents, getGameDate } from "../utils/indexedDB";
+import { getAllEvents, getGameDate } from "../utils/indexedDB";
 import EventIcon from '@mui/icons-material/Event';
 import EmailIcon from '@mui/icons-material/Email';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -196,21 +196,8 @@ const Home = () => {
 
     // Navigation handlers remain unchanged
     const handleViewRoster = () => navigate(`/game/${gameId}/roster`);
-    const handleSelectDate = () => navigate(`/game/${gameId}/selectdate`);
     const handleCreateEvent = () => navigate(`/game/${gameId}/createevent`);
-        
-    const handleResetGame = async () => {
-      setLoading(true);
-      try {
-        await resetDB(gameId);
-        console.log("Game reset successfully");
-        window.location.reload();
-      } catch (error) {
-        console.error("Error resetting game", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+
 
     // Dashboard card render functions with enhanced styling
     const renderEmailCard = () => (
@@ -547,39 +534,6 @@ const Home = () => {
               <ActionButton startIcon={<PersonIcon />} onClick={handleViewRoster}>
                 View Roster
               </ActionButton>
-            </Grid>
-            <Grid item>
-              <ActionButton startIcon={<CalendarTodayIcon />} onClick={handleSelectDate}>
-                Select Date
-              </ActionButton>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                onClick={handleResetGame}
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
-                sx={{
-                  backgroundColor: "rgba(255, 0, 0, 0.8)",
-                  color: "#fff",
-                  padding: '10px 20px',
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  boxShadow: '0 4px 12px rgba(255,0,0,0.2)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    backgroundColor: "rgba(255, 0, 0, 0.6)",
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 16px rgba(255,0,0,0.3)',
-                  },
-                  '&:disabled': {
-                    backgroundColor: "rgba(255, 0, 0, 0.3)",
-                  },
-                }}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : "Reset Game"}
-              </Button>
             </Grid>
           </Grid>
 

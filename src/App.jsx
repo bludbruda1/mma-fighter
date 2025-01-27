@@ -11,7 +11,6 @@ import Event from "./pages/Event";
 import EventsList from "./pages/EventsList";
 import Calendar from "./components/Calendar";
 import Rankings from "./pages/Rankings";
-import SelectDate from "./pages/SelectDate";
 import Contracts from "./pages/Contracts";
 import GameManager from "./pages/GameManager";
 import { EventProvider } from "./contexts/EventContext";

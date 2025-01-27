@@ -303,31 +303,6 @@ const deleteGameDB = (dbName) => {
   });
 };
 
-// Reset the database and reinitialize
-export const resetDB = async (gameId) => {
-  return new Promise((resolve, reject) => {
-    const deleteRequest = indexedDB.deleteDatabase(dbName);
-
-    deleteRequest.onerror = () => {
-      console.error("Error deleting database");
-      reject("Error deleting database");
-    };
-
-    deleteRequest.onsuccess = () => {
-      console.log("Database deleted successfully");
-      openDB(gameId)
-        .then((db) => {
-          console.log("Database reinitialized successfully");
-          resolve(db);
-        })
-        .catch((error) => {
-          console.error("Error reopening database after reset", error);
-          reject(error);
-        });
-    };
-  });
-};
-
 // Function to get all fighters from the DB
 export const getAllFighters = async (gameId) => {
   const db = await openDB(gameId);
