@@ -69,6 +69,7 @@ const Championships = () => {
 
   // Available weight classes
   const weightClasses = [
+    'Strawweight',
     'Flyweight',
     'Bantamweight',
     'Featherweight',
