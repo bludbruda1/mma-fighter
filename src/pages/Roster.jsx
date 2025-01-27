@@ -55,7 +55,7 @@ const Roster = () => {
       const ages = {};
       for (const fighter of fighters) {
         if (fighter.dob) {
-          ages[fighter.personid] = await calculateAge(fighter.dob);
+          ages[fighter.personid] = await calculateAge(fighter.dob, gameId);
         }
       }
       setFighterAges(ages);
