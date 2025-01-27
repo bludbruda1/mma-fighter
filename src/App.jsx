@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route, Outlet } from "react-router-dom";
 import Home from "./pages/Home";
-import FightScreen from "./pages/FightScreen";
 import Roster from "./pages/Roster";
 import Championships from "./pages/Championships";
 import Dashboard from "./pages/Dashboard";
