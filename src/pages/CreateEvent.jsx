@@ -721,7 +721,7 @@ const CreateEvent = () => {
       await addEventToDB(eventData, gameId);
       console.log("Event saved successfully:", eventData);
       setEventIds(prevEventIds => [...prevEventIds, eventData.id]);
-      navigate(`/event/${eventData.id}`);
+      navigate(`/game/${gameId}/event/${eventData.id}`);
     } catch (error) {
       console.error("Error saving event:", error);
     } finally {
