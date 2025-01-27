@@ -228,7 +228,7 @@ const Contracts = () => {
       case 'fullname':
         return (
           <Link
-            to={`/dashboard/${fighter.personid}`}
+            to={`/game/${gameId}/dashboard/${fighter.personid}`}
             style={{
               textDecoration: "none",
               color: "#1976d2",
