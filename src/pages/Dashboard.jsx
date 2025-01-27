@@ -345,7 +345,7 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       primary={
                         opponent.personid ? (
                           <Link
-                            to={`/Dashboard/${opponent.personid}`}
+                            to={`/game/${gameId}/Dashboard/${opponent.personid}`}
                             style={{
                               textDecoration: "none",
                               color: "#1976d2",
