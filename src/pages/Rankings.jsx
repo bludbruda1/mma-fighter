@@ -510,7 +510,7 @@ const Rankings = () => {
                         </TableCell>
                         <TableCell>
                           <Link
-                            to={`/dashboard/${fighter.personid}`}
+                            to={`/game/${gameId}/dashboard/${fighter.personid}`}
                             style={{
                               textDecoration: "none",
                               color: "#1976d2",
@@ -619,7 +619,7 @@ const Rankings = () => {
                           </TableCell>
                           <TableCell>
                             <Link
-                              to={`/dashboard/${fighter.personid}`}
+                              to={`/game/${gameId}/dashboard/${fighter.personid}`}
                               style={{
                                 textDecoration: "none",
                                 color: "#1976d2",
