@@ -123,6 +123,11 @@ export const listGames = async () => {
 export const openDB = (gameId) => {
   const dbName = gameId ? `game_${gameId}` : 'FightersDB';
 
+  if (!gameId) {
+    console.error("openDB called with undefined Game ID");
+    console.trace("Stack trace for undefined Game ID");
+  }
+  
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, 4);
 
@@ -616,7 +621,7 @@ export const updateFightResults = async (fightId, results, gameId) => {
 
   try {
     const db = await openDB(gameId);
-    const fight = await getFightFromDB(fightId);
+    const fight = await getFightFromDB(fightId, gameId);
 
     if (!fight) {
       return Promise.reject("Fight not found");

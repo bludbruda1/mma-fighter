@@ -66,6 +66,7 @@ const CompactFightCard = ({
   fighter1IsChamp,
   fighter2IsChamp,
   fightIndex,
+  gameId
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [fighter1Age, setFighter1Age] = useState("N/A");
@@ -78,17 +79,17 @@ const CompactFightCard = ({
   useEffect(() => {
     const loadAges = async () => {
       if (fighter1Dob) {
-        const age1 = await calculateAge(fighter1Dob);
+        const age1 = await calculateAge(fighter1Dob, gameId);
         setFighter1Age(age1);
       }
       if (fighter2Dob) {
-        const age2 = await calculateAge(fighter2Dob);
+        const age2 = await calculateAge(fighter2Dob, gameId);
         setFighter2Age(age2);
       }
     };
 
     loadAges();
-  }, [fighter1Dob, fighter2Dob]);
+  }, [fighter1Dob, fighter2Dob, gameId]);
     
   // Handler for expand/collapse
   const handleExpandClick = () => {

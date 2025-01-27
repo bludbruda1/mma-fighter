@@ -48,6 +48,7 @@ import { updateRankingsAfterFight } from "../utils/rankingsHelper.js";
  */
 const Event = () => {
   const { gameId } = useParams();
+  console.log("Game ID at start:", gameId);
   const { eventId } = useParams();
 
   // Core event and fight state
@@ -95,9 +96,8 @@ const Event = () => {
         const [allFighters, allChampionships, savedMaxRankings] = await Promise.all([
           getAllFighters(gameId),
           getAllChampionships(gameId),
-          getSettings("maxRankings", gameId)
+          getSettings("maxRankings", gameId)        
         ]);
-    
         setChampionships(allChampionships);
     
         // Create a map of fighter data by personid
@@ -262,6 +262,7 @@ const Event = () => {
           fighter1IsChamp={fighter1IsChamp}
           fighter2IsChamp={fighter2IsChamp}
           fightIndex={index}
+          gameId={gameId}
         />
       );
     });
@@ -558,7 +559,7 @@ const Event = () => {
         loserFighter,
         allFighters,
         championships,
-        maxRankings
+        maxRankings,
       );
 
       // Create a map of all fighters that need updates
