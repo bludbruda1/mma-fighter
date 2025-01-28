@@ -1,17 +1,12 @@
 import { getGameDate } from "./indexedDB";
 
-/**
- * Calculate age based on game date
- * @param {string|Date} dob - Date of birth
- * @param {string|Date} [currentDate] - Optional current date (defaults to game date)
- * @returns {Promise<number|string>} Age in years or "N/A" if no date provided
- */
-export const calculateAge = async (dob, currentDate = null) => {
+// Calculate age based on game date
+export const calculateAge = async (dob, gameId, currentDate = null) => {
   if (!dob) return "N/A";
   
   try {
     // Use provided currentDate or fetch game date
-    const today = currentDate ? new Date(currentDate) : new Date(await getGameDate());
+    const today = currentDate ? new Date(currentDate) : new Date(await getGameDate(gameId));
     const birthDate = new Date(dob);
     
     let age = today.getFullYear() - birthDate.getFullYear();

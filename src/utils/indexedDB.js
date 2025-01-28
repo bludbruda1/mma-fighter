@@ -1,23 +1,143 @@
 // Declaring our DB and store names
-const dbName = "FightersDB";
 const fighterStoreName = "fighters";
 const eventStoreName = "events";
 const fightsStoreName = "fights";
 const championshipStoreName = "championships";
 const settingsStoreName = "settings";
 
-// Opening up our DB and checking if an upgrade is needed
-export const openDB = () => {
+const DB_VERSION = 1;
+const DB_NAME = "PlanetFighterGames";
+
+const STORES = {
+  GAMES: "games",  // Store game metadata
+  GAME_DATA: "gameData"  // Store actual game data for each save
+};
+
+// Function to get the correct database name for a game
+export const getGameDBName = (gameId) => {
+  return gameId ? `game_${gameId}` : 'FightersDB';
+};
+
+// Structure for a new game save
+const createNewGameStructure = (name, date = new Date()) => ({
+  id: Date.now(), // Unique identifier
+  name,
+  createdAt: date,
+  lastPlayed: date,
+  gameDate: date,
+  dbName: `game_${Date.now()}` // Unique DB name for this save
+});
+
+// Initialize the game management database
+export const initGameManagementDB = () => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 4); // Increment version to trigger upgrade if needed
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onerror = () => reject("Error initializing game management DB");
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      // Create stores if they don't exist
+      if (!db.objectStoreNames.contains(STORES.GAMES)) {
+        db.createObjectStore(STORES.GAMES, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(STORES.GAME_DATA)) {
+        db.createObjectStore(STORES.GAME_DATA, { keyPath: "id" });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+  });
+};
+
+// Create a new game save
+export const createNewGame = async (name) => {
+  const db = await initGameManagementDB();
+  const gameStructure = createNewGameStructure(name);
+  
+  try {
+    // Create new game entry
+    const transaction = db.transaction([STORES.GAMES], "readwrite");
+    const store = transaction.objectStore(STORES.GAMES);
+    await store.add(gameStructure);
+
+    // Initialize game-specific database
+    await initGameDB(gameStructure.dbName);
+
+    return gameStructure;
+  } catch (error) {
+    console.error("Error creating new game:", error);
+    throw error;
+  }
+};
+
+// Load existing game
+export const loadGame = async (gameId) => {
+  const db = await initGameManagementDB();
+  const transaction = db.transaction([STORES.GAMES], "readonly");
+  const store = transaction.objectStore(STORES.GAMES);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.get(gameId);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject("Error loading game");
+  });
+};
+
+// Delete game save
+export const deleteGame = async (gameId) => {
+  const db = await initGameManagementDB();
+  const game = await loadGame(gameId);
+
+  try {
+    // Delete game entry
+    const transaction = db.transaction([STORES.GAMES], "readwrite");
+    const store = transaction.objectStore(STORES.GAMES);
+    await store.delete(gameId);
+
+    // Delete game-specific database
+    await deleteGameDB(game.dbName);
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting game:", error);
+    throw error;
+  }
+};
+
+// List all saved games
+export const listGames = async () => {
+  const db = await initGameManagementDB();
+  const transaction = db.transaction([STORES.GAMES], "readonly");
+  const store = transaction.objectStore(STORES.GAMES);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject("Error listing games");
+  });
+};
+
+// Opening up our DB and checking if an upgrade is needed
+export const openDB = (gameId) => {
+  const dbName = gameId ? `game_${gameId}` : 'FightersDB';
+
+  if (!gameId) {
+    console.error("openDB called with undefined Game ID");
+    console.trace("Stack trace for undefined Game ID");
+  }
+  
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(dbName, 4);
 
     request.onerror = () => {
-      console.error("Error opening database");
+      console.error(`Error opening database: ${gameId}`);
       reject("Error opening database");
     };
 
     request.onsuccess = (event) => {
-      console.log("Database opened successfully");
+      console.log(`Database opened successfully: ${gameId}`);
       resolve(event.target.result);
     };
 
@@ -58,34 +178,132 @@ export const openDB = () => {
   });
 };
 
-// Reset the database and reinitialize
-export const resetDB = async () => {
+/**
+ * Initialize a new game-specific database with all required stores
+ * @param {string} dbName - Unique database name for this game save
+ * @returns {Promise} Resolves when database is initialized
+ */
+const initGameDB = (dbName) => {
   return new Promise((resolve, reject) => {
-    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const request = indexedDB.open(dbName, 1);
 
-    deleteRequest.onerror = () => {
-      console.error("Error deleting database");
-      reject("Error deleting database");
+    request.onerror = () => {
+      console.error("Error opening game database:", dbName);
+      reject("Error opening game database");
     };
 
-    deleteRequest.onsuccess = () => {
-      console.log("Database deleted successfully");
-      openDB()
-        .then((db) => {
-          console.log("Database reinitialized successfully");
-          resolve(db);
-        })
-        .catch((error) => {
-          console.error("Error reopening database after reset", error);
-          reject(error);
-        });
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      // Create fighters store
+      if (!db.objectStoreNames.contains("fighters")) {
+        db.createObjectStore("fighters", { keyPath: "personid" });
+      }
+
+      // Create events store
+      if (!db.objectStoreNames.contains("events")) {
+        db.createObjectStore("events", { keyPath: "id" });
+      }
+
+      // Create fights store
+      if (!db.objectStoreNames.contains("fights")) {
+        db.createObjectStore("fights", { keyPath: "id" });
+      }
+
+      // Create championships store
+      if (!db.objectStoreNames.contains("championships")) {
+        db.createObjectStore("championships", { keyPath: "id" });
+      }
+
+      // Create settings store for game-specific settings like game date
+      if (!db.objectStoreNames.contains("settings")) {
+        db.createObjectStore("settings", { keyPath: "key" });
+      }
+    };
+
+    request.onsuccess = async (event) => {
+      const db = event.target.result;
+      
+      try {
+        // Initialize the database with default data
+        await initializeGameData(db);
+        resolve(db);
+      } catch (error) {
+        reject(error);
+      }
     };
   });
 };
 
+/**
+ * Initialize a new game database with default data
+ * @param {IDBDatabase} db - The database instance to initialize
+ * @returns {Promise} Resolves when all data is initialized
+ */
+const initializeGameData = async (db) => {
+  try {
+    // Load default data from JSON files
+    const [fighters, events, fights, championships] = await Promise.all([
+      fetch("/fighters.json").then(response => response.json()),
+      fetch("/events.json").then(response => response.json()),
+      fetch("/fights.json").then(response => response.json()),
+      fetch("/championships.json").then(response => response.json())
+    ]);
+
+    // Store initial game date
+    const initialGameDate = new Date().toISOString();
+    await storeData(db, "settings", { key: "gameDate", value: initialGameDate });
+
+    // Store all default data
+    await Promise.all([
+      storeData(db, "fighters", fighters),
+      storeData(db, "events", events),
+      storeData(db, "fights", fights),
+      storeData(db, "championships", championships)
+    ]);
+
+  } catch (error) {
+    console.error("Error initializing game data:", error);
+    throw error;
+  }
+};
+
+/**
+ * Store data in a specific object store
+ * @param {IDBDatabase} db - The database instance
+ * @param {string} storeName - Name of the object store
+ * @param {Array|Object} data - Data to store
+ * @returns {Promise} Resolves when data is stored
+ */
+const storeData = (db, storeName, data) => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(storeName, "readwrite");
+    const store = transaction.objectStore(storeName);
+
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+
+    // Handle both single objects and arrays
+    if (Array.isArray(data)) {
+      data.forEach(item => store.put(item));
+    } else {
+      store.put(data);
+    }
+  });
+};
+
+// Delete game-specific database
+const deleteGameDB = (dbName) => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(dbName);
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject("Error deleting game database");
+  });
+};
+
 // Function to get all fighters from the DB
-export const getAllFighters = async () => {
-  const db = await openDB();
+export const getAllFighters = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(fighterStoreName, "readonly");
     const store = transaction.objectStore(fighterStoreName);
@@ -97,8 +315,8 @@ export const getAllFighters = async () => {
 };
 
 // Function to update fighter data
-export const updateFighter = async (fighter) => {
-  const db = await openDB();
+export const updateFighter = async (fighter, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(fighterStoreName, "readwrite");
     const store = transaction.objectStore(fighterStoreName);
@@ -110,8 +328,8 @@ export const updateFighter = async (fighter) => {
 };
 
 // Function to add an event to IndexedDB
-export const addEventToDB = async (event) => {
-  const db = await openDB();
+export const addEventToDB = async (event, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(eventStoreName, "readwrite");
     const store = transaction.objectStore(eventStoreName);
@@ -161,8 +379,8 @@ export const addEventToDB = async (event) => {
 };
 
 // Function to get all events from IndexedDB
-export const getAllEvents = async () => {
-  const db = await openDB();
+export const getAllEvents = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("events", "readonly");
     const store = transaction.objectStore("events");
@@ -178,14 +396,14 @@ export const getAllEvents = async () => {
 };
 
 // Function to get event data from IndexedDB by event ID
-export const getEventFromDB = async (eventId) => {
+export const getEventFromDB = async (eventId, gameId) => {
   const numericId = Number(eventId);
   if (!Number.isInteger(numericId)) {
     return Promise.reject("Event ID must be an integer");
   }
 
   try {
-    const db = await openDB();
+    const db = await openDB(gameId);
     const transaction = db.transaction(eventStoreName, "readonly");
     const store = transaction.objectStore(eventStoreName);
     const request = store.get(numericId);
@@ -212,8 +430,8 @@ export const getEventFromDB = async (eventId) => {
 };
 
 // Function to get the next event ID
-export const getNextEventId = async () => {
-  const db = await openDB();
+export const getNextEventId = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(eventStoreName, "readonly");
     const store = transaction.objectStore(eventStoreName);
@@ -234,7 +452,7 @@ export const getNextEventId = async () => {
 };
 
 // Function to add a fight to IndexedDB
-export const addFightToDB = async (fight) => {
+export const addFightToDB = async (fight, gameId) => {
   if (!fight || !fight.fighter1 || !fight.fighter2) {
     console.error("Invalid fight data:", fight);
     return Promise.reject("Invalid fight structure");
@@ -246,7 +464,7 @@ export const addFightToDB = async (fight) => {
   }
 
   try {
-    const db = await openDB();
+    const db = await openDB(gameId);
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(fightsStoreName, "readwrite");
       const store = transaction.objectStore(fightsStoreName);
@@ -285,8 +503,8 @@ export const addFightToDB = async (fight) => {
 };
 
 // Function to get all fights from IndexedDB
-export const getAllFights = async () => {
-  const db = await openDB();
+export const getAllFights = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("fights", "readonly");
     const store = transaction.objectStore("fights");
@@ -306,7 +524,7 @@ export const getAllFights = async () => {
 };
 
 // Function to get multiple fights by their IDs
-export const getFightsByIds = async (fightIds) => {
+export const getFightsByIds = async (fightIds, gameId) => {
   if (!Array.isArray(fightIds)) {
     return Promise.reject("fightIds must be an array of numbers");
   }
@@ -315,7 +533,7 @@ export const getFightsByIds = async (fightIds) => {
     return Promise.reject("All fight IDs must be integers");
   }
 
-  const db = await openDB();
+  const db = await openDB(gameId);
   return Promise.all(
     fightIds.map(
       (id) =>
@@ -337,14 +555,14 @@ export const getFightsByIds = async (fightIds) => {
 };
 
 // Function to get a single fight by ID
-export const getFightFromDB = async (fightId) => {
+export const getFightFromDB = async (fightId, gameId) => {
   const numericId = Number(fightId);
   if (!Number.isInteger(numericId)) {
     return Promise.reject("Fight ID must be an integer");
   }
 
   try {
-    const db = await openDB();
+    const db = await openDB(gameId);
     const transaction = db.transaction(fightsStoreName, "readonly");
     const store = transaction.objectStore(fightsStoreName);
     const request = store.get(numericId);
@@ -371,8 +589,8 @@ export const getFightFromDB = async (fightId) => {
 };
 
 // Function to get the next fight ID
-export const getNextFightId = async () => {
-  const db = await openDB();
+export const getNextFightId = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(fightsStoreName, "readonly");
     const store = transaction.objectStore(fightsStoreName);
@@ -396,14 +614,14 @@ export const getNextFightId = async () => {
 };
 
 // Function to update fight results
-export const updateFightResults = async (fightId, results) => {
+export const updateFightResults = async (fightId, results, gameId) => {
   if (!Number.isInteger(fightId)) {
     return Promise.reject("Fight ID must be an integer");
   }
 
   try {
-    const db = await openDB();
-    const fight = await getFightFromDB(fightId);
+    const db = await openDB(gameId);
+    const fight = await getFightFromDB(fightId, gameId);
 
     if (!fight) {
       return Promise.reject("Fight not found");
@@ -438,8 +656,8 @@ export const updateFightResults = async (fightId, results) => {
 };
 
 // Function to add a new championship
-export const addChampionship = async (championship) => {
-  const db = await openDB();
+export const addChampionship = async (championship, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readwrite");
     const store = transaction.objectStore(championshipStoreName);
@@ -451,8 +669,8 @@ export const addChampionship = async (championship) => {
 };
 
 // Function to get all championships
-export const getAllChampionships = async () => {
-  const db = await openDB();
+export const getAllChampionships = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readonly");
     const store = transaction.objectStore(championshipStoreName);
@@ -464,8 +682,8 @@ export const getAllChampionships = async () => {
 };
 
 // Function to update a championship
-export const updateChampionship = async (championship) => {
-  const db = await openDB();
+export const updateChampionship = async (championship, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readwrite");
     const store = transaction.objectStore(championshipStoreName);
@@ -477,8 +695,8 @@ export const updateChampionship = async (championship) => {
 };
 
 //  Function to get the next championship ID
-export const getNextChampionshipId = async () => {
-  const db = await openDB();
+export const getNextChampionshipId = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readonly");
     const store = transaction.objectStore(championshipStoreName);
@@ -498,8 +716,8 @@ export const getNextChampionshipId = async () => {
 };
 
 // Function to delete a championship
-export const deleteChampionship = async (id) => {
-  const db = await openDB();
+export const deleteChampionship = async (id, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readwrite");
     const store = transaction.objectStore(championshipStoreName);
@@ -511,8 +729,8 @@ export const deleteChampionship = async (id) => {
 };
 
 // Function to get a championship by ID
-export const getChampionshipById = async (id) => {
-  const db = await openDB();
+export const getChampionshipById = async (id, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(championshipStoreName, "readonly");
     const store = transaction.objectStore(championshipStoreName);
@@ -523,8 +741,8 @@ export const getChampionshipById = async (id) => {
   });
 };
 
-export const saveGameDate = async (date) => {
-  const db = await openDB();
+export const saveGameDate = async (date, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(settingsStoreName, "readwrite");
     const store = transaction.objectStore(settingsStoreName);
@@ -543,8 +761,8 @@ export const saveGameDate = async (date) => {
 };
 
 // Retrieve the game date
-export const getGameDate = async () => {
-  const db = await openDB();
+export const getGameDate = async (gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(settingsStoreName, "readonly");
     const store = transaction.objectStore(settingsStoreName);
@@ -557,8 +775,8 @@ export const getGameDate = async () => {
 };
 
 // Functions to manage settings
-export const updateSettings = async (key, value) => {
-  const db = await openDB();
+export const updateSettings = async (key, value, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(settingsStoreName, "readwrite");
     const store = transaction.objectStore(settingsStoreName);
@@ -569,8 +787,8 @@ export const updateSettings = async (key, value) => {
   });
 };
 
-export const getSettings = async (key) => {
-  const db = await openDB();
+export const getSettings = async (key, gameId) => {
+  const db = await openDB(gameId);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(settingsStoreName, "readonly");
     const store = transaction.objectStore(settingsStoreName);

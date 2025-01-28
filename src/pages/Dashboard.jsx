@@ -103,6 +103,7 @@ const styles = {
 };
 
 const Dashboard = () => {
+  const { gameId } = useParams();
   const { id } = useParams();
   const navigate = useNavigate();
   const [fighter, setFighter] = useState(null);
@@ -134,23 +135,25 @@ const Dashboard = () => {
     return [...upcoming, ...completed];
   };
 
+  const fighterDob = fighter?.dob;
+
   // Effect for age calculation
   useEffect(() => {
     const loadAge = async () => {
-      if (fighter?.dob) {
-        const age = await calculateAge(fighter.dob);
+      if (fighterDob) {
+        const age = await calculateAge(fighterDob);
         setFighterAge(age);
       }
     };
 
     loadAge();
-  }, [fighter?.dob]);
+  }, [fighterDob]);
 
   // Effect to fetch all fighter IDs when the component mounts
   useEffect(() => {
     const fetchAllFighterIds = async () => {
       try {
-        const fighters = await getAllFighters();
+        const fighters = await getAllFighters(gameId);
         // Extract and sort fighter IDs
         const ids = fighters.map((f) => f.personid).sort((a, b) => a - b);
         setAllFighterIds(ids);
@@ -160,7 +163,7 @@ const Dashboard = () => {
     };
 
     fetchAllFighterIds();
-  }, []);
+  }, [gameId]);
 
   // Effect to fetch fighter, fights and championships data
   useEffect(() => {
@@ -168,9 +171,9 @@ const Dashboard = () => {
       try {
         // Get the fighter data
         const [fighters, fetchedChampionships, currentGameDate] = await Promise.all([
-          getAllFighters(),
-          getAllChampionships(),
-          getGameDate()
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getGameDate(gameId)
         ]);
 
         setGameDate(new Date(currentGameDate))
@@ -184,7 +187,7 @@ const Dashboard = () => {
           setChampionships(fetchedChampionships);
           
           // Get all fights
-          const allFights = await getAllFights();
+          const allFights = await getAllFights(gameId);
           
           // Filter fights to only include those with this fighter
           const fighterFights = allFights.filter(fight => 
@@ -202,7 +205,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, gameId]);
 
   // Function to navigate between fighters
   const navigateToFighter = (direction) => {
@@ -213,7 +216,7 @@ const Dashboard = () => {
     } else {
       newIndex = currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
     }
-    navigate(`/dashboard/${allFighterIds[newIndex]}`);
+    navigate(`/game/${gameId}/dashboard/${allFighterIds[newIndex]}`);
   };
 
   // Helper function to format fighter name with nickname
@@ -268,20 +271,6 @@ const getChampionshipInfo = useCallback((fighterId) => {
   const formatTime = (time) => {
     return time || "0:00";
   };
-
-  // Helper function to render rating bars
-  const renderRatingBar = (rating) => (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: "100%", mr: 1 }}>
-        <LinearProgress variant="determinate" value={rating} />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">
-          {`${rating}`}
-        </Typography>
-      </Box>
-    </Box>
-  );
 
   // Helper function to format attribute names
   const formatAttributeName = (attr) => {
@@ -356,7 +345,7 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       primary={
                         opponent.personid ? (
                           <Link
-                            to={`/Dashboard/${opponent.personid}`}
+                            to={`/game/${gameId}/Dashboard/${opponent.personid}`}
                             style={{
                               textDecoration: "none",
                               color: "#1976d2",
@@ -404,7 +393,7 @@ const getChampionshipInfo = useCallback((fighterId) => {
                     primary={
                       fightResult.opponent.personid ? (
                         <Link
-                          to={`/Dashboard/${fightResult.opponent.personid}`}
+                          to={`/game/${gameId}/Dashboard/${fightResult.opponent.personid}`}
                           style={{
                             textDecoration: "none",
                             color: "#1976d2",

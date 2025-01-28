@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -41,6 +41,7 @@ import {
 } from '../utils/indexedDB';
 
 const Championships = () => {
+  const { gameId } = useParams();
   // State management for championships and fighters data
   const [championships, setChampionships] = useState([]);
   const [fighters, setFighters] = useState([]);
@@ -68,6 +69,7 @@ const Championships = () => {
 
   // Available weight classes
   const weightClasses = [
+    'Strawweight',
     'Flyweight',
     'Bantamweight',
     'Featherweight',
@@ -83,9 +85,9 @@ const Championships = () => {
     const loadData = async () => {
       try {
         const [fetchedChampionships, fetchedFighters, fetchedFights] = await Promise.all([
-          getAllChampionships(),
-          getAllFighters(),
-          getAllFights()
+          getAllChampionships(gameId),
+          getAllFighters(gameId),
+          getAllFights(gameId)
         ]);
         setChampionships(fetchedChampionships);
         setFighters(fetchedFighters);
@@ -98,7 +100,7 @@ const Championships = () => {
     };
 
     loadData();
-  }, []);
+  }, [gameId]);
 
   // Function to get championship fight history
   const getChampionshipHistory = (championshipId) => {
@@ -183,7 +185,7 @@ const Championships = () => {
                             <Typography variant="body1" component="span">
                               {winnerFighter.personid ? (
                                 <Link
-                                  to={`/dashboard/${winnerFighter.personid}`}
+                                  to={`/game/${gameId}/dashboard/${winnerFighter.personid}`}
                                   style={{
                                     textDecoration: "none",
                                     color: "#1976d2",
@@ -199,7 +201,7 @@ const Championships = () => {
                               {' def. '}
                               {loserFighter.personid ? (
                                 <Link
-                                  to={`/dashboard/${loserFighter.personid}`}
+                                  to={`/game/${gameId}/dashboard/${loserFighter.personid}`}
                                   style={{
                                     textDecoration: "none",
                                     color: "#1976d2",
@@ -247,7 +249,7 @@ const Championships = () => {
   // Handle creating a new championship
   const handleCreateChampionship = async () => {
     try {
-      const nextId = await getNextChampionshipId();
+      const nextId = await getNextChampionshipId(gameId);
       const championship = {
         id: nextId,
         ...newChampionship,
@@ -263,7 +265,7 @@ const Championships = () => {
         }
       }
 
-      await addChampionship(championship);
+      await addChampionship(championship, gameId);
       setChampionships(prev => [...prev, championship]);
       setOpenDialog(false);
       // Reset form
@@ -284,7 +286,7 @@ const Championships = () => {
     try {
       if (!selectedChampionship) return;
       
-      await deleteChampionship(selectedChampionship.id);
+      await deleteChampionship(selectedChampionship.id, gameId);
       setChampionships(prev => prev.filter(c => c.id !== selectedChampionship.id));
       setDeleteDialogOpen(false);
       setSelectedChampionship(null);
@@ -303,7 +305,7 @@ const Championships = () => {
         currentChampionId: ''
       };
 
-      await updateChampionship(updatedChampionship);
+      await updateChampionship(updatedChampionship, gameId);
       setChampionships(prev => prev.map(c => 
         c.id === selectedChampionship.id ? updatedChampionship : c
       ));
@@ -539,7 +541,7 @@ const Championships = () => {
                     Champion:{' '}
                     {champion ? (
                       <Link
-                        to={`/dashboard/${champion.personid}`}
+                        to={`/game/${gameId}/dashboard/${champion.personid}`}
                         style={{
                           textDecoration: 'none',
                           color: '#1976d2',

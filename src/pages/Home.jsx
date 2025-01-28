@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import {
-  CircularProgress,
   Container,
   Typography,
   Grid,
@@ -21,19 +20,18 @@ import {
   Paper,
   Chip,
 } from "@mui/material";
-import { resetDB, getAllEvents, getGameDate } from "../utils/indexedDB";
+import { getAllEvents, getGameDate } from "../utils/indexedDB";
 import EventIcon from '@mui/icons-material/Event';
 import EmailIcon from '@mui/icons-material/Email';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ArticleIcon from '@mui/icons-material/Article';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AddIcon from '@mui/icons-material/Add';
 
 const Home = () => {
+  const { gameId } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   // State for events and game date
   const [gameDate, setGameDate] = useState(new Date());
   const [eventsList, setEventsList] = useState([]);
@@ -43,8 +41,8 @@ const Home = () => {
     const loadEvents = async () => {
       try {
         const [currentGameDate, events] = await Promise.all([
-          getGameDate(),
-          getAllEvents()
+          getGameDate(gameId),
+          getAllEvents(gameId)
         ]);
         
         const gameDateTime = new Date(currentGameDate);
@@ -69,7 +67,7 @@ const Home = () => {
     };
 
     loadEvents();
-  }, []);
+  }, [gameId]);
 
   // Helper function to format relative time (unchanged)
   const formatRelativeTime = (date) => {
@@ -194,22 +192,9 @@ const Home = () => {
   );
 
     // Navigation handlers remain unchanged
-    const handleViewRoster = () => navigate("/roster");
-    const handleSelectDate = () => navigate("/selectdate");
-    const handleCreateEvent = () => navigate("/createevent");
-        
-    const handleResetGame = async () => {
-      setLoading(true);
-      try {
-        await resetDB();
-        console.log("Game reset successfully");
-        window.location.reload();
-      } catch (error) {
-        console.error("Error resetting game", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const handleViewRoster = () => navigate(`/game/${gameId}/roster`);
+    const handleCreateEvent = () => navigate(`/game/${gameId}/createevent`);
+
 
     // Dashboard card render functions with enhanced styling
     const renderEmailCard = () => (
@@ -218,7 +203,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <EmailIcon color="primary" />
-              <Typography variant="h6">Recent Messages</Typography>
+              <Typography variant="h6" component="span">Recent Messages</Typography>
             </Box>
           }
           action={
@@ -271,6 +256,7 @@ const Home = () => {
                         <Typography 
                           variant="body2" 
                           color="text.secondary"
+                          component="span"
                           sx={{ display: 'block', mt: 0.5 }}
                         >
                           {formatRelativeTime(email.timestamp)}
@@ -293,14 +279,14 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <EventIcon color="primary" />
-              <Typography variant="h6">Events</Typography>
+              <Typography variant="h6" component="span">Events</Typography>
             </Box>
           }
           action={
             <Button 
               size="small" 
               component={Link}
-              to="/events"
+              to={`/game/${gameId}/events`}
               sx={{ 
                 textTransform: 'none',
                 fontWeight: 'medium',
@@ -331,7 +317,7 @@ const Home = () => {
                 <ListItem 
                   key={event.id}
                   component={Link}
-                  to={`/event/${event.id}`}
+                  to={`/game/${gameId}/event/${event.id}`}
                   sx={{ 
                     textDecoration: 'none',
                     color: 'text.primary',
@@ -340,14 +326,18 @@ const Home = () => {
                   }}
                 >
                   <ListItemText
-                    primary={event.name}
+                    primary={
+                      <Typography component="span" variant="body1">
+                        {event.name}
+                      </Typography>
+                    }
                     secondary={
-                      <Box sx={{ mt: 0.5 }}>
+                      <Box component="span" sx={{ mt: 0.5 }}>
                         <Typography 
                           component="span" 
                           variant="body2" 
                           color="text.secondary"
-                          sx={{ display: 'block' }}
+                          display="block"
                         >
                           {eventDate.toLocaleDateString('en-US', {
                             weekday: 'long',
@@ -357,6 +347,7 @@ const Home = () => {
                           })}
                         </Typography>
                         <Typography 
+                          component="span" 
                           variant="body2" 
                           color="text.secondary"
                         >
@@ -387,7 +378,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <ArticleIcon color="primary" />
-              <Typography variant="h6">Latest News</Typography>
+              <Typography variant="h6" component="span">Latest News</Typography>
             </Box>
           }
         />
@@ -423,15 +414,16 @@ const Home = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography variant="body1" fontWeight="medium">
+                      <Typography component="span" variant="body1" fontWeight="medium">
                         {item.title}
                       </Typography>
                     }
                     secondary={
                       <Typography 
+                        component="span"
                         variant="body2" 
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
+                        sx={{ display: 'block', mt: 0.5 }}
                       >
                         {formatRelativeTime(item.timestamp)}
                       </Typography>
@@ -452,7 +444,7 @@ const Home = () => {
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <NotificationsIcon color="primary" />
-              <Typography variant="h6">Notifications</Typography>
+              <Typography variant="h6" component="span">Notifications</Typography>
             </Box>
           }
         />
@@ -488,11 +480,20 @@ const Home = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography variant="body1" fontWeight="medium">
+                      <Typography component="span" variant="body1" fontWeight="medium">
                         {notification.message}
                       </Typography>
                     }
-                    secondary={formatRelativeTime(notification.timestamp)}
+                    secondary={
+                      <Typography 
+                        component="span"
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ display: 'block', mt: 0.5 }}
+                      >
+                        {formatRelativeTime(notification.timestamp)}
+                      </Typography>
+                    }
                   />
                 </ListItem>
                 <Divider variant="inset" component="li" sx={{ my: 1 }} />
@@ -546,39 +547,6 @@ const Home = () => {
               <ActionButton startIcon={<PersonIcon />} onClick={handleViewRoster}>
                 View Roster
               </ActionButton>
-            </Grid>
-            <Grid item>
-              <ActionButton startIcon={<CalendarTodayIcon />} onClick={handleSelectDate}>
-                Select Date
-              </ActionButton>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                onClick={handleResetGame}
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
-                sx={{
-                  backgroundColor: "rgba(255, 0, 0, 0.8)",
-                  color: "#fff",
-                  padding: '10px 20px',
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  boxShadow: '0 4px 12px rgba(255,0,0,0.2)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    backgroundColor: "rgba(255, 0, 0, 0.6)",
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 16px rgba(255,0,0,0.3)',
-                  },
-                  '&:disabled': {
-                    backgroundColor: "rgba(255, 0, 0, 0.3)",
-                  },
-                }}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : "Reset Game"}
-              </Button>
             </Grid>
           </Grid>
 

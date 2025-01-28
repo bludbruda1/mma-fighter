@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -39,6 +39,7 @@ import {
 } from "../utils/indexedDB";
 
 const Rankings = () => {
+  const { gameId } = useParams();
   // Core state management
   const [championships, setChampionships] = useState([]);
   const [fighters, setFighters] = useState([]);
@@ -59,9 +60,9 @@ const Rankings = () => {
       try {
         const [fetchedChampionships, fetchedFighters, savedMaxRankings] =
           await Promise.all([
-            getAllChampionships(),
-            getAllFighters(),
-            getSettings("maxRankings"),
+            getAllChampionships(gameId),
+            getAllFighters(gameId),
+            getSettings("maxRankings", gameId),
           ]);
 
         setChampionships(fetchedChampionships);
@@ -97,8 +98,8 @@ const Rankings = () => {
       }
     };
     loadData();
-  }, [isInitialized]); // Add isInitialized to dependencies
-
+  }, [isInitialized, gameId]); 
+  
   // Helper function to get sorted fighters for current weight class
   const getWeightClassFighters = () => {
     if (!selectedChampionship) return [];
@@ -176,7 +177,7 @@ const Rankings = () => {
       setMaxRankings(tempMaxRankings);
 
       // Store in IndexedDB
-      await updateSettings("maxRankings", tempMaxRankings);
+      await updateSettings("maxRankings", tempMaxRankings, gameId);
 
       // Get current fighters in weight class
       const weightClassFighters = fighters.filter(
@@ -217,11 +218,11 @@ const Rankings = () => {
       // Batch update all changed fighters
       if (fightersToUpdate.length > 0) {
         await Promise.all(
-          fightersToUpdate.map((fighter) => updateFighter(fighter))
+          fightersToUpdate.map((fighter) => updateFighter(fighter, gameId))
         );
 
         // Refresh fighters data after updates
-        const refreshedFighters = await getAllFighters();
+        const refreshedFighters = await getAllFighters(gameId);
         setFighters(refreshedFighters);
       }
 
@@ -309,11 +310,11 @@ const Rankings = () => {
       );
 
       await Promise.all(
-        fightersToUpdate.map((fighter) => updateFighter(fighter))
+        fightersToUpdate.map((fighter) => updateFighter(fighter, gameId))
       );
 
       // Refresh fighters data
-      const refreshedFighters = await getAllFighters();
+      const refreshedFighters = await getAllFighters(gameId);
       setFighters(refreshedFighters);
 
       setOpenDialog(false);
@@ -509,7 +510,7 @@ const Rankings = () => {
                         </TableCell>
                         <TableCell>
                           <Link
-                            to={`/dashboard/${fighter.personid}`}
+                            to={`/game/${gameId}/dashboard/${fighter.personid}`}
                             style={{
                               textDecoration: "none",
                               color: "#1976d2",
@@ -618,7 +619,7 @@ const Rankings = () => {
                           </TableCell>
                           <TableCell>
                             <Link
-                              to={`/dashboard/${fighter.personid}`}
+                              to={`/game/${gameId}/dashboard/${fighter.personid}`}
                               style={{
                                 textDecoration: "none",
                                 color: "#1976d2",

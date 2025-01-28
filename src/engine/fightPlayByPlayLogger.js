@@ -1,6 +1,6 @@
 import { formatFightIntroduction } from './fightEventFormatter.js';
 import { formatTime } from './helper.js';
-import { formatNameWithNickname, formatBasicName } from '../utils/nameUtils.js';  // Add this import
+import { formatNameWithNickname } from '../utils/nameUtils.js';  // Add this import
 
 
 /**
