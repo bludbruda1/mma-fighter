@@ -543,5 +543,22 @@
     "weightClass": "Middleweight",
     "result": null,
     "stats": null
+  },
+  {
+    "id": 25,
+    "championship": null,
+      "fighter1": {
+      "personid": 53,
+      "firstname": "Sergei",
+      "lastname": "Pavlovich"
+    },
+    "fighter2": {
+      "personid": 54,
+      "firstname": "Jairzinho",
+      "lastname": "Rozenstruik"
+    },
+    "weightClass": "Heavyweight",
+    "result": null,
+    "stats": null
   }
 ]
