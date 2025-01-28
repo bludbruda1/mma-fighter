@@ -526,5 +526,22 @@
     "weightClass": "Middleweight",
     "result": null,
     "stats": null
+  },
+  {
+    "id": 24,
+    "championship": null,
+      "fighter1": {
+      "personid": 51,
+      "firstname": "Shara",
+      "lastname": "Magomedov"
+    },
+    "fighter2": {
+      "personid": 52,
+      "firstname": "Michael",
+      "lastname": "Page"
+    },
+    "weightClass": "Middleweight",
+    "result": null,
+    "stats": null
   }
 ]
