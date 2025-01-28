@@ -23,14 +23,16 @@ import {
   List,
   ListItem,
   ListItemText,
+  Tab,
+  Tabs,
   Box,
   Card,
   CardMedia,
   Chip,
 } from "@mui/material";
-import FightCard from "../components/FightCard";
+import CompactFightCard from "../components/CompactFightCard"; // Add this import
 import StatBar from "../components/StatBar";
-import Tab from "../components/Tab";
+import BasicTabs from "../components/BasicTabs.jsx";
 import ResultCard from "../components/ResultCard";
 import FightViewer from "../components/FightViewer";
 import { formatTime } from "../engine/helper.js";
@@ -45,6 +47,8 @@ import { updateRankingsAfterFight } from "../utils/rankingsHelper.js";
  * result viewing, and detailed fight playback functionality.
  */
 const Event = () => {
+  const { gameId } = useParams();
+  console.log("Game ID at start:", gameId);
   const { eventId } = useParams();
 
   // Core event and fight state
@@ -56,6 +60,7 @@ const Event = () => {
   const [simulatedFights, setSimulatedFights] = useState(new Set());
   const [championships, setChampionships] = useState([]);
   const [maxRankings, setMaxRankings] = useState(15); // Default to 15
+  const [currentCard, setCurrentCard] = useState('mainCard');
 
   // New state for fight viewer functionality
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -68,48 +73,57 @@ const Event = () => {
     const fetchData = async () => {
       try {
         // Fetch event data
-        const event = await getEventFromDB(Number(eventId));
-
+        const event = await getEventFromDB(Number(eventId), gameId);
+    
+        // Get all fight IDs across all cards
+        let allFightIds;
+        if (Array.isArray(event.fights)) {
+          // Handle old format
+          allFightIds = event.fights;
+        } else {
+          // Handle new format with card structure
+          allFightIds = [
+            ...(event.fights.mainCard || []),
+            ...(event.fights.prelims || []),
+            ...(event.fights.earlyPrelims || [])
+          ];
+        }
+    
         // Fetch fights data
-        const fights = await getFightsByIds(event.fights);
-
-        // Fetch all fighters
-        const allFighters = await getAllFighters();
-
-        // Fetch all championships
-        const allChampionships = await getAllChampionships();
-
-        // Fetch saved maxRankings
-        const savedMaxRankings = await getSettings("maxRankings");
-
+        const fights = await getFightsByIds(allFightIds, gameId);
+    
+        // Fetch all fighters and championships
+        const [allFighters, allChampionships, savedMaxRankings] = await Promise.all([
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getSettings("maxRankings", gameId)        
+        ]);
         setChampionships(allChampionships);
-
+    
         // Create a map of fighter data by personid
         const fighterMap = allFighters.reduce((map, fighter) => {
           map[fighter.personid] = fighter;
           return map;
         }, {});
-
-        // Load completed fight data and their fight events
+    
+        // Load completed fight data
         const completedFightsIds = new Set(
           fights.filter((fight) => fight.result).map((fight) => fight.id)
         );
         setCompletedFights(completedFightsIds);
-
-        // viewedFights starts empty and is populated only after watching
         setSimulatedFights(completedFightsIds);
-        setViewedFights(new Set()); // Initially empty
-
+        setViewedFights(new Set());
+    
         // Combine fight data with complete fighter data and championship data
         const completeFights = fights.map((fight) => {
-          // If this is a championship fight, get the full championship data
           let championshipData = null;
           if (fight.championship) {
             championshipData = allChampionships.find(
               (c) => c.id === fight.championship.id
             );
+            fight.originalChampionId = fight.championship.currentChampionId;
           }
-
+    
           return {
             ...fight,
             fighter1: fight.fighter1.personid
@@ -124,15 +138,15 @@ const Event = () => {
                   ...fight.fighter2,
                 }
               : fight.fighter2,
-            championship: championshipData, // Replace with full championship data
+            championship: championshipData,
           };
         });
-
-        // Set initial fight results including fight events
+    
+        // Set initial fight results
         const initialResults = {};
         completeFights.forEach((fight, index) => {
           if (fight.result) {
-            initialResults[index] = {
+            initialResults[fight.id] = {
               winnerIndex: fight.result.winner,
               fightResult: fight.result,
               fightStats: fight.stats,
@@ -144,13 +158,30 @@ const Event = () => {
           }
         });
         setFightResults(initialResults);
-
+    
+        // Structure the fights based on the event format
+        let structuredFights;
+        if (Array.isArray(event.fights)) {
+          // Old format - all fights go to main card
+          structuredFights = {
+            mainCard: completeFights,
+            prelims: [],
+            earlyPrelims: []
+          };
+        } else {
+          // New format - organize fights by card
+          structuredFights = {
+            mainCard: event.fights.mainCard.map(id => completeFights.find(f => f.id === id)).filter(Boolean),
+            prelims: event.fights.prelims?.map(id => completeFights.find(f => f.id === id)).filter(Boolean) || [],
+            earlyPrelims: event.fights.earlyPrelims?.map(id => completeFights.find(f => f.id === id)).filter(Boolean) || []
+          };
+        }
+    
         setEventData({
           ...event,
-          fights: completeFights,
+          fights: structuredFights,
         });
-
-        // Set maxRankings from saved settings or default to 15
+    
         setMaxRankings(savedMaxRankings || 15);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -158,7 +189,84 @@ const Event = () => {
     };
 
     fetchData();
-  }, [eventId]);
+  }, [eventId, gameId]);
+
+  // Function to handle tab changes
+  const handleCardChange = (event, newValue) => {
+    setCurrentCard(newValue);
+  };
+
+  // Function to get all fights as flat array
+  const getAllFightsFlat = (fights) => {
+    if (!fights) return [];
+    if (Array.isArray(fights)) return fights;
+    
+    return [
+      ...(fights.mainCard || []),
+      ...(fights.prelims || []),
+      ...(fights.earlyPrelims || [])
+    ];
+  };
+
+  // Function to group fights by card type
+  const getFightsByCard = () => {
+    if (!eventData || !eventData.fights) return { mainCard: [], prelims: [], earlyPrelims: [] };
+
+    // If fights is an array (old format), treat all as main card
+    if (Array.isArray(eventData.fights)) {
+      return {
+        mainCard: eventData.fights,
+        prelims: [],
+        earlyPrelims: []
+      };
+    }
+
+    // Return structured fights
+    return {
+      mainCard: eventData.fights.mainCard || [],
+      prelims: eventData.fights.prelims || [],
+      earlyPrelims: eventData.fights.earlyPrelims || []
+    };
+  };
+
+  // Function to render card content
+  const renderCardContent = (fights) => {
+    if (!fights || fights.length === 0) {
+      return (
+        <Typography align="center" color="textSecondary" sx={{ py: 4 }}>
+          No fights scheduled
+        </Typography>
+      );
+    }
+
+    return fights.map((fight, index) => {
+      const isFightCompleted = completedFights.has(fight.id);
+      const shouldShowWinner = viewedFights.has(fight.id) || 
+        (simulatedFights.has(fight.id) && !viewerOpen);
+
+      // Determine champion status
+      const fighter1IsChamp = fight.originalChampionId === fight.fighter1.personid;
+      const fighter2IsChamp = fight.originalChampionId === fight.fighter2.personid;
+
+      return (
+        <CompactFightCard
+          key={fight.id}
+          fight={fight}
+          result={shouldShowWinner ? fightResults[fight.id] : undefined}
+          isComplete={isFightCompleted}
+          isViewed={viewedFights.has(fight.id)}
+          isSimulated={simulatedFights.has(fight.id)}
+          onWatch={() => handleWatchFight(fight)}
+          onSimulate={() => handleSimulateFight(fight)}
+          onViewSummary={() => handleViewSummary(fight.id)}
+          fighter1IsChamp={fighter1IsChamp}
+          fighter2IsChamp={fighter2IsChamp}
+          fightIndex={index}
+          gameId={gameId}
+        />
+      );
+    });
+  };
 
   /**
    * Formats the end time of a fight into MM:SS format
@@ -175,21 +283,21 @@ const Event = () => {
    * Handles fight simulation and stores results
    * Now returns a promise to support watch-first functionality
    */
-  const handleGenerateFight = async (index, fighter1, fighter2) => {
+  const handleGenerateFight = async (fightId, fighter1, fighter2) => {
     try {
       // Set initial fight logger and run simulation
       const logger = new fightPlayByPlayLogger(true);
       const result = simulateFight([fighter1, fighter2], logger);
-
+  
       if (!result || typeof result.winner === "undefined") {
         console.error("simulateFight did not return a valid winner:", result);
         return null;
       }
-
+  
       // Capture fight events for playback
       const fightEvents = logger.getFightPlayByPlay();
       setCurrentFightEvents(fightEvents);
-
+  
       const winnerIndex = result.winner;
       const fightStats = calculateFightStats(
         {
@@ -203,7 +311,7 @@ const Event = () => {
           maxHealth: result.fighterMaxHealth?.[1] || {},
         }
       );
-
+  
       // Format fight result data
       const fightResult = {
         winner: winnerIndex,
@@ -212,22 +320,21 @@ const Event = () => {
         timeEnded: formatTime(result.endTime),
         submissionType: result.submissionType,
       };
-
+  
       // Update fight results in database including fight events
-      const fightId = eventData.fights[index].id;
       await updateFightResults(fightId, {
         result: fightResult,
         stats: fightStats,
         fightEvents: fightEvents,
-      });
-
-      //  Mark fight as completed
+      }, gameId);
+  
+      // Mark fight as completed
       setCompletedFights((prev) => new Set([...prev, fightId]));
-
+  
       // Update state with fight results
       setFightResults((prevResults) => ({
         ...prevResults,
-        [index]: {
+        [fightId]: {
           winnerIndex,
           fightResult,
           fightStats,
@@ -237,14 +344,14 @@ const Event = () => {
           fighters: [fighter1, fighter2],
         },
       }));
-
-      // Update fighter records
-      await updateFighterRecords([fighter1, fighter2], result);
-
+  
       // Store fighters for fight viewer
       setSelectedFighters([fighter1, fighter2]);
-
-      return { winnerIndex, fightResult }; // Return both the winner index and fight result
+  
+      // Update fighter records
+      await updateFighterRecords([fighter1, fighter2], result, gameId);
+  
+      return { winnerIndex, fightResult }; 
     } catch (error) {
       console.error("Error simulating fight:", error);
       return null;
@@ -252,21 +359,19 @@ const Event = () => {
   };
 
   // Function specifically for direct simulation
-  const handleSimulateFight = async (index, fighter1, fighter2) => {
-    const result = await handleGenerateFight(index, fighter1, fighter2);
+  const handleSimulateFight = async (fight) => {
+    const result = await handleGenerateFight(fight.id, fight.fighter1, fight.fighter2);
     if (result && typeof result.winnerIndex !== "undefined") {
-      const fightId = eventData.fights[index].id;
-      setSimulatedFights((prev) => new Set([...prev, fightId]));
-
+      setSimulatedFights((prev) => new Set([...prev, fight.id]));
+  
       // Handle championship changes if this was a title fight
-      const fight = eventData.fights[index];
       if (fight.championship) {
-        const winnerFighter = result.winnerIndex === 0 ? fighter1 : fighter2;
-        const loserFighter = result.winnerIndex === 0 ? fighter2 : fighter1;
-
+        const winnerFighter = result.winnerIndex === 0 ? fight.fighter1 : fight.fighter2;
+        const loserFighter = result.winnerIndex === 0 ? fight.fighter2 : fight.fighter1;
+  
         try {
           // Get current championship data
-          const championship = await getChampionshipById(fight.championship.id);
+          const championship = await getChampionshipById(fight.championship.id, gameId);
 
           if (championship) {
             let updatedChampionship;
@@ -304,7 +409,7 @@ const Event = () => {
 
             // Update championship if there were changes
             if (updatedChampionship) {
-              await updateChampionship(updatedChampionship);
+              await updateChampionship(updatedChampionship, gameId);
 
               // Update local championships state
               setChampionships((prevChampionships) =>
@@ -326,9 +431,7 @@ const Event = () => {
    * Can be triggered before simulation to watch fight in real-time
    * @param {number} index - Index of the fight to watch
    */
-  const handleWatchFight = async (index) => {
-    const fight = eventData.fights[index];
-
+  const handleWatchFight = async (fight) => {
     // Prevent watching if already viewed or simulated without viewing
     if (
       viewedFights.has(fight.id) ||
@@ -336,18 +439,17 @@ const Event = () => {
     ) {
       return;
     }
-
+  
     // If fight is already completed and hasn't been viewed, show it
-    if (fightResults[index] && fightResults[index].fightEvents) {
-      setCurrentFightEvents(fightResults[index].fightEvents);
-      setSelectedFighters(fightResults[index].fighters);
+    if (fightResults[fight.id] && fightResults[fight.id].fightEvents) {
+      setCurrentFightEvents(fightResults[fight.id].fightEvents);
+      setSelectedFighters(fightResults[fight.id].fighters);
       setViewerOpen(true);
       return;
     }
-
+  
     // If fight needs to be simulated, do that first
     try {
-      // Only remove from simulatedFights if this fight hasn't been simulated yet
       if (!completedFights.has(fight.id)) {
         setSimulatedFights((prev) => {
           const newSet = new Set(prev);
@@ -355,9 +457,8 @@ const Event = () => {
           return newSet;
         });
       }
-
-      await handleGenerateFight(index, fight.fighter1, fight.fighter2);
-      // Need to wait briefly for fight events to be processed
+  
+      await handleGenerateFight(fight.id, fight.fighter1, fight.fighter2);
       setTimeout(() => {
         setViewerOpen(true);
       }, 100);
@@ -370,15 +471,16 @@ const Event = () => {
    * Closes the fight viewer dialog and marks fight as viewed
    */
   const handleCloseViewer = () => {
-    // If there's a fight result, find its ID and mark as viewed
     if (currentFightEvents && currentFightEvents.length > 0) {
-      const fightIndex = eventData.fights.findIndex(
+      const allFights = getAllFightsFlat(eventData.fights);
+      const fight = allFights.find(
         (fight) =>
           fight.fighter1.personid === selectedFighters[0].personid &&
           fight.fighter2.personid === selectedFighters[1].personid
       );
-      if (fightIndex !== -1) {
-        const fightId = eventData.fights[fightIndex].id;
+      
+      if (fight) {
+        const fightId = fight.id;
         setViewedFights((prev) => new Set([...prev, fightId]));
         setSimulatedFights((prev) => new Set([...prev, fightId]));
       }
@@ -391,9 +493,24 @@ const Event = () => {
    * Opens the fight summary dialog
    * @param {number} index - Index of the fight to view
    */
-  const handleViewSummary = (index) => {
-    setCurrentFightIndex(index);
+  const handleViewSummary = (fightId) => {
+    const allFights = getAllFightsFlat(eventData.fights);
+    const fightIndex = allFights.findIndex(f => f.id === fightId);
+    
+    // Store both the fight ID and index
+    setCurrentFightIndex(fightIndex);
     setDialogOpen(true);
+  };
+
+  // Update the fight summary dialog content rendering
+  const getFightResultByIndex = (index) => {
+    if (index === null || !eventData) return null;
+    
+    const allFights = getAllFightsFlat(eventData.fights);
+    const fight = allFights[index];
+    if (!fight) return null;
+    
+    return fightResults[fight.id];
   };
 
   /**
@@ -434,7 +551,7 @@ const Event = () => {
       }
 
       // Get all fighters for ranking updates
-      const allFighters = await getAllFighters();
+      const allFighters = await getAllFighters(gameId);
 
       // Update rankings
       const rankingUpdates = await updateRankingsAfterFight(
@@ -442,7 +559,7 @@ const Event = () => {
         loserFighter,
         allFighters,
         championships,
-        maxRankings
+        maxRankings,
       );
 
       // Create a map of all fighters that need updates
@@ -487,6 +604,27 @@ const Event = () => {
         ],
       });
 
+      // Update contract fights remaining
+      if (winnerFighter.contract?.fightsRem > 0) {
+        fighterUpdates.set(winnerFighter.personid, {
+          ...fighterUpdates.get(winnerFighter.personid),
+          contract: {
+            ...winnerFighter.contract,
+            fightsRem: winnerFighter.contract.fightsRem - 1
+          }
+        });
+      }
+
+      if (loserFighter.contract?.fightsRem > 0) {
+        fighterUpdates.set(loserFighter.personid, {
+          ...fighterUpdates.get(loserFighter.personid),
+          contract: {
+            ...loserFighter.contract,
+            fightsRem: loserFighter.contract.fightsRem - 1
+          }
+        });
+      }
+
       // Handle additional ranking updates
       rankingUpdates.forEach((fighter) => {
         if (!fighterUpdates.has(fighter.personid)) {
@@ -516,7 +654,7 @@ const Event = () => {
       // Update all affected fighters in the database
       await Promise.all(
         Array.from(fighterUpdates.values()).map((fighter) =>
-          updateFighter(fighter)
+          updateFighter(fighter, gameId)
         )
       );
     } catch (error) {
@@ -594,271 +732,234 @@ const Event = () => {
   }
 
   return (
-    <Container
-      maxWidth="md"
-      style={{ marginTop: "50px", marginBottom: "20px" }}
-    >
-      <Typography variant="h4" align="center" gutterBottom>
-        {eventData?.name || "Main Card"}
-      </Typography>
-
-      {/* Fight Cards */}
-      {eventData.fights.map((fight, index) => {
-        const fightResult = fightResults[index];
-        const winnerIndex = fightResult?.winnerIndex;
-        const isFightCompleted = completedFights.has(fight.id);
-        const shouldShowWinner =
-          viewedFights.has(fight.id) ||
-          (simulatedFights.has(fight.id) && !viewerOpen);
-
-        // Determine if each fighter is a champion
-        const fighter1IsChamp = championships.some(
-          (c) => c.currentChampionId === fight.fighter1.personid
-        );
-        const fighter2IsChamp = championships.some(
-          (c) => c.currentChampionId === fight.fighter2.personid
-        );
-
-        return (
-          <Grid
-            container
-            spacing={3}
-            key={index}
-            style={{ marginBottom: "40px" }}
+    <main>
+      <Container maxWidth="lg" style={{ marginTop: "50px", marginBottom: "20px" }}>
+        {/* Event Title and Date */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            {eventData?.name || "Main Card"}
+          </Typography>
+          <Typography variant="subtitle1" align="center" gutterBottom>
+            {eventData?.venue || "UFC Apex"} • {eventData?.location || "Las Vegas, Nevada"} 
+          </Typography>
+          {eventData?.date && (
+            <Typography variant="subtitle1" align="center" color="text.secondary">
+              {new Date(eventData.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Typography>
+          )}
+        </Box>
+        {/* Card Selection Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs 
+            value={currentCard} 
+            onChange={handleCardChange}
+            centered
+            sx={{
+              '& .MuiTab-root': {
+                fontWeight: 'bold',
+                fontSize: '1rem',
+                textTransform: 'none',
+              }
+            }}
           >
-            <Grid item xs={12}>
-              <FightCard
-                selectedItem1={fight.fighter1}
-                selectedItem2={fight.fighter2}
-                winnerIndex={shouldShowWinner ? winnerIndex : undefined}
-                championship={fight.championship}
-                fighter1IsChamp={fighter1IsChamp}
-                fighter2IsChamp={fighter2IsChamp}
+            <Tab 
+              label="Main Card" 
+              value="mainCard"
+              sx={{
+                color: 'text.primary',
+                '&.Mui-selected': {
+                  color: 'primary.main',
+                }
+              }}
+            />
+            {getFightsByCard().prelims.length > 0 && (
+              <Tab 
+                label="Prelims" 
+                value="prelims"
+                sx={{
+                  color: 'text.primary',
+                  '&.Mui-selected': {
+                    color: 'primary.main',
+                  }
+                }}
               />
-              <Grid
-                container
-                spacing={2}
-                justifyContent="center"
-                style={{ marginTop: "10px" }}
-              >
-                {/* Watch Fight button */}
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleWatchFight(index)}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                      "&:disabled": {
-                        backgroundColor: "rgba(33, 33, 33, 0.4)",
-                      },
-                    }}
-                    // Disable if fight has been viewed or simulated without vieweing
-                    disabled={
-                      viewedFights.has(fight.id) ||
-                      (simulatedFights.has(fight.id) &&
-                        !viewedFights.has(fight.id))
-                    }
-                  >
-                    {viewedFights.has(fight.id)
-                      ? "Already Viewed"
-                      : "Watch Fight"}
-                  </Button>
-                </Grid>
-
-                {/* Simulate Fight button */}
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      handleSimulateFight(index, fight.fighter1, fight.fighter2)
-                    }
-                    disabled={isFightCompleted}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                      "&:disabled": {
-                        backgroundColor: "rgba(33, 33, 33, 0.4)",
-                      },
-                    }}
-                  >
-                    {isFightCompleted ? "Fight Complete" : "Simulate Fight"}
-                  </Button>
-                </Grid>
-
-                {/* View Summary button */}
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleViewSummary(index)}
-                    sx={{
-                      backgroundColor: "rgba(33, 33, 33, 0.9)",
-                      color: "#fff",
-                    }}
-                    disabled={!fightResult}
-                  >
-                    View Fight Summary
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        );
-      })}
-
-      {/* Fight Summary Dialog */}
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        fullWidth
-        maxWidth="lg"
-      >
-        <DialogTitle>Fight Summary</DialogTitle>
-        <DialogContent>
-          {currentFightIndex !== null && fightResults[currentFightIndex] && (
-            <>
-              <Grid
-                container
-                spacing={4}
-                justifyContent="center"
-                style={{ marginTop: "20px" }}
-              >
-                {/* Left: Fighter 1 Details */}
+            )}
+            {getFightsByCard().earlyPrelims.length > 0 && (
+              <Tab 
+                label="Early Prelims" 
+                value="earlyPrelims"
+                sx={{
+                  color: 'text.primary',
+                  '&.Mui-selected': {
+                    color: 'primary.main',
+                  }
+                }}
+              />
+            )}
+          </Tabs>
+        </Box>
+  
+        {/* Fight Cards Section */}
+        <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
+          {renderCardContent(getFightsByCard()[currentCard])}
+        </Box>
+  
+        {/* Fight Summary Dialog */}
+        <Dialog
+          open={dialogOpen}
+          onClose={handleCloseDialog}
+          fullWidth
+          maxWidth="lg"
+        >
+          <DialogTitle>Fight Summary</DialogTitle>
+          <DialogContent>
+            {currentFightIndex !== null && getFightResultByIndex(currentFightIndex) && (
+              <>
                 <Grid
-                  item
-                  xs={12}
-                  md={3}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
+                  container
+                  spacing={4}
+                  justifyContent="center"
+                  style={{ marginTop: "20px" }}
                 >
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    sx={{ fontWeight: "bold" }}
+                  {/* Left: Fighter 1 Details */}
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
                   >
-                    {fightResults[currentFightIndex].fighters[0].name}
-                    {fightResults[currentFightIndex].winnerIndex === 0 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {getFightResultByIndex(currentFightIndex).fighters[0].firstname} {getFightResultByIndex(currentFightIndex).fighters[0].lastname}
+                      {getFightResultByIndex(currentFightIndex).winnerIndex === 0 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Chip
+                            label="Winner"
+                            size="small"
+                            color="success"
+                            sx={{ marginTop: "8px" }}
+                          />
+                        </Box>
+                      )}
+                    </Typography>
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={getFightResultByIndex(currentFightIndex).fighters[0].image}
+                      />
+                    </Card>
+                  </Grid>
+
+                  {/* Center: Result Card and Stats */}
+                  <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ResultCard
+                      round={getFightResultByIndex(currentFightIndex).fightResult.roundEnded}
+                      time={getFightResultByIndex(currentFightIndex).formattedEndTime}
+                      method={getFightResultByIndex(currentFightIndex).fightResult.method}
+                    />
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ maxWidth: "600px", margin: "0 auto" }}
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          justifyContent: "center",
+                          marginTop: "20px",
                         }}
                       >
-                        <Chip
-                          label="Winner"
-                          size="small"
-                          color="success"
-                          sx={{ marginTop: "8px" }}
+                        <BasicTabs
+                          tabs={prepareTabs(getFightResultByIndex(currentFightIndex))}
                         />
-                      </Box>
-                    )}
-                  </Typography>
-                  <Card style={{ border: "none", boxShadow: "none" }}>
-                    <CardMedia
-                      component="img"
-                      style={{ objectFit: "contain" }}
-                      height="250"
-                      image={fightResults[currentFightIndex].fighters[0].image}
-                    />
-                  </Card>
-                </Grid>
-
-                {/* Center: Result Card and Stats */}
-                <Grid
-                  item
-                  xs={12}
-                  md={6}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <ResultCard
-                    round={
-                      fightResults[currentFightIndex].fightResult.roundEnded
-                    }
-                    time={fightResults[currentFightIndex].formattedEndTime}
-                    method={fightResults[currentFightIndex].fightResult.method}
-                  />
-                  <Grid
-                    container
-                    spacing={2}
-                    sx={{ maxWidth: "600px", margin: "0 auto" }}
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      style={{
-                        justifyContent: "center",
-                        marginTop: "20px",
-                      }}
-                    >
-                      <Tab
-                        tabs={prepareTabs(fightResults[currentFightIndex])}
-                      />
+                      </Grid>
                     </Grid>
                   </Grid>
-                </Grid>
 
-                {/* Right: Fighter 2 Details */}
-                <Grid
-                  item
-                  xs={12}
-                  md={3}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    sx={{ fontWeight: "bold" }}
+                  {/* Right: Fighter 2 Details */}
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
                   >
-                    {fightResults[currentFightIndex].fighters[1].name}
-                    {fightResults[currentFightIndex].winnerIndex === 1 && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Chip
-                          label="Winner"
-                          size="small"
-                          color="success"
-                          sx={{ marginTop: "8px" }}
-                        />
-                      </Box>
-                    )}
-                  </Typography>
-                  <Card style={{ border: "none", boxShadow: "none" }}>
-                    <CardMedia
-                      component="img"
-                      style={{ objectFit: "contain" }}
-                      height="250"
-                      image={fightResults[currentFightIndex].fighters[1].image}
-                    />
-                  </Card>
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {getFightResultByIndex(currentFightIndex).fighters[1].firstname} {getFightResultByIndex(currentFightIndex).fighters[1].lastname}
+                      {getFightResultByIndex(currentFightIndex).winnerIndex === 1 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Chip
+                            label="Winner"
+                            size="small"
+                            color="success"
+                            sx={{ marginTop: "8px" }}
+                          />
+                        </Box>
+                      )}
+                    </Typography>
+                    <Card style={{ border: "none", boxShadow: "none" }}>
+                      <CardMedia
+                        component="img"
+                        style={{ objectFit: "contain" }}
+                        height="250"
+                        image={getFightResultByIndex(currentFightIndex).fighters[1].image}
+                      />
+                    </Card>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+              </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
 
       {/* Fight Viewer Dialog */}
       <Dialog open={viewerOpen} onClose={handleCloseViewer} fullScreen>
@@ -904,6 +1005,7 @@ const Event = () => {
         </Box>
       </Dialog>
     </Container>
+    </main>
   );
 };
 

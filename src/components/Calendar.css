@@ -52,6 +52,12 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+  width: 90%;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .event-button:hover {
@@ -98,4 +104,13 @@
 
 .day-name {
   padding: 5px 0; /* Add some padding for better spacing */
+}
+
+.event-button.completed {
+  background-color: #4caf50; /* Green color for completed events */
+  opacity: 0.9; /* Slightly transparent to distinguish from active events */
+}
+
+.event-button.completed:hover {
+  background-color: #45a049; /* Darker green on hover */
 }

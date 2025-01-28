@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -41,6 +41,7 @@ import {
 } from '../utils/indexedDB';
 
 const Championships = () => {
+  const { gameId } = useParams();
   // State management for championships and fighters data
   const [championships, setChampionships] = useState([]);
   const [fighters, setFighters] = useState([]);
@@ -56,6 +57,7 @@ const Championships = () => {
   const [newChampionship, setNewChampionship] = useState({
     name: '',
     weightClass: '',
+    gender: 'Male', // Male is the default
     currentChampionId: '',
     description: '',
   });
@@ -67,6 +69,7 @@ const Championships = () => {
 
   // Available weight classes
   const weightClasses = [
+    'Strawweight',
     'Flyweight',
     'Bantamweight',
     'Featherweight',
@@ -82,9 +85,9 @@ const Championships = () => {
     const loadData = async () => {
       try {
         const [fetchedChampionships, fetchedFighters, fetchedFights] = await Promise.all([
-          getAllChampionships(),
-          getAllFighters(),
-          getAllFights()
+          getAllChampionships(gameId),
+          getAllFighters(gameId),
+          getAllFights(gameId)
         ]);
         setChampionships(fetchedChampionships);
         setFighters(fetchedFighters);
@@ -97,7 +100,7 @@ const Championships = () => {
     };
 
     loadData();
-  }, []);
+  }, [gameId]);
 
   // Function to get championship fight history
   const getChampionshipHistory = (championshipId) => {
@@ -182,7 +185,7 @@ const Championships = () => {
                             <Typography variant="body1" component="span">
                               {winnerFighter.personid ? (
                                 <Link
-                                  to={`/dashboard/${winnerFighter.personid}`}
+                                  to={`/game/${gameId}/dashboard/${winnerFighter.personid}`}
                                   style={{
                                     textDecoration: "none",
                                     color: "#1976d2",
@@ -198,7 +201,7 @@ const Championships = () => {
                               {' def. '}
                               {loserFighter.personid ? (
                                 <Link
-                                  to={`/dashboard/${loserFighter.personid}`}
+                                  to={`/game/${gameId}/dashboard/${loserFighter.personid}`}
                                   style={{
                                     textDecoration: "none",
                                     color: "#1976d2",
@@ -246,20 +249,30 @@ const Championships = () => {
   // Handle creating a new championship
   const handleCreateChampionship = async () => {
     try {
-      const nextId = await getNextChampionshipId();
+      const nextId = await getNextChampionshipId(gameId);
       const championship = {
         id: nextId,
         ...newChampionship,
         createdAt: new Date().toISOString(),
       };
 
-      await addChampionship(championship);
+      // Validate that selected champion (if any) matches gender
+      if (championship.currentChampionId) {
+        const champion = fighters.find(f => f.personid === championship.currentChampionId);
+        if (champion && champion.gender !== championship.gender) {
+          console.error("Champion gender does not match championship division");
+          return;
+        }
+      }
+
+      await addChampionship(championship, gameId);
       setChampionships(prev => [...prev, championship]);
       setOpenDialog(false);
       // Reset form
       setNewChampionship({
         name: '',
         weightClass: '',
+        gender: 'Male',
         currentChampionId: '',
         description: '',
       });
@@ -273,7 +286,7 @@ const Championships = () => {
     try {
       if (!selectedChampionship) return;
       
-      await deleteChampionship(selectedChampionship.id);
+      await deleteChampionship(selectedChampionship.id, gameId);
       setChampionships(prev => prev.filter(c => c.id !== selectedChampionship.id));
       setDeleteDialogOpen(false);
       setSelectedChampionship(null);
@@ -292,7 +305,7 @@ const Championships = () => {
         currentChampionId: ''
       };
 
-      await updateChampionship(updatedChampionship);
+      await updateChampionship(updatedChampionship, gameId);
       setChampionships(prev => prev.map(c => 
         c.id === selectedChampionship.id ? updatedChampionship : c
       ));
@@ -521,14 +534,14 @@ const Championships = () => {
                   <Typography variant="h6" gutterBottom>
                     {championship.name}
                   </Typography>
-                  <Typography color="textSecondary" gutterBottom>
-                    {championship.weightClass}
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {championship.gender}'s {championship.weightClass} Division
                   </Typography>
                   <Typography variant="body1" gutterBottom>
                     Champion:{' '}
                     {champion ? (
                       <Link
-                        to={`/dashboard/${champion.personid}`}
+                        to={`/game/${gameId}/dashboard/${champion.personid}`}
                         style={{
                           textDecoration: 'none',
                           color: '#1976d2',
@@ -568,6 +581,21 @@ const Championships = () => {
               onChange={(e) => setNewChampionship(prev => ({ ...prev, name: e.target.value }))}
               sx={{ mb: 2 }}
             />
+
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Gender Division</InputLabel>
+              <Select
+                value={newChampionship.gender}
+                label="Gender Division"
+                onChange={(e) => setNewChampionship(prev => ({ 
+                  ...prev, 
+                  gender: e.target.value 
+                }))}
+              >
+                <MenuItem value="Male">Men's Division</MenuItem>
+                <MenuItem value="Female">Women's Division</MenuItem>
+              </Select>
+            </FormControl>
             
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Weight Class</InputLabel>

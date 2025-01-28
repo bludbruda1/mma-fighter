@@ -3,80 +3,32 @@
     "id": 1,
     "name": "Lightweight Championship",
     "weightClass": "Lightweight",
+    "gender": "Male",
     "currentChampionId": 3,
-    "description": "UFC Lightweight Championship",
-    "reigns": [
-      {
-        "championId": 3,
-        "name": "Islam Makhachev",
-        "startDate": "2022-10-22",
-        "endDate": null,
-        "wonFromId": 5,
-        "wonFromName": "Charles Oliveira",
-        "winMethod": "Submission",
-        "winRound": 2,
-        "winTime": "3:16",
-        "eventId": null,
-        "defenses": [
-          {
-            "date": "2023-02-12",
-            "opponentId": null,
-            "opponentName": "Alexander Volkanovski",
-            "method": "Decision",
-            "round": 5,
-            "time": "5:00",
-            "eventId": null
-          },
-          {
-            "date": "2023-02-12",
-            "opponentId": 2,
-            "opponentName": "Dustin Poirier",
-            "method": "Submission",
-            "round": 5,
-            "time": "2:42",
-            "eventId": 3
-          }
-        ]
-      },
-      {
-        "championId": 5,
-        "name": "Charles Oliveira",
-        "startDate": "2021-05-15",
-        "endDate": "2022-10-22",
-        "wonFromId": 8,
-        "wonFromName": "Michael Chandler",
-        "winMethod": "Knockout",
-        "winRound": 2,
-        "winTime": "0:19",
-        "eventId": null,
-        "defenses": [
-          {
-            "date": "2022-07-15",
-            "opponentId": 6,
-            "opponentName": "Justin Gaethje",
-            "method": "Submission",
-            "round": 2,
-            "time": "3:22",
-            "eventId": null
-          },
-          {
-            "date": "2021-12-11",
-            "opponentId": 2,
-            "opponentName": "Dustin Poirier",
-            "method": "Submission",
-            "round": 4,
-            "time": "2:17",
-            "eventId": null
-          }
-        ]
-      }
-    ]
+    "description": "UFC Lightweight Championship"
   },
-    {
-      "id": 2,
-      "name": "Lightweight Interim Championship",
-      "weightClass": "Lightweight",
-      "currentChampionId": null,
-      "description": "UFC Interim Lightweight Championship"
-    }
-  ]
+  {
+    "id": 2,
+    "name": "Middleweight Championship",
+    "weightClass": "Middleweight",
+    "gender": "Male",
+    "currentChampionId": 50,
+    "description": "UFC Middleweight Championship"
+  },
+  {
+    "id": 3,
+    "name": "Featherweight Championship",
+    "weightClass": "Featherweight",
+    "gender": "Male",
+    "currentChampionId": 21,
+    "description": "UFC Featherweight Championship"
+  },
+  {
+    "id": 4,
+    "name": "Bantamweight Championship",
+    "weightClass": "Bantamweight",
+    "gender": "Male",
+    "currentChampionId": 35,
+    "description": "UFC Bantamweight Championship"
+  }   
+]

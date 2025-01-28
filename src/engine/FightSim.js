@@ -1660,164 +1660,6 @@ const simulateRound = (fighters, roundNumber, logger) => {
 };
 
 /**
- * Display the stats for a round
- * @param {Object[]} fighters - Array of fighter objects
- * @param {number} roundNumber - Current round number
- * @param {Object[]} initialStats - Initial stats at the start of the round
- */
-const displayRoundStats = (fighters, roundNumber, initialStats) => {
-  console.log(`\nRound ${roundNumber} Stats:`);
-
-  fighters.forEach((fighter, index) => {
-    console.log(`\n${fighter.name}:`);
-
-    // Striking stats
-    console.log("Striking:");
-    console.log(
-      `  Punches Thrown: ${
-        (fighter.stats.punchesThrown || 0) -
-        (initialStats[index].punchesThrown || 0)
-      }`
-    );
-    console.log(
-      `  Punches Landed: ${
-        (fighter.stats.punchesLanded || 0) -
-        (initialStats[index].punchesLanded || 0)
-      }`
-    );
-    console.log(
-      `    Jabs: ${
-        (fighter.stats.jabsLanded || 0) - (initialStats[index].jabsLanded || 0)
-      }`
-    );
-    console.log(
-      `    Crosses: ${
-        (fighter.stats.crosssLanded || 0) -
-        (initialStats[index].crosssLanded || 0)
-      }`
-    );
-    console.log(
-      `    Hooks: ${
-        (fighter.stats.hooksLanded || 0) -
-        (initialStats[index].hooksLanded || 0)
-      }`
-    );
-    console.log(
-      `    Uppercuts: ${
-        (fighter.stats.uppercutsLanded || 0) -
-        (initialStats[index].uppercutsLanded || 0)
-      }`
-    );
-    console.log(
-      `    Body Punches: ${
-        (fighter.stats.bodyPunchsLanded || 0) -
-        (initialStats[index].bodyPunchsLanded || 0)
-      }`
-    );
-    console.log(
-      `  Kicks Thrown: ${
-        (fighter.stats.kicksThrown || 0) -
-        (initialStats[index].kicksThrown || 0)
-      }`
-    );
-    console.log(
-      `  Kicks Landed: ${
-        (fighter.stats.kicksLanded || 0) -
-        (initialStats[index].kicksLanded || 0)
-      }`
-    );
-    console.log(
-      `    Head Kicks: ${
-        (fighter.stats.headKicksLanded || 0) -
-        (initialStats[index].headKicksLanded || 0)
-      }`
-    );
-    console.log(
-      `    Body Kicks: ${
-        (fighter.stats.bodyKicksLanded || 0) -
-        (initialStats[index].bodyKicksLanded || 0)
-      }`
-    );
-    console.log(
-      `    Leg Kicks: ${
-        (fighter.stats.legKicksLanded || 0) -
-        (initialStats[index].legKicksLanded || 0)
-      }`
-    );
-
-    // Grappling stats
-    console.log("Grappling:");
-    console.log(
-      `  Takedowns: ${
-        (fighter.stats.takedownsSuccessful || 0) -
-        (initialStats[index].takedownsSuccessful || 0)
-      } / ${
-        (fighter.stats.takedownsAttempted || 0) -
-        (initialStats[index].takedownsAttempted || 0)
-      }`
-    );
-    console.log(
-      `  Submissions Attempted: ${
-        (fighter.stats.submissionsAttempted || 0) -
-        (initialStats[index].submissionsAttempted || 0)
-      }`
-    );
-    console.log(
-      `  Submissions Landed: ${
-        (fighter.stats.submissionsLanded || 0) -
-        (initialStats[index].submissionsLanded || 0)
-      }`
-    );
-
-    // Ground stats
-    console.log("Ground Game:");
-    console.log(
-      `  Ground Strikes Landed: ${
-        (fighter.stats.groundPunchsLanded || 0) -
-        (initialStats[index].groundPunchsLanded || 0)
-      }`
-    );
-
-    // Defence stats
-    console.log("Defence:");
-    console.log(
-      `  Strikes Blocked: ${
-        (fighter.stats.punchesBlocked || 0) +
-        (fighter.stats.kicksBlocked || 0) -
-        ((initialStats[index].punchesBlocked || 0) +
-          (initialStats[index].kicksBlocked || 0))
-      }`
-    );
-    console.log(
-      `  Takedowns Defended: ${
-        (fighter.stats.takedownsDefended || 0) -
-        (initialStats[index].takedownsDefended || 0)
-      }`
-    );
-    console.log(
-      `  Submissions Defended: ${
-        (fighter.stats.submissionsDefended || 0) -
-        (initialStats[index].submissionsDefended || 0)
-      }`
-    );
-
-    // Health and stamina
-    console.log("Health and Stamina:");
-    console.log(
-      `  Current Health: Head: ${fighter.health.head}/${fighter.maxHealth.head}, Body: ${fighter.health.body}/${fighter.maxHealth.body}, Legs: ${fighter.health.legs}/${fighter.maxHealth.legs}`
-    );
-    console.log(
-      `  Damage Taken: Head: ${
-        initialStats[index].health.head - fighter.health.head
-      }, Body: ${
-        initialStats[index].health.body - fighter.health.body
-      }, Legs: ${initialStats[index].health.legs - fighter.health.legs}`
-    );
-    console.log(`  Current Stamina: ${fighter.stamina}/100`);
-  });
-};
-
-/**
  * Simulate the entire fight
  * @param {Object[]} fighters - Array of fighter objects
  * @param {Object} logger - PlayByPlayLogger instance
@@ -1838,7 +1680,10 @@ const simulateFight = (fighters, logger) => {
       id: fighter.personid,
       firstname: fighter.firstname,
       lastname: fighter.lastname,
+      nickname: fighter.nickname,
+      nicknamePlacement: fighter.nicknamePlacement,
       name: `${fighter.firstname} ${fighter.lastname}`,
+      gender: fighter.gender,
       fightingStyle: fighter.fightingStyle,
       weightClass: fighter.weightClass,
       wins: fighter.wins,

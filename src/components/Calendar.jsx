@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getAllEvents, getGameDate } from "../utils/indexedDB"; // Import getGameDate
+import { useNavigate, useParams } from "react-router-dom";
+import { getAllEvents, getGameDate, getAllFights } from "../utils/indexedDB"; // Import getGameDate
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import "./Calendar.css";
@@ -9,6 +9,7 @@ import { green } from "@mui/material/colors";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const Calendar = () => {
+  const { gameId } = useParams();
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -16,48 +17,86 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [fights, setFights] = useState([]);
+
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; // Array of day names
 
   useEffect(() => {
     const initializeCalendar = async () => {
       try {
-        const gameDate = await getGameDate(); // Fetch game date from IndexedDB
-        const initialDate = new Date(gameDate); // Convert to Date object
-        setCurrentDate(initialDate); // Set as currentDate
-        setSelectedDate(initialDate.toISOString().split("T")[0]); // Set selectedDate for input
-      } catch (error) {
-        console.error("Error fetching game date:", error);
-      }
-
-      try {
-        const eventData = await getAllEvents();
+        const gameDate = await getGameDate(gameId);
+        const initialDate = new Date(gameDate);
+        setCurrentDate(initialDate);
+        setSelectedDate(initialDate.toISOString().split("T")[0]);
+  
+        // Fetch both events and fights
+        const [eventData, fightData] = await Promise.all([
+          getAllEvents(gameId),
+          getAllFights(gameId)
+        ]);
         setEvents(eventData);
+        setFights(fightData);
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching data:", error);
       }
     };
-
+  
     initializeCalendar();
-  }, []);
+  }, [gameId]);
 
-  const getEventsForDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const formattedDate = `${year}-${month}-${day}`;
-    return events.filter((event) => event.date === formattedDate);
-  };
+    // function to check if an event is completed
+    const isEventCompleted = (event) => {
+      if (!event || !event.fights) return false;
+    
+      // Helper function to check if all fights in a card are completed
+      const areAllFightsCompleted = (fightIds) => {
+        if (!Array.isArray(fightIds)) return true; // If card doesn't exist, consider it complete
+        return fightIds.every(fightId => {
+          const fight = fights.find(f => f.id === fightId);
+          return fight && fight.result;
+        });
+      };
+    
+      // Check if event.fights is the old format (array)
+      if (Array.isArray(event.fights)) {
+        return event.fights.every(fightId => {
+          const fight = fights.find(f => f.id === fightId);
+          return fight && fight.result;
+        });
+      }
+    
+      // Check new format (object with card properties)
+      return areAllFightsCompleted(event.fights.mainCard) &&
+             areAllFightsCompleted(event.fights.prelims) &&
+             areAllFightsCompleted(event.fights.earlyPrelims);
+    };
+
+    const formatDateForComparison = (date) => {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const getEventsForDate = (date) => {
+      const formattedDate = formatDateForComparison(date);
+      return events.filter(event => {
+        const eventDate = formatDateForComparison(new Date(event.date));
+        return eventDate === formattedDate;
+      }).map(event => ({
+        ...event,
+        isCompleted: isEventCompleted(event)
+      }));
+    };
 
   const handleEventDateClick = (eventId) => {
-    navigate(`/event/${eventId}`);
+    navigate(`/game/${gameId}/event/${eventId}`);
   };
 
   const handleDateClick = (date) => {
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
     const formattedDate = selectedDate.toLocaleDateString("en-CA");
-    navigate(`/createevent?date=${formattedDate}`);
+    navigate(`/game/${gameId}/createevent?date=${formattedDate}`);
   };
 
   const handleMonthChange = (offset) => {
@@ -119,8 +158,8 @@ const Calendar = () => {
             <button
               key={event.id}
               onClick={() => handleEventDateClick(event.id)}
-              className="event-button"
-            >
+              className={`event-button ${event.isCompleted ? 'completed' : ''}`}
+              >
               {event.name}
             </button>
           ))}

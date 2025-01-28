@@ -1,5 +1,7 @@
 import { formatFightIntroduction } from './fightEventFormatter.js';
 import { formatTime } from './helper.js';
+import { formatNameWithNickname } from '../utils/nameUtils.js';  // Add this import
+
 
 /**
  * Logger class for recording and displaying fight events with improved data handling
@@ -45,13 +47,18 @@ class fightPlayByPlayLogger {
   /**
    * Helper to safely get fighter name
    * @param {Object} fighter - Fighter object
-   * @returns {string} Fighter's full name
+   * @returns {string} Fighter's full name with nickname if available
    */
   getFighterName(fighter) {
     if (!fighter) return "Unknown Fighter";
     if (fighter.name) return fighter.name;
     if (fighter.firstname && fighter.lastname) {
-      return `${fighter.firstname} ${fighter.lastname}`;
+      return formatNameWithNickname({
+        firstname: fighter.firstname,
+        lastname: fighter.lastname,
+        nickname: fighter.nickname,
+        nicknamePlacement: fighter.nicknamePlacement
+      });
     }
     return `Fighter ${fighter.id || fighter.personid || 'Unknown'}`;
   }
@@ -66,6 +73,28 @@ class fightPlayByPlayLogger {
   }
 
   /**
+   * Helper to safely get fighter data
+   * @param {Object} fighter - Fighter object
+   * @returns {Object} Complete fighter data
+   */
+  getFighterData(fighter) {
+    if (!fighter) return null;
+    return {
+      firstname: fighter.firstname,
+      lastname: fighter.lastname,
+      nickname: fighter.nickname,
+      nicknamePlacement: fighter.nicknamePlacement,
+      weightClass: fighter.weightClass,
+      wins: fighter.wins,
+      losses: fighter.losses,
+      hometown: fighter.hometown,
+      fightingStyle: fighter.fightingStyle,
+      gender: fighter.gender,
+      personid: fighter.personid || fighter.id
+    };
+  }
+
+  /**
    * Log fight initialization with introduction sequence
    * @param {Object[]} fighters - Array of fighter objects
    */
@@ -75,15 +104,14 @@ class fightPlayByPlayLogger {
       return;
     }
 
-    if (this.introductionLogged) {
-      return;
-    }
+    if (this.introductionLogged) return;
+
+    // Get complete fighter data
+    const completeData = fighters.map(fighter => this.getFighterData(fighter));
 
     // Generate and log introduction sequence
-    const introLines = formatFightIntroduction(fighters[0], fighters[1]);
-    introLines.forEach(line => {
-      this.logEvent(line);
-    });
+    const introLines = formatFightIntroduction(completeData[0], completeData[1]);
+    introLines.forEach(line => this.logEvent(line));
 
     this.introductionLogged = true;
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -19,6 +19,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { getAllEvents, getFightsByIds } from "../utils/indexedDB";
 
 const EventsList = () => {
+  const { gameId } = useParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   // Add sorting state
@@ -26,21 +27,47 @@ const EventsList = () => {
   const [order, setOrder] = useState('desc'); // Default to newest first
   const navigate = useNavigate();
 
+  // Function to get all fights from an event
+  const getAllFightsFromEvent = (event) => {
+    // Handle old format (array)
+    if (Array.isArray(event.fights)) {
+      return event.fights;
+    }
+
+    // Handle new format (object with card types)
+    return [
+      ...(event.fights.mainCard || []),
+      ...(event.fights.prelims || []),
+      ...(event.fights.earlyPrelims || [])
+    ];
+  };
+
+  // Function to get main event from fight list
+  const getMainEvent = async (event, fights) => {
+    // For new format, main event is first fight of main card
+    if (!Array.isArray(event.fights) && event.fights.mainCard?.length > 0) {
+      return fights.find(fight => fight.id === event.fights.mainCard[0]) || null;
+    }
+    // For old format, main event is first fight
+    return fights[0] || null;
+  };
+
   // Load events data with fights details
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const eventsData = await getAllEvents();
+        const eventsData = await getAllEvents(gameId);
         
         // For each event, fetch its fights
         const eventsWithFights = await Promise.all(eventsData.map(async (event) => {
-          const fights = await getFightsByIds(event.fights);
+          const allFightIds = getAllFightsFromEvent(event, gameId);
+          const fights = await getFightsByIds(allFightIds, gameId);
+          const mainEvent = await getMainEvent(event, fights, gameId);
           
           return {
             ...event,
             fights,
-            // Find main event (last fight in the card)
-            mainEvent: fights[0]
+            mainEvent
           };
         }));
 
@@ -53,7 +80,7 @@ const EventsList = () => {
     };
 
     loadEvents();
-  }, []);
+  }, [gameId]);
 
   // Handle sort request
   const handleRequestSort = (property) => {
@@ -93,6 +120,12 @@ const EventsList = () => {
     return `${fighter1} vs ${fighter2}`;
   };
 
+  // Update the fight count calculation in the render
+  const getFightCount = (event) => {
+    const allFights = getAllFightsFromEvent(event);
+    return allFights.length;
+  };
+
   // Sort function for different data types
   const sortData = (a, b) => {
     switch (orderBy) {
@@ -129,7 +162,7 @@ const EventsList = () => {
         </Typography>
         <Button 
           variant="contained" 
-          onClick={() => navigate('/createevent')}
+          onClick={() => navigate(`/game/${gameId}/createevent`)}
           sx={{
             backgroundColor: "rgba(33, 33, 33, 0.9)",
             color: "#fff",
@@ -181,7 +214,7 @@ const EventsList = () => {
               <TableRow
                 key={event.id}
                 hover
-                onClick={() => navigate(`/event/${event.id}`)}
+                onClick={() => navigate(`/game/${gameId}/event/${event.id}`)}
                 sx={{ cursor: 'pointer' }}
               >
                 <TableCell>{formatDate(event.date)}</TableCell>
@@ -195,7 +228,7 @@ const EventsList = () => {
                     {event.name}
                   </Box>
                 </TableCell>
-                <TableCell>{event.fights.length}</TableCell>
+                <TableCell>{getFightCount(event)}</TableCell>
                 <TableCell>{formatMainEvent(event.mainEvent)}</TableCell>
               </TableRow>
             ))}

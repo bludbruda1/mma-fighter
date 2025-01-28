@@ -1,20 +1,74 @@
 [
-    {
-      "id": 1,
-      "name": "UFC 311",
-      "date": "2025-01-18",
-      "fights": [2,3]
-    },
-    {
-      "id": 2,
-      "name": "UFC 315",
-      "date": "2025-04-20",
-      "fights": [4]
-    },
-    {
-      "id": 3,
-      "name": "UFC 302",
-      "date": "2024-06-01",
-      "fights": [9]
+  {
+    "id": 1,
+    "name": "UFC 311",
+    "date": "2025-01-18",
+    "location": "Los Angeles, California",
+    "venue": "Intuit Dome",
+    "fights": {
+      "mainCard": [2, 17, 18, 20, 19],
+      "prelims": [21],
+      "earlyPrelims": []
     }
-  ]
+  },
+  {
+    "id": 2,
+    "name": "UFC Fight Night: Dern vs. Ribas 2",
+    "date": "2025-01-11",
+    "location": "Las Vegas, Nevada",
+    "venue": "UFC Apex",
+    "fights": {
+      "mainCard": [4, 12, 13, 14, 15, 16],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  },
+  {
+    "id": 3,
+    "name": "UFC 302",
+    "date": "2024-06-01",
+    "location": "Newark, New Jersey",
+    "venue": "Prudential Center",
+    "fights": {
+      "mainCard": [9],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  },
+  {
+    "id": 4,
+    "name": "UFC Fight Night: Adesanya vs. Imavov",
+    "date": "2025-02-01",
+    "location": "Riyadh, Saudi Arabia",
+    "venue": "anB Arena",
+    "fights": {
+      "mainCard": [22],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  },
+  {
+    "id": 5,
+    "name": "UFC 312",
+    "date": "2025-02-08",
+    "location": "Sydney, Australia",
+    "venue": "Qudos Bank Arena",
+    "fights": {
+      "mainCard": [23],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  },
+  {
+    "id": 6,
+    "name": "UFC Fight Night: Cannonier vs. Rodrigues",
+    "date": "2025-02-15",
+    "location": "Las Vegas, Nevada",
+    "venue": "UFC Apex",
+    "fights": {
+      "mainCard": [],
+      "prelims": [],
+      "earlyPrelims": []
+    }
+  }
+]
