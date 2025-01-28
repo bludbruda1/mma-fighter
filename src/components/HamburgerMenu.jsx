@@ -28,14 +28,13 @@ import HandshakeIcon from '@mui/icons-material/Handshake';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { saveGameDate, getGameDate, getAllEvents, getAllFights, updateAllFighterStatuses } from "../utils/indexedDB";
 
-// HamburgerMenu component that handles navigation on the left side of the page.
 const HamburgerMenu = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
-  const [fights, setFights] = useState([]);
+  const [, setFights] = useState([]);
   const [isAdvanceDisabled, setIsAdvanceDisabled] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -89,14 +88,19 @@ const HamburgerMenu = () => {
   // Function to refresh fights
   const refreshFightsData = React.useCallback(async () => {
     try {
-      const fetchedFights = await getAllFights(gameId);
+      // Fetch both fights and events to ensure we have latest data
+      const [fetchedFights, fetchedEvents] = await Promise.all([
+        getAllFights(gameId),
+        getAllEvents(gameId)
+      ]);
       setFights(fetchedFights);
-      // Recheck current date event with new fights data
-      checkCurrentDateEvent(currentDate, events, fetchedFights);
+      setEvents(fetchedEvents);
+      // Recheck current date event with new data
+      checkCurrentDateEvent(currentDate, fetchedEvents, fetchedFights);
     } catch (error) {
-      console.error("Error refreshing fights data:", error);
+      console.error("Error refreshing data:", error);
     }
-  }, [currentDate, events, checkCurrentDateEvent, gameId]);
+}, [currentDate, checkCurrentDateEvent, gameId]);
 
   // Load initial data when component mounts
   useEffect(() => {
@@ -148,17 +152,24 @@ const HamburgerMenu = () => {
       // Update fighter statuses
       const updatedFighters = await updateAllFighterStatuses(gameId);
       if (updatedFighters.length > 0) {
-        console.log(`Updated status for ${updatedFighters.length} fighters`);
       }
   
-      // Check if there's an event on the new date
-      const { hasEvent, eventId } = checkCurrentDateEvent(newDate, events, fights);
+      // Fetch fresh data before checking events
+      const [fetchedEvents, fetchedFights] = await Promise.all([
+        getAllEvents(gameId),
+        getAllFights(gameId)
+      ]);
+      
+      // Check if there's an event on the new date with fresh data
+      const { hasEvent, eventId } = checkCurrentDateEvent(newDate, fetchedEvents, fetchedFights);
   
       if (hasEvent) {
         // Navigate to event page with absolute path
         navigate(`/game/${gameId}/event/${eventId}`);
       }
   
+      setEvents(fetchedEvents); // Update events state
+      setFights(fetchedFights); // Update fights state
       setCurrentDate(newDate);
   
     } catch (error) {
