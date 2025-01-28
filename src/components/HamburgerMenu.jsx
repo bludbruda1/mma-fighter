@@ -47,7 +47,9 @@ const HamburgerMenu = () => {
 
   // Helper function to format date for comparison
   const formatDateForComparison = (date) => {
-    return new Date(date).toISOString().split('T')[0];
+    const d = new Date(date);
+    // Format to local YYYY-MM-DD without timezone conversion
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
   // Check if an event exists for a given date and if all its fights are complete
