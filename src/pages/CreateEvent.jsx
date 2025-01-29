@@ -901,10 +901,17 @@ const CreateEvent = () => {
                   mt: index === 0 ? 4 : 2
                 }}
               >
-                {/* Fight Position Badge */}
+                {/* Main Event Badge */}
                 {index === 0 && (
                   <Box sx={styles.mainEventBadge}>
                     Main Event
+                  </Box>
+                )}
+
+                {/* Co-Main Event Badge */}
+                {index === 1 && (
+                  <Box sx={styles.mainEventBadge}>
+                    Co-Main Event
                   </Box>
                 )}
                 
