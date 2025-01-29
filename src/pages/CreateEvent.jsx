@@ -148,11 +148,12 @@ const CreateEvent = () => {
   const [eventName, setEventName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
-  const [cardAssignments, setCardAssignments] = useState(
-    Array(1).fill('mainCard')  // Default all fights to main card
-  );
+
   const [fightWeightClasses, setFightWeightClasses] = useState(
     Array(1).fill('Open Weight')  // Default all fights to Open Weight
+  );
+  const [fightGenders, setFightGenders] = useState(
+    Array(15).fill('')  // Initialize with empty strings
   );
 
   const [region, setRegion] = useState('');
@@ -202,15 +203,6 @@ const CreateEvent = () => {
       }))
   );
 
-  // Update card assignments to match new number of fights
-  setCardAssignments(prev => {
-    const newAssignments = [...prev];
-    while (newAssignments.length < numFights) {
-      newAssignments.push('mainCard');
-    }
-    return newAssignments.slice(0, numFights);
-  });
-
   // Add weight class assignments for new fights
   setFightWeightClasses(prev => {
     const newWeightClasses = [...prev];
@@ -221,12 +213,35 @@ const CreateEvent = () => {
   });
 }, [numFights]);
 
-  // Handler for card assignment changes
-  const handleCardAssignmentChange = (index, card) => {
-    setCardAssignments(prev => {
-      const newAssignments = [...prev];
-      newAssignments[index] = card;
-      return newAssignments;
+  // Handler for gender changes
+  const handleGenderChange = (index, gender) => {
+    setFightGenders(prev => {
+      const newGenders = [...prev];
+      newGenders[index] = gender;
+      // Reset fighter selections if gender changes
+      if (fights[index].fighter1 || fights[index].fighter2) {
+        setFights(prev => {
+          const newFights = [...prev];
+          newFights[index] = { fighter1: null, fighter2: null };
+          return newFights;
+        });
+        // Remove fighters from selected tracking
+        if (fights[index].fighter1?.personid) {
+          setSelectedFightersInEvent(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(fights[index].fighter1.personid);
+            return newSet;
+          });
+        }
+        if (fights[index].fighter2?.personid) {
+          setSelectedFightersInEvent(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(fights[index].fighter2.personid);
+            return newSet;
+          });
+        }
+      }
+      return newGenders;
     });
   };
 
@@ -414,6 +429,7 @@ const CreateEvent = () => {
   const isFighterAvailable = (fighterId, fightIndex, fighterPosition) => {
     const fighter = fighters.find(f => f.personid === fighterId);
     const selectedWeightClass = fightWeightClasses[fightIndex];
+    const selectedGender = fightGenders[fightIndex];
     const otherFighter = fighterPosition === 'fighter1' ? 
       fights[fightIndex]?.fighter2 : 
       fights[fightIndex]?.fighter1;
@@ -433,8 +449,7 @@ const CreateEvent = () => {
         error: "Fighter is already scheduled in this event",
       };
     }
-
-
+  
     // Check fighter availability (injuries and training camp)
     const availability = checkFighterAvailability(fighter, selectedDate);
     if (!availability.isAvailable) {
@@ -443,7 +458,15 @@ const CreateEvent = () => {
         error: availability.reason,
       };
     }
-    
+  
+    // Check gender match
+    if (selectedGender && fighter.gender !== selectedGender) {
+      return {
+        available: false,
+        error: `Fighter must be ${selectedGender}`,
+      };
+    }
+  
     // Check weight class match if not Open Weight
     if (selectedWeightClass !== 'Open Weight' && fighter.weightClass !== selectedWeightClass) {
       return {
@@ -726,9 +749,9 @@ const CreateEvent = () => {
 
       // Group fights by card
       const groupedFights = {
-        mainCard: fightIds.filter((_, index) => cardAssignments[index] === 'mainCard'),
-        prelims: fightIds.filter((_, index) => cardAssignments[index] === 'prelims'),
-        earlyPrelims: fightIds.filter((_, index) => cardAssignments[index] === 'earlyPrelims')
+        mainCard: fightIds.slice(0, cardCounts.mainCard),
+        prelims: fightIds.slice(cardCounts.mainCard, cardCounts.mainCard + cardCounts.prelims),
+        earlyPrelims: fightIds.slice(cardCounts.mainCard + cardCounts.prelims)
       };
 
       // Create event with new fight structure
@@ -1010,25 +1033,8 @@ const CreateEvent = () => {
                 
                 {/* Fight Card Content */}
                 <CardContent>
-                  {/* Card Assignment and Weight Class Row */}
-                  <Grid container spacing={3} sx={{ mb: 3 }}>
-                  {/* Card Assignment */}
-                  <Grid item xs={12} md={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Card Assignment</InputLabel>
-                      <MuiSelect
-                        value={cardAssignments[index]}
-                        label="Card Assignment"
-                        onChange={(e) => handleCardAssignmentChange(index, e.target.value)}
-                      >
-                        <MenuItem value="mainCard">Main Card</MenuItem>
-                        <MenuItem value="prelims">Prelims</MenuItem>
-                        <MenuItem value="earlyPrelims">Early Prelims</MenuItem>
-                      </MuiSelect>
-                    </FormControl>
-                    </Grid>
-
-                  {/* Weight Class option */}
+                <Grid container spacing={3} sx={{ mb: 3 }}>
+                  {/* Weight Class and Gender Selection Row */}
                   <Grid item xs={12} md={6}>
                     <FormControl fullWidth>
                       <InputLabel>Weight Class</InputLabel>
@@ -1044,8 +1050,22 @@ const CreateEvent = () => {
                         ))}
                       </MuiSelect>
                     </FormControl>
-                    </Grid>
                   </Grid>
+                  
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Gender</InputLabel>
+                      <MuiSelect
+                        value={fightGenders[index] || ''}
+                        label="Gender"
+                        onChange={(e) => handleGenderChange(index, e.target.value)}
+                      >
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                      </MuiSelect>
+                    </FormControl>
+                  </Grid>
+                </Grid>
 
                   {/* Fighter Selection Grid */}
                   <Grid container spacing={3}>
