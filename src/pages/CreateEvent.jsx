@@ -137,6 +137,11 @@ const CreateEvent = () => {
   const [gameDate, setGameDate] = useState(null);
   const [fighters, setFighters] = useState([]);
   const [numFights, setNumFights] = useState(1);
+  const [cardCounts, setCardCounts] = useState({
+    mainCard: 1,
+    prelims: 0,
+    earlyPrelims: 0
+  });
   const [fights, setFights] = useState(
     Array(1).fill({ fighter1: null, fighter2: null })
   );
@@ -280,6 +285,26 @@ const CreateEvent = () => {
       nationalities: [...new Set(fighters.map(f => f.nationality))].filter(Boolean).sort(),
     });
     setFilteredFighters(fighters);
+  };
+
+  // Helper function to get total number of fights
+  const getTotalFights = () => {
+    return cardCounts.mainCard + cardCounts.prelims + cardCounts.earlyPrelims;
+  };
+
+  // Helper function to get fight position label
+  const getFightPositionLabel = (index, cardCounts) => {
+    if (index === 0) return "Main Event";
+    if (index === 1) return "Co-Main Event";
+    
+    // Determine which card the fight is on based on index
+    if (index < cardCounts.mainCard) {
+      return `Main Card Fight ${cardCounts.mainCard - index}`;
+    } else if (index < cardCounts.mainCard + cardCounts.prelims) {
+      return `Prelim Fight ${cardCounts.mainCard + cardCounts.prelims - index}`;
+    } else {
+      return `Early Prelim Fight ${getTotalFights() - index}`;
+    }
   };
 
   // Function to handle filtering of fighters
@@ -864,21 +889,85 @@ const CreateEvent = () => {
 
         {/* Fight Card Section */}
         <Paper sx={styles.formSection}>
-          <Typography variant="h5" sx={styles.sectionTitle}>
-            Fight Card Setup
-          </Typography>
-          <FormControl fullWidth sx={{ mb: 4 }}>
-            <InputLabel>Number of Fights</InputLabel>
-            <MuiSelect
-              value={numFights}
-              label="Number of Fights"
-              onChange={(e) => setNumFights(Number(e.target.value))}
-            >
-              {[1, 2, 3, 4, 5].map((num) => (
-                <MenuItem key={num} value={num}>{num} Fight{num > 1 ? 's' : ''}</MenuItem>
-              ))}
-            </MuiSelect>
-          </FormControl>
+          <Paper sx={styles.formSection}>
+            <Typography variant="h5" sx={styles.sectionTitle}>
+              Fight Card Setup
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth>
+                  <InputLabel>Main Card Fights</InputLabel>
+                  <MuiSelect
+                    value={cardCounts.mainCard}
+                    label="Main Card Fights"
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (value <= 6) { // Enforce main card limit
+                        setCardCounts(prev => ({
+                          ...prev,
+                          mainCard: value
+                        }));
+                        setNumFights(value + cardCounts.prelims + cardCounts.earlyPrelims);
+                      }
+                    }}
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                      <MenuItem key={num} value={num}>{num} Fight{num > 1 ? 's' : ''}</MenuItem>
+                    ))}
+                  </MuiSelect>
+                  <FormHelperText>Maximum 6 fights on main card</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth>
+                  <InputLabel>Prelim Fights</InputLabel>
+                  <MuiSelect
+                    value={cardCounts.prelims}
+                    label="Prelim Fights"
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      const total = value + cardCounts.mainCard + cardCounts.earlyPrelims;
+                      if (total <= 15) { // Enforce total fight limit
+                        setCardCounts(prev => ({
+                          ...prev,
+                          prelims: value
+                        }));
+                        setNumFights(total);
+                      }
+                    }}
+                  >
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                      <MenuItem key={num} value={num}>{num} Fight{num > 1 ? 's' : ''}</MenuItem>
+                    ))}
+                  </MuiSelect>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth>
+                  <InputLabel>Early Prelim Fights</InputLabel>
+                  <MuiSelect
+                    value={cardCounts.earlyPrelims}
+                    label="Early Prelim Fights"
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      const total = value + cardCounts.mainCard + cardCounts.prelims;
+                      if (total <= 15) { // Enforce total fight limit
+                        setCardCounts(prev => ({
+                          ...prev,
+                          earlyPrelims: value
+                        }));
+                        setNumFights(total);
+                      }
+                    }}
+                  >
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                      <MenuItem key={num} value={num}>{num} Fight{num > 1 ? 's' : ''}</MenuItem>
+                    ))}
+                  </MuiSelect>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Paper>
 
           {/* Individual Fight Cards */}
           {fights.map((fight, index) => {
@@ -898,22 +987,26 @@ const CreateEvent = () => {
                 sx={{
                   ...styles.fightCard,
                   position: 'relative',
-                  mt: index === 0 ? 4 : 2
+                  mt: index === 0 ? 4 : 2,
+                  // Add different background tints for each card section
+                  backgroundColor: index < cardCounts.mainCard ? 
+                    'rgba(255, 255, 255, 0.95)' : 
+                    index < cardCounts.mainCard + cardCounts.prelims ?
+                    'rgba(245, 245, 245, 0.95)' :
+                    'rgba(235, 235, 235, 0.95)'
                 }}
               >
-                {/* Main Event Badge */}
-                {index === 0 && (
-                  <Box sx={styles.mainEventBadge}>
-                    Main Event
-                  </Box>
-                )}
-
-                {/* Co-Main Event Badge */}
-                {index === 1 && (
-                  <Box sx={styles.mainEventBadge}>
-                    Co-Main Event
-                  </Box>
-                )}
+                {/* Position Badge */}
+                <Box sx={{
+                  ...styles.mainEventBadge,
+                  backgroundColor: index < cardCounts.mainCard ? 
+                    'primary.main' : 
+                    index < cardCounts.mainCard + cardCounts.prelims ?
+                    'secondary.main' :
+                    'text.secondary'
+                }}>
+                  {getFightPositionLabel(index, cardCounts)}
+                </Box>
                 
                 {/* Fight Card Content */}
                 <CardContent>
