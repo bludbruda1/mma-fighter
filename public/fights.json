@@ -283,6 +283,7 @@
       "lastname": "Harris"
     },
     "weightClass": "Welterweight",
+    "date": "2025-01-11",
     "result": {
       "winner": 0,
       "method": "Knockout",
@@ -304,6 +305,7 @@
       "lastname": "Almeida"
     },
     "weightClass": "Welterweight",
+    "date": "2025-01-11",
     "result": {
       "winner": 1,
       "method": "Knockout",
@@ -325,6 +327,7 @@
       "lastname": "Kopylov"
     },
     "weightClass": "Middleweight",
+    "date": "2025-01-11",
     "result": {
       "winner": 1,
       "method": "Knockout",
@@ -346,6 +349,7 @@
       "lastname": "Rodriguez"
     },
     "weightClass": "Featherweight",
+    "date": "2025-01-11",
     "result": {
       "winner": 1,
       "method": "Decision",
@@ -367,6 +371,7 @@
       "lastname": "Medic"
     },
     "weightClass": "Welterweight",
+    "date": "2025-01-11",
     "result": {
       "winner": 1,
       "method": "Decision",
@@ -393,6 +398,7 @@
       "lastname": "Nurmagomedov"
     },
     "weightClass": "Bantamweight",
+    "date": "2025-01-18",
     "result": {
       "winner": 0,
       "method": "Decision",
@@ -415,6 +421,7 @@
       "lastname": "Hill"
     },
     "weightClass": "Light Heavyweight",
+    "date": "2025-01-18",
     "result": {
       "winner": 0,
       "method": "Knockout",
@@ -437,6 +444,7 @@
       "lastname": "de Ridder"
     },
     "weightClass": "Middleweight",
+    "date": "2025-01-18",
     "result": {
       "winner": 1,
       "method": "Submission",
@@ -459,6 +467,7 @@
       "lastname": "Spivac"
     },
     "weightClass": "Heavyweight",
+    "date": "2025-01-18",
     "result": {
       "winner": 0,
       "method": "Knockout",
@@ -481,6 +490,7 @@
       "lastname": "Barcelos"
     },
     "weightClass": "Bantamweight",
+    "date": "2025-01-18",
     "result": {
       "winner": 1,
       "method": "Decision",
@@ -503,6 +513,7 @@
       "lastname": "Imavov"
     },
     "weightClass": "Middleweight",
+    "date": "2025-02-01",
     "result": null,
     "stats": null
   },
@@ -524,6 +535,7 @@
       "lastname": "Strickland"
     },
     "weightClass": "Middleweight",
+    "date": "2025-02-08",
     "result": null,
     "stats": null
   },
@@ -541,6 +553,7 @@
       "lastname": "Page"
     },
     "weightClass": "Middleweight",
+    "date": "2025-02-01",
     "result": null,
     "stats": null
   },
@@ -558,6 +571,7 @@
       "lastname": "Rozenstruik"
     },
     "weightClass": "Heavyweight",
+    "date": "2025-02-01",
     "result": null,
     "stats": null
   }

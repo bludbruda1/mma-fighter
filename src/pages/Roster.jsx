@@ -10,18 +10,18 @@ import {
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import SortableTable from "../components/SortableTable";
 import FilterPanel from "../components/FilterPanel";
-import { getAllFighters, getAllChampionships, getGameDate } from "../utils/indexedDB";
+import { getAllFighters, getAllChampionships, getGameDate, getAllFights } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
 import { calculateAge } from '../utils/dateUtils';
+import { getFighterStatus, getStatusDisplay } from "../utils/fighterUtils";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-
-
 
 const Roster = () => {
   const { gameId } = useParams();
   // Core state management
   const [fighters, setFighters] = useState([]);
+  const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
   const [gameDate, setGameDate] = useState(null);
 
@@ -69,16 +69,18 @@ const Roster = () => {
     const fetchData = async () => {
       try {
         // Fetch both fighters and championships in parallel
-        const [fetchedFighters, fetchedChampionships, currentGameDate] = await Promise.all([
+        const [fetchedFighters, fetchedChampionships, currentGameDate, fetchedFights] = await Promise.all([
           getAllFighters(gameId),
           getAllChampionships(gameId),
-          getGameDate(gameId)
+          getGameDate(gameId),
+          getAllFights(gameId)
         ]);
         
         // Update main data state
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
-        setGameDate(new Date(currentGameDate))
+        setGameDate(new Date(currentGameDate));
+        setFights(fetchedFights);
   
         // Extract and set unique values for filter options
         // Using Set to ensure uniqueness and filter(Boolean) to remove any null/undefined values
@@ -181,31 +183,28 @@ const Roster = () => {
   // Sorting comparison logic
   const compareValues = useCallback((a, b, property) => {
     if (property === 'status') {
-      // Check active status first
-      if (a.isActive !== b.isActive) {
-        return a.isActive ? -1 : 1;  // Active fighters first
+      // Get status for both fighters
+      const statusA = getFighterStatus(a, gameDate, fights);
+      const statusB = getFighterStatus(b, gameDate, fights);
+      
+      // Define status priority (lower number = higher priority)
+      const statusPriority = {
+        'INJURED': 3,
+        'IN_CAMP': 1,
+        'BOOKED': 2,
+        'ACTIVE': 0,
+        'UNKNOWN': 4
+      };
+    
+      // Compare based on priority
+      const priorityA = statusPriority[statusA.type];
+      const priorityB = statusPriority[statusB.type];
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
       }
       
-      // If both are inactive, check if it's due to injury
-      const aInjured = a.injuries?.some(injury => {
-        if (injury.isHealed) return false;
-        const injuryEnd = new Date(injury.dateIncurred);
-        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-        return injuryEnd > gameDate;
-      }) || false;
-  
-      const bInjured = b.injuries?.some(injury => {
-        if (injury.isHealed) return false;
-        const injuryEnd = new Date(injury.dateIncurred);
-        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-        return injuryEnd > gameDate;
-      }) || false;
-  
-      if (aInjured !== bInjured) {
-        return aInjured ? 1 : -1;  // Injured fighters last
-      }
-  
-      // If both have same status, sort alphabetically by name
+      // If same status, sort alphabetically by name
       return (a.firstname + a.lastname).localeCompare(b.firstname + b.lastname);
     }
   
@@ -248,7 +247,7 @@ const Roster = () => {
 
     // Handle numeric properties
     return a[property] - b[property];
-  }, [getChampionshipInfo, getAge, gameDate]);
+  }, [fights, getChampionshipInfo, getAge, gameDate]);
 
   // Sort request handler
   const handleRequestSort = (property) => {
@@ -307,39 +306,29 @@ const Roster = () => {
           </Link>
         );
         case 'status':
-          // Use isActive as primary status check
-          if (!fighter.isActive) {
-            // Check injuries to provide injury details in tooltip
-            const activeInjuries = fighter.injuries?.filter(injury => {
-              if (injury.isHealed) return false;
-              const injuryEnd = new Date(injury.dateIncurred);
-              injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-              return injuryEnd > gameDate;
-            }) || [];
-
-            if (activeInjuries.length > 0) {
-              return (
-                <Tooltip 
-                  title={activeInjuries.map(i => 
-                    `${i.type} (${i.location}) - ${i.severity}`
-                  ).join(', ')}
-                >
-                  <Chip 
-                    label="Injured"
-                    color="error"
-                    size="small"
-                    icon={<LocalHospitalIcon />}
-                  />
-                </Tooltip>
-              );
-            }
-          }
+          const status = getFighterStatus(fighter, gameDate, fights);
           return (
-            <Chip 
-              label="Active"
-              color="success"
-              size="small"
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Tooltip title={
+                status.type === 'INJURED' ? 
+                  `${status.details.type} (${status.details.location})` :
+                (status.type === 'BOOKED' || status.type === 'IN_CAMP') ?
+                  `Fight: ${new Date(status.details.fightDate).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}` :
+                  ''
+              } arrow>
+                <Chip 
+                  label={getStatusDisplay(status)}
+                  color={status.color}
+                  size="small"
+                  icon={status.type === 'INJURED' ? <LocalHospitalIcon /> : undefined}
+                />
+              </Tooltip>
+            </Box>
           );
 
       case 'dob':
