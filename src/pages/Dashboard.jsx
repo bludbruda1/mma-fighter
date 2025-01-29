@@ -16,6 +16,7 @@ import {
   ListItemText,
   Paper,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
@@ -33,6 +34,7 @@ import {
 import { calculateAge } from "../utils/dateUtils";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import CountryFlag from "../components/CountryFlag";
+import { getFighterStatus, getStatusDisplay } from "../utils/fighterUtils";
 
 // Styles object for consistent theming
 const styles = {
@@ -508,86 +510,72 @@ const Dashboard = () => {
     <Box sx={styles.container}>
       <Container maxWidth="xl">
         {/* Header with Navigation */}
-        <Paper sx={styles.headerCard}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              onClick={() => navigateToFighter("previous")}
-              sx={styles.navigationButton}
-            >
-              <ArrowBackOutlinedIcon />
-            </Button>
-
-            <Box sx={{ textAlign: "center" }}>
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: "bold",
-                  background:
-                    "linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  mb: 1,
-                }}
+          <Paper sx={styles.headerCard}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Button
+                onClick={() => navigateToFighter("previous")}
+                sx={styles.navigationButton}
               >
-                {formatFighterNameWithNickname(fighter)}
-              </Typography>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                <ArrowBackOutlinedIcon />
+              </Button>
+              
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h3" sx={{
+                  fontWeight: 'bold',
+                  background: 'linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 1
+                }}>
+                  {formatFighterNameWithNickname(fighter)}
+                </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
                   gap: 1,
-                  mt: 1,
-                }}
-              >
-                <Chip
-                  label={fighter.isActive ? "Active" : "Inactive"}
-                  color={fighter.isActive ? "success" : "error"}
-                  sx={{
-                    fontWeight: "medium",
-                    px: 2,
-                  }}
-                />
-                {!fighter.isActive &&
-                  fighter.injuries?.some((injury) => {
-                    const injuryEnd = new Date(injury.dateIncurred);
-                    injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-                    return !injury.isHealed && injuryEnd > gameDate;
-                  }) && (
-                    <Chip
-                      icon={<LocalHospitalIcon />}
-                      label={(() => {
-                        const activeInjury = fighter.injuries.find((injury) => {
-                          const injuryEnd = new Date(injury.dateIncurred);
-                          injuryEnd.setDate(
-                            injuryEnd.getDate() + injury.duration
-                          );
-                          return !injury.isHealed && injuryEnd > gameDate;
-                        });
-                        return `${activeInjury.type} (${activeInjury.location})`;
-                      })()}
-                      color="error"
-                      sx={{ fontWeight: "medium" }}
-                    />
-                  )}
+                  mt: 1 
+                }}>
+                  {(() => {
+                    const status = getFighterStatus(fighter, gameDate, fights);
+                    return (
+                      <Tooltip title={
+                        status.type === 'INJURED' ? 
+                          `${status.details.type} (${status.details.location})` :
+                        (status.type === 'BOOKED' || status.type === 'IN_CAMP') ?
+                          `Fight: ${new Date(status.details.fightDate).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}` :
+                          ''
+                      } arrow>
+                        <Chip 
+                          label={getStatusDisplay(status)}
+                          color={status.color}
+                          size="small"
+                          icon={status.type === 'INJURED' ? <LocalHospitalIcon /> : undefined}
+                          sx={{ 
+                            fontWeight: 'medium',
+                            px: 2
+                          }}
+                        />
+                      </Tooltip>
+                    );
+                  })()}
+                </Box>
               </Box>
-            </Box>
 
-            <Button
-              onClick={() => navigateToFighter("next")}
-              sx={styles.navigationButton}
-            >
-              <ArrowForwardOutlinedIcon />
-            </Button>
-          </Box>
-        </Paper>
+              <Button
+                onClick={() => navigateToFighter("next")}
+                sx={styles.navigationButton}
+              >
+                <ArrowForwardOutlinedIcon />
+              </Button>
+            </Box>
+          </Paper>
 
         <Grid container spacing={4}>
           {/* Left Column: Personal Details and Fighter Status */}

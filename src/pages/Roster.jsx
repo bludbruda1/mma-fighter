@@ -4,14 +4,11 @@ import { Container, Typography, Tooltip, Box, Chip } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import SortableTable from "../components/SortableTable";
 import FilterPanel from "../components/FilterPanel";
-import {
-  getAllFighters,
-  getAllChampionships,
-  getGameDate,
-} from "../utils/indexedDB";
+import { getAllFighters, getAllChampionships, getGameDate, getAllFights } from "../utils/indexedDB";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
 import { getRankingDisplay } from "../utils/rankingsHelper";
-import { calculateAge } from "../utils/dateUtils";
+import { calculateAge } from '../utils/dateUtils';
+import { getFighterStatus, getStatusDisplay } from "../utils/fighterUtils";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import CountryFlag from "../components/CountryFlag";
 
@@ -19,6 +16,7 @@ const Roster = () => {
   const { gameId } = useParams();
   // Core state management
   const [fighters, setFighters] = useState([]);
+  const [fights, setFights] = useState([]);
   const [championships, setChampionships] = useState([]);
   const [gameDate, setGameDate] = useState(null);
 
@@ -66,18 +64,20 @@ const Roster = () => {
     const fetchData = async () => {
       try {
         // Fetch both fighters and championships in parallel
-        const [fetchedFighters, fetchedChampionships, currentGameDate] =
-          await Promise.all([
-            getAllFighters(gameId),
-            getAllChampionships(gameId),
-            getGameDate(gameId),
-          ]);
-
+        const [fetchedFighters, fetchedChampionships, currentGameDate, fetchedFights] = await Promise.all([
+          getAllFighters(gameId),
+          getAllChampionships(gameId),
+          getGameDate(gameId),
+          getAllFights(gameId)
+        ]);
+        
         // Update main data state
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
         setGameDate(new Date(currentGameDate));
 
+        setFights(fetchedFights);
+  
         // Extract and set unique values for filter options
         // Using Set to ensure uniqueness and filter(Boolean) to remove any null/undefined values
         setFilterOptions({
@@ -204,55 +204,47 @@ const Roster = () => {
   ); // Include filters and getChampionshipInfo as dependencies
 
   // Sorting comparison logic
-  const compareValues = useCallback(
-    (a, b, property) => {
-      if (property === "status") {
-        // Check active status first
-        if (a.isActive !== b.isActive) {
-          return a.isActive ? -1 : 1; // Active fighters first
-        }
-
-        // If both are inactive, check if it's due to injury
-        const aInjured =
-          a.injuries?.some((injury) => {
-            if (injury.isHealed) return false;
-            const injuryEnd = new Date(injury.dateIncurred);
-            injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-            return injuryEnd > gameDate;
-          }) || false;
-
-        const bInjured =
-          b.injuries?.some((injury) => {
-            if (injury.isHealed) return false;
-            const injuryEnd = new Date(injury.dateIncurred);
-            injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-            return injuryEnd > gameDate;
-          }) || false;
-
-        if (aInjured !== bInjured) {
-          return aInjured ? 1 : -1; // Injured fighters last
-        }
-
-        // If both have same status, sort alphabetically by name
-        return (a.firstname + a.lastname).localeCompare(
-          b.firstname + b.lastname
-        );
+  const compareValues = useCallback((a, b, property) => {
+    if (property === 'status') {
+      // Get status for both fighters
+      const statusA = getFighterStatus(a, gameDate, fights);
+      const statusB = getFighterStatus(b, gameDate, fights);
+      
+      // Define status priority (lower number = higher priority)
+      const statusPriority = {
+        'INJURED': 3,
+        'IN_CAMP': 1,
+        'BOOKED': 2,
+        'ACTIVE': 0,
+        'UNKNOWN': 4
+      };
+    
+      // Compare based on priority
+      const priorityA = statusPriority[statusA.type];
+      const priorityB = statusPriority[statusB.type];
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
       }
-
-      if (property === "ranking") {
-        const aIsChamp = getChampionshipInfo(a.personid).length > 0;
-        const bIsChamp = getChampionshipInfo(b.personid).length > 0;
-
-        // Champions always come first
-        if (aIsChamp && !bIsChamp) return -1;
-        if (!aIsChamp && bIsChamp) return 1;
-        if (aIsChamp && bIsChamp) return 0;
-
-        // Then sort by ranking
-        const aRank = a.ranking || 999;
-        const bRank = b.ranking || 999;
-        return aRank - bRank;
-      }
+      
+      // If same status, sort alphabetically by name
+      return (a.firstname + a.lastname).localeCompare(b.firstname + b.lastname);
+    }
+  
+    if (property === 'ranking') {
+      const aIsChamp = getChampionshipInfo(a.personid).length > 0;
+      const bIsChamp = getChampionshipInfo(b.personid).length > 0;
+      
+      // Champions always come first
+      if (aIsChamp && !bIsChamp) return -1;
+      if (!aIsChamp && bIsChamp) return 1;
+      if (aIsChamp && bIsChamp) return 0;
+      
+      // Then sort by ranking
+      const aRank = a.ranking || 999;
+      const bRank = b.ranking || 999;
+      return aRank - bRank;
+    }
 
       // Special handling for record comparison
       if (property === "record") {
@@ -278,11 +270,9 @@ const Roster = () => {
           .localeCompare(b[property].toLowerCase());
       }
 
-      // Handle numeric properties
-      return a[property] - b[property];
-    },
-    [getChampionshipInfo, getAge, gameDate]
-  );
+    // Handle numeric properties
+    return a[property] - b[property];
+  }, [fights, getChampionshipInfo, getAge, gameDate]);
 
   // Sort request handler
   const handleRequestSort = (property) => {
@@ -346,38 +336,33 @@ const Roster = () => {
             {`${fighter.firstname} ${fighter.lastname}`}
           </Link>
         );
-      case "status":
-        // Use isActive as primary status check
-        if (!fighter.isActive) {
-          // Check injuries to provide injury details in tooltip
-          const activeInjuries =
-            fighter.injuries?.filter((injury) => {
-              if (injury.isHealed) return false;
-              const injuryEnd = new Date(injury.dateIncurred);
-              injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-              return injuryEnd > gameDate;
-            }) || [];
-
-          if (activeInjuries.length > 0) {
-            return (
-              <Tooltip
-                title={activeInjuries
-                  .map((i) => `${i.type} (${i.location}) - ${i.severity}`)
-                  .join(", ")}
-              >
-                <Chip
-                  label="Injured"
-                  color="error"
+        case 'status':
+          const status = getFighterStatus(fighter, gameDate, fights);
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Tooltip title={
+                status.type === 'INJURED' ? 
+                  `${status.details.type} (${status.details.location})` :
+                (status.type === 'BOOKED' || status.type === 'IN_CAMP') ?
+                  `Fight: ${new Date(status.details.fightDate).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}` :
+                  ''
+              } arrow>
+                <Chip 
+                  label={getStatusDisplay(status)}
+                  color={status.color}
                   size="small"
-                  icon={<LocalHospitalIcon />}
+                  icon={status.type === 'INJURED' ? <LocalHospitalIcon /> : undefined}
                 />
               </Tooltip>
-            );
-          }
-        }
-        return <Chip label="Active" color="success" size="small" />;
+            </Box>
+          );
 
-      case "dob":
+      case 'dob':
         return (
           <>
             {formatBirthday(fighter.dob)}
