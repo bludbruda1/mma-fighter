@@ -1305,7 +1305,7 @@
 
 "@babel/runtime@^7.25.6":
   version "7.25.6"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.6.tgz#9afc3289f7184d8d7f98b099884c26317b9264d2"
+  resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.25.6.tgz"
   integrity sha512-VBj9MYyDb9tuLq7yzqjgzt6Q+IBQLrGZfdjOekyEirZPHxXWoTSGUTMrpsfi58Up73d13NfYLv8HT9vmznjzhQ==
   dependencies:
     regenerator-runtime "^0.14.0"
@@ -1911,7 +1911,7 @@
 
 "@mui/icons-material@^6.1.1":
   version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-6.1.1.tgz#9582c676018f27fd5c433f7abeb77b1ee5955b31"
+  resolved "https://registry.npmjs.org/@mui/icons-material/-/icons-material-6.1.1.tgz"
   integrity sha512-sy/YKwcLPW8VcacNP2uWMYR9xyWuwO9NN9FXuGEU90bRshBXj8pdKk+joe3TCW7oviVS3zXLHlc94wQ0jNsQRQ==
   dependencies:
     "@babel/runtime" "^7.25.6"
@@ -5557,6 +5557,11 @@ find-up@^4.0.0, find-up@^4.1.0:
   dependencies:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
+
+flag-icons@^7.3.2:
+  version "7.3.2"
+  resolved "https://registry.npmjs.org/flag-icons/-/flag-icons-7.3.2.tgz"
+  integrity sha512-QkaZ6Zvai8LIjx+UNAHUJ5Dhz9OLZpBDwCRWxF6YErxIcR16jTkIFm3bFu54EkvKQy4+wicW+Gm7/0631wVQyQ==
 
 flat-cache@^2.0.1:
   version "2.0.1"
