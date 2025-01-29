@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -11,36 +11,37 @@ import {
   Chip,
   Grid,
   Tooltip,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { calculateAge } from '../utils/dateUtils';
-import { styled } from '@mui/material/styles';
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import { calculateAge } from "../utils/dateUtils";
+import { styled } from "@mui/material/styles";
+import CountryFlag from "./CountryFlag";
 
 // Styled expand icon that rotates when clicked
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
+  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+  marginLeft: "auto",
+  transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
   }),
 }));
 
 // Function to determine the fight order label
 const getFightOrderLabel = (index) => {
-if (index === 0 ) return "Main Event";
-if (index === 1) return "Co-Main Event";
-if (index === 2) return "Featured Bout";
-return "Preliminary Card";
+  if (index === 0) return "Main Event";
+  if (index === 1) return "Co-Main Event";
+  if (index === 2) return "Featured Bout";
+  return "Preliminary Card";
 };
 
 /**
  * CompactFightCard Component
  * Displays fight information in a condensed, expandable format
- * 
+ *
  * @param {Object} props
  * @param {Object} props.fight - Fight data
  * @param {Object} props.result - Fight result data
@@ -66,7 +67,7 @@ const CompactFightCard = ({
   fighter1IsChamp,
   fighter2IsChamp,
   fightIndex,
-  gameId
+  gameId,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [fighter1Age, setFighter1Age] = useState("N/A");
@@ -90,196 +91,206 @@ const CompactFightCard = ({
 
     loadAges();
   }, [fighter1Dob, fighter2Dob, gameId]);
-    
+
   // Handler for expand/collapse
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
   // Render corner profile section
-  const renderCorner = (fighter, isChampion, isWinner, alignment = 'left', age) => {
+  const renderCorner = (
+    fighter,
+    isChampion,
+    isWinner,
+    alignment = "left",
+    age
+  ) => {
     const isChamp = isChampion;
-    
-    return (
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 1,
-      position: 'relative',
-      flexDirection: alignment === 'right' ? 'row-reverse' : 'row',
-      justifyContent: alignment === 'right' ? 'flex-start' : 'flex-start',
-      mt: 2,
-    }}>
 
-      {/* Enhanced champion indicator styling */}
-      {isChampion && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            [alignment === 'right' ? 'left' : 'right']: -12,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
-            backgroundColor: 'rgba(255, 215, 0, 0.1)',
-            padding: '4px 8px',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 215, 0, 0.3)',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            zIndex: 1,
-          }}
-        >
-          <EmojiEventsIcon 
-            sx={{ 
-              color: 'gold',
-              fontSize: '1.2rem',
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
-            }} 
-          />
-          <Typography
-            variant="caption"
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          position: "relative",
+          flexDirection: alignment === "right" ? "row-reverse" : "row",
+          justifyContent: alignment === "right" ? "flex-start" : "flex-start",
+          mt: 2,
+        }}
+      >
+        {/* Enhanced champion indicator styling */}
+        {isChampion && (
+          <Box
             sx={{
-              color: 'rgb(175, 145, 0)',
-              fontWeight: 'bold',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
+              position: "absolute",
+              top: 0,
+              [alignment === "right" ? "left" : "right"]: -12,
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              backgroundColor: "rgba(255, 215, 0, 0.1)",
+              padding: "4px 8px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 215, 0, 0.3)",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              zIndex: 1,
             }}
           >
-            Champion
+            <EmojiEventsIcon
+              sx={{
+                color: "gold",
+                fontSize: "1.2rem",
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
+              }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                color: "rgb(175, 145, 0)",
+                fontWeight: "bold",
+                fontSize: "0.75rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Champion
+            </Typography>
+          </Box>
+        )}
+        <Avatar
+          src={fighter.profile}
+          alt={`${fighter.firstname} ${fighter.lastname}`}
+          sx={{
+            width: 56,
+            height: 56,
+            border: isWinner ? "2px solid #4caf50" : "none",
+          }}
+        />
+        <Box sx={{ textAlign: alignment }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: "bold", lineHeight: 1.2 }}
+          >
+            {fighter.firstname} {fighter.lastname}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {age} years old
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ lineHeight: 1.2 }}
+          >
+            {fighter.wins}W-{fighter.losses}L
+            {isChamp
+              ? " • Champion"
+              : fighter.ranking
+              ? ` • Rank #${fighter.ranking}`
+              : " • Unranked"}
           </Typography>
         </Box>
-      )}
-      <Avatar
-        src={fighter.profile}
-        alt={`${fighter.firstname} ${fighter.lastname}`}
-        sx={{ 
-          width: 56, 
-          height: 56,
-          border: isWinner ? '2px solid #4caf50' : 'none'
-        }}
-      />
-      <Box sx={{ textAlign: alignment }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', lineHeight: 1.2 }}>
-          {fighter.firstname} {fighter.lastname}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {age} years old
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-          {fighter.wins}W-{fighter.losses}L
-          {isChamp ? ' • Champion' : fighter.ranking ? ` • Rank #${fighter.ranking}` : ' • Unranked'}
-          </Typography>
       </Box>
-    </Box>
-  );
-};
+    );
+  };
 
   // Render fight status chip
   const renderStatusChip = () => {
     if (isComplete) {
       return (
-        <Chip 
-          label="Complete" 
-          color="success" 
-          variant="outlined" 
-          size="small" 
+        <Chip
+          label="Complete"
+          color="success"
+          variant="outlined"
+          size="small"
         />
       );
     }
     if (isViewed) {
       return (
-        <Chip 
-          label="Viewed" 
-          color="primary" 
-          variant="outlined" 
-          size="small" 
-        />
+        <Chip label="Viewed" color="primary" variant="outlined" size="small" />
       );
     }
     if (isSimulated) {
       return (
-        <Chip 
-          label="Simulated" 
-          color="secondary" 
-          variant="outlined" 
-          size="small" 
+        <Chip
+          label="Simulated"
+          color="secondary"
+          variant="outlined"
+          size="small"
         />
       );
     }
     return (
-      <Chip 
-        label="Upcoming" 
-        color="default" 
-        variant="outlined" 
-        size="small" 
-      />
+      <Chip label="Upcoming" color="default" variant="outlined" size="small" />
     );
   };
 
   return (
-    <Card 
+    <Card
       elevation={2}
-      sx={{ 
+      sx={{
         mb: 2,
-        mt:3,
-        position: 'relative',
-        '&:hover': {
-          boxShadow: 4
+        mt: 3,
+        position: "relative",
+        "&:hover": {
+          boxShadow: 4,
         },
-        borderRadius: fight.championship ? '4px' : '4px',
-        overflow: 'visible'
+        borderRadius: fight.championship ? "4px" : "4px",
+        overflow: "visible",
       }}
     >
       {/* Championship Banner */}
       {fight.championship && (
         <Box
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: -10,
             left: 0,
             right: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             gap: 1,
-            background: 'linear-gradient(90deg, rgba(255,215,0,0.95) 0%, rgba(255,215,0,0.85) 100%)',
-            color: 'rgba(0, 0, 0, 0.87)',
-            padding: '8px',
-            borderRadius: '4px',
-            boxShadow: '0 2px 8px rgba(255,215,0,0.3)',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            fontSize: '0.875rem',
+            background:
+              "linear-gradient(90deg, rgba(255,215,0,0.95) 0%, rgba(255,215,0,0.85) 100%)",
+            color: "rgba(0, 0, 0, 0.87)",
+            padding: "8px",
+            borderRadius: "4px",
+            boxShadow: "0 2px 8px rgba(255,215,0,0.3)",
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: "0.875rem",
             zIndex: 2,
-            '&::before': {
+            "&::before": {
               content: '""',
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'linear-gradient(45deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)',
+              background:
+                "linear-gradient(45deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)",
               zIndex: -1,
             },
           }}
         >
-          <EmojiEventsIcon 
-            sx={{ 
-              fontSize: '1.2rem',
-              color: 'rgba(0, 0, 0, 0.87)',
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
-            }} 
+          <EmojiEventsIcon
+            sx={{
+              fontSize: "1.2rem",
+              color: "rgba(0, 0, 0, 0.87)",
+              filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))",
+            }}
           />
           <Typography
             variant="subtitle2"
             sx={{
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-              display: 'flex',
-              alignItems: 'center',
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+              display: "flex",
+              alignItems: "center",
               gap: 1,
             }}
           >
@@ -289,48 +300,50 @@ const CompactFightCard = ({
       )}
 
       <CardContent sx={{ pt: fight.championship ? 4 : 2 }}>
-      <Grid container spacing={2} alignItems="center">
-        {/* Fighter 1 */}
-        <Grid item xs={5}>
+        <Grid container spacing={2} alignItems="center">
+          {/* Fighter 1 */}
+          <Grid item xs={5}>
             {renderCorner(
-            fight.fighter1,
-            fighter1IsChamp,
-            result?.winnerIndex === 0,
-            'left',
-            fighter1Age
+              fight.fighter1,
+              fighter1IsChamp,
+              result?.winnerIndex === 0,
+              "left",
+              fighter1Age
             )}
-        </Grid>
+          </Grid>
 
-        {/* VS and Status */}
-        <Grid item xs={2} sx={{ textAlign: 'center' }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            {getFightOrderLabel(fightIndex)}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-            {fight.weightClass}
-        </Typography>
+          {/* VS and Status */}
+          <Grid item xs={2} sx={{ textAlign: "center" }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+              {getFightOrderLabel(fightIndex)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {fight.weightClass}
+            </Typography>
             {renderStatusChip()}
-        </Grid>
+          </Grid>
 
-        {/* Fighter 2 */}
-        <Grid item xs={5}>
+          {/* Fighter 2 */}
+          <Grid item xs={5}>
             {renderCorner(
-            fight.fighter2,
-            fighter2IsChamp,
-            result?.winnerIndex === 1,
-            'right',
-            fighter2Age
+              fight.fighter2,
+              fighter2IsChamp,
+              result?.winnerIndex === 1,
+              "right",
+              fighter2Age
             )}
-        </Grid>
+          </Grid>
         </Grid>
 
         {/* Action Buttons */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          gap: 1,
-          mt: 2 
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 1,
+            mt: 2,
+          }}
+        >
           <Tooltip title={isViewed ? "Already viewed" : "Watch fight"}>
             <span>
               <Button
@@ -371,7 +384,9 @@ const CompactFightCard = ({
             </span>
           </Tooltip>
 
-          <Tooltip title={!result ? "No summary available" : "View fight summary"}>
+          <Tooltip
+            title={!result ? "No summary available" : "View fight summary"}
+          >
             <span>
               <Button
                 size="small"
@@ -393,7 +408,7 @@ const CompactFightCard = ({
         </Box>
 
         {/* Expand/Collapse Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
           <ExpandMore
             expand={expanded}
             onClick={handleExpandClick}
@@ -413,21 +428,29 @@ const CompactFightCard = ({
                   Fighting Style: {fight.fighter1.fightingStyle}
                 </Typography>
                 <Typography variant="subtitle2">
-                  Nationality: {fight.fighter1.nationality}
+                  Nationality: {fight.fighter1.nationality}{" "}
+                  <CountryFlag nationality={fight.fighter1.nationality} />
                 </Typography>
                 <Typography variant="subtitle2">
-                  Rank: {fighter1IsChamp ? 'Champion' : (fight.fighter1.ranking ?? "Unranked")}
+                  Rank:{" "}
+                  {fighter1IsChamp
+                    ? "Champion"
+                    : fight.fighter1.ranking ?? "Unranked"}
                 </Typography>
               </Grid>
-              <Grid item xs={6} sx={{ textAlign: 'right' }}>
+              <Grid item xs={6} sx={{ textAlign: "right" }}>
                 <Typography variant="subtitle2">
                   Fighting Style: {fight.fighter2.fightingStyle}
                 </Typography>
                 <Typography variant="subtitle2">
-                  Nationality: {fight.fighter2.nationality}
+                  Nationality: {fight.fighter2.nationality}{" "}
+                  <CountryFlag nationality={fight.fighter2.nationality} />
                 </Typography>
                 <Typography variant="subtitle2">
-                  Rank: {fighter2IsChamp ? 'Champion' : (fight.fighter2.ranking ?? "Unranked")}
+                  Rank:{" "}
+                  {fighter2IsChamp
+                    ? "Champion"
+                    : fight.fighter2.ranking ?? "Unranked"}
                 </Typography>
               </Grid>
             </Grid>

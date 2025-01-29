@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"; // Added useMemo for performance
 import { Link, useParams } from "react-router-dom";
-import {
-  Container,
-  Typography,
-  Tooltip,
-  Box,
-  Chip,
-} from "@mui/material";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import { Container, Typography, Tooltip, Box, Chip } from "@mui/material";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import SortableTable from "../components/SortableTable";
 import FilterPanel from "../components/FilterPanel";
 import { getAllFighters, getAllChampionships, getGameDate, getAllFights } from "../utils/indexedDB";
@@ -16,6 +10,7 @@ import { getRankingDisplay } from "../utils/rankingsHelper";
 import { calculateAge } from '../utils/dateUtils';
 import { getFighterStatus, getStatusDisplay } from "../utils/fighterUtils";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import CountryFlag from "../components/CountryFlag";
 
 const Roster = () => {
   const { gameId } = useParams();
@@ -26,20 +21,20 @@ const Roster = () => {
   const [gameDate, setGameDate] = useState(null);
 
   // Sorting state management
-  const [orderBy, setOrderBy] = useState('firstname'); // Default sort by first name
-  const [order, setOrder] = useState('asc'); // Default ascending order
+  const [orderBy, setOrderBy] = useState("firstname"); // Default sort by first name
+  const [order, setOrder] = useState("asc"); // Default ascending order
 
   // Add state for fighter ages
   const [fighterAges, setFighterAges] = useState({});
 
   // Filter state management
   const [filters, setFilters] = useState({
-    weightClass: 'all',
-    fightingStyle: 'all',
-    nationality: 'all',
-    championStatus: 'all',
-    rankingStatus: 'all',
-    gender: 'all',
+    weightClass: "all",
+    fightingStyle: "all",
+    nationality: "all",
+    championStatus: "all",
+    rankingStatus: "all",
+    gender: "all",
   });
 
   // Filter options state - populated from fighter data
@@ -80,14 +75,25 @@ const Roster = () => {
         setFighters(fetchedFighters);
         setChampionships(fetchedChampionships);
         setGameDate(new Date(currentGameDate));
+
         setFights(fetchedFights);
   
         // Extract and set unique values for filter options
         // Using Set to ensure uniqueness and filter(Boolean) to remove any null/undefined values
         setFilterOptions({
-          weightClasses: [...new Set(fetchedFighters.map(f => f.weightClass))].filter(Boolean).sort(),
-          fightingStyles: [...new Set(fetchedFighters.map(f => formatFightingStyle(f.fightingStyle)))].filter(Boolean).sort(),
-          nationalities: [...new Set(fetchedFighters.map(f => f.nationality))].filter(Boolean).sort(),
+          weightClasses: [...new Set(fetchedFighters.map((f) => f.weightClass))]
+            .filter(Boolean)
+            .sort(),
+          fightingStyles: [
+            ...new Set(
+              fetchedFighters.map((f) => formatFightingStyle(f.fightingStyle))
+            ),
+          ]
+            .filter(Boolean)
+            .sort(),
+          nationalities: [...new Set(fetchedFighters.map((f) => f.nationality))]
+            .filter(Boolean)
+            .sort(),
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -98,87 +104,104 @@ const Roster = () => {
 
   // Define columns configuration
   const columns = [
-    { id: 'ranking', label: 'Ranking' },
-    { id: 'fullname', label: 'Name' },
-    { id: 'status', label: 'Status' },
-    { id: 'gender', label: 'Gender' },
-    { id: 'dob', label: 'Date of Birth (Age)' },
-    { id: 'weightClass', label: 'Weight Class' },
-    { id: 'fightingStyle', label: 'Fighting Style' },
-    { id: 'nationality', label: 'Nationality' },
-    { id: 'hometown', label: 'Hometown' },
-    { id: 'record', label: 'Record' },
+    { id: "ranking", label: "Ranking" },
+    { id: "fullname", label: "Name" },
+    { id: "status", label: "Status" },
+    { id: "gender", label: "Gender" },
+    { id: "dob", label: "Date of Birth (Age)" },
+    { id: "weightClass", label: "Weight Class" },
+    { id: "fightingStyle", label: "Fighting Style" },
+    { id: "nationality", label: "Nationality" },
+    { id: "hometown", label: "Hometown" },
+    { id: "record", label: "Record" },
   ];
 
   // Helper function to get championship info for a fighter
-  const getChampionshipInfo = useCallback((fighterId) => {
-    return championships.filter(c => c.currentChampionId === fighterId);
-  }, [championships]);
+  const getChampionshipInfo = useCallback(
+    (fighterId) => {
+      return championships.filter((c) => c.currentChampionId === fighterId);
+    },
+    [championships]
+  );
 
   // Helper function to calculate age for sorting
   const getAge = useCallback((dob) => {
     if (!dob) return 0;
-    
+
     const birthDate = new Date(dob);
     const today = new Date();
-    
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   }, []);
 
   // Filter application logic
-  const applyFilters = useCallback((fightersToFilter) => {
-    return fightersToFilter.filter(fighter => {
-      // Weight Class filter
-      if (filters.weightClass !== 'all' && fighter.weightClass !== filters.weightClass) {
-        return false;
-      }
+  const applyFilters = useCallback(
+    (fightersToFilter) => {
+      return fightersToFilter.filter((fighter) => {
+        // Weight Class filter
+        if (
+          filters.weightClass !== "all" &&
+          fighter.weightClass !== filters.weightClass
+        ) {
+          return false;
+        }
 
-      // Fighting Style filter
-      if (filters.fightingStyle !== 'all' && 
-          formatFightingStyle(fighter.fightingStyle) !== filters.fightingStyle) {
-        return false;
-      }
+        // Fighting Style filter
+        if (
+          filters.fightingStyle !== "all" &&
+          formatFightingStyle(fighter.fightingStyle) !== filters.fightingStyle
+        ) {
+          return false;
+        }
 
-      // Nationality filter
-      if (filters.nationality !== 'all' && fighter.nationality !== filters.nationality) {
-        return false;
-      }
+        // Nationality filter
+        if (
+          filters.nationality !== "all" &&
+          fighter.nationality !== filters.nationality
+        ) {
+          return false;
+        }
 
-      // Get champion status once since we use it multiple times
-      const isChampion = getChampionshipInfo(fighter.personid).length > 0;
+        // Get champion status once since we use it multiple times
+        const isChampion = getChampionshipInfo(fighter.personid).length > 0;
 
-      // Champion Status filter
-      if (filters.championStatus === 'champion' && !isChampion) {
-        return false;
-      }
-      if (filters.championStatus === 'non-champion' && isChampion) {
-        return false;
-      }
+        // Champion Status filter
+        if (filters.championStatus === "champion" && !isChampion) {
+          return false;
+        }
+        if (filters.championStatus === "non-champion" && isChampion) {
+          return false;
+        }
 
-      // Ranking Status filter - consider champions as ranked
-      const isRanked = fighter.ranking != null || isChampion;
-      if (filters.rankingStatus === 'ranked' && !isRanked) {
-        return false;
-      }
-      if (filters.rankingStatus === 'unranked' && isRanked) {
-        return false;
-      }
+        // Ranking Status filter - consider champions as ranked
+        const isRanked = fighter.ranking != null || isChampion;
+        if (filters.rankingStatus === "ranked" && !isRanked) {
+          return false;
+        }
+        if (filters.rankingStatus === "unranked" && isRanked) {
+          return false;
+        }
 
-      // Gender filter
-      if (filters.gender !== 'all' && fighter.gender !== filters.gender) {
-        return false;
-      }
+        // Gender filter
+        if (filters.gender !== "all" && fighter.gender !== filters.gender) {
+          return false;
+        }
 
-      return true;
-    });
-  }, [filters, getChampionshipInfo]); // Include filters and getChampionshipInfo as dependencies
+        return true;
+      });
+    },
+    [filters, getChampionshipInfo]
+  ); // Include filters and getChampionshipInfo as dependencies
 
   // Sorting comparison logic
   const compareValues = useCallback((a, b, property) => {
@@ -223,27 +246,29 @@ const Roster = () => {
       return aRank - bRank;
     }
 
-    // Special handling for record comparison
-    if (property === 'record') {
-      return (b.wins - a.wins) || (a.losses - b.losses);
-    }
+      // Special handling for record comparison
+      if (property === "record") {
+        return b.wins - a.wins || a.losses - b.losses;
+      }
 
-    // Special handling for full name
-    if (property === 'fullname') {
-      const nameA = `${a.firstname} ${a.lastname}`.toLowerCase();
-      const nameB = `${b.firstname} ${b.lastname}`.toLowerCase();
-      return nameA.localeCompare(nameB);
-    }
+      // Special handling for full name
+      if (property === "fullname") {
+        const nameA = `${a.firstname} ${a.lastname}`.toLowerCase();
+        const nameB = `${b.firstname} ${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      }
 
-    // For DOB sorting, sort by actual age
-    if (property === 'dob') {
-      return getAge(a.dob) - getAge(b.dob);
-    }
+      // For DOB sorting, sort by actual age
+      if (property === "dob") {
+        return getAge(a.dob) - getAge(b.dob);
+      }
 
-    // Handle regular string properties
-    if (typeof a[property] === 'string') {
-      return a[property].toLowerCase().localeCompare(b[property].toLowerCase());
-    }
+      // Handle regular string properties
+      if (typeof a[property] === "string") {
+        return a[property]
+          .toLowerCase()
+          .localeCompare(b[property].toLowerCase());
+      }
 
     // Handle numeric properties
     return a[property] - b[property];
@@ -251,8 +276,8 @@ const Roster = () => {
 
   // Sort request handler
   const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -261,9 +286,9 @@ const Roster = () => {
     // First sort the fighters
     const sortedFighters = [...fighters].sort((a, b) => {
       const comparator = compareValues(a, b, orderBy);
-      return order === 'asc' ? comparator : -comparator;
+      return order === "asc" ? comparator : -comparator;
     });
-    
+
     // Then apply filters
     return applyFilters(sortedFighters);
   }, [fighters, order, orderBy, compareValues, applyFilters]);
@@ -271,23 +296,29 @@ const Roster = () => {
   // Custom cell renderer
   const renderCell = (fighter, columnId) => {
     switch (columnId) {
-      case 'ranking':
+      case "ranking":
         return (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {getChampionshipInfo(fighter.personid).map((championship, index) => (
-              <Tooltip key={championship.id} title={championship.name} arrow>
-                <EmojiEventsIcon 
-                  sx={{ 
-                    color: 'gold',
-                    marginRight: index < getChampionshipInfo(fighter.personid).length - 1 ? 1 : 0 
-                  }} 
-                />
-              </Tooltip>
-            ))}
-            {!getChampionshipInfo(fighter.personid).length && getRankingDisplay(fighter, championships)}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {getChampionshipInfo(fighter.personid).map(
+              (championship, index) => (
+                <Tooltip key={championship.id} title={championship.name} arrow>
+                  <EmojiEventsIcon
+                    sx={{
+                      color: "gold",
+                      marginRight:
+                        index < getChampionshipInfo(fighter.personid).length - 1
+                          ? 1
+                          : 0,
+                    }}
+                  />
+                </Tooltip>
+              )
+            )}
+            {!getChampionshipInfo(fighter.personid).length &&
+              getRankingDisplay(fighter, championships)}
           </Box>
         );
-      case 'fullname':
+      case "fullname":
         return (
           <Link
             to={`/game/${gameId}/dashboard/${fighter.personid}`}
@@ -340,17 +371,29 @@ const Roster = () => {
             </Typography>
           </>
         );
-      case 'fightingStyle':
+      case "fightingStyle":
         return formatFightingStyle(fighter.fightingStyle);
-      case 'record':
+      case "record":
         return `${fighter.wins}W-${fighter.losses}L`;
+      case "nationality":
+        return (
+          <>
+            <Typography variant="body2">
+              {fighter.nationality}{" "}
+              <CountryFlag nationality={fighter.nationality} />
+            </Typography>
+          </>
+        );
       default:
         return fighter[columnId];
     }
   };
 
   return (
-    <Container maxWidth="lg" style={{ marginTop: "50px", marginBottom: "50px" }}>
+    <Container
+      maxWidth="lg"
+      style={{ marginTop: "50px", marginBottom: "50px" }}
+    >
       <Typography variant="h2" align="center" gutterBottom>
         Planet Fighter Roster
       </Typography>
@@ -372,9 +415,8 @@ const Roster = () => {
         onRequestSort={handleRequestSort}
         renderCell={renderCell}
       />
-
     </Container>
   );
-};  
+};
 
 export default Roster;
