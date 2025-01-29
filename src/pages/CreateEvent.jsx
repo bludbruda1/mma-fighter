@@ -117,6 +117,7 @@ const styles = {
 // Weight class options (including Open Weight)
 const WEIGHT_CLASS_OPTIONS = [
   'Open Weight',
+  'Strawweight',
   'Flyweight',
   'Bantamweight',
   'Featherweight',
@@ -337,6 +338,15 @@ const CreateEvent = () => {
     else if (newFilters.weightClass !== 'all') {
       filtered = filtered.filter(fighter => fighter.weightClass === newFilters.weightClass);
     }
+
+    // Gender filter
+    if (currentSelectionContext && fightGenders[currentSelectionContext.fightIndex]) {
+      filtered = filtered.filter(fighter => 
+        fighter.gender === fightGenders[currentSelectionContext.fightIndex]
+      );
+    } else if (newFilters.gender !== 'all') {
+      filtered = filtered.filter(fighter => fighter.gender === newFilters.gender);
+    }
   
     // Filter by fighting style
     if (newFilters.fightingStyle !== 'all') {
@@ -372,7 +382,7 @@ const CreateEvent = () => {
     }
   
     setFilteredFighters(filtered);
-  }, [fighters, currentSelectionContext, fightWeightClasses, championships]); 
+  }, [fighters, currentSelectionContext, fightWeightClasses, fightGenders, championships]); 
 
   // Efect to trigger filtering
   useEffect(() => {
@@ -1180,10 +1190,11 @@ const CreateEvent = () => {
                 filterOptions={filterOptions}
                 filters={{
                   ...filters,
-                // Lock the weight class filter to the selected fight's weight class
-                weightClass: fightWeightClasses[currentSelectionContext.fightIndex] === 'Open Weight'
-                ? 'all' 
-                : fightWeightClasses[currentSelectionContext.fightIndex]
+                  // Lock both weight class and gender filters based on fight selections
+                  weightClass: fightWeightClasses[currentSelectionContext.fightIndex] === 'Open Weight'
+                    ? 'all' 
+                    : fightWeightClasses[currentSelectionContext.fightIndex],
+                  gender: fightGenders[currentSelectionContext.fightIndex] || 'all'
                 }}
                 setFilters={setFilters}
                 onFighterSelect={(fighter) => {
@@ -1199,8 +1210,9 @@ const CreateEvent = () => {
                 selectedFightersInEvent={selectedFightersInEvent}
                 championships={championships}
                 weightClassLocked={fightWeightClasses[currentSelectionContext.fightIndex] !== 'Open Weight'}
+                genderLocked={!!fightGenders[currentSelectionContext.fightIndex]}
                 gameDate={gameDate}
-              />              
+              />        
               )}
             </Container>
           </Box>

@@ -23,6 +23,7 @@ const FilterPanel = ({
   totalFighters,
   filteredCount,
   weightClassLocked,
+  genderLocked
 }) => {
   // State for panel expansion
   const [expanded, setExpanded] = React.useState(true);
@@ -89,7 +90,6 @@ const FilterPanel = ({
           },
           gap: 2 
         }}>
-          {/* Weight Class Filter */}
           {/* Weight Class Filter */}
           <FormControl size="small">
             <InputLabel>Weight Class</InputLabel>
@@ -178,11 +178,18 @@ const FilterPanel = ({
               value={filters.gender}
               label="Gender"
               onChange={(e) => handleFilterChange('gender', e.target.value)}
+              disabled={genderLocked} // Disable when locked
+              sx={{
+                backgroundColor: genderLocked ? 'action.selected' : 'inherit',
+              }}
             >
               <MenuItem value="all">All</MenuItem>
               <MenuItem value="Male">Male</MenuItem>
               <MenuItem value="Female">Female</MenuItem>
             </Select>
+            {genderLocked && (
+              <FormHelperText>Gender locked for this fight</FormHelperText>
+            )}
           </FormControl>
         </Box>
 

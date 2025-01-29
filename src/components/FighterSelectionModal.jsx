@@ -48,6 +48,7 @@ const FighterSelectionModal = ({
   selectedFightersInEvent,
   championships,
   weightClassLocked,
+  genderLocked,
   gameDate
 }) => {
   // Helper function to check if a fighter is a champion
@@ -131,6 +132,7 @@ const FighterSelectionModal = ({
             totalFighters={fighters.length}
             filteredCount={fighters.length}
             weightClassLocked={weightClassLocked}
+            genderLocked={genderLocked}
           />
         </Box>
 
