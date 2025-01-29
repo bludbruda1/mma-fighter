@@ -12,15 +12,18 @@ import {
   TableSortLabel,
   Paper,
   Tooltip,
+  Chip,
   Box,
   Button,
 } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { getAllEvents, getFightsByIds } from "../utils/indexedDB";
+import { getAllEvents, getFightsByIds, getGameDate } from "../utils/indexedDB";
+import { alpha } from '@mui/material/styles';
 
 const EventsList = () => {
   const { gameId } = useParams();
   const [events, setEvents] = useState([]);
+  const [gameDate, setGameDate] = useState(null);
   const [loading, setLoading] = useState(true);
   // Add sorting state
   const [orderBy, setOrderBy] = useState('date');
@@ -52,17 +55,41 @@ const EventsList = () => {
     return fights[0] || null;
   };
 
+  /**
+ * Determine if an event is in the past, present, or future relative to game date
+ * @param {Date} eventDate - Date of the event
+ * @param {Date} currentGameDate - Current game date
+ * @returns {string} 'past', 'present', or 'future'
+ */
+const getEventTiming = (eventDate, currentGameDate) => {
+  if (!eventDate || !currentGameDate) return 'future';
+  
+  const event = new Date(eventDate);
+  const game = new Date(currentGameDate);
+  
+  // Reset time components for date comparison
+  event.setHours(0, 0, 0, 0);
+  game.setHours(0, 0, 0, 0);
+  
+  if (event.getTime() === game.getTime()) return 'present';
+  if (event.getTime() < game.getTime()) return 'past';
+  return 'future';
+};
+
   // Load events data with fights details
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const eventsData = await getAllEvents(gameId);
+        const [eventsData, currentGameDate] = await Promise.all([
+          getAllEvents(gameId),
+          getGameDate(gameId)
+        ]);
         
         // For each event, fetch its fights
         const eventsWithFights = await Promise.all(eventsData.map(async (event) => {
-          const allFightIds = getAllFightsFromEvent(event, gameId);
+          const allFightIds = getAllFightsFromEvent(event);
           const fights = await getFightsByIds(allFightIds, gameId);
-          const mainEvent = await getMainEvent(event, fights, gameId);
+          const mainEvent = await getMainEvent(event, fights);
           
           return {
             ...event,
@@ -70,15 +97,16 @@ const EventsList = () => {
             mainEvent
           };
         }));
-
+  
         setEvents(eventsWithFights);
+        setGameDate(new Date(currentGameDate));
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     loadEvents();
   }, [gameId]);
 
@@ -215,9 +243,42 @@ const EventsList = () => {
                 key={event.id}
                 hover
                 onClick={() => navigate(`/game/${gameId}/event/${event.id}`)}
-                sx={{ cursor: 'pointer' }}
+                sx={{ 
+                  cursor: 'pointer',
+                  // Apply different styles based on event timing
+                  ...(getEventTiming(event.date, gameDate) === 'past' && {
+                    backgroundColor: alpha('#grey', 0.1),
+                    '&:hover': {
+                      backgroundColor: alpha('#grey', 0.2),
+                    }
+                  }),
+                  ...(getEventTiming(event.date, gameDate) === 'present' && {
+                    backgroundColor: alpha('#4CAF50', 0.1),
+                    '&:hover': {
+                      backgroundColor: alpha('#4CAF50', 0.2),
+                    }
+                  }),
+                  ...(getEventTiming(event.date, gameDate) === 'future' && {
+                    backgroundColor: alpha('#2196F3', 0.1),
+                    '&:hover': {
+                      backgroundColor: alpha('#2196F3', 0.2),
+                    }
+                  })
+                }}
               >
-                <TableCell>{formatDate(event.date)}</TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {formatDate(event.date)}
+                    {getEventTiming(event.date, gameDate) === 'present' && (
+                      <Chip 
+                        label="TODAY" 
+                        size="small" 
+                        color="success"
+                        sx={{ fontWeight: 'bold' }}
+                      />
+                    )}
+                  </Box>
+                </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {event.mainEvent?.championship && (
