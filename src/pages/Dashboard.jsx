@@ -19,68 +19,75 @@ import {
 } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import HomeIcon from '@mui/icons-material/Home';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import HomeIcon from "@mui/icons-material/Home";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import { getAllFighters, getAllFights, getAllChampionships, getGameDate } from "../utils/indexedDB";
-import { calculateAge } from '../utils/dateUtils';
+import {
+  getAllFighters,
+  getAllFights,
+  getAllChampionships,
+  getGameDate,
+} from "../utils/indexedDB";
+import { calculateAge } from "../utils/dateUtils";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
+import CountryFlag from "../components/CountryFlag";
 
 // Styles object for consistent theming
 const styles = {
   container: {
     py: 6,
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, rgba(240,240,240,0.6) 0%, rgba(255,255,255,0.6) 100%)',
+    minHeight: "100vh",
+    background:
+      "linear-gradient(135deg, rgba(240,240,240,0.6) 0%, rgba(255,255,255,0.6) 100%)",
   },
   headerCard: {
     mb: 4,
     p: 3,
-    background: 'rgba(255, 255, 255, 0.9)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+    background: "rgba(255, 255, 255, 0.9)",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
     borderRadius: 2,
-    position: 'relative',
+    position: "relative",
   },
   navigationButton: {
     color: "text.primary",
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.05)",
     },
   },
   sectionTitle: {
-    color: 'text.primary',
-    fontWeight: 'bold',
+    color: "text.primary",
+    fontWeight: "bold",
     mb: 3,
-    position: 'relative',
-    '&::after': {
+    position: "relative",
+    "&::after": {
       content: '""',
-      position: 'absolute',
+      position: "absolute",
       bottom: -8,
       left: 0,
       width: 60,
       height: 3,
-      backgroundColor: 'primary.main',
+      backgroundColor: "primary.main",
       borderRadius: 1,
-    }
+    },
   },
   profileCard: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+    background: "rgba(255, 255, 255, 0.95)",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
     borderRadius: 2,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   infoGrid: {
-    '& .MuiGrid-item': {
-      display: 'flex',
-      alignItems: 'center',
+    "& .MuiGrid-item": {
+      display: "flex",
+      alignItems: "center",
       gap: 1,
     },
   },
   championshipCard: {
-    backgroundColor: 'rgba(255, 215, 0, 0.05)',
-    border: '1px solid rgba(255, 215, 0, 0.2)',
+    backgroundColor: "rgba(255, 215, 0, 0.05)",
+    border: "1px solid rgba(255, 215, 0, 0.2)",
     p: 2,
     borderRadius: 2,
     mb: 2,
@@ -91,13 +98,13 @@ const styles = {
   },
   ratingValue: {
     minWidth: 35,
-    textAlign: 'right',
+    textAlign: "right",
   },
   fightHistoryList: {
     maxHeight: 400,
-    overflow: 'auto',
-    '& .MuiListItem-root': {
-      borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+    overflow: "auto",
+    "& .MuiListItem-root": {
+      borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
     },
   },
 };
@@ -118,8 +125,8 @@ const Dashboard = () => {
   const sortFights = (fights) => {
     const upcoming = [];
     const completed = [];
-    
-    fights.forEach(fight => {
+
+    fights.forEach((fight) => {
       if (!fight.result) {
         upcoming.push(fight);
       } else {
@@ -170,31 +177,33 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         // Get the fighter data
-        const [fighters, fetchedChampionships, currentGameDate] = await Promise.all([
-          getAllFighters(gameId),
-          getAllChampionships(gameId),
-          getGameDate(gameId)
-        ]);
+        const [fighters, fetchedChampionships, currentGameDate] =
+          await Promise.all([
+            getAllFighters(gameId),
+            getAllChampionships(gameId),
+            getGameDate(gameId),
+          ]);
 
-        setGameDate(new Date(currentGameDate))
-        
+        setGameDate(new Date(currentGameDate));
+
         const selectedFighter = fighters.find(
           (f) => f.personid === parseInt(id)
         );
-        
+
         if (selectedFighter) {
           setFighter(selectedFighter);
           setChampionships(fetchedChampionships);
-          
+
           // Get all fights
           const allFights = await getAllFights(gameId);
-          
+
           // Filter fights to only include those with this fighter
-          const fighterFights = allFights.filter(fight => 
-            fight.fighter1.personid === selectedFighter.personid || 
-            fight.fighter2.personid === selectedFighter.personid
+          const fighterFights = allFights.filter(
+            (fight) =>
+              fight.fighter1.personid === selectedFighter.personid ||
+              fight.fighter2.personid === selectedFighter.personid
           );
-          
+
           setFights(fighterFights);
         } else {
           setError("Fighter not found");
@@ -212,58 +221,68 @@ const Dashboard = () => {
     const currentIndex = allFighterIds.indexOf(parseInt(id));
     let newIndex;
     if (direction === "next") {
-      newIndex = currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
+      newIndex =
+        currentIndex + 1 >= allFighterIds.length ? 0 : currentIndex + 1;
     } else {
-      newIndex = currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
+      newIndex =
+        currentIndex - 1 < 0 ? allFighterIds.length - 1 : currentIndex - 1;
     }
     navigate(`/game/${gameId}/dashboard/${allFighterIds[newIndex]}`);
   };
 
   // Helper function to format fighter name with nickname
-const formatFighterNameWithNickname = (fighter) => {
-  if (!fighter.nickname) return `${fighter.firstname} ${fighter.lastname}`;
+  const formatFighterNameWithNickname = (fighter) => {
+    if (!fighter.nickname) return `${fighter.firstname} ${fighter.lastname}`;
 
-  switch (fighter.nicknamePlacement) {
-    case 'pre':
-      return `"${fighter.nickname}" ${fighter.firstname} ${fighter.lastname}`;
-    case 'mid':
-      return `${fighter.firstname} "${fighter.nickname}" ${fighter.lastname}`;
-    case 'post':
-      return `${fighter.firstname} ${fighter.lastname} "${fighter.nickname}"`;
-    default:
-      return `${fighter.firstname} ${fighter.lastname}`;
-  }
-};
+    switch (fighter.nicknamePlacement) {
+      case "pre":
+        return `"${fighter.nickname}" ${fighter.firstname} ${fighter.lastname}`;
+      case "mid":
+        return `${fighter.firstname} "${fighter.nickname}" ${fighter.lastname}`;
+      case "post":
+        return `${fighter.firstname} ${fighter.lastname} "${fighter.nickname}"`;
+      default:
+        return `${fighter.firstname} ${fighter.lastname}`;
+    }
+  };
 
-// Helper function to get championship info for a fighter
-const getChampionshipInfo = useCallback((fighterId) => {
-  return championships.filter(c => c.currentChampionId === fighterId);
-}, [championships]);
+  // Helper function to get championship info for a fighter
+  const getChampionshipInfo = useCallback(
+    (fighterId) => {
+      return championships.filter((c) => c.currentChampionId === fighterId);
+    },
+    [championships]
+  );
 
   // Helper function to determine fight result
   const getFightResult = (fight) => {
     if (!fight.result) return null;
-    
+
     const isFighter1 = fighter.personid === fight.fighter1.personid;
     const isWinner = fight.result.winner === (isFighter1 ? 0 : 1);
-    
+
     return {
-      result: isWinner ? 'Win' : 'Loss',
+      result: isWinner ? "Win" : "Loss",
       opponent: isFighter1 ? fight.fighter2 : fight.fighter1,
       method: fight.result.method,
       roundEnded: fight.result.roundEnded,
-      timeEnded: fight.result.timeEnded
+      timeEnded: fight.result.timeEnded,
     };
   };
 
   // Helper function to format the method
   const getMethodAbbreviation = (method) => {
     switch (method?.toLowerCase()) {
-      case 'knockout': return 'KO';
-      case 'technical knockout': return 'TKO';
-      case 'submission': return 'SUB';
-      case 'decision': return 'DEC';
-      default: return method?.toUpperCase().slice(0, 3) || 'N/A';
+      case "knockout":
+        return "KO";
+      case "technical knockout":
+        return "TKO";
+      case "submission":
+        return "SUB";
+      case "decision":
+        return "DEC";
+      default:
+        return method?.toUpperCase().slice(0, 3) || "N/A";
     }
   };
 
@@ -283,14 +302,16 @@ const getChampionshipInfo = useCallback((fighterId) => {
   // Helper function to determine previous championships
   const getPreviousChampionships = (fights, currentChampionships) => {
     // Get set of current championship IDs for easy lookup
-    const currentChampionshipIds = new Set(currentChampionships.map(c => c.id));
-    
+    const currentChampionshipIds = new Set(
+      currentChampionships.map((c) => c.id)
+    );
+
     // Track unique previous championships where the fighter was actually champion
     const previousChampionships = new Map();
-    
+
     // Go through all completed fights in chronological order
     fights
-      .filter(fight => fight.result && fight.championship)
+      .filter((fight) => fight.result && fight.championship)
       .sort((a, b) => {
         // Sort by date if available, otherwise by fight ID
         if (a.date && b.date) {
@@ -298,21 +319,22 @@ const getChampionshipInfo = useCallback((fighterId) => {
         }
         return a.id - b.id;
       })
-      .forEach(fight => {
+      .forEach((fight) => {
         const championship = fight.championship;
-        
+
         // Skip if it's a current championship
         if (currentChampionshipIds.has(championship.id)) {
           return;
         }
-  
+
         // Determine if our fighter won the title fight
         const isFighter1 = fighter.personid === fight.fighter1.personid;
         const fighterWon = fight.result.winner === (isFighter1 ? 0 : 1);
-        
+
         // Check if the fighter was champion going into the fight or won the belt
-        const wasChampionBefore = championship.currentChampionId === fighter.personid;
-        
+        const wasChampionBefore =
+          championship.currentChampionId === fighter.personid;
+
         if (fighterWon || wasChampionBefore) {
           // Only add to previous championships if they held the title at some point
           // and don't currently hold it
@@ -322,23 +344,28 @@ const getChampionshipInfo = useCallback((fighterId) => {
           previousChampionships.set(championship.id, championship);
         }
       });
-    
+
     return Array.from(previousChampionships.values());
   };
 
   // Fight history section render
   const renderFightHistory = () => (
-    <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: 'auto' }}>
+    <Card elevation={3} sx={{ mt: 3, maxHeight: 400, overflow: "auto" }}>
       <CardContent>
-        <Typography variant="h5" gutterBottom>Fight History</Typography>
+        <Typography variant="h5" gutterBottom>
+          Fight History
+        </Typography>
         <List>
           {fights.length > 0 ? (
             sortFights(fights).map((fight) => {
               // Handle upcoming fights
               if (!fight.result) {
-                const isFirstFighter = fighter.personid === fight.fighter1.personid;
-                const opponent = isFirstFighter ? fight.fighter2 : fight.fighter1;
-                
+                const isFirstFighter =
+                  fighter.personid === fight.fighter1.personid;
+                const opponent = isFirstFighter
+                  ? fight.fighter2
+                  : fight.fighter1;
+
                 return (
                   <ListItem key={fight.id} divider>
                     <ListItemText
@@ -360,19 +387,29 @@ const getChampionshipInfo = useCallback((fighterId) => {
                         )
                       }
                       secondary={
-                        <Box sx={{ mt: 1, display: 'flex', gap: 1, alignItems: 'center' }}>
-                          <Chip 
+                        <Box
+                          sx={{
+                            mt: 1,
+                            display: "flex",
+                            gap: 1,
+                            alignItems: "center",
+                          }}
+                        >
+                          <Chip
                             label="UPCOMING"
                             color="primary"
                             size="small"
                             sx={{
-                              bgcolor: 'warning.main',
-                              color: 'warning.contrastText',
-                              fontWeight: 'bold'
+                              bgcolor: "warning.main",
+                              color: "warning.contrastText",
+                              fontWeight: "bold",
                             }}
                           />
                           {fight.date && (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               {new Date(fight.date).toLocaleDateString()}
                             </Typography>
                           )}
@@ -408,20 +445,26 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       )
                     }
                     secondary={
-                      <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                        <Chip 
+                      <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                        <Chip
                           label={fightResult.result}
-                          color={fightResult.result === 'Win' ? 'success' : 'error'}
+                          color={
+                            fightResult.result === "Win" ? "success" : "error"
+                          }
                           size="small"
                         />
-                        <Chip 
+                        <Chip
                           label={getMethodAbbreviation(fightResult.method)}
-                          color={fightResult.result === 'Win' ? 'success' : 'error'}
+                          color={
+                            fightResult.result === "Win" ? "success" : "error"
+                          }
                           size="small"
                           variant="outlined"
                         />
                         <Typography variant="caption" color="text.secondary">
-                          {`R${fightResult.roundEnded} ${formatTime(fightResult.timeEnded)}`}
+                          {`R${fightResult.roundEnded} ${formatTime(
+                            fightResult.timeEnded
+                          )}`}
                         </Typography>
                       </Box>
                     }
@@ -466,59 +509,74 @@ const getChampionshipInfo = useCallback((fighterId) => {
       <Container maxWidth="xl">
         {/* Header with Navigation */}
         <Paper sx={styles.headerCard}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <Button
               onClick={() => navigateToFighter("previous")}
               sx={styles.navigationButton}
             >
               <ArrowBackOutlinedIcon />
             </Button>
-            
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h3" sx={{
-                fontWeight: 'bold',
-                background: 'linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mb: 1
-              }}>
+
+            <Box sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: "bold",
+                  background:
+                    "linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  mb: 1,
+                }}
+              >
                 {formatFighterNameWithNickname(fighter)}
               </Typography>
-              
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: 1,
-                mt: 1 
-              }}>
-                <Chip 
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                  mt: 1,
+                }}
+              >
+                <Chip
                   label={fighter.isActive ? "Active" : "Inactive"}
                   color={fighter.isActive ? "success" : "error"}
-                  sx={{ 
-                    fontWeight: 'medium',
-                    px: 2
+                  sx={{
+                    fontWeight: "medium",
+                    px: 2,
                   }}
                 />
-                {!fighter.isActive && fighter.injuries?.some(injury => {
-                  const injuryEnd = new Date(injury.dateIncurred);
-                  injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-                  return !injury.isHealed && injuryEnd > gameDate;
-                }) && (
-                  <Chip 
-                    icon={<LocalHospitalIcon />}
-                    label={(() => {
-                      const activeInjury = fighter.injuries.find(injury => {
-                        const injuryEnd = new Date(injury.dateIncurred);
-                        injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-                        return !injury.isHealed && injuryEnd > gameDate;
-                      });
-                      return `${activeInjury.type} (${activeInjury.location})`;
-                    })()}
-                    color="error"
-                    sx={{ fontWeight: 'medium' }}
-                  />
-                )}
+                {!fighter.isActive &&
+                  fighter.injuries?.some((injury) => {
+                    const injuryEnd = new Date(injury.dateIncurred);
+                    injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
+                    return !injury.isHealed && injuryEnd > gameDate;
+                  }) && (
+                    <Chip
+                      icon={<LocalHospitalIcon />}
+                      label={(() => {
+                        const activeInjury = fighter.injuries.find((injury) => {
+                          const injuryEnd = new Date(injury.dateIncurred);
+                          injuryEnd.setDate(
+                            injuryEnd.getDate() + injury.duration
+                          );
+                          return !injury.isHealed && injuryEnd > gameDate;
+                        });
+                        return `${activeInjury.type} (${activeInjury.location})`;
+                      })()}
+                      color="error"
+                      sx={{ fontWeight: "medium" }}
+                    />
+                  )}
               </Box>
             </Box>
 
@@ -546,7 +604,7 @@ const getChampionshipInfo = useCallback((fighterId) => {
                 image={fighter.image}
                 alt={`${fighter.firstname} ${fighter.lastname}`}
               />
-              
+
               <CardContent>
                 <Typography variant="h6" sx={styles.sectionTitle}>
                   Personal Details
@@ -572,7 +630,8 @@ const getChampionshipInfo = useCallback((fighterId) => {
                         Nationality:
                       </Typography>
                       <Typography>
-                        {fighter.nationality}
+                        {fighter.nationality}{" "}
+                        <CountryFlag nationality={fighter.nationality} />
                       </Typography>
                     </Box>
                   </Grid>
@@ -583,9 +642,7 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       <Typography variant="body2" color="text.secondary">
                         Hometown:
                       </Typography>
-                      <Typography>
-                        {fighter.hometown}
-                      </Typography>
+                      <Typography>{fighter.hometown}</Typography>
                     </Box>
                   </Grid>
 
@@ -593,27 +650,21 @@ const getChampionshipInfo = useCallback((fighterId) => {
                     <Typography variant="body2" color="text.secondary">
                       Height:
                     </Typography>
-                    <Typography>
-                      {fighter.height}cm
-                    </Typography>
+                    <Typography>{fighter.height}cm</Typography>
                   </Grid>
 
                   <Grid item xs={6}>
                     <Typography variant="body2" color="text.secondary">
                       Reach:
                     </Typography>
-                    <Typography>
-                      {fighter.reach}cm
-                    </Typography>
+                    <Typography>{fighter.reach}cm</Typography>
                   </Grid>
 
                   <Grid item xs={6}>
                     <Typography variant="body2" color="text.secondary">
                       Gender:
                     </Typography>
-                    <Typography>
-                      {fighter.gender}
-                    </Typography>
+                    <Typography>{fighter.gender}</Typography>
                   </Grid>
                 </Grid>
               </CardContent>
@@ -632,7 +683,9 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       Professional Record:
                     </Typography>
                     <Typography>
-                      {`${fighter.wins}W-${fighter.losses}L${fighter.draws > 0 ? `-${fighter.draws}D` : ''}${fighter.ncs > 0 ? ` (${fighter.ncs} NC)` : ''}`}
+                      {`${fighter.wins}W-${fighter.losses}L${
+                        fighter.draws > 0 ? `-${fighter.draws}D` : ""
+                      }${fighter.ncs > 0 ? ` (${fighter.ncs} NC)` : ""}`}
                     </Typography>
                   </Grid>
 
@@ -641,11 +694,12 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       Current Ranking:
                     </Typography>
                     <Typography>
-                      {getChampionshipInfo(fighter.personid).length > 0 
-                        ? 'Champion'
-                        : fighter.ranking 
-                          ? `#${fighter.ranking}` 
-                          : 'Unranked'} ({fighter.weightClass})
+                      {getChampionshipInfo(fighter.personid).length > 0
+                        ? "Champion"
+                        : fighter.ranking
+                        ? `#${fighter.ranking}`
+                        : "Unranked"}{" "}
+                      ({fighter.weightClass})
                     </Typography>
                   </Grid>
 
@@ -654,7 +708,8 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       Available Weight Classes:
                     </Typography>
                     <Typography>
-                      {fighter.weightClass} {/* TODO: Add multiple weight classes when available */}
+                      {fighter.weightClass}{" "}
+                      {/* TODO: Add multiple weight classes when available */}
                     </Typography>
                   </Grid>
 
@@ -671,18 +726,14 @@ const getChampionshipInfo = useCallback((fighterId) => {
                     <Typography variant="body2" color="text.secondary">
                       Gym Affiliation:
                     </Typography>
-                    <Typography>
-                      {fighter.gym || "None"}
-                    </Typography>
+                    <Typography>{fighter.gym || "None"}</Typography>
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Fighting Out Of:
                     </Typography>
-                    <Typography>
-                      {fighter.fightsOutOf}
-                    </Typography>
+                    <Typography>{fighter.fightsOutOf}</Typography>
                   </Grid>
                 </Grid>
               </CardContent>
@@ -710,10 +761,10 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       Contract Type:
                     </Typography>
                     <Typography>
-                    {fighter.contract?.type ? 
-                      fighter.contract.type.charAt(0).toUpperCase() + 
-                      fighter.contract.type.slice(1) : 
-                      "N/A"}
+                      {fighter.contract?.type
+                        ? fighter.contract.type.charAt(0).toUpperCase() +
+                          fighter.contract.type.slice(1)
+                        : "N/A"}
                     </Typography>
                   </Grid>
 
@@ -731,9 +782,9 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       Contract Amount:
                     </Typography>
                     <Typography>
-                    {fighter.contract?.amount ? 
-                      `$${fighter.contract.amount.toLocaleString()}` : 
-                      "N/A"}
+                      {fighter.contract?.amount
+                        ? `$${fighter.contract.amount.toLocaleString()}`
+                        : "N/A"}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -753,24 +804,33 @@ const getChampionshipInfo = useCallback((fighterId) => {
                       const injuryStart = new Date(injury.dateIncurred);
                       const injuryEnd = new Date(injury.dateIncurred);
                       injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-                      
+
                       // Check if injury is still active
                       const isActive = !injury.isHealed && injuryEnd > gameDate;
-                      
+
                       // Calculate days remaining only for active injuries
-                      const daysRemaining = isActive ? 
-                        Math.ceil((injuryEnd - gameDate) / (1000 * 60 * 60 * 24)) : 0;
+                      const daysRemaining = isActive
+                        ? Math.ceil(
+                            (injuryEnd - gameDate) / (1000 * 60 * 60 * 24)
+                          )
+                        : 0;
 
                       return (
                         <ListItem key={index}>
                           <ListItemText
                             primary={
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
                                 <Typography variant="subtitle1">
                                   {injury.type} ({injury.location})
                                 </Typography>
                                 {isActive && (
-                                  <Chip 
+                                  <Chip
                                     label={`${daysRemaining} days remaining`}
                                     color="error"
                                     size="small"
@@ -784,11 +844,9 @@ const getChampionshipInfo = useCallback((fighterId) => {
                                   Severity: {injury.severity}
                                 </Typography>
                                 <Typography variant="body2">
-                                  {isActive ? (
-                                    `Date: ${injuryStart.toLocaleDateString()}`
-                                  ) : (
-                                    `Date: ${injuryStart.toLocaleDateString()} - ${injuryEnd.toLocaleDateString()}`
-                                  )}
+                                  {isActive
+                                    ? `Date: ${injuryStart.toLocaleDateString()}`
+                                    : `Date: ${injuryStart.toLocaleDateString()} - ${injuryEnd.toLocaleDateString()}`}
                                 </Typography>
                                 {injury.notes && (
                                   <Typography variant="body2">
@@ -805,7 +863,7 @@ const getChampionshipInfo = useCallback((fighterId) => {
                 </CardContent>
               </Card>
             )}
-      
+
             {/* Career Statistics Card */}
             <Card sx={{ ...styles.profileCard, mb: 4 }}>
               <CardContent>
@@ -818,45 +876,35 @@ const getChampionshipInfo = useCallback((fighterId) => {
                     <Typography variant="body2" color="text.secondary">
                       Win Methods:
                     </Typography>
-                    <Typography>
-                      Coming Soon
-                    </Typography>
+                    <Typography>Coming Soon</Typography>
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Average Fight Time:
                     </Typography>
-                    <Typography>
-                      Coming Soon
-                    </Typography>
+                    <Typography>Coming Soon</Typography>
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Striking Accuracy:
                     </Typography>
-                    <Typography>
-                      Coming Soon
-                    </Typography>
+                    <Typography>Coming Soon</Typography>
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Takedown Success Rate:
                     </Typography>
-                    <Typography>
-                      Coming Soon
-                    </Typography>
+                    <Typography>Coming Soon</Typography>
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Performance Bonuses:
                     </Typography>
-                    <Typography>
-                      Coming Soon
-                    </Typography>
+                    <Typography>Coming Soon</Typography>
                   </Grid>
                 </Grid>
               </CardContent>
@@ -869,31 +917,47 @@ const getChampionshipInfo = useCallback((fighterId) => {
           {/* Right Column: Ratings and Championships */}
           <Grid item xs={12} md={8}>
             {/* Championships Section */}
-            {(championships.filter(c => c.currentChampionId === fighter.personid).length > 0 ||
-              getPreviousChampionships(fights, championships.filter(c => c.currentChampionId === fighter.personid)).length > 0) && (
+            {(championships.filter(
+              (c) => c.currentChampionId === fighter.personid
+            ).length > 0 ||
+              getPreviousChampionships(
+                fights,
+                championships.filter(
+                  (c) => c.currentChampionId === fighter.personid
+                )
+              ).length > 0) && (
               <Card sx={{ mb: 4, ...styles.profileCard }}>
                 <CardContent>
                   <Typography variant="h6" sx={styles.sectionTitle}>
                     Accolades
                   </Typography>
-                  
+
                   {/* Current Championships */}
                   {championships
-                    .filter(c => c.currentChampionId === fighter.personid)
-                    .map(championship => (
-                      <Box key={`current-${championship.id}`} sx={styles.championshipCard}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <EmojiEventsIcon sx={{ fontSize: 40, color: 'gold' }} />
+                    .filter((c) => c.currentChampionId === fighter.personid)
+                    .map((championship) => (
+                      <Box
+                        key={`current-${championship.id}`}
+                        sx={styles.championshipCard}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <EmojiEventsIcon
+                            sx={{ fontSize: 40, color: "gold" }}
+                          />
                           <Box>
-                            <Typography variant="h6">{championship.name}</Typography>
-                            <Chip 
-                              label="Current Champion" 
-                              size="small" 
-                              sx={{ 
-                                bgcolor: 'rgba(255, 215, 0, 0.2)',
-                                color: 'text.primary',
-                                mt: 1
-                              }} 
+                            <Typography variant="h6">
+                              {championship.name}
+                            </Typography>
+                            <Chip
+                              label="Current Champion"
+                              size="small"
+                              sx={{
+                                bgcolor: "rgba(255, 215, 0, 0.2)",
+                                color: "text.primary",
+                                mt: 1,
+                              }}
                             />
                           </Box>
                         </Box>
@@ -901,33 +965,43 @@ const getChampionshipInfo = useCallback((fighterId) => {
                     ))}
 
                   {/* Previous Championships */}
-                  {getPreviousChampionships(fights, championships.filter(c => c.currentChampionId === fighter.personid))
-                    .map(championship => (
-                      <Box 
-                        key={`previous-${championship.id}`} 
-                        sx={{
-                          ...styles.championshipCard,
-                          backgroundColor: 'rgba(128, 128, 128, 0.05)',
-                          border: '1px solid rgba(128, 128, 128, 0.2)',
-                        }}
+                  {getPreviousChampionships(
+                    fights,
+                    championships.filter(
+                      (c) => c.currentChampionId === fighter.personid
+                    )
+                  ).map((championship) => (
+                    <Box
+                      key={`previous-${championship.id}`}
+                      sx={{
+                        ...styles.championshipCard,
+                        backgroundColor: "rgba(128, 128, 128, 0.05)",
+                        border: "1px solid rgba(128, 128, 128, 0.2)",
+                      }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <EmojiEventsIcon sx={{ fontSize: 40, color: '#A9A9A9' }} />
-                          <Box>
-                            <Typography variant="h6">{championship.name}</Typography>
-                            <Chip 
-                              label="Former Champion" 
-                              size="small" 
-                              sx={{ 
-                                bgcolor: 'rgba(128, 128, 128, 0.2)',
-                                color: 'text.primary',
-                                mt: 1
-                              }} 
-                            />
-                          </Box>
+                        <EmojiEventsIcon
+                          sx={{ fontSize: 40, color: "#A9A9A9" }}
+                        />
+                        <Box>
+                          <Typography variant="h6">
+                            {championship.name}
+                          </Typography>
+                          <Chip
+                            label="Former Champion"
+                            size="small"
+                            sx={{
+                              bgcolor: "rgba(128, 128, 128, 0.2)",
+                              color: "text.primary",
+                              mt: 1,
+                            }}
+                          />
                         </Box>
                       </Box>
-                    ))}
+                    </Box>
+                  ))}
                 </CardContent>
               </Card>
             )}
@@ -938,62 +1012,114 @@ const getChampionshipInfo = useCallback((fighterId) => {
                 <Typography variant="h6" sx={styles.sectionTitle}>
                   Fighter Ratings
                 </Typography>
-                
+
                 <Grid container spacing={3}>
                   {/* Organise ratings into categories */}
                   {[
                     {
                       title: "Core Attributes",
-                      attributes: ["output", "strength", "speed", "cardio", "toughness", "chin"]
+                      attributes: [
+                        "output",
+                        "strength",
+                        "speed",
+                        "cardio",
+                        "toughness",
+                        "chin",
+                      ],
                     },
                     {
                       title: "Striking",
-                      attributes: ["striking", "punchPower", "handSpeed", "punchAccuracy", "kicking", "kickPower", "kickSpeed", "kickAccuracy"]
+                      attributes: [
+                        "striking",
+                        "punchPower",
+                        "handSpeed",
+                        "punchAccuracy",
+                        "kicking",
+                        "kickPower",
+                        "kickSpeed",
+                        "kickAccuracy",
+                      ],
                     },
                     {
                       title: "Defense",
-                      attributes: ["strikingDefence", "kickDefence", "headMovement", "footwork"]
+                      attributes: [
+                        "strikingDefence",
+                        "kickDefence",
+                        "headMovement",
+                        "footwork",
+                      ],
                     },
                     {
                       title: "Grappling",
-                      attributes: ["takedownOffence", "takedownDefence", "clinchControl", "groundControl"]
+                      attributes: [
+                        "takedownOffence",
+                        "takedownDefence",
+                        "clinchControl",
+                        "groundControl",
+                      ],
                     },
                     {
                       title: "Ground Game",
-                      attributes: ["groundOffence", "groundDefence", "groundStriking", "submissionOffence", "submissionDefence", "getUpAbility"]
+                      attributes: [
+                        "groundOffence",
+                        "groundDefence",
+                        "groundStriking",
+                        "submissionOffence",
+                        "submissionDefence",
+                        "getUpAbility",
+                      ],
                     },
                     {
                       title: "Mental",
-                      attributes: ["composure", "fightIQ"]
-                    }
-                  ].map(category => (
+                      attributes: ["composure", "fightIQ"],
+                    },
+                  ].map((category) => (
                     <Grid item xs={12} key={category.title}>
-                      <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ mb: 2, fontWeight: "bold" }}
+                      >
                         {category.title}
                       </Typography>
                       <Grid container spacing={2}>
-                        {category.attributes.map(attr => (
+                        {category.attributes.map((attr) => (
                           <Grid item xs={12} sm={6} key={attr}>
                             <Box sx={{ mb: 1 }}>
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
                                 {formatAttributeName(attr)}
                               </Typography>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <LinearProgress 
-                                  variant="determinate" 
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <LinearProgress
+                                  variant="determinate"
                                   value={fighter.Rating[attr]}
                                   sx={{
                                     ...styles.ratingBar,
                                     flexGrow: 1,
-                                    '& .MuiLinearProgress-bar': {
-                                      backgroundColor: fighter.Rating[attr] >= 90 ? 'success.main' :
-                                                     fighter.Rating[attr] >= 75 ? 'info.main' :
-                                                     fighter.Rating[attr] >= 60 ? 'warning.main' :
-                                                     'error.main'
-                                    }
+                                    "& .MuiLinearProgress-bar": {
+                                      backgroundColor:
+                                        fighter.Rating[attr] >= 90
+                                          ? "success.main"
+                                          : fighter.Rating[attr] >= 75
+                                          ? "info.main"
+                                          : fighter.Rating[attr] >= 60
+                                          ? "warning.main"
+                                          : "error.main",
+                                    },
                                   }}
                                 />
-                                <Typography variant="body2" sx={styles.ratingValue}>
+                                <Typography
+                                  variant="body2"
+                                  sx={styles.ratingValue}
+                                >
                                   {fighter.Rating[attr]}
                                 </Typography>
                               </Box>

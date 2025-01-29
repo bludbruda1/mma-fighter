@@ -14,6 +14,7 @@ import {
   Chip,
 } from "@mui/material";
 import { formatFightingStyle } from "../utils/uiHelpers";
+import CountryFlag from "../components/CountryFlag";
 
 /* BasicSelect component that passes a fighters, selectedItem, and onSelectChange prop 
 so that when we call this component we can dynamically add the info instead of the value being fixed at the component level. **/
@@ -112,7 +113,8 @@ const BasicSelect = ({
                   </Link>
                 </Typography>
                 <Typography variant="body2">
-                  Nationality: {selectedItem.nationality}
+                  Nationality: {selectedItem.nationality}{" "}
+                  <CountryFlag nationality={selectedItem.nationality} />
                 </Typography>
                 <Typography variant="body2">
                   Record: {selectedItem.wins}W-{selectedItem.losses}L
