@@ -30,6 +30,7 @@ import {
   getAllFights,
   getAllChampionships,
   getGameDate,
+  getAllGyms,
 } from "../utils/indexedDB";
 import { calculateAge } from "../utils/dateUtils";
 import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
@@ -122,6 +123,7 @@ const Dashboard = () => {
   const [championships, setChampionships] = useState([]);
   const [fighterAge, setFighterAge] = useState("N/A");
   const [gameDate, setGameDate] = useState(null);
+  const [gyms, setGyms] = useState([]);
 
   //  Helper function to sort fights
   const sortFights = (fights) => {
@@ -172,6 +174,19 @@ const Dashboard = () => {
     };
 
     fetchAllFighterIds();
+  }, [gameId]);
+
+  // Effect to fetch gym IDs
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const gymsData = await getAllGyms(gameId);
+        setGyms(gymsData);
+      } catch (error) {
+        console.error("Error fetching the gym:", error);
+      }
+    };
+    fetchData();
   }, [gameId]);
 
   // Effect to fetch fighter, fights and championships data
@@ -287,6 +302,11 @@ const Dashboard = () => {
         return method?.toUpperCase().slice(0, 3) || "N/A";
     }
   };
+
+  const gym =
+    fighter && Array.isArray(gyms)
+      ? gyms.find((g) => g.id === fighter.gymId)
+      : null;
 
   // Helper function to format time
   const formatTime = (time) => {
@@ -510,72 +530,94 @@ const Dashboard = () => {
     <Box sx={styles.container}>
       <Container maxWidth="xl">
         {/* Header with Navigation */}
-          <Paper sx={styles.headerCard}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Button
-                onClick={() => navigateToFighter("previous")}
-                sx={styles.navigationButton}
-              >
-                <ArrowBackOutlinedIcon />
-              </Button>
-              
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="h3" sx={{
-                  fontWeight: 'bold',
-                  background: 'linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 1
-                }}>
-                  {formatFighterNameWithNickname(fighter)}
-                </Typography>
-                
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  gap: 1,
-                  mt: 1 
-                }}>
-                  {(() => {
-                    const status = getFighterStatus(fighter, gameDate, fights);
-                    return (
-                      <Tooltip title={
-                        status.type === 'INJURED' ? 
-                          `${status.details.type} (${status.details.location})` :
-                        (status.type === 'BOOKED' || status.type === 'IN_CAMP') ?
-                          `Fight: ${new Date(status.details.fightDate).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}` :
-                          ''
-                      } arrow>
-                        <Chip 
-                          label={getStatusDisplay(status)}
-                          color={status.color}
-                          size="small"
-                          icon={status.type === 'INJURED' ? <LocalHospitalIcon /> : undefined}
-                          sx={{ 
-                            fontWeight: 'medium',
-                            px: 2
-                          }}
-                        />
-                      </Tooltip>
-                    );
-                  })()}
-                </Box>
-              </Box>
+        <Paper sx={styles.headerCard}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              onClick={() => navigateToFighter("previous")}
+              sx={styles.navigationButton}
+            >
+              <ArrowBackOutlinedIcon />
+            </Button>
 
-              <Button
-                onClick={() => navigateToFighter("next")}
-                sx={styles.navigationButton}
+            <Box sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: "bold",
+                  background:
+                    "linear-gradient(45deg, #1a237e 30%, #0d47a1 90%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  mb: 1,
+                }}
               >
-                <ArrowForwardOutlinedIcon />
-              </Button>
+                {formatFighterNameWithNickname(fighter)}
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                  mt: 1,
+                }}
+              >
+                {(() => {
+                  const status = getFighterStatus(fighter, gameDate, fights);
+                  return (
+                    <Tooltip
+                      title={
+                        status.type === "INJURED"
+                          ? `${status.details.type} (${status.details.location})`
+                          : status.type === "BOOKED" ||
+                            status.type === "IN_CAMP"
+                          ? `Fight: ${new Date(
+                              status.details.fightDate
+                            ).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}`
+                          : ""
+                      }
+                      arrow
+                    >
+                      <Chip
+                        label={getStatusDisplay(status)}
+                        color={status.color}
+                        size="small"
+                        icon={
+                          status.type === "INJURED" ? (
+                            <LocalHospitalIcon />
+                          ) : undefined
+                        }
+                        sx={{
+                          fontWeight: "medium",
+                          px: 2,
+                        }}
+                      />
+                    </Tooltip>
+                  );
+                })()}
+              </Box>
             </Box>
-          </Paper>
+
+            <Button
+              onClick={() => navigateToFighter("next")}
+              sx={styles.navigationButton}
+            >
+              <ArrowForwardOutlinedIcon />
+            </Button>
+          </Box>
+        </Paper>
 
         <Grid container spacing={4}>
           {/* Left Column: Personal Details and Fighter Status */}
@@ -714,7 +756,7 @@ const Dashboard = () => {
                     <Typography variant="body2" color="text.secondary">
                       Gym Affiliation:
                     </Typography>
-                    <Typography>{fighter.gym || "None"}</Typography>
+                    <Typography>{gym ? gym.name : "N/A"}</Typography>
                   </Grid>
 
                   <Grid item xs={12}>

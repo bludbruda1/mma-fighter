@@ -4,18 +4,19 @@ const eventStoreName = "events";
 const fightsStoreName = "fights";
 const championshipStoreName = "championships";
 const settingsStoreName = "settings";
+const gymsStoreName = "gyms";
 
 const DB_VERSION = 1;
 const DB_NAME = "PlanetFighterGames";
 
 const STORES = {
-  GAMES: "games",  // Store game metadata
-  GAME_DATA: "gameData"  // Store actual game data for each save
+  GAMES: "games", // Store game metadata
+  GAME_DATA: "gameData", // Store actual game data for each save
 };
 
 // Function to get the correct database name for a game
 export const getGameDBName = (gameId) => {
-  return gameId ? `game_${gameId}` : 'FightersDB';
+  return gameId ? `game_${gameId}` : "FightersDB";
 };
 
 // Structure for a new game save
@@ -25,7 +26,7 @@ const createNewGameStructure = (name, date = new Date()) => ({
   createdAt: date,
   lastPlayed: date,
   gameDate: date,
-  dbName: `game_${Date.now()}` // Unique DB name for this save
+  dbName: `game_${Date.now()}`, // Unique DB name for this save
 });
 
 // Initialize the game management database
@@ -55,7 +56,7 @@ export const initGameManagementDB = () => {
 export const createNewGame = async (name) => {
   const db = await initGameManagementDB();
   const gameStructure = createNewGameStructure(name);
-  
+
   try {
     // Create new game entry
     const transaction = db.transaction([STORES.GAMES], "readwrite");
@@ -77,7 +78,7 @@ export const loadGame = async (gameId) => {
   const db = await initGameManagementDB();
   const transaction = db.transaction([STORES.GAMES], "readonly");
   const store = transaction.objectStore(STORES.GAMES);
-  
+
   return new Promise((resolve, reject) => {
     const request = store.get(gameId);
     request.onsuccess = () => resolve(request.result);
@@ -111,7 +112,7 @@ export const listGames = async () => {
   const db = await initGameManagementDB();
   const transaction = db.transaction([STORES.GAMES], "readonly");
   const store = transaction.objectStore(STORES.GAMES);
-  
+
   return new Promise((resolve, reject) => {
     const request = store.getAll();
     request.onsuccess = () => resolve(request.result);
@@ -121,13 +122,13 @@ export const listGames = async () => {
 
 // Opening up our DB and checking if an upgrade is needed
 export const openDB = (gameId) => {
-  const dbName = gameId ? `game_${gameId}` : 'FightersDB';
+  const dbName = gameId ? `game_${gameId}` : "FightersDB";
 
   if (!gameId) {
     console.error("openDB called with undefined Game ID");
     console.trace("Stack trace for undefined Game ID");
   }
-  
+
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, 4);
 
@@ -174,6 +175,12 @@ export const openDB = (gameId) => {
         console.log(`Creating object store: ${settingsStoreName}`);
         db.createObjectStore(settingsStoreName, { keyPath: "key" });
       }
+
+      // Create the "gyms" store if it doesn't exist
+      if (!db.objectStoreNames.contains(gymsStoreName)) {
+        console.log(`Creating object store: ${gymsStoreName}`);
+        db.createObjectStore(gymsStoreName, { keyPath: "id" });
+      }
     };
   });
 };
@@ -219,11 +226,16 @@ const initGameDB = (dbName) => {
       if (!db.objectStoreNames.contains("settings")) {
         db.createObjectStore("settings", { keyPath: "key" });
       }
+
+      // Create gyms store for game-specific settings like game date
+      if (!db.objectStoreNames.contains("gyms")) {
+        db.createObjectStore("gyms", { keyPath: "id" });
+      }
     };
 
     request.onsuccess = async (event) => {
       const db = event.target.result;
-      
+
       try {
         // Initialize the database with default data
         await initializeGameData(db);
@@ -243,25 +255,29 @@ const initGameDB = (dbName) => {
 const initializeGameData = async (db) => {
   try {
     // Load default data from JSON files
-    const [fighters, events, fights, championships] = await Promise.all([
-      fetch("/fighters.json").then(response => response.json()),
-      fetch("/events.json").then(response => response.json()),
-      fetch("/fights.json").then(response => response.json()),
-      fetch("/championships.json").then(response => response.json())
+    const [fighters, events, fights, championships, gyms] = await Promise.all([
+      fetch("/fighters.json").then((response) => response.json()),
+      fetch("/events.json").then((response) => response.json()),
+      fetch("/fights.json").then((response) => response.json()),
+      fetch("/championships.json").then((response) => response.json()),
+      fetch("/gyms.json").then((response) => response.json()),
     ]);
 
     // Store initial game date
     const initialGameDate = new Date().toISOString();
-    await storeData(db, "settings", { key: "gameDate", value: initialGameDate });
+    await storeData(db, "settings", {
+      key: "gameDate",
+      value: initialGameDate,
+    });
 
     // Store all default data
     await Promise.all([
       storeData(db, "fighters", fighters),
       storeData(db, "events", events),
       storeData(db, "fights", fights),
-      storeData(db, "championships", championships)
+      storeData(db, "championships", championships),
+      storeData(db, "gyms", gyms),
     ]);
-
   } catch (error) {
     console.error("Error initializing game data:", error);
     throw error;
@@ -285,7 +301,7 @@ const storeData = (db, storeName, data) => {
 
     // Handle both single objects and arrays
     if (Array.isArray(data)) {
-      data.forEach(item => store.put(item));
+      data.forEach((item) => store.put(item));
     } else {
       store.put(data);
     }
@@ -298,6 +314,19 @@ const deleteGameDB = (dbName) => {
     const request = indexedDB.deleteDatabase(dbName);
     request.onsuccess = () => resolve(true);
     request.onerror = () => reject("Error deleting game database");
+  });
+};
+
+// Function to get all gyms from the DB
+export const getAllGyms = async (gameId) => {
+  const db = await openDB(gameId);
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(gymsStoreName, "readonly");
+    const store = transaction.objectStore(gymsStoreName);
+    const request = store.getAll();
+
+    request.onerror = () => reject("Error fetching gyms");
+    request.onsuccess = (event) => resolve(event.target.result);
   });
 };
 
@@ -343,7 +372,7 @@ export const addEventToDB = async (event, gameId) => {
     // Validate fight IDs structure
     const validateFightIds = (ids) => {
       if (!Array.isArray(ids)) return false;
-      return ids.every(id => Number.isInteger(id));
+      return ids.every((id) => Number.isInteger(id));
     };
 
     // Validate fight structure (either array or object with card properties)
@@ -355,12 +384,20 @@ export const addEventToDB = async (event, gameId) => {
       }
     } else {
       // New format validation
-      const mainCardValid = event.fights.mainCard && validateFightIds(event.fights.mainCard);
-      const prelimsValid = !event.fights.prelims || validateFightIds(event.fights.prelims);
-      const earlyPrelimsValid = !event.fights.earlyPrelims || validateFightIds(event.fights.earlyPrelims);
+      const mainCardValid =
+        event.fights.mainCard && validateFightIds(event.fights.mainCard);
+      const prelimsValid =
+        !event.fights.prelims || validateFightIds(event.fights.prelims);
+      const earlyPrelimsValid =
+        !event.fights.earlyPrelims ||
+        validateFightIds(event.fights.earlyPrelims);
 
       if (!mainCardValid || !prelimsValid || !earlyPrelimsValid) {
-        reject(new Error("Invalid fight card structure. All fight IDs must be integers."));
+        reject(
+          new Error(
+            "Invalid fight card structure. All fight IDs must be integers."
+          )
+        );
         return;
       }
     }
@@ -529,7 +566,7 @@ export const getFightsByIds = async (fightIds, gameId) => {
     return Promise.reject("fightIds must be an array of numbers");
   }
 
-  if (!fightIds.every(id => Number.isInteger(Number(id)))) {
+  if (!fightIds.every((id) => Number.isInteger(Number(id)))) {
     return Promise.reject("All fight IDs must be integers");
   }
 
@@ -819,28 +856,28 @@ export const checkAndUpdateFighterStatus = async (fighter) => {
   const currentGameDate = await getGameDate();
   const gameDateTime = new Date(currentGameDate);
   let needsUpdate = false;
-  
+
   // Create a copy of fighter with injuries to modify
   const updatedFighter = {
     ...fighter,
-    injuries: fighter.injuries.map(injury => {
+    injuries: fighter.injuries.map((injury) => {
       // Skip if already healed
       if (injury.isHealed) return injury;
 
       // Check if injury has healed
       const injuryEnd = new Date(injury.dateIncurred);
       injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
-      
+
       if (injuryEnd <= gameDateTime && !injury.isHealed) {
         needsUpdate = true;
         return { ...injury, isHealed: true };
       }
       return injury;
-    })
+    }),
   };
 
   // Check if any injuries are still active
-  const hasActiveInjury = updatedFighter.injuries.some(injury => {
+  const hasActiveInjury = updatedFighter.injuries.some((injury) => {
     if (injury.isHealed) return false;
     const injuryEnd = new Date(injury.dateIncurred);
     injuryEnd.setDate(injuryEnd.getDate() + injury.duration);
@@ -862,13 +899,12 @@ export const checkAndUpdateFighterStatus = async (fighter) => {
   return null;
 };
 
-
 // Function to check all fighters
 export const updateAllFighterStatuses = async () => {
   const fighters = await getAllFighters();
   const updates = await Promise.all(
-    fighters.map(fighter => checkAndUpdateFighterStatus(fighter))
+    fighters.map((fighter) => checkAndUpdateFighterStatus(fighter))
   );
-  
+
   return updates.filter(Boolean); // Return only fighters that were updated
 };

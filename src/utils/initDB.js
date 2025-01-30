@@ -13,7 +13,7 @@ function initDB() {
           checkAndStoreFighters(db),
           checkAndStoreEvents(db),
           checkAndStoreFights(db),
-          checkAndStoreChampionships(db)
+          checkAndStoreChampionships(db),
         ]).then(() => resolve(db));
       })
       .catch((error) => {
@@ -60,13 +60,40 @@ function checkAndStoreEvents(db) {
       if (countRequest.result === 0) {
         storeEventsInDB(db).then(() => resolve());
       } else {
-        console.log("Event data already exists in IndexedDB, skipping initialization.");
+        console.log(
+          "Event data already exists in IndexedDB, skipping initialization."
+        );
         resolve();
       }
     };
 
     countRequest.onerror = (error) => {
       console.error("Error checking events count", error);
+      reject(error);
+    };
+  });
+}
+
+// Function to check if there is already existing gyms data for the save game, do not overwrite it using the gyms.json file
+function checkAndStoreGyms(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["gyms"], "readonly");
+    const store = transaction.objectStore("gyms");
+    const countRequest = store.count();
+
+    countRequest.onsuccess = () => {
+      if (countRequest.result === 0) {
+        storeEventsInDB(db).then(() => resolve());
+      } else {
+        console.log(
+          "Gyms data already exists in IndexedDB, skipping initialization."
+        );
+        resolve();
+      }
+    };
+
+    countRequest.onerror = (error) => {
+      console.error("Error checking gyms count", error);
       reject(error);
     };
   });
@@ -83,7 +110,9 @@ function checkAndStoreFights(db) {
       if (countRequest.result === 0) {
         storeFightsInDB(db).then(() => resolve());
       } else {
-        console.log("Fight data already exists in IndexedDB, skipping initialization.");
+        console.log(
+          "Fight data already exists in IndexedDB, skipping initialization."
+        );
         resolve();
       }
     };
@@ -106,7 +135,9 @@ function checkAndStoreChampionships(db) {
       if (countRequest.result === 0) {
         storeChampionshipsInDB(db).then(() => resolve());
       } else {
-        console.log("Championship data already exists in IndexedDB, skipping initialization.");
+        console.log(
+          "Championship data already exists in IndexedDB, skipping initialization."
+        );
         resolve();
       }
     };
