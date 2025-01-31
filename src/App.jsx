@@ -12,6 +12,8 @@ import Calendar from "./components/Calendar";
 import Rankings from "./pages/Rankings";
 import Contracts from "./pages/Contracts";
 import GameManager from "./pages/GameManager";
+import GymsList from "./pages/GymsList";
+import Gym from "./pages/Gym";
 import { EventProvider } from "./contexts/EventContext";
 import { GameProvider } from "./contexts/GameContext";
 
@@ -19,22 +21,22 @@ import { GameProvider } from "./contexts/GameContext";
 const GameLayout = () => {
   return (
     <>
-    <EventProvider>
-      <HamburgerMenu />
-      <Outlet /> 
-    </EventProvider>
+      <EventProvider>
+        <HamburgerMenu />
+        <Outlet />
+      </EventProvider>
     </>
   );
 };
 
 const App = () => {
   return (
-      <GameProvider>
-        <Routes>
-          {/* Game Manager (Home Page) */}
-          <Route path="/" element={<GameManager />} />
-          
-          {/* Game-specific routes */}
+    <GameProvider>
+      <Routes>
+        {/* Game Manager (Home Page) */}
+        <Route path="/" element={<GameManager />} />
+
+        {/* Game-specific routes */}
         <Route path="game/:gameId/*" element={<GameLayout />}>
           <Route index element={<Home />} />
           <Route path="roster" element={<Roster />} />
@@ -46,6 +48,8 @@ const App = () => {
           <Route path="calendar" element={<Calendar />} />
           <Route path="rankings" element={<Rankings />} />
           <Route path="contracts" element={<Contracts />} />
+          <Route path="gymslist" element={<GymsList />} />
+          <Route path="gym/:id" element={<Gym />} />
         </Route>
       </Routes>
     </GameProvider>

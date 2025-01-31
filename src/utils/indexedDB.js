@@ -330,6 +330,18 @@ export const getAllGyms = async (gameId) => {
   });
 };
 
+export const getGymById = async (gameId, gymId) => {
+  const db = await openDB(gameId);
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(gymsStoreName, "readonly");
+    const store = transaction.objectStore(gymsStoreName);
+    const request = store.get(parseInt(gymId)); // Ensure gymId is a number
+
+    request.onerror = () => reject("Error fetching gym");
+    request.onsuccess = (event) => resolve(event.target.result || null); // Return null if not found
+  });
+};
+
 // Function to get all fighters from the DB
 export const getAllFighters = async (gameId) => {
   const db = await openDB(gameId);
