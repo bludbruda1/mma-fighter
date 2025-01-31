@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom"; // Use Link from react-router-dom
 import { getAllFighters, getGymById } from "../utils/indexedDB";
 import {
   Box,
@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 const Gym = () => {
-  const { gameId, id } = useParams(); // Ensure both gameId and id are extracted
+  const { gameId, id } = useParams();
   const [gym, setGym] = useState(null);
   const [fighters, setFighters] = useState([]);
 
@@ -22,7 +22,7 @@ const Gym = () => {
       const gymData = await getGymById(gameId, parseInt(id));
       setGym(gymData);
 
-      const allFighters = await getAllFighters(gameId); // Ensure you pass gameId here
+      const allFighters = await getAllFighters(gameId);
       const gymFighters = allFighters.filter(
         (fighter) => fighter.gymId === parseInt(id)
       );
@@ -42,13 +42,12 @@ const Gym = () => {
       maxWidth="md"
       sx={{ position: "relative", zIndex: 2 }}
     >
-      {/* Centered logo below the title */}
       <Box sx={{ marginBottom: 4 }}>
         <img
           src={gym.logo}
           alt="Logo"
           style={{
-            width: "150px", // Adjust the size as needed
+            width: "150px",
             height: "auto",
           }}
         />
@@ -65,10 +64,25 @@ const Gym = () => {
       <List>
         {fighters.map((fighter) => (
           <ListItem key={fighter.personid} divider>
-            <ListItemText
-              primary={`${fighter.firstname} ${fighter.lastname}`}
-              secondary={`${fighter.fightingStyle} | ${fighter.wins}W - ${fighter.losses}L`}
-            />
+            <Link
+              to={`/game/${gameId}/dashboard/${fighter.personid}`} // Corrected Link usage
+              style={{
+                textDecoration: "none",
+                color: "#0000EE",
+                width: "100%", // Makes the whole list item clickable
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textDecoration = "underline";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textDecoration = "none";
+              }}
+            >
+              <ListItemText
+                primary={`${fighter.firstname} ${fighter.lastname}`}
+                secondary={`${fighter.fightingStyle} | ${fighter.wins}W - ${fighter.losses}L`}
+              />
+            </Link>
           </ListItem>
         ))}
       </List>
