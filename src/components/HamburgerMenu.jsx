@@ -20,13 +20,19 @@ import SportsMmaIcon from "@mui/icons-material/SportsMma";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
-import HandshakeIcon from '@mui/icons-material/Handshake';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { saveGameDate, getGameDate, getAllEvents, getAllFights, updateAllFighterStatuses } from "../utils/indexedDB";
+import HandshakeIcon from "@mui/icons-material/Handshake";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import {
+  saveGameDate,
+  getGameDate,
+  getAllEvents,
+  getAllFights,
+  updateAllFighterStatuses,
+} from "../utils/indexedDB";
 
 const HamburgerMenu = () => {
   const { gameId } = useParams();
@@ -42,50 +48,59 @@ const HamburgerMenu = () => {
   };
 
   const handleQuitGame = () => {
-    navigate('/');
+    navigate("/");
   };
 
   // Helper function to format date for comparison
   const formatDateForComparison = (date) => {
     const d = new Date(date);
     // Format to local YYYY-MM-DD without timezone conversion
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
   // Check if an event exists for a given date and if all its fights are complete
-  const checkCurrentDateEvent = React.useCallback((date, currentEvents, currentFights) => {
-    const formattedDate = formatDateForComparison(date);
-    const eventOnDate = currentEvents.find(event => 
-      formatDateForComparison(event.date) === formattedDate
-    );
-  
-    if (eventOnDate) {
-      // Get all fight IDs from all cards
-      const allFightIds = [
-        ...(eventOnDate.fights.mainCard || []),
-        ...(eventOnDate.fights.prelims || []),
-        ...(eventOnDate.fights.earlyPrelims || [])
-      ];
-  
-      // Check if all fights are complete
-      const eventFights = currentFights.filter(fight => allFightIds.includes(fight.id));
-      const allFightsComplete = eventFights.length > 0 && 
-                               eventFights.every(fight => fight.result !== null);
-  
-      setIsAdvanceDisabled(!allFightsComplete);
-  
+  const checkCurrentDateEvent = React.useCallback(
+    (date, currentEvents, currentFights) => {
+      const formattedDate = formatDateForComparison(date);
+      const eventOnDate = currentEvents.find(
+        (event) => formatDateForComparison(event.date) === formattedDate
+      );
+
+      if (eventOnDate) {
+        // Get all fight IDs from all cards
+        const allFightIds = [
+          ...(eventOnDate.fights.mainCard || []),
+          ...(eventOnDate.fights.prelims || []),
+          ...(eventOnDate.fights.earlyPrelims || []),
+        ];
+
+        // Check if all fights are complete
+        const eventFights = currentFights.filter((fight) =>
+          allFightIds.includes(fight.id)
+        );
+        const allFightsComplete =
+          eventFights.length > 0 &&
+          eventFights.every((fight) => fight.result !== null);
+
+        setIsAdvanceDisabled(!allFightsComplete);
+
+        return {
+          hasEvent: true,
+          eventId: eventOnDate.id,
+        };
+      }
+
+      setIsAdvanceDisabled(false);
       return {
-        hasEvent: true,
-        eventId: eventOnDate.id
+        hasEvent: false,
+        eventId: null,
       };
-    }
-  
-    setIsAdvanceDisabled(false);
-    return {
-      hasEvent: false,
-      eventId: null
-    };
-  }, []);
+    },
+    []
+  );
 
   // Function to refresh fights
   const refreshFightsData = React.useCallback(async () => {
@@ -93,7 +108,7 @@ const HamburgerMenu = () => {
       // Fetch both fights and events to ensure we have latest data
       const [fetchedFights, fetchedEvents] = await Promise.all([
         getAllFights(gameId),
-        getAllEvents(gameId)
+        getAllEvents(gameId),
       ]);
       setFights(fetchedFights);
       setEvents(fetchedEvents);
@@ -102,7 +117,7 @@ const HamburgerMenu = () => {
     } catch (error) {
       console.error("Error refreshing data:", error);
     }
-}, [currentDate, checkCurrentDateEvent, gameId]);
+  }, [currentDate, checkCurrentDateEvent, gameId]);
 
   // Load initial data when component mounts
   useEffect(() => {
@@ -112,13 +127,13 @@ const HamburgerMenu = () => {
         const [date, fetchedEvents, fetchedFights] = await Promise.all([
           getGameDate(gameId),
           getAllEvents(gameId),
-          getAllFights(gameId)
+          getAllFights(gameId),
         ]);
-        
+
         setCurrentDate(new Date(date));
         setEvents(fetchedEvents);
         setFights(fetchedFights);
-        
+
         // Check if current date has event with incomplete fights
         checkCurrentDateEvent(new Date(date), fetchedEvents, fetchedFights);
       } catch (error) {
@@ -147,33 +162,36 @@ const HamburgerMenu = () => {
     try {
       const newDate = new Date(currentDate);
       newDate.setDate(newDate.getDate() + 1);
-  
+
       // Save new date
       await saveGameDate(newDate.toISOString(), gameId);
-      
+
       // Update fighter statuses
       const updatedFighters = await updateAllFighterStatuses(gameId);
       if (updatedFighters.length > 0) {
       }
-  
+
       // Fetch fresh data before checking events
       const [fetchedEvents, fetchedFights] = await Promise.all([
         getAllEvents(gameId),
-        getAllFights(gameId)
+        getAllFights(gameId),
       ]);
-      
+
       // Check if there's an event on the new date with fresh data
-      const { hasEvent, eventId } = checkCurrentDateEvent(newDate, fetchedEvents, fetchedFights);
-  
+      const { hasEvent, eventId } = checkCurrentDateEvent(
+        newDate,
+        fetchedEvents,
+        fetchedFights
+      );
+
       if (hasEvent) {
         // Navigate to event page with absolute path
         navigate(`/game/${gameId}/event/${eventId}`);
       }
-  
+
       setEvents(fetchedEvents); // Update events state
       setFights(fetchedFights); // Update fights state
       setCurrentDate(newDate);
-  
     } catch (error) {
       console.error("Error advancing date:", error);
     }
@@ -182,8 +200,8 @@ const HamburgerMenu = () => {
   // Get tooltip message based on current state
   const getTooltipMessage = () => {
     const formattedDate = formatDateForComparison(currentDate);
-    const eventOnDate = events.find(event => 
-      formatDateForComparison(event.date) === formattedDate
+    const eventOnDate = events.find(
+      (event) => formatDateForComparison(event.date) === formattedDate
     );
 
     if (eventOnDate) {
@@ -213,7 +231,10 @@ const HamburgerMenu = () => {
             <MenuIcon />
           </IconButton>
           <SportsMmaIcon sx={{ mr: 2 }} />
-          <Link to={`/game/${gameId}`} style={{ textDecoration: "none", color: "#fff" }}>
+          <Link
+            to={`/game/${gameId}`}
+            style={{ textDecoration: "none", color: "#fff" }}
+          >
             <Typography variant="h6">Planet Fighter</Typography>
           </Link>
           <Box sx={{ flexGrow: 1 }} />
@@ -235,7 +256,7 @@ const HamburgerMenu = () => {
                   "&.Mui-disabled": {
                     backgroundColor: "rgba(128, 128, 128, 0.1)",
                     color: "rgba(255, 255, 255, 0.3)",
-                  }
+                  },
                 }}
               >
                 Advance
@@ -256,7 +277,12 @@ const HamburgerMenu = () => {
         }}
       >
         <List>
-          <ListItem button component={Link} to={`/game/${gameId}`} onClick={handleDrawerToggle}>
+          <ListItem
+            button
+            component={Link}
+            to={`/game/${gameId}`}
+            onClick={handleDrawerToggle}
+          >
             <ListItemIcon sx={{ color: "#fff" }}>
               <HomeIcon />
             </ListItemIcon>
@@ -312,33 +338,44 @@ const HamburgerMenu = () => {
             component={Link}
             to="championships"
             onClick={handleDrawerToggle}
-            >
+          >
             <ListItemIcon sx={{ color: "#fff" }}>
               <EmojiEventsIcon />
             </ListItemIcon>
-            <ListItemText primary="Champions" sx={{ color: '#fff'}} />
+            <ListItemText primary="Champions" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem
             button
             component={Link}
             to="rankings"
             onClick={handleDrawerToggle}
-            >
+          >
             <ListItemIcon sx={{ color: "#fff" }}>
               <EmojiEventsIcon />
             </ListItemIcon>
-            <ListItemText primary="Rankings" sx={{ color: '#fff'}} />
+            <ListItemText primary="Rankings" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem
             button
             component={Link}
             to="contracts"
             onClick={handleDrawerToggle}
-            >
+          >
             <ListItemIcon sx={{ color: "#fff" }}>
               <HandshakeIcon />
             </ListItemIcon>
-            <ListItemText primary="Contracts" sx={{ color: '#fff'}} />
+            <ListItemText primary="Contracts" sx={{ color: "#fff" }} />
+          </ListItem>
+          <ListItem
+            button
+            component={Link}
+            to="gymslist"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <HandshakeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Gyms" sx={{ color: "#fff" }} />
           </ListItem>
           <ListItem button onClick={handleQuitGame}>
             <ListItemIcon>

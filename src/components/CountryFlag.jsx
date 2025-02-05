@@ -37,10 +37,6 @@ const CountryFlags = ({ nationality }) => {
   // Apply country name fixes if necessary
   cleanNationality = COUNTRY_NAME_FIXES[cleanNationality] || cleanNationality;
 
-  console.log("Fetched Country Data:", countryData);
-  console.log("Raw Nationality:", nationality);
-  console.log("Cleaned Nationality:", cleanNationality);
-
   // Find the country object based on the cleaned nationality
   const countryEntry = countryData.find(
     (country) => country.name.toLowerCase() === cleanNationality.toLowerCase()
@@ -52,9 +48,6 @@ const CountryFlags = ({ nationality }) => {
   }
 
   const countryCode = countryEntry.code.toLowerCase();
-
-  console.log("Matched Country Entry:", countryEntry);
-  console.log("Resolved Country Code:", countryCode);
 
   return (
     <span
