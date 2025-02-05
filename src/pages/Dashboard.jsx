@@ -756,7 +756,21 @@ const Dashboard = () => {
                     <Typography variant="body2" color="text.secondary">
                       Gym Affiliation:
                     </Typography>
-                    <Typography>{gym ? gym.name : "N/A"}</Typography>
+                    <Link
+                      to={`/game/${gameId}/gym/${gym.id}`}
+                      style={{
+                        textDecoration: "none",
+                        color: "#0000EE",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.textDecoration = "underline";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.textDecoration = "none";
+                      }}
+                    >
+                      <Typography>{gym ? gym.name : "N/A"}</Typography>
+                    </Link>
                   </Grid>
 
                   <Grid item xs={12}>
