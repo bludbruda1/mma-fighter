@@ -129,9 +129,6 @@ const GymPage = () => {
 
   const compareValues = useCallback(
     (a, b, property) => {
-      console.log("Sorting:", { a, b, property });
-      console.log(a.firstname, a.lastname);
-      console.log(b.firstname, b.lastname);
       if (property === "status") {
         const statusA = getFighterStatus(a, gameDate, fights) || {
           type: "UNKNOWN",
