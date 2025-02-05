@@ -7,7 +7,7 @@ import {
   getGameDate,
   getAllFights,
 } from "../utils/indexedDB";
-import { formatFightingStyle, formatBirthday } from "../utils/uiHelpers";
+import { formatFightingStyle } from "../utils/uiHelpers";
 import SortableTable from "../components/SortableTable";
 import { Box, Container, Typography, Tooltip, Chip } from "@mui/material";
 import { getFighterStatus, getStatusDisplay } from "../utils/fighterUtils";
@@ -20,7 +20,6 @@ const GymPage = () => {
   const [gym, setGym] = useState(null);
   const [fighters, setFighters] = useState([]);
   const [fights, setFights] = useState([]);
-  const [championships, setChampionships] = useState([]);
   const [gameDate, setGameDate] = useState(null);
   const [orderBy, setOrderBy] = useState("firstname");
   const [order, setOrder] = useState("asc");
@@ -61,20 +60,15 @@ const GymPage = () => {
 
     const fetchData = async () => {
       try {
-        const [
-          fetchedFighters,
-          fetchedChampionships,
-          currentGameDate,
-          fetchedFights,
-        ] = await Promise.all([
-          getAllFighters(gameId),
-          getAllChampionships(gameId),
-          getGameDate(gameId),
-          getAllFights(gameId),
-        ]);
+        const [fetchedFighters, currentGameDate, fetchedFights] =
+          await Promise.all([
+            getAllFighters(gameId),
+            getAllChampionships(gameId),
+            getGameDate(gameId),
+            getAllFights(gameId),
+          ]);
 
         setFighters(fetchedFighters);
-        setChampionships(fetchedChampionships);
         setGameDate(new Date(currentGameDate));
         setFights(fetchedFights);
 
@@ -192,57 +186,102 @@ const GymPage = () => {
     setOrderBy(property);
   };
 
-  const filteredAndSortedFighters = useMemo(() => {
-    const sortedFighters = [...fighters]
-      .map((fighter) => {
-        const statusObj = getFighterStatus(fighter, gameDate, fights) || {
-          type: "UNKNOWN",
-        };
-        const formattedStatus = getStatusDisplay(statusObj); // Ensure this returns a readable string
+  const filteredAndSortedFighters = useMemo(
+    (gameId) => {
+      const sortedFighters = [...fighters]
+        .map((fighter) => {
+          const statusObj = getFighterStatus(fighter, gameDate, fights) || {
+            type: "UNKNOWN",
+          };
+          const formattedStatus = getStatusDisplay(statusObj);
 
-        const formattedNationality = (
-          <>
-            {fighter.nationality}{" "}
-            <CountryFlag nationality={fighter.nationality} />
-          </>
-        );
-
-        const formattedRecord = `${fighter.wins ?? 0}-${fighter.losses ?? 0}-${
-          fighter.draws ?? 0
-        }`;
-
-        return {
-          ...fighter,
-          fullname: (
-            <Link
-              to={`/game/${gameId}/dashboard/${fighter.personid}`}
-              style={{
-                textDecoration: "none",
-                color: "#0000EE",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.textDecoration = "underline";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.textDecoration = "none";
-              }}
+          const finalStatus = (
+            <Tooltip
+              title={
+                formattedStatus.type === "INJURED"
+                  ? `${formattedStatus.details.type} (${formattedStatus.details.location})`
+                  : formattedStatus.type === "BOOKED" ||
+                    formattedStatus.type === "IN_CAMP"
+                  ? `Fight: ${new Date(
+                      formattedStatus.details.fightDate
+                    ).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}`
+                  : ""
+              }
+              arrow
             >
-              {fighter.firstname} {fighter.lastname}
-            </Link>
-          ),
-          status: formattedStatus,
-          record: formattedRecord,
-          nationality: formattedNationality,
-        };
-      })
-      .sort((a, b) => {
-        return order === "asc"
-          ? compareValues(a, b, orderBy)
-          : -compareValues(a, b, orderBy);
-      });
+              <Chip
+                label={formattedStatus}
+                color={formattedStatus.color}
+                size="small"
+                icon={
+                  formattedStatus.type === "INJURED" ? (
+                    <LocalHospitalIcon />
+                  ) : undefined
+                }
+              />
+            </Tooltip>
+          ); // Ensure this returns a readable string
 
-    return applyFilters(sortedFighters);
-  }, [fighters, order, orderBy, compareValues, applyFilters, gameDate, fights]);
+          const formattedNationality = (
+            <>
+              {fighter.nationality}{" "}
+              <CountryFlag nationality={fighter.nationality} />
+            </>
+          );
+
+          const formattedRecord = `${fighter.wins ?? 0}-${
+            fighter.losses ?? 0
+          }-${fighter.draws ?? 0}`;
+
+          const profileImage = (
+            <img
+              height="50"
+              src={fighter.profile}
+              alt={`${fighter.firstname} ${fighter.lastname}`}
+              sx={{ objectFit: "contain" }}
+            />
+          );
+
+          return {
+            ...fighter,
+            fullname: (
+              <Link
+                to={`/game/${gameId}/dashboard/${fighter.personid}`}
+                style={{
+                  textDecoration: "none",
+                  color: "#0000EE",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.textDecoration = "underline";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.textDecoration = "none";
+                }}
+              >
+                {fighter.firstname} {fighter.lastname}
+              </Link>
+            ),
+            record: formattedRecord,
+            nationality: formattedNationality,
+            image: profileImage,
+            status: finalStatus,
+          };
+        })
+        .sort((a, b) => {
+          return order === "asc"
+            ? compareValues(a, b, orderBy)
+            : -compareValues(a, b, orderBy);
+        });
+
+      return applyFilters(sortedFighters);
+    },
+    [fighters, order, orderBy, compareValues, applyFilters, gameDate, fights]
+  );
 
   if (!gym) {
     return <Typography variant="h5">Loading gym details...</Typography>;
@@ -280,6 +319,7 @@ const GymPage = () => {
       <SortableTable
         columns={[
           { id: "ranking", label: "Ranking" },
+          { id: "image", label: "" },
           { id: "fullname", label: "Name" },
           { id: "status", label: "Status" },
           { id: "gender", label: "Gender" },
